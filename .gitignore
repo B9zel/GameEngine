@@ -1,1 +1,13 @@
 build
+
+*.slo
+*.lo
+*.o
+*.obj
+
+*.dll
+*.dylib
+*.so
+
+*.lai
+*.lib

@@ -19,3 +19,5 @@ target_include_directories(${CORE_PROJECT_NAME} PRIVATE .)
 
 target_compile_features(${CORE_PROJECT_NAME} PUBLIC cxx_std_17)
 
+add_subdirectory(../libraries/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
+target_link_libraries(${CORE_PROJECT_NAME} PRIVATE glfw)
