@@ -7,4 +7,6 @@ project(${PROJECT_NAME})
 add_subdirectory(CoreEngine)
 add_subdirectory(EditorEngine)
 
+
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT EditorEngine)
+
