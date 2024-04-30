@@ -20,9 +20,5 @@ namespace CoreEngine
 	{
 		return isCreateWindow;
 	}
-	const WindowOptions& CoreEngine::Window::GetWindowOptions() const
-	{
-		return Options;
-	}
 
 }

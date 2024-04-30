@@ -3,13 +3,17 @@
 #include <Core/includes/PlatformDetection.h>
 #include <string>
 #include <vector>
+//#include <functional>
+#include <unordered_map>
 #include <array>
 #include <memory>
 #include <sstream>
 
 
 
-
+template<class TReturn, class... Args>
+class Function;
+	
 #define STRINGCON_DETAILS(x) #x
 #define STRINGCON(x) STRINGCON_DETAILS(x)
 
@@ -18,7 +22,15 @@
 #define PASTE(x, y) (PASTE_DETAILS(x, y))
 
 
+#define BIND_EVENT(Method, Class) Function<void(Event&)>(Method,Class)
+
+//#define BIND_FUNCTION(function) [this](auto&&... args) -> decltype(auto) { return this->function(std::forward<decltype(args)>(args)...);}
+
+
+
 #ifdef _DEBUG
+
+#define DEVELOPMENT_DEBUG
 
 #ifdef EG_PLATFORM_WINDOWS
 	#define ENGINE_DEBUGBREAK  __debugbreak()
@@ -59,6 +71,14 @@ using DArray = std::vector<T, Allocattor>;
 template<class T, size_t Size>
 using StaticArray = std::array<T, Size>;
 
+//template<class T>
+//using Function = std::function<T>;
+
+
+
+template<class Key,class Value, class Hasher = std::hash<Key>>
+using HashTableMap = std::unordered_map<Key, Value, Hasher>;
+
 
 template<class T,class ... Args>
 UniquePtr<T> MakeUniquePtr(Args&& ...args)
@@ -91,3 +111,5 @@ T FromString(const String& str)
 
 
 #include <Core/includes/Log.h>
+#include <Templates/Function.h>
+

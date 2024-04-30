@@ -71,16 +71,35 @@ namespace CoreEngine
 			switch (levelLog)
 			{
 			case ELevelLog::INFO:
-				EG_LOG_INFO("[" + categoryName.GetName() + " " + function + "]: " + ToString(text));
+				EG_LOG_INFO("[{0} {1}]: {2}", categoryName.GetName(), function, text);
 				break;
 			case ELevelLog::ERROR:
-				EG_LOG_ERROR("[" + categoryName.GetName() + " " + function + "]: " + ToString(text));
+				EG_LOG_ERROR("[{0} {1}]: {2}", categoryName.GetName(), function, text);
 				break;
 			case ELevelLog::CRITICAL:
-				EG_LOG_CRITICAL("[" + categoryName.GetName() + " " + function + "]: "  + ToString(text));
+				EG_LOG_CRITICAL("[{0} {1}]: {2}", categoryName.GetName(), function, text);
 				break;
 			case ELevelLog::WARNING:
-				EG_LOG_WARN("[" + categoryName.GetName() + " " + function + "]: " + ToString(text));
+				EG_LOG_WARN("[{0} {1}]: {2}", categoryName.GetName(), function, text);
+				break;
+			}
+		}
+		template<class T, class ... Args>
+		static void LogOutput(const LogCategory& categoryName, const ELevelLog levelLog, const char* function, const T& text, Args&& ... args)
+		{
+			switch (levelLog)
+			{
+			case ELevelLog::INFO:
+				EG_LOG_INFO("[" + categoryName.GetName() + " " + function + "]: " + ToString(text), std::forward<Args>(args)...);
+				break;
+			case ELevelLog::ERROR:
+				EG_LOG_ERROR("[" + categoryName.GetName() + " " + function + "]: " + ToString(text), std::forward<Args>(args)...);
+				break;
+			case ELevelLog::CRITICAL:
+				EG_LOG_CRITICAL("[" + categoryName.GetName() + " " + function + "]: " + ToString(text), std::forward<Args>(args)...);
+				break;
+			case ELevelLog::WARNING:
+				EG_LOG_WARN("[" + categoryName.GetName() + " " + function + "]: " + ToString(text), std::forward<Args>(args)...);
 				break;
 			}
 		}

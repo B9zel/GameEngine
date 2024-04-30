@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/includes/Window.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 
@@ -12,6 +13,8 @@ namespace CoreEngine
 		
 		WindowsWindow(const WindowOptions& options);
 
+	public:
+
 		virtual String GetTitle() const override;
 
 		virtual unsigned int GetWidth() const override;
@@ -20,11 +23,10 @@ namespace CoreEngine
 
 		virtual void* GetNativeWindow() const override;
 
-		virtual void OnUpdate() override;
-
-	private:
-
-		virtual void Init(const WindowOptions& options);
+		virtual void OnUpdate() override;	
+		
+	protected:
+		virtual void Init(const WindowOptions& options) override;
 
 	private:
 		GLFWwindow* m_Window;

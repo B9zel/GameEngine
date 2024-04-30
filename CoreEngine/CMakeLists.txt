@@ -16,7 +16,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 		${SOURCE_FILES})
 
 
-target_compile_definitions(${CORE_PROJECT_NAME} PUBLIC TEST=0)
 
 target_include_directories(${CORE_PROJECT_NAME} PUBLIC .)
 #target_include_directories(${CORE_PROJECT_NAME} PRIVATE .)
@@ -30,4 +29,4 @@ add_subdirectory(../libraries/spdlog ${CMAKE_CURRENT_BINARY_DIR}/spdlog)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC spdlog)
 
 add_subdirectory(../libraries/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
-target_link_libraries(${CORE_PROJECT_NAME} PRIVATE glad)
+target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glad)
