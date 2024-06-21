@@ -3,21 +3,25 @@
 
 namespace CoreEngine
 {
-	class RendererAPI
+	namespace Render
 	{
-	public:
-		enum class API : short
+		class RendererAPI
 		{
-			None = 0,
-			OpenGL
+		public:
+			enum class API : short
+			{
+				None = 0,
+				OpenGL
+			};
+		public:
+
+			static API GetAPI();
+
+			static UniquePtr<RendererAPI> CreateAPI();
+
+		private:
+
+			static API m_Api;
 		};
-	public:
-
-		static API GetAPI();
-
-		static UniquePtr<RendererAPI> CreateAPI();
-
-	private:
-		static API m_Api;
-	};
+	}
 }

@@ -2,10 +2,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <Events/include/Event.h>
+#include <Render/includes/Render.h>
+#include "ShaderLibrary.h"
 #include "Window.h"
 #include "Base.h"
 #include "Dispatcher.h"
-#include "Input.h"
+#include "InputDevice.h"
 #include "LayerStack.h"
 
 
@@ -38,10 +40,13 @@ namespace CoreEngine
 	public:
 
 		static Application* Get() { return m_Instance; }
+		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		
 		Window& GetWindow() const { return *m_window; }
 		virtual void Start();
 		virtual void OnEvent(Event& event);
+
+		void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
 
 	protected:
 
@@ -51,10 +56,12 @@ namespace CoreEngine
 
 		ApplicationOptions m_appOptions;
 		UniquePtr<Window> m_window;
+		UniquePtr<Render::Render> m_render;
 
 		LayerStack m_stack;
+		ShaderLibrary m_shaderLibray;
 		EventDispatch m_EventDispatch;
-		Input m_Input;
+		UniquePtr<InputDevice> m_Input;
 
 		bool m_isRun;
 		

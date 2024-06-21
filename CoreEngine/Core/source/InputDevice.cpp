@@ -1,4 +1,4 @@
-#include <Core/includes/Input.h>
+#include <Core/includes/InputDevice.h>
 #include <Core/includes/Application.h>
 #include <GLFW/glfw3.h>
 
@@ -6,13 +6,13 @@
 namespace CoreEngine
 {
 
-	bool Input::GetIsKeyPressed(unsigned int key)
+	bool InputDevice::GetIsKeyPressed(unsigned int key)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 		
 		return glfwGetKey(window, key) == GLFW_PRESS;
 	}
-	bool Input::GetIsButtonPressed(unsigned int button)
+	bool InputDevice::GetIsButtonPressed(unsigned int button)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 
@@ -20,7 +20,7 @@ namespace CoreEngine
 	}
 
 
-	void Input::InviteEvent(Event& event)
+	void InputDevice::InviteEvent(Event& event)
 	{
 		m_dispatch.Call(event);
 	}

@@ -33,7 +33,7 @@ namespace CoreEngine
 
     void WindowsWindow::OnUpdate()
     {
-        glfwSwapBuffers(m_Window);
+        m_context->SwapBuffer();
         glfwPollEvents();
 
         glClear(GL_COLOR_BUFFER_BIT);
@@ -59,7 +59,10 @@ namespace CoreEngine
         EG_LOG(CORE, ELevelLog::INFO, "Create GLFW window");
 
 
-       
+        m_context = Render::GraphicsContext::CreateContext(m_Window);
+        m_context->Init();
+
+
         glfwSetErrorCallback(GLFWErrorCallback);
 
 

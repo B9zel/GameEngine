@@ -8,11 +8,11 @@
 namespace CoreEngine
 {
 
-	class Input
+	class InputDevice
 	{
 	public:
 
-		Input() = default;
+		InputDevice() = default;
 
 	public:
 

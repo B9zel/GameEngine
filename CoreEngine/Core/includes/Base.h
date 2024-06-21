@@ -5,10 +5,10 @@
 #include <vector>
 //#include <functional>
 #include <unordered_map>
+#include <unordered_set>
 #include <array>
 #include <memory>
 #include <sstream>
-
 
 
 template<class TReturn, class... Args>
@@ -26,9 +26,10 @@ class Function;
 
 //#define BIND_FUNCTION(function) [this](auto&&... args) -> decltype(auto) { return this->function(std::forward<decltype(args)>(args)...);}
 
+#define ENGINE_DEBUG _DEBUG
 
 
-#ifdef _DEBUG
+#ifdef ENGINE_DEBUG
 
 #define DEVELOPMENT_DEBUG
 
@@ -38,7 +39,7 @@ class Function;
 	#define ENGINE_DEBUGBREAK 
 #endif // _WIN64 || _WIN32
 
-	#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, CoreEngine::ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+	#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
 	
 	#define FUNCTION_NAME __FUNCTION__
 	#define NUMBER_LINE  STRINGCON(__LINE__)
@@ -55,7 +56,7 @@ class Function;
 	#define FUNCTION_STAT
 
 	
-#endif // _DEBUG
+#endif // ENGINE_DEBUG
 
 using String = typename std::string;
 
@@ -79,6 +80,8 @@ using StaticArray = std::array<T, Size>;
 template<class Key,class Value, class Hasher = std::hash<Key>>
 using HashTableMap = std::unordered_map<Key, Value, Hasher>;
 
+template<class Value, class Hasher = std::hash<Value>, class ValueEqual=std::equal_to<Value>>
+using HashTableSet = std::unordered_set<Value, Hasher, ValueEqual>;
 
 template<class T,class ... Args>
 UniquePtr<T> MakeUniquePtr(Args&& ...args)
@@ -110,6 +113,6 @@ T FromString(const String& str)
 }
 
 
-#include <Core/includes/Log.h>
 #include <Templates/Function.h>
+#include <Core/includes/Log.h>
 

@@ -8,6 +8,6 @@ namespace CoreEngine
 	public:
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;
-		virtual void Update() = 0;
+		virtual void Update(float deltaTime) = 0;
 	};
 }
