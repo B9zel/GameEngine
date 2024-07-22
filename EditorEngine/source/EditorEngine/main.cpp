@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <Core/includes/Log.h>
+#include <Core/includes/TimerManager.h>
 #include <Core/includes/Application.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
@@ -10,6 +11,7 @@
 #include <Templates/Function.h>
 #include <Core/includes/Base.h>
 #include <iostream>
+
 DECLARE_LOG_CATEGORY_EXTERN(EDITOR)
 
 
@@ -43,7 +45,7 @@ class EditorLayer : public CoreEngine::Layer
 {
 	virtual void OnAttach() override {}
 	virtual void OnDetach() override {}
-	virtual void Update(float deltaTime) override {}
+	virtual void NativeUpdate(float deltaTime) override {}
 };
 
 		
@@ -68,6 +70,25 @@ public:
 	}
 };
 
+class TO : public CoreEngine::Runtime::Object
+{
+public:
+	TO()
+	{
+		TimerHandle handle;
+		CoreEngine::Application::Get()->GetTimerManager()->SetTimer(handle, this, &TO::C, 2.5f, false);
+		a = CoreEngine::Runtime::CreateObject<Object>(nullptr);
+	}
+
+	void C()
+	{
+		a = nullptr;
+	}
+
+private:
+
+	PROPERTY(Object*, a);
+};
 
 
 int main(int argc, char** argv)
@@ -77,11 +98,11 @@ int main(int argc, char** argv)
 	int c = 6;
 	int* p = &b;
 	//int** pp = &p;
-
-	
+	std::cout << std::thread::hardware_concurrency() << std::endl;
 	CoreEngine::ApplicationOptions options("Test", argv[0]);
 	auto app = MakeUniquePtr<EditorApplication>(options);
-
+	
+	TO q;
 	//CoreEngine::GB::GBNotify<int*> a(p, Function<void(CoreEngine::Runtime::Object*, CoreEngine::Runtime::Object*)>(&Test::Notfy,&t));
 	//a = &c;
 	app->Start();

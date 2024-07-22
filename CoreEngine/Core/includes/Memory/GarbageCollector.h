@@ -1,14 +1,20 @@
 #pragma once
 #include <Core/includes/Base.h>
-#include <Runtime/includes/Object.h>
+#include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/GBNotify.h>
-#include <Core/includes/Memory/Allocator.h>
+#include <Core/includes/Application.h>
+#include <Core/includes/TimerManager.h>
 
 
+class TimerManager;
+class Timer;
+struct TimerHandle;
 
 
 namespace CoreEngine
 {
+	class Application;
+
 	namespace Runtime
 	{
 		class Object;
@@ -16,19 +22,25 @@ namespace CoreEngine
 
 	namespace GB
 	{
+
 		class GarbageCollector
 		{
 		public:
 
-			GarbageCollector* Create();
+			static GarbageCollector* Create();
 			
 			void AddProperty(GBNotify<Runtime::Object*>* property);
 
 			void AddObject(Runtime::Object* object);
 
-			void Collect();
+
+			static GarbageCollector* GetGBInstance() { return m_GBInstatnce; }
 
 		private:
+
+			void Init();
+
+			void Collect();
 
 			GarbageCollector() = default;
 
@@ -36,11 +48,12 @@ namespace CoreEngine
 
 		private:
 
-			//friend GBNotify<Runtime::Object*>;
-
 			static GarbageCollector* m_GBInstatnce;
 
-			HashTableSet<Runtime::Object*> m_Objects;
+			HashTableSet<Runtime::Object*> m_ObjectsPtr;
+			DArray<Runtime::Object*> m_deleteObject;
+
+			TimerHandle collectHandler;
 		};
 	}
 }

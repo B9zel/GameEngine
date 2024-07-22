@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 set(EDITOR_PROJECT_NAME EditorEngine)
 
-FILE(GLOB INCLUDES_FILES includes/EditorEngine/*.h)
-FILE(GLOB SOURCE_FILES source/EditorEngine/*.cpp)
+FILE(GLOB_RECURSE INCLUDES_FILES **.h)
+FILE(GLOB_RECURSE SOURCE_FILES **.cpp)
 
 
 add_executable(${EDITOR_PROJECT_NAME}

@@ -15,12 +15,18 @@ namespace CoreEngine
 		m_appOptions.pathToApp = options.pathToApp;
 		
 		Log::Init();
+		
+		m_timerManager = MakeUniquePtr<TimerManager>();
+
+		m_memoryManager.reset(MemoryManager::Create());
+
 		m_Input = MakeUniquePtr<InputDevice>();
 	
 		m_window = Window::CreateWindow(CoreEngine::WindowOptions(m_appOptions.applicationName, 800, 400));
 		m_window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
 		
 		m_render = Render::Render::Create();
+
 
 		m_EventDispatch.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::Exit, this));
 	}
@@ -36,12 +42,9 @@ namespace CoreEngine
 			delta = currentTime - lastTime;
 			lastTime = currentTime;
 			
-				//EG_LOG(CORE, ELevelLog::INFO, 1 / delta);
-			for (auto& el : m_stack)
-			{
-				el->Update(delta);
-			}
-
+			GetTimerManager()->Update(delta);
+			m_stack.NativeUpdateAll(delta);
+			
 			m_window->OnUpdate();
 		}
 	}

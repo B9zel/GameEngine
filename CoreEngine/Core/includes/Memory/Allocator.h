@@ -1,6 +1,10 @@
 #pragma once
 #include <cstdlib>
 #include <exception>
+#include <memory>
+
+
+
 
 class Allocator
 {
@@ -22,9 +26,8 @@ public:
 	static void Deallocate(T* mem);
 
 	template<class T, class ...Args>
-	static void Construct(void* mem, Args&& ...args);
+	static void Construct(T* mem, Args&& ...args);
 };
-
 
 
 template<class T, class ...Args>
@@ -58,7 +61,8 @@ inline void Allocator::Deallocate(T* mem)
 }
 
 template<class T,class ...Args>
-inline void Allocator::Construct(void* mem, Args && ...args)
+inline void Allocator::Construct(T* mem, Args&& ...args)
 {
-	::operator new(mem) T(std::forward<Args>(args)...);
+	new(mem) T(std::forward<Args>(args)...);
+	//new((T*)mem) T(std::move(args));
 }

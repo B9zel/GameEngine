@@ -1,21 +1,33 @@
 #include <Core/includes/MemoryManager.h>
 
+
+
 namespace CoreEngine
 {
-    MemoryManager* MemoryManager::m_MemeoryInstance = nullptr;
+    MemoryManager* MemoryManager::m_MemoryInstance = nullptr;
+
+    GB::GarbageCollector* MemoryManager::m_collector = nullptr;
+
 
     MemoryManager* MemoryManager::Create()
     {
-        CORE_ASSERT(m_MemeoryInstance != nullptr, "Memory manager already exists");
+        if (m_MemoryInstance)
+        {
+            EG_LOG(CORE, ELevelLog::ERROR, "Memory manager already exists");
+            return (m_MemoryInstance);
+        }
 
-        m_MemeoryInstance = Allocator::Allocate<MemoryManager>();
+        m_MemoryInstance = static_cast<MemoryManager*>(Allocator::Allocate(sizeof(MemoryManager)));
+        new(m_MemoryInstance) MemoryManager();
 
-        return m_MemeoryInstance;
+        m_collector = GB::GarbageCollector::Create();
+       
+        return (m_MemoryInstance);
     }
 
     MemoryManager::~MemoryManager()
     {
-        Allocator::Deallocate<GarbageCollector>(m_collector);
+        Allocator::Deallocate<GB::GarbageCollector>(m_collector);
     }
 
 }

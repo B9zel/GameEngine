@@ -11,6 +11,7 @@ namespace CoreEngine
 	void LayerStack::PushLayer(Layer* layer)
 	{
 		m_layerStack.emplace_back(layer);
+		layer->OnAttach();
 	}
 
 	bool LayerStack::RemoveLayer(Layer* layer)
@@ -31,6 +32,30 @@ namespace CoreEngine
 		{
 			el->OnDetach();
 			delete el;
+		}
+	}
+
+	void LayerStack::NativeUpdateAll(float deltaTime)
+	{
+		for (Layer* layer : m_layerStack)
+		{
+			layer->NativeUpdate(deltaTime);
+		}
+	}
+
+	void LayerStack::OnAttachAll()
+	{
+		for (Layer* layer : m_layerStack)
+		{
+			layer->OnAttach();
+		}
+	}
+
+	void LayerStack::OnDetachAll()
+	{
+		for (Layer* layer : m_layerStack)
+		{
+			layer->OnDetach();
 		}
 	}
 

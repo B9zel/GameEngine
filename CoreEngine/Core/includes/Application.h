@@ -9,6 +9,8 @@
 #include "Dispatcher.h"
 #include "InputDevice.h"
 #include "LayerStack.h"
+#include "MemoryManager.h"
+#include "TimerManager.h"
 
 
 
@@ -41,7 +43,9 @@ namespace CoreEngine
 
 		static Application* Get() { return m_Instance; }
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
-		
+		UniquePtr<class MemoryManager>& GetMamoryManager() { return m_memoryManager; }
+		UniquePtr<class TimerManager>& GetTimerManager() { return m_timerManager; }
+
 		Window& GetWindow() const { return *m_window; }
 		virtual void Start();
 		virtual void OnEvent(Event& event);
@@ -62,6 +66,8 @@ namespace CoreEngine
 		ShaderLibrary m_shaderLibray;
 		EventDispatch m_EventDispatch;
 		UniquePtr<InputDevice> m_Input;
+		UniquePtr<class MemoryManager> m_memoryManager;
+		UniquePtr<class TimerManager> m_timerManager;
 
 		bool m_isRun;
 		
@@ -72,6 +78,7 @@ namespace CoreEngine
 
 		friend int ::main(int argc, char** argv);
 	};
+
 
 
 }

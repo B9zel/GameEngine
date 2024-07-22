@@ -106,15 +106,18 @@ private:
 
 public:
 
-	MethodPtr(FnPtr method, TClass* classOfMethod) : pFn{ method }, pClass{ classOfMethod } {}
+	MethodPtr(TClass* classOfMethod, FnPtr method) : pFn{ method }, pClass{ classOfMethod } {}
 
 	virtual TReturn Invoke(Args&&... param) override
 	{
 		if (std::is_void_v<TReturn>)
+		{
 			(pClass->*pFn)(std::forward<Args>(param)...);
+		}
 		else
+		{
 			return (pClass->*pFn)(std::forward<Args>(param)...);
-			
+		}
 	}
 		
 
@@ -200,11 +203,11 @@ public:
 		{
 			if (m_Fn->GetType() == ETypeFunction::METHOD)
 			{
-				::new(m_Fn.get()) MethodPtr<TClass,TReturn(Args...)>(method, instanceClass);
+				::new(m_Fn.get()) MethodPtr<TClass,TReturn(Args...)>(instanceClass, method);
 				return;
 			}
 		}
-		m_Fn = MakeSharedPtr<MethodPtr<TClass, TReturn(Args...)>>(method, instanceClass);
+		m_Fn = MakeSharedPtr<MethodPtr<TClass, TReturn(Args...)>>(instanceClass, method);
 	}
 
 

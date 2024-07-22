@@ -1,7 +1,8 @@
 #pragma once
-#include <Runtime/includes/Object.h>
+#include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Memory/GarbageCollector.h>
+#include <Core/includes/Application.h>
 
 
 namespace CoreEngine
@@ -13,18 +14,27 @@ namespace CoreEngine
 
 	namespace GB
 	{
+		class GarbageCollector;
+
 		template<class T>
 		class GBNotify
 		{
 		public:
 
-			GBNotify() = default;
+			GBNotify();
+			GBNotify(T value);
 
-			GBNotify(T val, Function<void(Runtime::Object*, Runtime::Object*)>& method);
-			
 			T operator=(T value);
 			//T operator=(T&& value);
+			T operator->()
+			{
+				return m_Property
+			}
 
+			std::add_lvalue_reference_t<T> operator*()
+			{
+				return *m_Property;
+			}
 
 		private:
 
@@ -36,21 +46,29 @@ namespace CoreEngine
 
 
 		template<class T>
-		inline GBNotify<T>::GBNotify(T val, Function<void(Runtime::Object*, Runtime::Object*)>& method)
+		inline GBNotify<T>::GBNotify()
 		{
-			m_Mehtod = method;
-			if (std::is_pointer<decltype(val)>::value)
+			if (std::is_pointer<T>::value)
 			{
-				const bool isPointer = std::is_pointer<decltype(val)>::value && !std::is_pointer<std::remove_reference_t<decltype(*val)>>::value;
+				T property;
+				const bool isPointer = std::is_pointer<decltype(property)>::value && !std::is_pointer<std::remove_reference_t<decltype(*property)>>::value;
 				if (isPointer)
 				{
-					m_Property = val;
+					m_Property = nullptr;
+					CoreEngine::Application::Get()->GetMamoryManager()->GetGarbageCollector()->AddProperty(this);
 				}
 				CORE_ASSERT(!isPointer, "GBNotify can't take pointer to pointer");
 				return;
 			}
 			CORE_ASSERT(true, "GBNotify can take only pointer");
 		}
+
+		template<class T>
+		inline GBNotify<T>::GBNotify(T value) : GBNotify()
+		{
+			m_Property = value;
+		}
+		
 
 		template<class T>
 		inline T GBNotify<T>::operator=(T value)
@@ -60,7 +78,7 @@ namespace CoreEngine
 
 			if (oldData != m_Property)
 			{
-				m_Mehtod.Invoke(std::move(oldData), m_Property);
+				m_Mehtod.Invoke(static_cast<T>(std::move(oldData)), std::move(m_Property));
 			}
 
 			return m_Property;

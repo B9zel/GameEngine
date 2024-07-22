@@ -5,6 +5,7 @@
 
 namespace CoreEngine
 {
+	class Layer;
 
 	class LayerStack
 	{
@@ -16,10 +17,18 @@ namespace CoreEngine
 		bool RemoveLayer(Layer* layer);
 		void RemoveAll();
 
+		void NativeUpdateAll(float deltaTime);
+		void OnAttachAll();
+		void OnDetachAll();
+
+
 		DArray<Layer*>::iterator begin() { return m_layerStack.begin(); }
 		DArray<Layer*>::iterator end() { return m_layerStack.end(); }
 
+
 	private:
+
 		DArray<Layer*> m_layerStack;
+
 	};
 }
