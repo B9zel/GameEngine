@@ -3,6 +3,17 @@
 #include <Core/includes/Memory/Allocator.h>
 #include <Core/includes/Base.h>
 
+
+/**
+*  
+*	Class MemoryManager responsibilities for interacting with memory and storing the garbage collector
+*		 
+* 
+*/
+
+
+
+
 namespace CoreEngine
 {
 	namespace GB

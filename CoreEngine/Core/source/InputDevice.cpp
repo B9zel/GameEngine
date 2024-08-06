@@ -19,9 +19,17 @@ namespace CoreEngine
 		return glfwGetMouseButton(window, button) == GLFW_PRESS;
 	}
 
+	DVector2 InputDevice::GetMousePos()
+	{
+		double x, y;
+		glfwGetCursorPos(static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow()), &x, &y);
+		return DVector2(x,y);
+	}
+
 
 	void InputDevice::InviteEvent(Event& event)
 	{
+		
 		m_dispatch.Call(event);
 	}
 }

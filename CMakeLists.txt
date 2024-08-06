@@ -4,6 +4,7 @@ set(PROJECT_NAME GameEngine)
 
 project(${PROJECT_NAME})
 
+
 add_subdirectory(CoreEngine)
 add_subdirectory(EditorEngine)
 

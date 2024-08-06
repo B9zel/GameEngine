@@ -140,6 +140,7 @@ namespace CoreEngine
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
             {
                 WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+                glViewport(0, 0, width, height);
 
                 data->Width = width;
                 data->Height = height;

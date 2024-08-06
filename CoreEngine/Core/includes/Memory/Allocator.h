@@ -53,10 +53,7 @@ inline T* Allocator::Reallocate(void* mem, unsigned int size, Args && ...args)
 template<class T>
 inline void Allocator::Deallocate(T* mem)
 {
-	if (std::is_class_v<T>)
-	{
-		mem->~T();
-	}
+	mem->~T();
 	std::free(mem);
 }
 

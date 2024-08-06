@@ -21,15 +21,25 @@ namespace CoreEngine
 	struct ApplicationOptions
 	{
 		ApplicationOptions() : applicationName{""}, pathToApp{""} {}
-		ApplicationOptions(const String appName,const String path) : applicationName{appName}, pathToApp{path} {}
+		ApplicationOptions(const String appName,const String path) : applicationName{appName}, pathToApp{path} 
+		{
+			const String projectDirectName = "GameEngine";
+			size_t pos = path.find(projectDirectName);
+			if (pos == String::npos)
+			{
+				// Application must be in directory "GameEngine"
+				throw std::exception("Application must be in directory \"GameEngine\"");
+			}
+			pathToProject = (pathToApp.substr(0, pos + projectDirectName.size()));
+		}
 		String applicationName;
 		String pathToApp;
+		String pathToProject;
 	};
 
 	class Application
 	{
 	public:
-
 
 		Application(const ApplicationOptions& options);
 		virtual ~Application() {}
@@ -45,6 +55,8 @@ namespace CoreEngine
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<class MemoryManager>& GetMamoryManager() { return m_memoryManager; }
 		UniquePtr<class TimerManager>& GetTimerManager() { return m_timerManager; }
+
+		const ApplicationOptions& GetAppOptions() const { return m_appOptions; }
 
 		Window& GetWindow() const { return *m_window; }
 		virtual void Start();
@@ -70,7 +82,6 @@ namespace CoreEngine
 		UniquePtr<class TimerManager> m_timerManager;
 
 		bool m_isRun;
-		
 
 		static Application* m_Instance;
 

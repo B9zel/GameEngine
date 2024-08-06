@@ -76,16 +76,19 @@ private:
 template<class TObject>
 TimerHandle& TimerManager::SetTimer(TimerHandle& handler, TObject* object, MethodPointer<TObject> method, float InRate, bool isLoop)
 {
-	Timer timer;
-	timer.m_callback.Assign(method, object);
-	timer.m_fullTime = InRate;
-	timer.m_isLoop = isLoop;
-	timer.m_isActive = true;
+	if (InRate > 0.f)
+	{
+		Timer timer;
+		timer.m_callback.Assign(method, object);
+		timer.m_fullTime = InRate;
+		timer.m_isLoop = isLoop;
+		timer.m_isActive = true;
 
-	long long id = GetIDTimer();
-	handler.m_Hadle = id;
+		long long id = GetIDTimer();
+		handler.m_Hadle = id;
 
-	m_activeTimers[id] = std::move(timer);
+		m_activeTimers[id] = std::move(timer);
+	}
 
 	return handler;
 }

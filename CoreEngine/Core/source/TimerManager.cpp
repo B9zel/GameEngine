@@ -12,7 +12,7 @@ void TimerManager::Update(float deltaTime)
     {
         Timer& timer = el.second;
         timer.m_currentTime += deltaTime;
-        EG_LOG(CoreEngine::CORE, ELevelLog::INFO, timer.m_currentTime);
+      
         if (timer.m_currentTime >= timer.m_fullTime)
         {
             timer.m_callback();

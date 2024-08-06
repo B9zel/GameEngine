@@ -13,6 +13,7 @@ namespace CoreEngine
 		public:
 
 			OpenGLRendererAPI();
+
 		protected:
 
 			void Init();

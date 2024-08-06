@@ -16,7 +16,7 @@ namespace CoreEngine
                 EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
                 return nullptr;
             case API::OpenGL:
-                return UniquePtr<OpenGLRendererAPI>();
+                return MakeUniquePtr<OpenGLRendererAPI>();
             }
             EG_LOG(CORE, ELevelLog::CRITICAL, "API not selected");
         }

@@ -6,6 +6,13 @@
 #include <Core/includes/TimerManager.h>
 
 
+/**
+* 
+*  To add a pointer to track the garbage collector, use the PROPERTY macro in the Object class
+*  
+*/
+
+
 class TimerManager;
 class Timer;
 struct TimerHandle;
@@ -22,7 +29,6 @@ namespace CoreEngine
 
 	namespace GB
 	{
-
 		class GarbageCollector
 		{
 		public:
@@ -38,12 +44,13 @@ namespace CoreEngine
 
 		private:
 
+			GarbageCollector();
+
+		private:
+
 			void Init();
 
 			void Collect();
-
-			GarbageCollector() = default;
-
 			void OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr);
 
 		private:
@@ -51,8 +58,10 @@ namespace CoreEngine
 			static GarbageCollector* m_GBInstatnce;
 
 			HashTableSet<Runtime::Object*> m_ObjectsPtr;
-			DArray<Runtime::Object*> m_deleteObject;
+			HashTableSet<Runtime::Object*> m_deleteObject;
 
+
+			float m_rateCollect;
 			TimerHandle collectHandler;
 		};
 	}

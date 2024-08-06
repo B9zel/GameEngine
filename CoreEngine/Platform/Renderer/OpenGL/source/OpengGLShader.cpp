@@ -2,10 +2,26 @@
 
 
 
+
+
 namespace CoreEngine
 {
 	namespace Render
 	{
+		#define SHADER_LOCATION_PARAM(KeyString, outLocation)															\
+		if (!GetCachedLocationParam(KeyString, outLocation))															\
+		{																												\
+			if (!HasUniformLocation(KeyString.c_str()))																	\
+			{																											\
+				EG_LOG(OPENGL_Shader, ELevelLog::ERROR, "Can't to find uniform {0}", KeyString.data());					\
+				return false;																							\
+			}																											\
+			outLocation = GetUniformLocation(KeyString.c_str());														\
+			cachedParameters.insert(std::pair(KeyString, outLocation));													\
+		}\
+
+
+
 		OpenGLShader::OpenGLShader()
 		{
 			m_ID = 0;
@@ -127,13 +143,68 @@ namespace CoreEngine
 		{
 			glUseProgram(0);
 		}
-		void OpenGLShader::SetUniformFloat(const char* nameParam, float value)
+		bool OpenGLShader::HasUniformLocation(const char* nameParam)
 		{
-			int location = glGetUniformLocation(m_ID, nameParam);
+			return GetUniformLocation(nameParam) >= 0;
+		}
+		int OpenGLShader::GetUniformLocation(const char* nameParam)
+		{
+			return glGetUniformLocation(m_ID, nameParam);
+		}
+
+
+		bool OpenGLShader::SetUniformMatrix4x4(const String& nameParam,const FMatrix4x4& matrix)
+		{
+			int location = 0;
+			SHADER_LOCATION_PARAM(nameParam, location)
+
+
+			Bind();
+			glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
+			UnBind();
+
+			return true;
+		}
+
+		bool OpenGLShader::SetUniformFloat(const String& nameParam, float value)
+		{
+			int location = 0;
+			SHADER_LOCATION_PARAM(nameParam, location)
+
 			Bind();
 			glUniform1f(location, value);
 			UnBind();
 		}
-	
+
+		bool OpenGLShader::SetUniformVec4(const String& nameParam,const FVector4& vec)
+		{
+			int location = 0;
+			SHADER_LOCATION_PARAM(nameParam, location)
+
+			Bind();
+			glUniform4f(location, vec.x, vec.y, vec.z, vec.a);
+			UnBind();
+		}
+		
+		bool OpenGLShader::SetUniformVec2(const String& nameParam, const FVector2& vec)
+		{
+			int location = 0;
+			SHADER_LOCATION_PARAM(nameParam, location)
+
+			Bind();
+			glUniform2f(location, vec.x, vec.y);
+			UnBind();
+		}
+
+		bool OpenGLShader::GetCachedLocationParam(const String& Key, int& outLocation)
+		{
+			auto& it = cachedParameters.find(Key);
+			if (it != cachedParameters.end())
+			{
+				outLocation = it->second;
+				return true;
+			}
+			return false;
+		}
 	}
 }

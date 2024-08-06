@@ -37,7 +37,7 @@ namespace CoreEngine
 			return *this;
 		}
 
-		void OpenGLVertexBufferObject::CreaterBuffer(const void* vertexArr, unsigned int sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw)
+		void OpenGLVertexBufferObject::CreaterBuffer(const void* vertexArr,const unsigned int sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw)
 		{
 			if (m_IsCreate) return;
 

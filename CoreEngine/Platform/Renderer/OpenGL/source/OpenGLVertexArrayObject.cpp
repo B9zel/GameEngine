@@ -3,9 +3,10 @@
 
 
 namespace CoreEngine
-{
+{	
 	namespace Render
 	{
+		
 		OpenGLVertexArrayObject::OpenGLVertexArrayObject()
 		{
 			m_VAO = 0;
@@ -31,8 +32,14 @@ namespace CoreEngine
 
 			return *this;
 		}
-		void OpenGLVertexArrayObject::SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject,const void* beginStep)
+		void OpenGLVertexArrayObject::SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, 
+			const VertexBufferObject& bufferObject,const void* beginStep)
 		{
+			if (typeData == ETypeData::NONE)
+			{
+				EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int>(typeData));
+				return;
+			}
 			if (!m_isCreate)
 			{
 				glGenVertexArrays(1, &m_VAO);

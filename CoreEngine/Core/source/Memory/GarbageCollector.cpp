@@ -9,9 +9,14 @@ namespace CoreEngine
 		GarbageCollector* GarbageCollector::m_GBInstatnce = nullptr;
 
 
+		GarbageCollector::GarbageCollector()
+		{
+			m_rateCollect = 60.f;
+		}
+
 		void GarbageCollector::Init()
 		{
-			Application::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, 10.f, true);
+			Application::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, m_rateCollect, true);
 		}
 
 
@@ -43,19 +48,6 @@ namespace CoreEngine
 
 		void GarbageCollector::Collect()
 		{
-			for (Runtime::Object* el : m_ObjectsPtr)
-			{
-				if (!el)
-				{
-					continue;
-				}
-				
-				if (!el->GetReferenceCount())
-				{
-					m_deleteObject.emplace_back(el);
-				}
-			}
-
 			for (Runtime::Object* delObj : m_deleteObject)
 			{
 				m_ObjectsPtr.erase(delObj);
@@ -63,6 +55,7 @@ namespace CoreEngine
 			}
 			m_deleteObject.clear();
 		}
+
 		void GarbageCollector::OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr)
 		{
 			if (oldPtr == newPtr)
@@ -72,10 +65,18 @@ namespace CoreEngine
 			if (oldPtr)
 			{
 				oldPtr->RemoveReference();
+				if (!oldPtr->GetReferenceCount())
+				{
+					m_deleteObject.insert(oldPtr);
+				}
 			}
 			if (newPtr)
 			{
 				newPtr->AddReference();
+				if (m_deleteObject.count(newPtr))
+				{
+					m_deleteObject.erase(newPtr);
+				}
 			}
 		}
 	}

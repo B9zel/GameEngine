@@ -11,6 +11,7 @@
 #include <sstream>
 
 
+
 template<class TReturn, class... Args>
 class Function;
 	
@@ -71,6 +72,9 @@ using DArray = std::vector<T, Allocattor>;
 
 template<class T, size_t Size>
 using StaticArray = std::array<T, Size>;
+
+template<class First,class Second>
+using Pair = std::pair<First, Second>;
 
 //template<class T>
 //using Function = std::function<T>;

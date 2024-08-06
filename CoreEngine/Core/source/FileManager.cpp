@@ -20,14 +20,14 @@ namespace CoreEngine
 
         return buffer.str();
     }
-    void FileManager::WiteFile(const char* path, const String& text)
+    void FileManager::WriteFile(const char* path, const String& text)
     {
         std::ofstream file(path);
         file << text;
 
         file.close();
     }
-    void FileManager::AddFile(const char* path, const String& text)
+    void FileManager::AddInFile(const char* path, const String& text)
     {
         std::ofstream file(path, std::ios::app);
         file << text;

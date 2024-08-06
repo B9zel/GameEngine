@@ -25,13 +25,15 @@ namespace CoreEngine
 			GBNotify(T value);
 
 			T operator=(T value);
-			//T operator=(T&& value);
+			T operator=(GBNotify&& value);
+
+
 			T operator->()
 			{
 				return m_Property
 			}
 
-			std::add_lvalue_reference_t<T> operator*()
+			std::add_lvalue_reference_t<T>& operator*()
 			{
 				return *m_Property;
 			}
@@ -83,14 +85,13 @@ namespace CoreEngine
 
 			return m_Property;
 		}
-		/*template<class T>
-		inline T GBNotify<T>::operator=(T&& value)
+		template<class T>
+		inline T GBNotify<T>::operator=(GBNotify&& value)
 		{
+			this->operator=(std::forward(value));
+			value.operator=(nullptr);
 
-
-
-
-			return T();
-		}*/
+			return m_Property;
+		}
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <Events/include/Event.h>
 #include <Core/includes/Dispatcher.h>
-
+#include <Math/includes//Vector.h>
 
 
 
@@ -18,6 +18,7 @@ namespace CoreEngine
 
 		static bool GetIsKeyPressed(unsigned int key);
 		static bool GetIsButtonPressed(unsigned int button);
+		static DVector2 GetMousePos();
 
 		template<class Class>
 		void AddBindEvent(MethodPtr<Class, void(Event&)>& ev)

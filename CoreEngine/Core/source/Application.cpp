@@ -13,6 +13,7 @@ namespace CoreEngine
 
 		m_appOptions.applicationName = options.applicationName;
 		m_appOptions.pathToApp = options.pathToApp;
+		m_appOptions.pathToProject = options.pathToProject;
 		
 		Log::Init();
 		
