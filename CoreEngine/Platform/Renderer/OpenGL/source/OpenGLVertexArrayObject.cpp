@@ -33,7 +33,7 @@ namespace CoreEngine
 			return *this;
 		}
 		void OpenGLVertexArrayObject::SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, 
-			const VertexBufferObject& bufferObject,const void* beginStep)
+			const VertexBufferObject& bufferObject,const unsigned int beginStep)
 		{
 			if (typeData == ETypeData::NONE)
 			{
@@ -47,7 +47,7 @@ namespace CoreEngine
 			}
 			bufferObject.Bind();
 			Bind();
-			glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData),  GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)beginStep);
+			glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData),  GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 			glEnableVertexAttribArray(location);
 			UnBind();
 			bufferObject.UnBind();

@@ -5,13 +5,14 @@ namespace CoreEngine
 {
 	namespace Render
 	{		
-		enum class ETypeChannel : char
+		enum class ETypeChannel : uint8_t
 		{
-			RGB = 0,
+			NONE = 0,
+			RGB,
 			RGBA
 		};
 
-		enum class EParameterName : char
+		enum class EParameterName : uint8_t
 		{
 			// Takes on the values : REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER
 			TEXTURE_WRAP_S = 0, 
@@ -23,14 +24,14 @@ namespace CoreEngine
 			TEXTURE_MAG_FILTER
 		};
 
-		enum class EParamaterOfCustomValues : char
+		enum class EParamaterOfCustomValues : uint8_t
 		{
 			// Takes on the value: RGBA color array(float*)
 			// Use if TEXTURE_WRAP_* used CLAMP_TO_BORDER
 			TEXTURE_BORDER_COLOR,
 		};
 
-		enum class EValueOfParameter : char
+		enum class EValueOfParameter : uint8_t
 		{
 			// Repeat texure
 			REPEAT = 0,
@@ -59,8 +60,10 @@ namespace CoreEngine
 		{
 		public:
 
-			virtual void SetTexParameter(const EParameterName& parameter, const EValueOfParameter& value) = 0;
-			virtual void SetTexParameter(const EParamaterOfCustomValues& parameter, const float* value) = 0;
+			virtual ~Texture() = default;
+
+			virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const = 0;
+			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const = 0;
 			
 			virtual const char* GetPath() const = 0;
 			virtual unsigned int GetWidth() const = 0;
@@ -68,8 +71,8 @@ namespace CoreEngine
 
 			virtual bool IsLoad() const = 0;
 
-			virtual void Bind(uint8_t layout=0) = 0;
-			virtual void UnBind() = 0;
+			virtual void Bind(unsigned int layout=0) const = 0;
+			virtual void UnBind() const = 0;
 
 		};
 

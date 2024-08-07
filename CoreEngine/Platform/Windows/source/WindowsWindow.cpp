@@ -35,7 +35,7 @@ namespace CoreEngine
     {
         m_context->SwapBuffer();
         glfwPollEvents();
-
+        
         glClear(GL_COLOR_BUFFER_BIT);
     }
 

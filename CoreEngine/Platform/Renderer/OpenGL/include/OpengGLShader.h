@@ -2,8 +2,8 @@
 #include <Render/includes/Shader.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Log.h>
-#include <Math/includes//Matrix.h>
-#include <Math/includes//Vector.h>
+#include <Math/includes/Matrix.h>
+#include <Math/includes/Vector.h>
 #include <glad/glad.h>
 #include <gl/GL.h>
 
@@ -37,6 +37,7 @@ namespace CoreEngine
 			bool SetUniformFloat(const String& nameParam, float value);
 			bool SetUniformVec4(const String& nameParam,const FVector4& vec);
 			bool SetUniformVec2(const String& nameParam,const FVector2& vec);
+			bool SetUniform1i(const String& nameParam, const int value);
 
 			bool HasUniformLocation(const char* nameParam);
 			int GetUniformLocation(const char* nameParam);

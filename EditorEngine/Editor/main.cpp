@@ -1,5 +1,5 @@
 #pragma once
-
+#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 #include <Core/includes/Log.h>
 #include <Core/includes/TimerManager.h>
@@ -7,6 +7,7 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 #include <Core/includes/GBNotify.h>
 #include <Templates/Function.h>
 #include <Core/includes/Base.h>
@@ -17,50 +18,38 @@
 
 #include <Math/includes/Math.h>
 
+float arr[] = { 0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
+				0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Bottom Right
+				-0.5f, -0.5f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
+				-0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // Top Left 
+				-0.5f, -0.5f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
+				0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
+};
 
-
-
-float arr[] = { -0.5f, 0.5,
-				0.5, 0.5,
-				-0.5,-0.5,
-				0.5, -0.5,
-				0.5,0.5,
-				-0.5,-0.5 };
-
-
-
-
-const char* vv = "\n"
-"#version 330 core\n"
-"layout (location = 0) in vec2 position; \n"
-"uniform mat4 scale;\n"
-"uniform mat4 offset;"
-"uniform mat4 rotate;"
-"void main() \n"
-"{ \n"
-"	gl_Position = offset * rotate * scale * vec4(position.x,position.y, 1,1)  ; \n"
-"}";
-
-const char* ff = 
-R"(//#type vertex
-)";
 
 class RenderLayer : public CoreEngine::Layer
 {
+public:
+	RenderLayer() : texture("C:/c++/GameEngine/Shaders/bowt.png")
+	{
+
+	}
 	
 	virtual void OnAttach() 
 	{
 		mat = FMatrix4x4(1);
 		matOffset = FMatrix4x4(1);
 		matRotate = FMatrix4x4(1);
-
+		
 
 
 		String a = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
 		Pair<String, String>& pa = CoreEngine::Render::Shader::LoadShader((a + "/Shaders/ShaderBase.glsl").c_str());
 		shader.CompileShader(pa.first, pa.second);
 		bufferObj.CreaterBuffer(arr, sizeof(arr) / sizeof(*arr), CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
-		arrObj.SetupIntorprit(0, 2, 0, CoreEngine::ETypeData::FLOAT, bufferObj);
+		arrObj.SetupIntorprit(0, 2, 7, CoreEngine::ETypeData::FLOAT, bufferObj);
+		arrObj.SetupIntorprit(1, 2, 7, CoreEngine::ETypeData::FLOAT, bufferObj, 5);
+		//texture.ChangeTexture();
 	}
 	virtual void OnDetach()  {}
 	virtual void NativeUpdate(float deltaTime)
@@ -71,7 +60,7 @@ class RenderLayer : public CoreEngine::Layer
 		//ImGui::ShowDemoWindow();
 		ImGui::Begin("wINDOW", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoTitleBar);
 		ImGui::Text("Hello, world %d", 123);
-		ImGui::SliderFloat2("slider", xy, -1, 1, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_None);
+		ImGui::SliderFloat2("slider", xy, -3, 3, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_None);
 	
 		mat = glm::scale_slow(FMatrix4x4(1), FVector(xy[0], xy[1], 0));
 		matOffset = glm::translate(FMatrix4x4(1), FVector(offXY[0], offXY[1], 0));
@@ -103,12 +92,13 @@ class RenderLayer : public CoreEngine::Layer
 		shader.SetUniformMatrix4x4("rotate", matRotate);
 		
 
-		shader.SetUniformVec2("iResolution", FVector2(800, 450));//FVector2(CoreEngine::Application::Get()->GetWindow().GetWidth(), CoreEngine::Application::Get()->GetWindow().GetHeight()));
-		shader.SetUniformFloat("iTime", glfwGetTime());
-        shader.SetUniformVec2("iMouse", CoreEngine::Application::Get()->GetInputDevice()->GetMousePos());
+		//shader.SetUniformVec2("iResolution", FVector2(800, 450));//FVector2(CoreEngine::Application::Get()->GetWindow().GetWidth(), CoreEngine::Application::Get()->GetWindow().GetHeight()));
 	
 		shader.Bind();
-		bufferObj.Bind();		
+		texture.Bind();
+		//shader.SetUniform1i("outTexture", 0);
+
+		arrObj.Bind();
 		
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -118,7 +108,8 @@ class RenderLayer : public CoreEngine::Layer
 
 private:
 
-	
+	float a;
+	CoreEngine::Render::OpenGLTexture2D texture;
 	CoreEngine::Render::OpenGLShader shader;
 	CoreEngine::Render::OpenGLVertexBufferObject bufferObj;
 	CoreEngine::Render::OpenGLVertexArrayObject arrObj;

@@ -15,7 +15,7 @@ add_library(StbImage STATIC
 	${SOURCE_STB_IMAGE_FILES})
 	
 	
-add_library(${CORE_PROJECT_NAME} SHARED 
+add_library(${CORE_PROJECT_NAME} STATIC 
 		${INCLUDES_FILES}
 		${SOURCE_FILES}
 		)

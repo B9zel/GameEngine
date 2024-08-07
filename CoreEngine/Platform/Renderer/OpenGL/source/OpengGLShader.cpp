@@ -143,10 +143,12 @@ namespace CoreEngine
 		{
 			glUseProgram(0);
 		}
+
 		bool OpenGLShader::HasUniformLocation(const char* nameParam)
 		{
 			return GetUniformLocation(nameParam) >= 0;
 		}
+
 		int OpenGLShader::GetUniformLocation(const char* nameParam)
 		{
 			return glGetUniformLocation(m_ID, nameParam);
@@ -157,7 +159,6 @@ namespace CoreEngine
 		{
 			int location = 0;
 			SHADER_LOCATION_PARAM(nameParam, location)
-
 
 			Bind();
 			glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
@@ -174,6 +175,8 @@ namespace CoreEngine
 			Bind();
 			glUniform1f(location, value);
 			UnBind();
+
+			return true;
 		}
 
 		bool OpenGLShader::SetUniformVec4(const String& nameParam,const FVector4& vec)
@@ -184,6 +187,8 @@ namespace CoreEngine
 			Bind();
 			glUniform4f(location, vec.x, vec.y, vec.z, vec.a);
 			UnBind();
+
+			return true;
 		}
 		
 		bool OpenGLShader::SetUniformVec2(const String& nameParam, const FVector2& vec)
@@ -194,6 +199,20 @@ namespace CoreEngine
 			Bind();
 			glUniform2f(location, vec.x, vec.y);
 			UnBind();
+
+			return true;
+		}
+
+		bool OpenGLShader::SetUniform1i(const String& nameParam, const int value)
+		{
+			int location = 0;
+			SHADER_LOCATION_PARAM(nameParam, location)
+
+			Bind();
+			glUniform1i(location, value);
+			UnBind();
+
+			return true;
 		}
 
 		bool OpenGLShader::GetCachedLocationParam(const String& Key, int& outLocation)

@@ -25,7 +25,7 @@ namespace CoreEngine
 			OpenGLVertexArrayObject(OpenGLVertexArrayObject&& other) noexcept;
 			OpenGLVertexArrayObject& operator=(OpenGLVertexArrayObject&& other) noexcept;
 
-			virtual void SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const void* beginStep=0) override;
+			virtual void SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const unsigned int beginStep=0) override;
 			
 			virtual void DeleteVertexObject() override;
 

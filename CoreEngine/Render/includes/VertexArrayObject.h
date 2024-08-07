@@ -11,7 +11,7 @@ namespace CoreEngine
 		{
 		public:
 
-			virtual void SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const void* beginStep=0) = 0;
+			virtual void SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const unsigned int beginStep=0) = 0;
 			
 			virtual void DeleteVertexObject() = 0;
 
