@@ -47,17 +47,17 @@ namespace CoreEngine
 			}
 		#endif // DEVELOPMENT_DEBUG
 
-			m_Event[static_cast<int>(T::GetStaticType())] = fn;
+			m_Event[static_cast<int32>(T::GetStaticType())] = fn;
 		}
 
 		template<class T>
 		bool Dispatch(Event& fn)
 		{
-			if (!m_Event[static_cast<int>(T::GetStaticType())]) return false;
+			if (!m_Event[static_cast<int32>(T::GetStaticType())]) return false;
 			
 			if (T::GetStaticType() == fn.GetEventType())
 			{
-				m_Event[static_cast<int>(T::GetStaticType())](static_cast<T&>(fn));
+				m_Event[static_cast<int32>(T::GetStaticType())](static_cast<T&>(fn));
 				return true;
 			}
 			return false;
@@ -66,7 +66,7 @@ namespace CoreEngine
 
 	private:
 
-		StaticArray<Function<void(Event&)>, static_cast<int>(EEventType::COUNT_ENUM)> m_Event;
+		StaticArray<Function<void(Event&)>, static_cast<int32>(EEventType::COUNT_ENUM)> m_Event;
 	};
 }
 

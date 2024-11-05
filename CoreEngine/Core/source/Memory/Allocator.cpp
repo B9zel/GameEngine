@@ -1,11 +1,11 @@
 #include "../CoreEngine/Core/includes/Memory/Allocator.h"
 
-void* Allocator::Allocate(unsigned int bytes) noexcept
+void* Allocator::Allocate(uint32 bytes) noexcept
 {
     return std::malloc(bytes);
 }
 
-inline void* Allocator::Reallocate(void* mem, unsigned int size) noexcept
+inline void* Allocator::Reallocate(void* mem, uint32 size) noexcept
 {
     return std::realloc(mem, size);
 }

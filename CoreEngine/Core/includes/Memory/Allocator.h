@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <exception>
 #include <memory>
-
+#include <Core/includes/Platform.h>
 
 
 
@@ -10,15 +10,21 @@ class Allocator
 {
 public:
 
-	static void* Allocate(unsigned int bytes) noexcept;
+	/*
+	*  Allocate memory
+	*/
+	static void* Allocate(uint32 bytes) noexcept;
+
+	template<class T, class ...Args>
+	static T* AllocateAndConstruct(uint32 bytes, Args&& ...args);
 
 	template<class T,class ...Args>
 	static T* Allocate(Args&& ...args);
 
-	static void* Reallocate(void* mem, unsigned int size) noexcept;
+	static void* Reallocate(void* mem, uint32 size) noexcept;
 
 	template<class T, class ...Args>
-	static T* Reallocate(void* mem, unsigned int size, Args&& ...args);
+	static T* Reallocate(void* mem, uint32 size, Args&& ...args);
 
 	static void Deallocate(void* mem) noexcept;
 
@@ -31,13 +37,24 @@ public:
 
 
 template<class T, class ...Args>
+inline T* Allocator::AllocateAndConstruct(uint32 bytes, Args&& ...args)
+{
+	void* Mem = Allocate(bytes);
+	Construct(Mem, std::move(args));
+	return Mem;
+}
+
+/*
+*	Allocate memory and costruct object
+*/
+template<class T, class ...Args>
 inline T* Allocator::Allocate(Args&& ...args)
 {
 	return new T(std::forward<Args>(args)...);
 }
 
 template<class T, class ...Args>
-inline T* Allocator::Reallocate(void* mem, unsigned int size, Args && ...args)
+inline T* Allocator::Reallocate(void* mem, uint32 size, Args && ...args)
 {
 	if (sizeof(T) < size)
 	{
@@ -61,5 +78,4 @@ template<class T,class ...Args>
 inline void Allocator::Construct(T* mem, Args&& ...args)
 {
 	new(mem) T(std::forward<Args>(args)...);
-	//new((T*)mem) T(std::move(args));
 }

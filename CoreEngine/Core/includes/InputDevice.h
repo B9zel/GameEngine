@@ -16,8 +16,8 @@ namespace CoreEngine
 
 	public:
 
-		static bool GetIsKeyPressed(unsigned int key);
-		static bool GetIsButtonPressed(unsigned int button);
+		static bool GetIsKeyPressed(uint32 key);
+		static bool GetIsButtonPressed(uint32 button);
 		static DVector2 GetMousePos();
 
 		template<class Class>

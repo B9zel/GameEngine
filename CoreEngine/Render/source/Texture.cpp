@@ -15,7 +15,7 @@ namespace CoreEngine
 				EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
 				return nullptr;
 			case RendererAPI::API::OpenGL: 
-				return MakeSharedPtr<OpenGLTexture2D>(path);
+				return MakeSharedPtr<OpenGL::OpenGLTexture2D>(path);
 			default:
 				break;
 			}

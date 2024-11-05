@@ -17,7 +17,7 @@ namespace CoreEngine
 		{
 			UniquePtr<Render> render = MakeUniquePtr<Render>();
 			render->m_renderAPI = RendererAPI::CreateAPI();
-
+			
 			return render;
 		}
 	}

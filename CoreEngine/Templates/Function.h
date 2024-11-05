@@ -77,7 +77,7 @@ public:
 
 	bool operator==(const BaseFnPtr<TReturn(Args...)>& other) const override
 	{
-		if (static_cast<uint8_t>(GetType()) != static_cast<uint8_t>(other.GetType())) return false;
+		if (static_cast<uint8>(GetType()) != static_cast<uint8>(other.GetType())) return false;
 
 		const FunctionPtr& pMethod = dynamic_cast<const FunctionPtr&>(other);
 		if (pFn != pMethod.pFn) return false;
@@ -110,14 +110,12 @@ public:
 
 	virtual TReturn Invoke(Args&&... param) override
 	{
-		if (std::is_void_v<TReturn>)
+		if (!pClass || !pFn)
 		{
-			(pClass->*pFn)(std::forward<Args>(param)...);
+			return TReturn();
 		}
-		else
-		{
-			return (pClass->*pFn)(std::forward<Args>(param)...);
-		}
+
+		return (pClass->*pFn)(std::forward<Args>(param)...);
 	}
 		
 
@@ -135,7 +133,17 @@ public:
 			
 		return true;
 	}
+
+	MethodPtr& operator=(const MethodPtr& Other)
+	{
+		pClass = Other.pClass;
+		pFn = Other.pFn;
+
+		return *this;
+	}
+
 public:
+
 	TClass* pClass;
 	FnPtr pFn;
 	const ETypeFunction typeFn = ETypeFunction::METHOD;
@@ -243,15 +251,6 @@ public:
 
 	TReturn Invoke(Args&&... param) const
 	{
-	#ifdef DEVELOPMENT_DEBUG
-		if (IsEmpty())
-		{
-			//DECLARE_LOG_CATEGORY_EXTERN(C)
-			//EG_LOG(C, ELevelLog::INFO, "");
-			//EG_LOG(CoreEngine::CORE, ELevelLog::WARNING, "Function don't valid");
-		}
-	#endif // DEVELOPMENT_DEBUG
-		
 		return m_Fn->Invoke(std::forward<Args>(param)...);
 	}
 

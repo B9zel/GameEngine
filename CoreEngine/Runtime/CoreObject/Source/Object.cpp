@@ -1,23 +1,19 @@
 #include <Runtime/CoreObject/Include/Object.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
 
 
 namespace CoreEngine
 {
 	namespace Runtime
 	{
-		void Object::NativeUpdate(float deltaTime)
+		
+		void Object::SetWorld(World* newWorld)
 		{
-			Tick(deltaTime);
+			m_World = newWorld;
 		}
-
-		void Object::OnAttach()
+		World* Object::GetWorld()
 		{
-			BeginPlay();
-		}
-
-		void Object::OnDetach()
-		{
-			EndPlay();
+			return m_World;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 #include <Core/includes/MemoryManager.h>
-
+#include <Core/includes/Memory/GarbageCollector.h>
 
 
 namespace CoreEngine
@@ -9,20 +9,18 @@ namespace CoreEngine
     GB::GarbageCollector* MemoryManager::m_collector = nullptr;
 
 
-    MemoryManager* MemoryManager::Create()
+    UniquePtr<MemoryManager> MemoryManager::Create()
     {
         if (m_MemoryInstance)
         {
-            EG_LOG(CORE, ELevelLog::ERROR, "Memory manager already exists");
-            return (m_MemoryInstance);
+            EG_LOG(CORE, ELevelLog::WARNING, "Memory manager already exists");
+            return UniquePtr<MemoryManager>(m_MemoryInstance);
         }
 
-        m_MemoryInstance = static_cast<MemoryManager*>(Allocator::Allocate(sizeof(MemoryManager)));
-        new(m_MemoryInstance) MemoryManager();
-
-        m_collector = GB::GarbageCollector::Create();
+        m_MemoryInstance = new MemoryManager();
+        m_MemoryInstance->m_collector = GB::GarbageCollector::Create();
        
-        return (m_MemoryInstance);
+        return UniquePtr<MemoryManager>(m_MemoryInstance);
     }
 
     MemoryManager::~MemoryManager()

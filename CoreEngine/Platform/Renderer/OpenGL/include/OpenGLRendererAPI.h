@@ -8,19 +8,22 @@ namespace CoreEngine
 {
 	namespace Render
 	{
-		class OpenGLRendererAPI : public RendererAPI
+		namespace OpenGL
 		{
-		public:
+			class OpenGLRendererAPI : public RendererAPI
+			{
+			public:
 
-			OpenGLRendererAPI();
+				OpenGLRendererAPI();
 
-		protected:
+			protected:
 
-			void Init();
+				void Init();
 
-		private:
+			private:
 
 
-		};
+			};
+		}
 	}
 }

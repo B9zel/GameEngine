@@ -12,49 +12,49 @@ namespace CoreEngine
 {
 	namespace Render
 	{
-		DECLARE_LOG_CATEGORY_EXTERN(OPENGL_Shader)
-
-		class OpenGLShader : public Shader
+		namespace OpenGL
 		{
-		public:
-			
-			OpenGLShader();
-			OpenGLShader(OpenGLShader&& otherShader) noexcept;
-			OpenGLShader(const String& vertexShader, const String& fragmentShader);
+			DECLARE_LOG_CATEGORY_EXTERN(OPENGL_Shader)
 
-			OpenGLShader(const OpenGLShader&) = delete;
-			OpenGLShader& operator=(const OpenGLShader&) = delete;
+			class OpenGLShader : public Shader
+			{
+			public:
 
-			OpenGLShader& operator=(OpenGLShader&& otherShder) noexcept;
+				OpenGLShader();
+				OpenGLShader(OpenGLShader&& otherShader) noexcept;
+				OpenGLShader(const String& vertexShader, const String& fragmentShader);
 
-			virtual bool CompileShader(const String& vertexShader, const String& fragmentShader) override;
-			virtual bool GetIsCompile() override;
+				OpenGLShader(const OpenGLShader&) = delete;
+				OpenGLShader& operator=(const OpenGLShader&) = delete;
 
-			virtual void Bind() override;
-			virtual void UnBind() override;
+				OpenGLShader& operator=(OpenGLShader&& otherShder) noexcept;
 
-			virtual bool SetUniformMatrix4x4(const String& nameParam,const FMatrix4x4& matrix) override;
-			bool SetUniformFloat(const String& nameParam, float value);
-			bool SetUniformVec4(const String& nameParam,const FVector4& vec);
-			bool SetUniformVec2(const String& nameParam,const FVector2& vec);
-			bool SetUniform1i(const String& nameParam, const int value);
+				virtual bool CompileShader(const String& vertexShader, const String& fragmentShader) override;
+				virtual bool GetIsCompile() override;
 
-			bool HasUniformLocation(const char* nameParam);
-			int GetUniformLocation(const char* nameParam);
+				virtual void Bind() override;
+				virtual void UnBind() override;
 
-		private:
+				virtual bool SetUniformMatrix4x4(const String& nameParam, const FMatrix4x4& matrix) override;
+				bool SetUniformFloat(const String& nameParam, float value);
+				bool SetUniformVec4(const String& nameParam, const FVector4& vec);
+				bool SetUniformVec2(const String& nameParam, const FVector2& vec);
+				bool SetUniform1i(const String& nameParam, const int32 value);
 
-			bool GetCachedLocationParam(const String& Key, int& outLocation);
+				bool HasUniformLocation(const char* nameParam);
+				int32 GetUniformLocation(const char* nameParam);
 
-		private:
+			private:
 
-			HashTableMap<String, int> cachedParameters;
+				bool GetCachedLocationParam(const String& Key, int32& outLocation);
 
-			unsigned int m_ID;
-			bool m_IsCompile;
-		};
+			private:
 
+				HashTableMap<String, int32> cachedParameters;
+
+				uint32 m_ID;
+				bool m_IsCompile;
+			};
+		}
 	}
-
-
 }

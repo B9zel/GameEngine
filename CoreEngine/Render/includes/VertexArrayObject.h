@@ -1,6 +1,8 @@
 #pragma once
 #include <Render/includes/Enums/TypeData.h>
 #include <Render/includes/VertextBufferObject.h>
+#include <Render/includes/ElementBufferObject.h>
+#include <Core/includes/Base.h>
 
 
 namespace CoreEngine
@@ -11,7 +13,9 @@ namespace CoreEngine
 		{
 		public:
 
-			virtual void SetupIntorprit(unsigned int location, unsigned int sizeArgument, unsigned int step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const unsigned int beginStep=0) = 0;
+			virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const uint32 beginStep=0) = 0;
+
+			virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep=0) = 0;
 			
 			virtual void DeleteVertexObject() = 0;
 

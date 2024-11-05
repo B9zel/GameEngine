@@ -1,6 +1,13 @@
-
 #include <Core/includes/Application.h>
-#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+
+#include <Core/includes/Window.h>
+
+#include <Core/includes/World.h>
+#include <Render/includes/Render.h>
+#include <Core/includes/Dispatcher.h>
+
+
+
 
 namespace CoreEngine
 {
@@ -16,36 +23,23 @@ namespace CoreEngine
 		m_appOptions.pathToProject = options.pathToProject;
 		
 		Log::Init();
-		
-		m_timerManager = MakeUniquePtr<TimerManager>();
-
-		m_memoryManager.reset(MemoryManager::Create());
-
-		m_Input = MakeUniquePtr<InputDevice>();
 	
 		m_window = Window::CreateWindow(CoreEngine::WindowOptions(m_appOptions.applicationName, 800, 400));
 		m_window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
-		
-		m_render = Render::Render::Create();
 
+		m_Engine = Engine::Create();
 
 		m_EventDispatch.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::Exit, this));
 	}
 
 	void Application::Start()
 	{
-		float lastTime = 0.f;
-		float currentTime = 0.f;
-		float delta = 0.f;
 		while (m_isRun)
-		{
-			currentTime = glfwGetTime();
-			delta = currentTime - lastTime;
-			lastTime = currentTime;
+		{			
+			//GetTimerManager()->Update(delta);
+			//m_stack.NativeUpdateAll(delta);
 			
-			GetTimerManager()->Update(delta);
-			m_stack.NativeUpdateAll(delta);
-			
+			m_Engine->Update();
 			m_window->OnUpdate();
 		}
 	}
@@ -53,7 +47,7 @@ namespace CoreEngine
 	void Application::OnEvent(Event& event)
 	{
 		m_EventDispatch.Dispatch<EventCloseWindow>(event);		
-		m_Input->InviteEvent(event);
+		//m_Input->InviteEvent(event);
 	}
 
 	void Application::Exit(Event& event)

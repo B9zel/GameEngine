@@ -1,23 +1,25 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <Core/includes/ShaderLibrary.h>
+#include <Core/includes/LayerStack.h>
 #include <Events/include/Event.h>
-#include <Render/includes/Render.h>
-#include "ShaderLibrary.h"
-#include "Window.h"
+#include <Core/includes/Engine.h>
 #include "Base.h"
-#include "Dispatcher.h"
-#include "InputDevice.h"
-#include "LayerStack.h"
-#include "MemoryManager.h"
-#include "TimerManager.h"
 
 
 
-int main(int argc, char** argv);
+int32 main(int32 argc, char** argv);
 
 namespace CoreEngine
 {
+
+	class Engine;
+	class Window;
+	class Layer;
+	class Event;
+
+
 	struct ApplicationOptions
 	{
 		ApplicationOptions() : applicationName{""}, pathToApp{""} {}
@@ -42,7 +44,7 @@ namespace CoreEngine
 	public:
 
 		Application(const ApplicationOptions& options);
-		virtual ~Application() {}
+		virtual ~Application() = default;
 
 		Application(const Application&) = delete;
 		Application(Application&&) = delete;
@@ -52,10 +54,7 @@ namespace CoreEngine
 	public:
 
 		static Application* Get() { return m_Instance; }
-		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
-		UniquePtr<class MemoryManager>& GetMamoryManager() { return m_memoryManager; }
-		UniquePtr<class TimerManager>& GetTimerManager() { return m_timerManager; }
-
+		
 		const ApplicationOptions& GetAppOptions() const { return m_appOptions; }
 
 		Window& GetWindow() const { return *m_window; }
@@ -72,15 +71,14 @@ namespace CoreEngine
 
 		ApplicationOptions m_appOptions;
 		UniquePtr<Window> m_window;
-		UniquePtr<Render::Render> m_render;
+		UniquePtr<Engine> m_Engine;
+
 
 		LayerStack m_stack;
 		ShaderLibrary m_shaderLibray;
 		EventDispatch m_EventDispatch;
-		UniquePtr<InputDevice> m_Input;
-		UniquePtr<class MemoryManager> m_memoryManager;
-		UniquePtr<class TimerManager> m_timerManager;
-
+		
+	
 		bool m_isRun;
 
 		static Application* m_Instance;

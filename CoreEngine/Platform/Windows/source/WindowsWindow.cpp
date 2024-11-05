@@ -18,11 +18,11 @@ namespace CoreEngine
     {
         return winData.Title;
     }
-    unsigned int WindowsWindow::GetWidth() const
+    uint32 WindowsWindow::GetWidth() const
     {
         return winData.Width;
     }
-    unsigned int WindowsWindow::GetHeight() const
+    uint32 WindowsWindow::GetHeight() const
     {
         return winData.Width;
     }

@@ -15,7 +15,7 @@ namespace CoreEngine
 				EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return MakeUniquePtr<OpenGLContext>(static_cast<GLFWwindow*>(window));
+				return MakeUniquePtr<OpenGL::OpenGLContext>(static_cast<GLFWwindow*>(window));
 			}
 		}
 	}

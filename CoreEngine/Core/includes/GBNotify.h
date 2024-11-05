@@ -1,12 +1,15 @@
 #pragma once
-#include <Runtime/CoreObject/Include/Object.h>
+#include <Core/includes/Engine.h>
+//#include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Memory/GarbageCollector.h>
-#include <Core/includes/Application.h>
+#include <Core/includes/MemoryManager.h>
+
 
 
 namespace CoreEngine
 {
+	class Application;
 	namespace Runtime
 	{
 		class Object;
@@ -26,7 +29,13 @@ namespace CoreEngine
 
 			T operator=(T value);
 			T operator=(GBNotify&& value);
+			GBNotify& operator=(const GBNotify& other);
 
+
+			operator bool()
+			{
+				return m_Mehtod != nullptr;
+			}
 
 			T operator->()
 			{
@@ -57,7 +66,7 @@ namespace CoreEngine
 				if (isPointer)
 				{
 					m_Property = nullptr;
-					CoreEngine::Application::Get()->GetMamoryManager()->GetGarbageCollector()->AddProperty(this);
+					Engine::Get()->GetMamoryManager()->GetGarbageCollector()->AddProperty(this);
 				}
 				CORE_ASSERT(!isPointer, "GBNotify can't take pointer to pointer");
 				return;
@@ -70,7 +79,6 @@ namespace CoreEngine
 		{
 			m_Property = value;
 		}
-		
 
 		template<class T>
 		inline T GBNotify<T>::operator=(T value)
@@ -85,6 +93,7 @@ namespace CoreEngine
 
 			return m_Property;
 		}
+
 		template<class T>
 		inline T GBNotify<T>::operator=(GBNotify&& value)
 		{
@@ -92,6 +101,14 @@ namespace CoreEngine
 			value.operator=(nullptr);
 
 			return m_Property;
+		}
+
+		template<class T>
+		GBNotify<T>& GBNotify<T>::operator=(const GBNotify& other)
+		{
+			this->operator=(other.m_Property);
+
+			return *this;
 		}
 	}
 }

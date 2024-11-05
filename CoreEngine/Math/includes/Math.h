@@ -7,4 +7,10 @@ struct Math
 	{
 		return current < min ? min : current > max ? max : current;
 	}
+
+	template<class T1, class T2=T1 >
+	static inline T1& Select(bool isA, const T1& A, const T2& B)
+	{
+		return isA ? A : B;
+	}
 };

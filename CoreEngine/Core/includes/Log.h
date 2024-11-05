@@ -38,7 +38,7 @@ class LogCategory;
 
 	
 
-enum class ELevelLog : int
+enum class ELevelLog : int32
 {
 	INFO,
 	ERROR,

@@ -1,36 +1,35 @@
 
 #type vertex
 #version 330 core
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec2 TexCoord;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 color;
+layout (location = 2) in vec2 texCoord;
 
-out vec2 outTexCoord;
+out vec3 ourColor;
+out vec2 TexCoord;
 
-uniform mat4 scale;
-uniform mat4 offset;
-uniform mat4 rotate;
 void main()
 {
-	gl_Position = scale * rotate * offset * vec4(position.x,position.y, 1,1);
-	outTexCoord = TexCoord;
-};
+    gl_Position = vec4(position, 1.0f);
+    ourColor = color;
+    TexCoord = texCoord;
+}
+
 
 
 #type fragment
 #version 330 core 
-out vec4 fragColor; 
-in vec2 outTexCoord;
+in vec3 ourColor;
+in vec2 TexCoord;
 
-uniform sampler2D outTexture;
+uniform vec4 inputColor;
+out vec4 color;
 
-// main
-void main() {
-   
-	vec4 color = texture(outTexture, outTexCoord);
-	if (color.rgb == 0)
-	{
-		color.rgba = vec4(1,1,1, 1);
-	}
-    // post
-	fragColor = color;
+uniform sampler2D ourTexture;
+uniform sampler2D ourTexture1;
+uniform float a;
+
+void main()
+{
+    color = vec4(1,1,1,1);//mix(texture(ourTexture, TexCoord), texture(ourTexture1, TexCoord), a) * inputColor;
 }

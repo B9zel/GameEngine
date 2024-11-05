@@ -42,5 +42,5 @@ target_link_libraries(${CORE_PROJECT_NAME} PUBLIC spdlog)
 add_subdirectory(../libraries/glad ${CMAKE_CURRENT_BINARY_DIR}/glad)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glad)
 
-add_subdirectory(../libraries/glm ${SMAKE_CURRENT_BINARY_DIR}/glm)
+add_subdirectory(../libraries/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glm)

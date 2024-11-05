@@ -3,7 +3,7 @@
 #include <Core/includes/Log.h>
 
 
-int main(int argc, char** argv)
+int32 main(int32 argc, char** argv)
 {
 	
 }

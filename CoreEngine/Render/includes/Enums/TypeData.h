@@ -6,8 +6,9 @@ namespace CoreEngine
 	enum class ETypeData : short
 	{
 		NONE = 0,
-		FLOAT
+		FLOAT,
+		INT,
+		UNSIGNED_INT,
 	};
 	
-
 }

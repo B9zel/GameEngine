@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/includes/Memory/GarbageCollector.h>
+
 #include <Core/includes/Memory/Allocator.h>
 #include <Core/includes/Base.h>
 
@@ -25,7 +25,7 @@ namespace CoreEngine
 	{
 	public:
 
-		static MemoryManager* Create();
+		static UniquePtr<MemoryManager> Create();
 
 		virtual ~MemoryManager();
 
@@ -36,14 +36,13 @@ namespace CoreEngine
 		template<class T>
 		T* AllocateMemoryForObject();
 
-	private:
+	protected:
 
 		MemoryManager() = default;
 
 	private:
 
 		static MemoryManager* m_MemoryInstance;
-
 		static GB::GarbageCollector* m_collector;
 	};
 

@@ -66,12 +66,12 @@ namespace CoreEngine
 			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const = 0;
 			
 			virtual const char* GetPath() const = 0;
-			virtual unsigned int GetWidth() const = 0;
-			virtual unsigned int GetHeight() const = 0;
+			virtual uint32 GetWidth() const = 0;
+			virtual uint32 GetHeight() const = 0;
 
 			virtual bool IsLoad() const = 0;
 
-			virtual void Bind(unsigned int layout=0) const = 0;
+			virtual void Bind(uint32 layout=0) const = 0;
 			virtual void UnBind() const = 0;
 
 		};

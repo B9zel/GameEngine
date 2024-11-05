@@ -2,93 +2,99 @@
 #include <Core/includes/Base.h>
 
 
-class Timer;
-class TimerManager;
-struct TimerHandle;
 
-
-struct TimerHandle
+namespace CoreEngine
 {
-public:
 
-	friend TimerManager;
+	class Timer;
+	class TimerManager;
+	struct TimerHandle;
 
-	bool IsValid() { return m_Hadle != 0; }
 
-private:
+	struct TimerHandle
+	{
+	public:
 
-	unsigned long long m_Hadle = 0;
+		friend TimerManager;
 
-};
+		bool IsValid() { return m_Hadle != 0; }
 
-class Timer
-{
-public:
+	private:
 
-	float GetFullTime() { return m_fullTime; }
-	float GetTime() { return m_currentTime; }
+		unsigned long long m_Hadle = 0;
 
-private:
+	};
 
-	bool m_isPause = false;
-	bool m_isActive = false;
-	bool m_isLoop = false;
+	class Timer
+	{
+	public:
 
-	float m_fullTime = 0;
-	float m_currentTime = 0;
+		float GetFullTime() { return m_fullTime; }
+		float GetTime() { return m_currentTime; }
 
-	Function<void()> m_callback;
+	private:
 
-	friend TimerManager;
-};
+		bool m_isPause = false;
+		bool m_isActive = false;
+		bool m_isLoop = false;
 
-class TimerManager
-{
-public:
+		float m_fullTime = 0;
+		float m_currentTime = 0;
 
-	template<class TClass>
-	using MethodPointer = void(TClass::*)();
-	//using FunctionType = MethodPtr<TClass, void()>;
+		Function<void()> m_callback;
 
-public:
+		friend TimerManager;
+	};
 
-	void Update(float deltaTime);
+	class TimerManager
+	{
+	public:
+
+		template<class TClass>
+		using MethodPointer = void(TClass::*)();
+		//using FunctionType = MethodPtr<TClass, void()>;
+
+	public:
+
+		void Update(float deltaTime);
+
+		template<class TObject>
+		TimerHandle& SetTimer(TimerHandle& handler, TObject* object, MethodPointer<TObject> method, float InRate, bool isLoop);
+
+		void RemoveTimer(TimerHandle& handler);
+		void PouseTimer(TimerHandle& handler);
+		void PlayTimer(TimerHandle& handler);
+
+	private:
+
+		long long GetIDTimer() { return ++timerID; }
+
+	private:
+
+		HashTableMap<long long, Timer> m_timers;
+		HashTableMap<long long, Timer> m_activeTimers;
+
+		static unsigned long long timerID;
+	};
 
 	template<class TObject>
-	TimerHandle& SetTimer(TimerHandle& handler, TObject* object, MethodPointer<TObject> method, float InRate, bool isLoop);
-
-	void RemoveTimer(TimerHandle& handler);
-	void PouseTimer(TimerHandle& handler);
-	void PlayTimer(TimerHandle& handler);
-
-private:
-
-	long long GetIDTimer() { return ++timerID; }
-
-private:
-
-	HashTableMap<long long, Timer> m_timers;
-	HashTableMap<long long, Timer> m_activeTimers;
-
-	static unsigned long long timerID;
-};
-
-template<class TObject>
-TimerHandle& TimerManager::SetTimer(TimerHandle& handler, TObject* object, MethodPointer<TObject> method, float InRate, bool isLoop)
-{
-	if (InRate > 0.f)
+	TimerHandle& TimerManager::SetTimer(TimerHandle& handler, TObject* object, MethodPointer<TObject> method, float InRate, bool isLoop)
 	{
-		Timer timer;
-		timer.m_callback.Assign(method, object);
-		timer.m_fullTime = InRate;
-		timer.m_isLoop = isLoop;
-		timer.m_isActive = true;
+		if (InRate > 0.f)
+		{
+			Timer timer;
+			timer.m_callback.Assign(method, object);
+			timer.m_fullTime = InRate;
+			timer.m_isLoop = isLoop;
+			timer.m_isActive = true;
 
-		long long id = GetIDTimer();
-		handler.m_Hadle = id;
+			long long id = GetIDTimer();
+			handler.m_Hadle = id;
 
-		m_activeTimers[id] = std::move(timer);
+			m_activeTimers[id] = std::move(timer);
+		}
+
+		return handler;
 	}
 
-	return handler;
 }

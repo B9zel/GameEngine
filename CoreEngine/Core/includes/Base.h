@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/includes/PlatformDetection.h>
+#include <Core/includes/Platform.h>
 #include <string>
 #include <vector>
-//#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
@@ -41,6 +41,7 @@ class Function;
 #endif // _WIN64 || _WIN32
 
 	#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+	#define CHECK(is) { CORE_ASSERT(!is, "Fail check"); }
 	
 	#define FUNCTION_NAME __FUNCTION__
 	#define NUMBER_LINE  STRINGCON(__LINE__)
@@ -50,6 +51,7 @@ class Function;
 	#define ENGINE_DEBUGBREAK 
 
 	#define CORE_CHECK(is) 
+	#define CHECK(is)
 	#define CORE_ASSERT(is, log)
 	#define FUNCTION_NAME 
 	#define NUMBER_LINE

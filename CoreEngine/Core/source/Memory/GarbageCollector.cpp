@@ -1,5 +1,10 @@
 #include <Core/includes/Memory/GarbageCollector.h>
+#include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/Memory/Allocator.h>
+#include <Core/includes/Engine.h>
+#include <Core/includes/TimerManager.h>
+#include <Core/includes/World.h>
+
 
 
 namespace CoreEngine
@@ -11,12 +16,12 @@ namespace CoreEngine
 
 		GarbageCollector::GarbageCollector()
 		{
-			m_rateCollect = 60.f;
+			m_rateCollect = 5;
 		}
 
 		void GarbageCollector::Init()
 		{
-			Application::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, m_rateCollect, true);
+			Engine::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, m_rateCollect, true);
 		}
 
 
@@ -43,18 +48,94 @@ namespace CoreEngine
 
 		void GarbageCollector::AddObject(Runtime::Object* object)
 		{
-			m_ObjectsPtr.insert(object);
+			m_Objects.insert(object);
+		}
+
+		void GarbageCollector::AddRootObject(Runtime::Object* object)
+		{
+			m_RootObjects.insert(object);
+			AddObject(object);
+		}
+
+		void GarbageCollector::AddReference(Runtime::Object* object)
+		{
+			if (m_ReferenceObjects.count(object))
+			{
+				m_ReferenceObjects[object]++;
+			}
+			else
+			{
+				m_ReferenceObjects.emplace(object, 1);
+			}
+
+		}
+
+		void GarbageCollector::RemoveObject(Runtime::Object* object)
+		{
+			m_ReferenceObjects.erase(object);
+			m_RootObjects.erase(object);
+			m_Objects.erase(object);
+		}
+
+		void GarbageCollector::RemoveReference(Runtime::Object* object)
+		{
+			if (m_ReferenceObjects.count(object))
+			{
+				if (m_ReferenceObjects[object] <= 1)
+				{
+					m_ReferenceObjects.erase(object);
+				}
+				else
+				{
+					m_ReferenceObjects[object]--;
+				}
+			}
 		}
 
 		void GarbageCollector::Collect()
 		{
-			for (Runtime::Object* delObj : m_deleteObject)
+			HashTableSet<Runtime::Object*> markedObjects;
+			MarkLiveObjects(markedObjects);
+			EG_LOG(CORE, ELevelLog::INFO, "Collect");
+
+			DArray<Runtime::Object*> deleteObjects;
+			for (auto* obj : m_Objects)
 			{
-				m_ObjectsPtr.erase(delObj);
-				Allocator::Deallocate<Runtime::Object>(delObj);
+				if (markedObjects.find(obj) == markedObjects.end())
+				{
+					deleteObjects.push_back(obj);
+					
+					EG_LOG(CORE, ELevelLog::INFO, "Delete");
+				}
 			}
-			m_deleteObject.clear();
+
+			for (auto* delObj : deleteObjects)
+			{
+				RemoveObject(delObj);
+				Allocator::Deallocate(delObj);
+			}
 		}
+
+		void GarbageCollector::MarkLiveObjects(HashTableSet<Runtime::Object*>& outMarkedObjects)
+		{
+			for (auto& el : m_RootObjects)
+			{
+				MarkObject(el, outMarkedObjects);
+			}
+
+			for (auto& el : m_ReferenceObjects)
+			{
+				MarkObject(el.first, outMarkedObjects);
+			}
+		}
+
+		void GarbageCollector::MarkObject(Runtime::Object* object, HashTableSet<Runtime::Object*>& outMarkedObjects)
+		{
+			if (outMarkedObjects.find(object) != outMarkedObjects.end()) return;
+
+			outMarkedObjects.insert(object);
+		}
+
 
 		void GarbageCollector::OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr)
 		{
@@ -64,19 +145,11 @@ namespace CoreEngine
 			}
 			if (oldPtr)
 			{
-				oldPtr->RemoveReference();
-				if (!oldPtr->GetReferenceCount())
-				{
-					m_deleteObject.insert(oldPtr);
-				}
+				RemoveReference(oldPtr);
 			}
 			if (newPtr)
 			{
-				newPtr->AddReference();
-				if (m_deleteObject.count(newPtr))
-				{
-					m_deleteObject.erase(newPtr);
-				}
+				AddReference(newPtr);
 			}
 		}
 	}

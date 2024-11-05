@@ -8,10 +8,10 @@ namespace CoreEngine
 	struct WindowOptions
 	{
 		WindowOptions() {}
-		WindowOptions(const String& title, unsigned int widht, unsigned int height) : Title{ title }, Width{widht}, Height{height} {}
+		WindowOptions(const String& title, uint32 widht, uint32 height) : Title{ title }, Width{widht}, Height{height} {}
 		String Title = "";
-		unsigned int Width = 0;
-		unsigned int Height = 0;
+		uint32 Width = 0;
+		uint32 Height = 0;
 	};
 
 
@@ -32,9 +32,9 @@ namespace CoreEngine
 
 		static UniquePtr<Window> CreateWindow(const WindowOptions& options);
 		
-		virtual unsigned int GetWidth() const = 0;
+		virtual uint32 GetWidth() const = 0;
 
-		virtual unsigned int GetHeight() const = 0;
+		virtual uint32 GetHeight() const = 0;
 
 		virtual String GetTitle() const = 0;
 
@@ -53,8 +53,8 @@ namespace CoreEngine
 		bool isCreateWindow;
 		struct WindowData
 		{
-			unsigned int Height = 0;
-			unsigned int Width = 0;
+			uint32 Height = 0;
+			uint32 Width = 0;
 			String Title = "";
 
 			FunctionEventCallBack eventCallBack;

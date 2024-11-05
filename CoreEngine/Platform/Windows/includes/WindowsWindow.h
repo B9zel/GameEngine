@@ -18,9 +18,9 @@ namespace CoreEngine
 
 		virtual String GetTitle() const override;
 
-		virtual unsigned int GetWidth() const override;
+		virtual uint32 GetWidth() const override;
 
-		virtual unsigned int GetHeight() const override;
+		virtual uint32 GetHeight() const override;
 
 		virtual void* GetNativeWindow() const override;
 

@@ -1,4 +1,5 @@
 #include "../EditorEngine/Editor/includes/EditorApplication.h"
+#include <Core/includes/Window.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>

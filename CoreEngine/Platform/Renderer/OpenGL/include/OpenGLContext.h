@@ -11,19 +11,22 @@ namespace CoreEngine
 {
 	namespace Render
 	{
-		class OpenGLContext : public GraphicsContext
+		namespace OpenGL
 		{
-		public:
+			class OpenGLContext : public GraphicsContext
+			{
+			public:
 
-			OpenGLContext(GLFWwindow* window);
+				OpenGLContext(GLFWwindow* window);
 
-			virtual void Init() override;
+				virtual void Init() override;
 
-			virtual void SwapBuffer() override;
+				virtual void SwapBuffer() override;
 
-		private:
-			GLFWwindow* m_window;
+			private:
+				GLFWwindow* m_window;
 
-		};
+			};
+		}
 	}
 }

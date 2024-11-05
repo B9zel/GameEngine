@@ -8,28 +8,28 @@ namespace CoreEngine
 	{
 	public:
 
-		EventMouseButtonPressed(const int button) : m_Button{ button } {}
+		EventMouseButtonPressed(const int32 button) : m_Button{ button } {}
 
-		int GetButton() const { return m_Button; }
-		void SetButton(const int button) { m_Button = button; }
+		int32 GetButton() const { return m_Button; }
+		void SetButton(const int32 button) { m_Button = button; }
 
 		CREATE_EVENT_CLASS(MOUSE_BUTTON_PRESSED)
 	private:
-		int m_Button;
+		int32 m_Button;
 	};
 
 	class EventMouseButtonReleased : public Event
 	{
 	public:
 
-		EventMouseButtonReleased(const int button) : m_Button{ button } {}
+		EventMouseButtonReleased(const int32 button) : m_Button{ button } {}
 
-		int GetButton() const { return m_Button; }
-		void SetButton(const int button) { m_Button = button; }
+		int32 GetButton() const { return m_Button; }
+		void SetButton(const int32 button) { m_Button = button; }
 
 		CREATE_EVENT_CLASS(MOUSE_BUTTON_RELEASED)
 	private:
-		int m_Button;
+		int32 m_Button;
 	};
 
 	class EventMouseMotion : public Event

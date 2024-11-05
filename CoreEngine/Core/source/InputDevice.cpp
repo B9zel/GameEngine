@@ -1,18 +1,19 @@
 #include <Core/includes/InputDevice.h>
 #include <Core/includes/Application.h>
+#include <Core/includes/Window.h>
 #include <GLFW/glfw3.h>
 
 
 namespace CoreEngine
 {
 
-	bool InputDevice::GetIsKeyPressed(unsigned int key)
+	bool InputDevice::GetIsKeyPressed(uint32 key)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 		
 		return glfwGetKey(window, key) == GLFW_PRESS;
 	}
-	bool InputDevice::GetIsButtonPressed(unsigned int button)
+	bool InputDevice::GetIsButtonPressed(uint32 button)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
 

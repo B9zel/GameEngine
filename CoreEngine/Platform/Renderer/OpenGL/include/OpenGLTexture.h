@@ -17,61 +17,66 @@ namespace CoreEngine
 	{
 		class Texture;
 		class Texture2D;
-		enum class EParameterName : uint8_t;
-		enum class EValueOfParameter : uint8_t;
-		enum class EParamaterOfCustomValues : uint8_t;
+		enum class EParameterName : uint8;
+		enum class EValueOfParameter : uint8;
+		enum class EParamaterOfCustomValues : uint8;
 
 
-
-		class OpenGLTexture2D : public Texture2D
+		namespace OpenGL
 		{
-		public:
+			class OpenGLTexture2D : public Texture2D
+			{
+			public:
 
-			OpenGLTexture2D(const OpenGLTexture2D&) = delete;
-			OpenGLTexture2D& operator=(const OpenGLTexture2D&) = delete;
+				OpenGLTexture2D(const OpenGLTexture2D&) = delete;
+				OpenGLTexture2D& operator=(const OpenGLTexture2D&) = delete;
 
-			OpenGLTexture2D() {};
-			~OpenGLTexture2D();
+				OpenGLTexture2D();
+				~OpenGLTexture2D();
 
-			OpenGLTexture2D(const char* path);
-			OpenGLTexture2D(OpenGLTexture2D&& other) noexcept;
+				OpenGLTexture2D(const char* path);
+				OpenGLTexture2D(OpenGLTexture2D&& other) noexcept;
 
-			OpenGLTexture2D& operator=(OpenGLTexture2D&& other) noexcept;
+				OpenGLTexture2D& operator=(OpenGLTexture2D&& other) noexcept;
 
-		public:
+			public:
 
-			virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const override;
-			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const override;
+				virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const override;
+				virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const override;
 
-			virtual const char* GetPath() const override	{ return m_path.c_str(); }
-			virtual unsigned int GetWidth() const override  { return m_width; }
-			virtual unsigned int GetHeight() const override { return m_height; }
+				virtual const char* GetPath() const override { return m_path.c_str(); }
+				virtual uint32 GetWidth() const override { return m_width; }
+				virtual uint32 GetHeight() const override { return m_height; }
 
-			virtual bool IsLoad() const override { return m_isLoad; }
+				virtual bool IsLoad() const override { return m_isLoad; }
 
-			virtual void Bind(unsigned int layout=0) const override;
-			virtual void UnBind() const override;
+				virtual void Bind(uint32 layout = 0) const override;
+				virtual void UnBind() const override;
 
-			bool ChangeTexture(const char* path, bool isGenaretMipmap=true);
-			void SetLevelMipmap(const char* path, uint8_t level=1);
+				bool ChangeTexture(const char* path, bool isGenaretMipmap = true);
+				void SetLevelMipmap(const char* path, uint8_t level = 1);
+			private:
 
-		private:
+				void SetDefaultSettings();
 
-			static int GetFromEnumParameterName(const EParameterName& paramName);
-			static int GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue);
-			static int GetFromEnumValueOfParameter(const EValueOfParameter& valueOfParam);
-			static int GetFromEnumChannel(const ETypeChannel& channel);
-			static ETypeChannel GetEnumFromChannel(GLenum channel);
+			private:
 
-		private:
+				static int32 GetFromEnumParameterName(const EParameterName& paramName);
+				static int32 GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue);
+				static int32 GetFromEnumValueOfParameter(const EValueOfParameter& valueOfParam);
+				static int32 GetFromEnumChannel(const ETypeChannel& channel);
+				static ETypeChannel GetEnumFromChannel(GLenum channel);
 
-			unsigned int m_textureID;
-			unsigned int m_width;
-			unsigned int m_height;
-			bool m_isLoad;
-			String m_path;
-			GLenum m_internalFormat;
-			ETypeChannel m_channel;
-		};
+			private:
+
+				uint32 m_textureID;
+				uint32 m_width;
+				uint32 m_height;
+				bool m_isLoad;
+				String m_path;
+				GLenum m_internalFormat;
+				ETypeChannel m_channel;
+			};
+		}
 	}
 }
