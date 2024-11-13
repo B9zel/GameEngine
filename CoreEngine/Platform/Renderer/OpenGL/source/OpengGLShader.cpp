@@ -10,6 +10,8 @@ namespace CoreEngine
 	{
 		namespace OpenGL
 		{
+
+
 #define SHADER_LOCATION_PARAM(KeyString, outLocation)															\
 		if (!GetCachedLocationParam(KeyString, outLocation))															\
 		{																												\
@@ -46,9 +48,13 @@ namespace CoreEngine
 				{
 					glDeleteProgram(m_ID);
 				}
+				cachedParameters.clear();
 
 				m_ID = otherShder.m_ID;
 				m_IsCompile = otherShder.m_IsCompile;
+				cachedParameters = std::move(otherShder.cachedParameters);
+				m_NameTextures = std::move(otherShder.m_NameTextures);
+
 
 				otherShder.m_ID = 0;
 				otherShder.m_IsCompile = false;
@@ -123,6 +129,7 @@ namespace CoreEngine
 				{
 					m_ID = l_programShader;
 					m_IsCompile = true;
+					AnalysisShader(vertexShader, fragmentShader);
 				}
 
 				glDeleteShader(l_vertexShader);
@@ -131,17 +138,22 @@ namespace CoreEngine
 				return isSuccess;
 			}
 
+			const DArray<String>& OpenGLShader::GetNamesOfTexture() const
+			{
+				return m_NameTextures;
+			}
+
 			bool OpenGLShader::GetIsCompile()
 			{
 				return m_IsCompile;
 			}
 
-			void OpenGLShader::Bind()
+			void OpenGLShader::Bind() const
 			{
 				glUseProgram(m_ID);
 			}
 
-			void OpenGLShader::UnBind()
+			void OpenGLShader::UnBind() const
 			{
 				glUseProgram(0);
 			}
@@ -205,14 +217,26 @@ namespace CoreEngine
 				return true;
 			}
 
-			bool OpenGLShader::SetUniform1i(const String& nameParam, const int32 value)
+			bool OpenGLShader::SetUniform1i(const String& nameParam, const int32 value, bool isEnableBind)
 			{
 				int32 location = 0;
-				SHADER_LOCATION_PARAM(nameParam, location)
-
+				if (!GetCachedLocationParam(nameParam, location)) {
+					if (!HasUniformLocation(nameParam.c_str())) {
+						{
+							Log::LogOutput(OPENGL_Shader, ELevelLog::ERROR, __FUNCTION__ ":" "211", "Can't to find uniform {0}", nameParam.data());
+						}; return false;
+					} location = GetUniformLocation(nameParam.c_str()); cachedParameters.insert(std::pair(nameParam, location));
+				}
+				if (isEnableBind)
+				{
 					Bind();
-				glUniform1i(location, value);
-				UnBind();
+					glUniform1i(location, value);
+					UnBind();
+				}
+				else
+				{
+					glUniform1i(location, value);
+				}
 
 				return true;
 			}
@@ -226,6 +250,83 @@ namespace CoreEngine
 					return true;
 				}
 				return false;
+			}
+			void OpenGLShader::AnalysisShader(const String& vertex, const String& fragment)
+			{
+				auto IsInComment = [this](const String& str, const size_t PosTarget)
+					{
+						// Check multi comment
+						size_t OpenPos = str.find("/*");
+						while (OpenPos != String::npos)
+						{
+							size_t ClosePos = str.find("*/", OpenPos);
+							if (ClosePos != String::npos)
+							{
+								if (PosTarget > OpenPos && PosTarget < ClosePos)
+								{
+									return true;
+								}
+								OpenPos = str.find("/*", ClosePos);
+							}
+						}
+
+						
+						// Check single comment
+						size_t BeginComment = str.find("//");
+
+						while (BeginComment != String::npos)
+						{
+							size_t NewLine = str.find("\n", BeginComment);
+							if (NewLine != String::npos)
+							{
+								if (BeginComment <= PosTarget && PosTarget < NewLine)
+								{
+									return true;
+								}
+								BeginComment = str.find("//", NewLine);
+							}
+							else
+							{
+								return true;
+							}
+						}
+						
+						return false;
+					};
+
+				auto Analysis = [this, &IsInComment](const String& shader)
+					{
+						std::string_view searchLine = "uniform sampler";
+						size_t Pos = shader.find(searchLine);
+						while (Pos != String::npos)
+						{
+							if (IsInComment(shader, Pos))
+							{
+								Pos = shader.find(searchLine, Pos + 1);
+								continue;
+							}
+							size_t endLine = shader.find_first_of(';', Pos); //shader.substr(Pos + searchLine.size(), a - Pos - searchLine.size());
+
+
+							const String dimension = shader.substr(Pos + searchLine.size(), 2);
+							if (dimension != "1D" && dimension != "2D" && dimension != "3D")
+							{
+								Pos = shader.find(searchLine, Pos + 1);
+								continue;
+							}
+
+							size_t PosBeforeName = Pos + searchLine.size() + dimension.size();
+							size_t sizeName = endLine - PosBeforeName;
+							String Name = shader.substr(PosBeforeName, sizeName);
+							Name.erase(std::remove(Name.begin(), Name.end(), ' '), Name.end());
+
+							m_NameTextures.emplace_back(Name);
+							Pos = shader.find(searchLine, Pos + 1);
+						}
+					};
+
+				Analysis(fragment);
+				Analysis(vertex);
 			}
 		}
 	}

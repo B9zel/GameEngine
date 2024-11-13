@@ -18,8 +18,12 @@ namespace CoreEngine
 		{
 			if (isRegistered) return;
 
-			GetWorld()->GetUpdateManager()->AddFunction(updateFunc);
+			GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
 			isRegistered = true;
+		}
+		bool ActorComponent::GetIsActive() const
+		{
+			return isActivate;
 		}
 	}
 }

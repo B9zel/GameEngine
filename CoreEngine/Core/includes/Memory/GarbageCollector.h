@@ -43,7 +43,8 @@ namespace CoreEngine
 
 			static GarbageCollector* Create();
 			
-			void AddProperty(GBNotify<Runtime::Object*>* property);
+			template<class T>
+			void AddProperty(GBNotify<T*>* property);
 
 			void AddObject(Runtime::Object* object);
 			void AddRootObject(Runtime::Object* object);
@@ -79,5 +80,10 @@ namespace CoreEngine
 			float m_rateCollect;
 			TimerHandle collectHandler;
 		};
+		template<class T>
+		inline void GarbageCollector::AddProperty(GBNotify<T*>* property)
+		{
+			property->m_Mehtod.Assign(&GarbageCollector::OnChangePointer, this);
+		}
 	}
 }

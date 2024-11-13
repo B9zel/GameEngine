@@ -9,6 +9,7 @@ namespace CoreEngine
 	namespace Runtime
 	{
 		class Object;
+		class Actor;
 	}
 
 	enum class EStageUpdate : uint8;
@@ -19,7 +20,11 @@ namespace CoreEngine
 	{
 	public:
 
-		UpdateFunction();
+		friend Runtime::Actor;
+
+	public:
+
+		UpdateFunction() = default;
 
 		UpdateFunction(const UpdateFunction&) = default;
 		UpdateFunction(UpdateFunction&&) = default;
@@ -30,9 +35,8 @@ namespace CoreEngine
 		* Call bind update function, if LastTimeUpdate more then Interval
 		* @param time after last frame 
 		*/
-		void ExecuteUpdate(float deltaTime);
-		template<class FuncClass>
-		void SetUpdateMethod(Runtime::Object* obj, void(FuncClass::*method)(float));
+		virtual void ExecuteUpdate(float deltaTime) = 0;
+
 		EStageUpdate GetStage() const;
 
 	protected:
@@ -41,8 +45,6 @@ namespace CoreEngine
 		float Inverval;
 		float LastTimeUpdate;
 		EStageUpdate stage;
-
-		MethodPtr<Runtime::Object, void(float)> UpdateDelegate;
 	};
 
 }

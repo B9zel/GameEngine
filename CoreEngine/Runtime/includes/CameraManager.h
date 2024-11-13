@@ -12,14 +12,13 @@ namespace CoreEngine
 		{
 		public:
 
-
 			virtual void Update(float deltaTime) override;
 			virtual void CameraUpdate(float deltaTime);
-
 
 		private:
 
 			float FieldOfView;
+			
 		};
 	}
 }

@@ -11,8 +11,15 @@ namespace CoreEngine
 	{
 		class PrimitiveComponent : public SceneComponent
 		{
+		public:
+
+			PrimitiveComponent();
 
 		public:
+
+			PrimitiveProxy* GetSceneProxy() const;
+
+		protected:
 
 			PrimitiveProxy* sceneProxy;
 		};

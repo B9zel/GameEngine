@@ -21,6 +21,7 @@ namespace CoreEngine
 {
 	Engine* Engine::GEngine = nullptr;
 
+
 	Engine::Engine()
 	{
 		GEngine = this;
@@ -31,9 +32,13 @@ namespace CoreEngine
 		m_MemoryManager = MemoryManager::Create();
 
 		m_World.reset(Allocator::Allocate<World>());
-		
 	}
 
+	void Engine::PostInitialize()
+	{
+		m_World->InitProperties();
+		
+	}
 
 	UniquePtr<Engine> Engine::Create()
 	{

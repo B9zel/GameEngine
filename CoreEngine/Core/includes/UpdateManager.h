@@ -27,7 +27,7 @@ namespace CoreEngine
 
 		static UniquePtr<UpdateManager> CreateInstance();
 
-		void AddFunction(const UpdateFunction& newFunc);
+		void AddFunction(UpdateFunction* newFunc);
 		void ExecuteGroup(float deltaTime, const EStageUpdate stage);
 
 	protected:
@@ -36,6 +36,6 @@ namespace CoreEngine
 
 	private:
 
-		HashTableMap<EStageUpdate, DArray<UpdateFunction>> m_GroupUpdate;
+		HashTableMap<EStageUpdate, DArray<UpdateFunction*>> m_GroupUpdate;
 	};
 }

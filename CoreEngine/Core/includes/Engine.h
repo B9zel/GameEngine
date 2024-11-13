@@ -24,11 +24,6 @@ namespace CoreEngine
 	{
 	public:
 
-		/*
-		*  Create singleton class Engine
-		*  @return Instance of Engine class
-		*/
-		static UniquePtr<Engine> Create();
 
 		/*
 		* Update all classes
@@ -36,12 +31,23 @@ namespace CoreEngine
 		void Update();
 		virtual ~Engine() = default;
 
+	public:
+
+		/*
+		*  Create singleton class Engine
+		*  @return Instance of Engine class
+		*/
+		static UniquePtr<Engine> Create();
+
 		static Engine* Get();
 		
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
 		UniquePtr<MemoryManager>& GetMamoryManager() { return m_MemoryManager; }
+		UniquePtr<Render::Render>& GetRender() { return m_Render; }
 		UniquePtr<World>& GetWorld() { return m_World; }
+
+		virtual void PostInitialize();
 
 	protected:
 

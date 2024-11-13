@@ -41,11 +41,7 @@ namespace CoreEngine
 			return m_GBInstatnce;
 		}
 
-		void GarbageCollector::AddProperty(GBNotify<Runtime::Object*>* property)
-		{
-			property->m_Mehtod.Assign(&GarbageCollector::OnChangePointer, this);
-		}
-
+		
 		void GarbageCollector::AddObject(Runtime::Object* object)
 		{
 			m_Objects.insert(object);

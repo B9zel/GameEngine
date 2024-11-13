@@ -26,10 +26,12 @@ namespace CoreEngine
 
 			GBNotify();
 			GBNotify(T value);
+			GBNotify(GBNotify&& Other);
 
 			T operator=(T value);
-			T operator=(GBNotify&& value);
+			//T operator=(GBNotify&& value);
 			GBNotify& operator=(const GBNotify& other);
+			GBNotify& operator=(GBNotify&& other);
 
 
 			operator bool()
@@ -78,6 +80,22 @@ namespace CoreEngine
 		inline GBNotify<T>::GBNotify(T value) : GBNotify()
 		{
 			m_Property = value;
+
+			m_Mehtod.Invoke(static_cast<T>(nullptr), std::move(m_Property));
+		}
+
+		template<class T>
+		inline GBNotify<T>::GBNotify(GBNotify&& Other) : GBNotify()
+		{
+			void* oldData = m_Property;
+			m_Property = Other.m_Property;
+
+
+			m_Mehtod = Other.m_Mehtod;
+			Other.m_Property = nullptr;
+			Other.m_Mehtod = nullptr;
+
+			m_Mehtod.Invoke(static_cast<T>(std::move(oldData)), std::move(m_Property));
 		}
 
 		template<class T>
@@ -94,19 +112,29 @@ namespace CoreEngine
 			return m_Property;
 		}
 
-		template<class T>
+	/*	template<class T>
 		inline T GBNotify<T>::operator=(GBNotify&& value)
 		{
 			this->operator=(std::forward(value));
 			value.operator=(nullptr);
 
 			return m_Property;
-		}
+		}*/
 
 		template<class T>
 		GBNotify<T>& GBNotify<T>::operator=(const GBNotify& other)
 		{
 			this->operator=(other.m_Property);
+
+			return *this;
+		}
+		template<class T>
+		GBNotify<T>& GBNotify<T>::operator=(GBNotify&& other)
+		{
+			m_Mehtod = Other.m_Mehtod;
+			m_Property = Other.m_Property;
+			m_Property = nullptr;
+			m_Mehtod = nullptr;
 
 			return *this;
 		}

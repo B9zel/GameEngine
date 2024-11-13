@@ -2,7 +2,7 @@
 #include <Runtime/includes/SceneComponent.h>
 #include <Runtime/includes/ActorComponent.h>
 #include <Runtime/includes/Controller.h>
-#include <Core/includes/World.h>
+
 
 
 
@@ -19,25 +19,51 @@ namespace CoreEngine
 
 		void Actor::InitProperties()
 		{
-			for (ActorComponent* component : OwnedComponents)
+		}
+
+		void Actor::DispatchBeginPlay()
+		{
+			if (GetWorld())
 			{
-				component->InitProperties();
+				BeginPlay();
 			}
 		}
 
 		void Actor::BeginPlay()
 		{
+			for (auto& Component : Components)
+			{
+				Component->RegisteredComponent();
+			}
 
+			Registered();
+			isBeginedPlay = true;
 		}
 
 		void Actor::Update(float deltaTime)
 		{
 		}
 
+		void Actor::NativeUpdate(float deltaTime)
+		{
+			Update(deltaTime);
+		}
+
 		void Actor::Registered()
 		{
-			GetWorld()->GetUpdateManager()->AddFunction(actorUpdate);
-			actorUpdate.SetUpdateMethod(this, &Actor::Update);
+			GetWorld()->GetUpdateManager()->AddFunction(&actorUpdate);
+			actorUpdate.SetUpdateMethod(&Actor::NativeUpdate, this);
+		}
+
+		void Actor::InitComponents()
+		{
+			for (ActorComponent* component : Components)
+			{
+				if (component->GetIsActive())
+				{
+					component->InitProperties();
+				}
+			}
 		}
 
 		SceneComponent* Actor::GetRootComponent() const
@@ -90,6 +116,10 @@ namespace CoreEngine
 		void Actor::SetOwner(Actor* newOwner)
 		{
 			Owner = newOwner;
+		}
+		const DArray<ActorComponent*>& Actor::GetComponents() const
+		{
+			return Components;
 		}
 	}
 }

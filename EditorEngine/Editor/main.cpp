@@ -1,28 +1,30 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
-#include <iostream>
 #include "includes/EditorApplication.h"
-#include <Core/includes/Memory/GarbageCollector.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Engine.h>
-#include <Core/includes/TimerManager.h>
-#include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
-#include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
-#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
-#include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 #include <Core/includes/GBNotify.h>
-#include <Templates/Function.h>
-#include <imgui/imgui.h>
+#include <Core/includes/Memory/GarbageCollector.h>
+#include <Core/includes/TimerManager.h>
+#include <Runtime/includes/PrimitiveComponent.h>
+#include <Core/includes/PrimitiveProxy.h>
+#include <Core/includes/World.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-#include <Platform/Renderer/OpenGL/include/OpenGLElementBufferObject.h>
+#include <imgui/imgui.h>
+#include <iostream>
 #include <Math/includes/Math.h>
-#include <Runtime/CoreObject/Include/ObjectGlobal.h>
-#include <Core/includes/TimerManager.h>
-#include <Core/includes/World.h>
 #include <Math/includes/Transform.h>
 #include <Math/includes/Vector.h>
+#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLElementBufferObject.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Runtime/includes/SceneComponent.h>
+#include <Templates/Function.h>
+#include <Core/includes/UpdateFunction.h>
 
 
 float arr[] = { 0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
@@ -31,13 +33,15 @@ float arr[] = { 0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
 				-0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // Top Left 
 };
 
+
+
 unsigned int indexArr[] = { 0, 1, 2,
 							0, 2, 3 };
 
 class RenderLayer : public CoreEngine::Layer
 {
 public:
-	RenderLayer() : texture("C:/c++/GameEngine/Shaders/container.jpg"), texture2("E:/SteamLibrary/steamapps/common/War Thunder/ui/splashWT.png")
+	RenderLayer() : texture(""), texture2("E:/SteamLibrary/steamapps/common/War Thunder/ui/splashWT.png")
 	{
 		
 	}
@@ -53,12 +57,12 @@ public:
 		String a = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
 		Pair<String, String>& pa = CoreEngine::Render::Shader::LoadShader((a + "/Shaders/ShaderBase.glsl").c_str());
 		//texture.ChangeTexture("");
-		shader.CompileShader(pa.first, pa.second);
-		bufferObj.CreaterBuffer(arr, sizeof(arr) / sizeof(*arr), CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
-		arrElement.CreateBuffer(indexArr, sizeof(indexArr) / sizeof(*arr), CoreEngine::ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, bufferObj);
-		arrObj.SetupIntorprit(0, 2, 7, CoreEngine::ETypeData::FLOAT, bufferObj, arrElement);
-		arrObj.SetupIntorprit(1, 3, 7, CoreEngine::ETypeData::FLOAT, bufferObj, arrElement, 2);
-		arrObj.SetupIntorprit(2, 2, 7, CoreEngine::ETypeData::FLOAT, bufferObj, arrElement, 5);
+		//shader.CompileShader(pa.first, pa.second);
+		//bufferObj.CreaterBuffer(Arr2, sizeof(Arr2) / sizeof(*Arr2), CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
+		//arrElement.CreateBuffer(indexArr, sizeof(indexArr) / sizeof(*arr), CoreEngine::ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, bufferObj);
+		arrObj.SetupIntorprit(0, 2, 0, CoreEngine::ETypeData::FLOAT, bufferObj);
+		//arrObj.SetupIntorprit(1, 3, 7, CoreEngine::ETypeData::FLOAT, bufferObj, 2);
+		//arrObj.SetupIntorprit(2, 2, 7, CoreEngine::ETypeData::FLOAT, bufferObj, 5);
 
 		
 	}
@@ -114,12 +118,12 @@ public:
 		//shader.SetUniform1i("outTexture", 0);
 
 		texture.Bind();
-		texture2.Bind(1);
+		//texture2.Bind(1);
 		
 		shader.Bind();
 		arrObj.Bind();
 	
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 8);
 
 		
 		shader.UnBind();
@@ -155,75 +159,78 @@ private:
 	FMatrix4x4 matRotate;
 };
 
-class Test : public CoreEngine::Runtime::Object
-{
-public:
-	Test()
-	{
-		obj = CoreEngine::Runtime::CreateObject<Object>();
-		obj2 = CoreEngine::Runtime::CreateObject<Object>();
-		CoreEngine::TimerHandle hand;
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Obj live")
-		CoreEngine::Engine::Get()->GetTimerManager()->SetTimer(hand, this, &Test::Del, 9, false);
-		//CoreEngine::Application::Get()->GetTimerManager()
-	}
 
-	void Del()
-	{
-		obj = obj2;
-		CoreEngine::TimerHandle hand;
-		CoreEngine::Engine::Get()->GetTimerManager()->SetTimer(hand, this, &Test::Print, 2, false);
-	}
-
-	void Print()
-	{
-		if (obj)
-		{
-			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Obj live")
-		}
-		if (obj2)
-			{
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Obj2 live")
-			}
-	}
-
-	PROPERTY(Object*, obj);
-	PROPERTY(Object*, obj2);
-};
-
-
-class A
-{
-
-};
-
-class B : public A
+class Quad : public CoreEngine::Runtime::Actor
 {
 public:
 
-	void Print()
+	Quad()
 	{
-		std::cout << typeid(*this).raw_name() << std::endl;
+		String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
+		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/ShaderBase.glsl").c_str());
+		Shader.CompileShader(shadPair.first, shadPair.second);
+		VertexBuffer.CreaterBuffer(Arr2, 12, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
+		VertexArray.SetupIntorprit(0, 2, 4, CoreEngine::ETypeData::FLOAT, VertexBuffer);
+		VertexArray.SetupIntorprit(1, 2, 4, CoreEngine::ETypeData::FLOAT, VertexBuffer, 2);
+		texture.ChangeTexture("../../Shaders/container.jpg");
+		texture2.ChangeTexture("../../Shaders/basi3p04.png");
+		texture3.ChangeTexture("../../Shaders/bowt.png");
+		
+
+		quad = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
+		quad->GetSceneProxy()->CountVertex = 12;
+		quad->GetSceneProxy()->AddShaderWithArrayObject(&Shader, &VertexArray);
+		quad->GetSceneProxy()->AddTexture(&texture);
+		quad->GetSceneProxy()->AddTexture(&texture2);
+		quad->GetSceneProxy()->AddTexture(&texture3);
 	}
 
+private:
+
+	CoreEngine::Runtime::PrimitiveComponent* quad = nullptr;
+
+	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject VertexBuffer;
+	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject VertexArray;
+	CoreEngine::Render::OpenGL::OpenGLShader Shader;
+
+	float Arr2[12] = {  0.5,  -0.5,		1.0, 0.0,
+						-0.5, -0.5,		0.0, 0.0,
+						0.0,  0.5,		0.5, 1
+
+	};
+
+	CoreEngine::Render::OpenGL::OpenGLTexture2D texture;
+	CoreEngine::Render::OpenGL::OpenGLTexture2D texture2;
+	CoreEngine::Render::OpenGL::OpenGLTexture2D texture3;
 };
 
-class C : public B
+
+
+class FirstLevel : public CoreEngine::Level
 {
+	virtual void ActorInitizize() override
+	{
+		GetWorld()->SpawnActor<Quad> (nullptr);
 
+		Level::ActorInitizize();
+	}
 };
+
+
+
+
 
 int main(int argc, char** argv)
 {	
 
 	CoreEngine::ApplicationOptions options("Test", argv[0]);
 	auto app = MakeUniquePtr<Editor::EditorApplication>(options);
-	//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, CoreEngine::Runtime::IsParentClass(a,c) == true? "true": "false");
+	auto* level = new FirstLevel();
+	app->Get()->m_Engine->GetWorld()->OpenLevel(level);
 	app->PushLayer(new RenderLayer);
-	//Test a;
-	//TO q;
-	//CoreEngine::GB::GBNotify<int*> a(p, Function<void(CoreEngine::Runtime::Object*, CoreEngine::Runtime::Object*)>(&Test::Notfy,&t));
-	//a = &c;
+
+
+	
 	app->Start();
 	
 }

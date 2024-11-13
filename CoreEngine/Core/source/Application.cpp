@@ -34,6 +34,7 @@ namespace CoreEngine
 
 	void Application::Start()
 	{
+		m_Engine->PostInitialize();
 		while (m_isRun)
 		{			
 			//GetTimerManager()->Update(delta);

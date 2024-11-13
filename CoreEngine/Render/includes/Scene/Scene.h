@@ -21,10 +21,14 @@ namespace CoreEngine
 
 		public:
 
-			void CollectProxy();
+			virtual void CollectProxy() override;
 
-			void SetWorld(World* world);
-			World* GetWorld();
+			virtual void SetWorld(World* world) override;
+			World* GetWorld() const;
+
+		protected:
+
+			void StartRender();
 
 		private:
 

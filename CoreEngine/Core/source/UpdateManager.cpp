@@ -1,5 +1,6 @@
 #include <Core/includes/UpdateManager.h>
 #include <Runtime/CoreObject/Include/Object.h>
+#include <Core/includes/Base.h>
 
 
 
@@ -20,18 +21,23 @@ namespace CoreEngine
 		return UniquePtr<UpdateManager>(m_Instance);;
 	}
 
-	void UpdateManager::AddFunction(const UpdateFunction& newFunc)
+	void UpdateManager::AddFunction(UpdateFunction* newFunc)
 	{
-		m_GroupUpdate.find(newFunc.GetStage())->second.push_back(newFunc);
+		if (!m_GroupUpdate.count(newFunc->GetStage()))
+		{
+			//Pair<EStageUpdate, DArray<UpdateFunction*>(newFunc, DArray<UpdateFunction*>())
+			m_GroupUpdate.insert(Pair<EStageUpdate, DArray<UpdateFunction*>>(newFunc->GetStage(), DArray<UpdateFunction*>())); 
+		}
+		m_GroupUpdate.find(newFunc->GetStage())->second.push_back(newFunc);
 	}
 
 	void UpdateManager::ExecuteGroup(float deltaTime, const EStageUpdate stage)
 	{
 		if (!m_GroupUpdate.count(stage)) return;
 
-		for (auto& func : m_GroupUpdate[stage])
+		for (UpdateFunction* func : m_GroupUpdate.find(stage)->second)
 		{
-			func.ExecuteUpdate(deltaTime);
+			func->ExecuteUpdate(deltaTime);
 		}
 	}
 }

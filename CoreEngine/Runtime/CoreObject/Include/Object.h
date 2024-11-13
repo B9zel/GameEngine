@@ -28,7 +28,8 @@ namespace CoreEngine
 
 namespace CoreEngine
 {
-	
+	class World;
+
 	namespace Runtime
 	{
 		class Object
@@ -48,12 +49,15 @@ namespace CoreEngine
 			void SetWorld(World* newWorld);
 			World* GetWorld();
 
+			virtual void StartDestroy() {}
+			virtual void FinishDestroy() {}
+
 		private:
 
 			PROPERTY(Object*, m_Outer);
 			World* m_World;
 
-			DArray<Object*> m_SubObjects;
+			//DArray<Object*> m_SubObjects;
 
 			friend GB::GarbageCollector;
 		};
@@ -62,7 +66,6 @@ namespace CoreEngine
 		inline ReturnType* Object::CreateSubObject()
 		{
 			ReturnType* obj = CreateObject<ReturnType>(this);
-			m_SubObjects.push_back(obj);
 			return obj;
 		}
 	}
