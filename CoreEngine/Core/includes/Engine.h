@@ -1,8 +1,7 @@
 #pragma once
 #include <Core/includes/Base.h>
-
-
-
+#include <Math/includes/Vector.h>
+#include <Events/include/Event.h>
 
 
 namespace CoreEngine
@@ -24,7 +23,6 @@ namespace CoreEngine
 	{
 	public:
 
-
 		/*
 		* Update all classes
 		*/
@@ -43,11 +41,15 @@ namespace CoreEngine
 		
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
-		UniquePtr<MemoryManager>& GetMamoryManager() { return m_MemoryManager; }
+		UniquePtr<MemoryManager>& GetMemoryManager() { return m_MemoryManager; }
 		UniquePtr<Render::Render>& GetRender() { return m_Render; }
 		UniquePtr<World>& GetWorld() { return m_World; }
 
+		FVector2 GetScreenSize() const;
+
 		virtual void PostInitialize();
+
+		void TakeInputEvent(Event& Input);
 
 	protected:
 

@@ -11,7 +11,7 @@ namespace CoreEngine
 {
 	namespace GB
 	{
-		GarbageCollector* GarbageCollector::m_GBInstatnce = nullptr;
+		GarbageCollector* GarbageCollector::m_GBInstance = nullptr;
 
 
 		GarbageCollector::GarbageCollector()
@@ -27,18 +27,18 @@ namespace CoreEngine
 
 		GarbageCollector* GarbageCollector::Create()
 		{
-			if (m_GBInstatnce)
+			if (m_GBInstance)
 			{
 				EG_LOG(CORE, ELevelLog::ERROR, "GarbageCollector already exists");
-				return m_GBInstatnce;
+				return m_GBInstance;
 			}
 
-			m_GBInstatnce = (GarbageCollector*)(Allocator::Allocate(sizeof(GarbageCollector)));
-			Allocator::Construct(m_GBInstatnce, GarbageCollector());
+			m_GBInstance = (GarbageCollector*)(Allocator::Allocate(sizeof(GarbageCollector)));
+			Allocator::Construct(m_GBInstance, GarbageCollector());
 
-			m_GBInstatnce->Init();
+			m_GBInstance->Init();
 			
-			return m_GBInstatnce;
+			return m_GBInstance;
 		}
 
 		
@@ -63,7 +63,6 @@ namespace CoreEngine
 			{
 				m_ReferenceObjects.emplace(object, 1);
 			}
-
 		}
 
 		void GarbageCollector::RemoveObject(Runtime::Object* object)
@@ -92,7 +91,7 @@ namespace CoreEngine
 		{
 			HashTableSet<Runtime::Object*> markedObjects;
 			MarkLiveObjects(markedObjects);
-			EG_LOG(CORE, ELevelLog::INFO, "Collect");
+			EG_LOG(CORE, ELevelLog::WARNING, "Collect");
 
 			DArray<Runtime::Object*> deleteObjects;
 			for (auto* obj : m_Objects)
@@ -135,10 +134,8 @@ namespace CoreEngine
 
 		void GarbageCollector::OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr)
 		{
-			if (oldPtr == newPtr)
-			{
-				return;
-			}
+			if (oldPtr == newPtr) return;
+			
 			if (oldPtr)
 			{
 				RemoveReference(oldPtr);

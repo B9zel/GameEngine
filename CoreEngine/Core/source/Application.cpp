@@ -1,9 +1,7 @@
 #include <Core/includes/Application.h>
 
 #include <Core/includes/Window.h>
-
 #include <Core/includes/World.h>
-#include <Render/includes/Render.h>
 #include <Core/includes/Dispatcher.h>
 
 
@@ -15,7 +13,7 @@ namespace CoreEngine
 
 	Application::Application(const ApplicationOptions& options)
 	{
-		CORE_ASSERT(m_Instance, "Already create applicaton");	
+		CORE_ASSERT(m_Instance, "Already create application");	
 		m_Instance = this;
 
 		m_appOptions.applicationName = options.applicationName;
@@ -37,9 +35,6 @@ namespace CoreEngine
 		m_Engine->PostInitialize();
 		while (m_isRun)
 		{			
-			//GetTimerManager()->Update(delta);
-			//m_stack.NativeUpdateAll(delta);
-			
 			m_Engine->Update();
 			m_window->OnUpdate();
 		}
@@ -48,7 +43,7 @@ namespace CoreEngine
 	void Application::OnEvent(Event& event)
 	{
 		m_EventDispatch.Dispatch<EventCloseWindow>(event);		
-		//m_Input->InviteEvent(event);
+		m_Engine->TakeInputEvent(event);
 	}
 
 	void Application::Exit(Event& event)
@@ -57,4 +52,3 @@ namespace CoreEngine
 		glfwTerminate();
 	}
 }
-

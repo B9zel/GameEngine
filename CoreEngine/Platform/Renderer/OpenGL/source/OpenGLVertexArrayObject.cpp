@@ -11,7 +11,7 @@ namespace CoreEngine
 			OpenGLVertexArrayObject::OpenGLVertexArrayObject()
 			{
 				m_VAO = 0;
-				m_isCreate = true;
+				m_isCreate = false;
 				m_elementBuffer = nullptr;
 			}
 			OpenGLVertexArrayObject::~OpenGLVertexArrayObject()
@@ -35,7 +35,7 @@ namespace CoreEngine
 				return *this;
 			}
 			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
-														 const VertexBufferObject& bufferObject, const uint32 beginStep)
+				const VertexBufferObject& bufferObject, const uint32 beginStep)
 			{
 				if (typeData == ETypeData::NONE)
 				{
@@ -55,8 +55,8 @@ namespace CoreEngine
 				bufferObject.UnBind();
 			}
 
-			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, 
-										const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep)
+			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
+				const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep)
 			{
 				elementObject.Bind();
 				SetupIntorprit(location, sizeArgument, step, typeData, bufferObject, beginStep);

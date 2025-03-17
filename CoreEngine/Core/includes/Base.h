@@ -9,6 +9,7 @@
 #include <array>
 #include <memory>
 #include <sstream>
+#include <deque>
 
 
 
@@ -78,8 +79,8 @@ using StaticArray = std::array<T, Size>;
 template<class First,class Second>
 using Pair = std::pair<First, Second>;
 
-//template<class T>
-//using Function = std::function<T>;
+template<class T>
+using Deque = std::deque<T>;
 
 
 
@@ -120,5 +121,6 @@ T FromString(const String& str)
 
 
 #include <Templates/Function.h>
+#include <Templates/Queue.h>
 #include <Core/includes/Log.h>
 

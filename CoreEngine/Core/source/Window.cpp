@@ -20,5 +20,4 @@ namespace CoreEngine
 	{
 		return isCreateWindow;
 	}
-
 }

@@ -13,7 +13,7 @@ namespace CoreEngine
 		{
 		public:
 
-			SceneComponent() = default;
+			SceneComponent();
 
 		public:
 
@@ -25,17 +25,28 @@ namespace CoreEngine
 			FVector GetComponentLocation() const;
 			FVector GetComponentScale() const;
 			FVector GetComponentRotation() const;
+			FVector GetForwardVector();
+			FVector GetRightVector();
 
-			void SetComponentRotation(const FVector& newRotation);
-			void SetComponentLocation(const FVector& newLocation);
-			void SetComponentScale(const FVector& newScale);
+			virtual void SetComponentRotation(const FVector& newRotation);
+			virtual void SetComponentLocation(const FVector& newLocation);
+			virtual void SetComponentScale(const FVector& newScale);
 
-			void SetupToAttachment(SceneComponent* attach);
+			virtual void AddComponentRotation(const FVector& addRotation);
+			virtual void AddComponentLocation(const FVector& addLocation);
+			virtual void AddComponentScale(const FVector& addScale);
+
+			virtual void SetupToAttachment(SceneComponent* attach);
+
+		private:
+
+			FVector& CalculateForwardDirection();
+			FVector& CalculateRightDirection();
 
 		protected:
 
 			Transform transform;
-
+			FVector Front;
 			SceneComponent* parentAttach;
 			DArray<SceneComponent*> childrenAttach;
 		};

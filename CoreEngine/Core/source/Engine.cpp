@@ -1,6 +1,5 @@
 #include <Core/includes/Engine.h>
 
-
 #include <Core/includes/Memory/Allocator.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Log.h>
@@ -12,6 +11,7 @@
 #include <Core/includes/InputDevice.h>
 
 #include <Render/includes/Render.h>
+#include <Core/includes/Window.h>
 
 
 
@@ -21,23 +21,32 @@ namespace CoreEngine
 {
 	Engine* Engine::GEngine = nullptr;
 
-
 	Engine::Engine()
 	{
 		GEngine = this;
 
-		m_TimerManager = MakeUniquePtr<TimerManager>();
+		m_TimerManager  = MakeUniquePtr<TimerManager>();
+		m_MemoryManager = MemoryManager::Create();
 		m_Input			= MakeUniquePtr<InputDevice>();
 		m_Render		= Render::Render::Create();
-		m_MemoryManager = MemoryManager::Create();
 
 		m_World.reset(Allocator::Allocate<World>());
+	}
+
+	FVector2 Engine::GetScreenSize() const
+	{
+		Window& win = Application::Get()->GetWindow();
+		return FVector2(win.GetWidth(), win.GetHeight());
 	}
 
 	void Engine::PostInitialize()
 	{
 		m_World->InitProperties();
-		
+	}
+
+	void Engine::TakeInputEvent(Event& Input)
+	{
+		m_Input->InviteEvent(Input);
 	}
 
 	UniquePtr<Engine> Engine::Create()
@@ -60,10 +69,8 @@ namespace CoreEngine
 		m_TimerManager->Update(m_World->GetWorldDeltaTime());
 	}
 
-
 	Engine* Engine::Get()
 	{
 		return GEngine;
 	}
-
 }

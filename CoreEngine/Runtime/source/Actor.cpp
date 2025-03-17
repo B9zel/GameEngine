@@ -5,39 +5,51 @@
 
 
 
-
 namespace CoreEngine
 {
 	namespace Runtime
 	{
-		Actor::Actor() : actorUpdate()
+		Actor::Actor() : actorUpdate(), RootComponent(nullptr)
 		{
 			RootComponent = CreateSubObject<SceneComponent>();
 
 			isBeginedPlay = false;
+			isRegister = false;
 		}
 
 		void Actor::InitProperties()
 		{
 		}
 
+		void Actor::RegisterAll()
+		{
+			for (auto& Component : Components)
+			{
+				if (Component->GetIsActive())
+				{
+					Component->RegisteredComponent();
+				}
+			}
+		}
+
 		void Actor::DispatchBeginPlay()
 		{
-			if (GetWorld())
+			if (GetWorld() && !isBeginedPlay)
 			{
 				BeginPlay();
+				isBeginedPlay = true;
 			}
 		}
 
 		void Actor::BeginPlay()
 		{
-			for (auto& Component : Components)
+			for (ActorComponent* Component : Components)
 			{
-				Component->RegisteredComponent();
+				if (Component)
+				{
+					Component->BeginPlay();
+				}
 			}
-
-			Registered();
-			isBeginedPlay = true;
 		}
 
 		void Actor::Update(float deltaTime)
@@ -51,8 +63,10 @@ namespace CoreEngine
 
 		void Actor::Registered()
 		{
-			GetWorld()->GetUpdateManager()->AddFunction(&actorUpdate);
-			actorUpdate.SetUpdateMethod(&Actor::NativeUpdate, this);
+			if (isRegister) return;
+
+			OnRegistered();
+			isRegister = true;
 		}
 
 		void Actor::InitComponents()
@@ -64,6 +78,18 @@ namespace CoreEngine
 					component->InitProperties();
 				}
 			}
+		}
+
+		void Actor::PostSpawnActor()
+		{
+			Registered();
+			RegisterAll();
+		}
+
+		void Actor::OnRegistered()
+		{
+			GetWorld()->GetUpdateManager()->AddFunction(&actorUpdate);
+			actorUpdate.SetUpdateMethod(&Actor::NativeUpdate, this);
 		}
 
 		SceneComponent* Actor::GetRootComponent() const
@@ -93,6 +119,21 @@ namespace CoreEngine
 			return RootComponent->GetComponentRotation();
 		}
 
+		Transform Actor::GetActorTransform() const
+		{
+			return RootComponent->GetTransform();
+		}
+
+		FVector Actor::GetActorForwardVector() const
+		{
+			return RootComponent ? RootComponent->GetForwardVector() : FVector::ForwardVector;
+		}
+
+		FVector Actor::GetActorRightVector() const
+		{
+			return RootComponent ? RootComponent->GetRightVector() : FVector::RightVector;
+		}
+
 		Actor* Actor::GetOwner() const
 		{
 			return Owner;
@@ -103,7 +144,7 @@ namespace CoreEngine
 			RootComponent->SetComponentLocation(newLocation);
 		}
 
-		void Actor::SetActorSclae(const FVector& newScale)
+		void Actor::SetActorScale(const FVector& newScale)
 		{
 			RootComponent->SetComponentScale(newScale);
 		}
@@ -111,6 +152,21 @@ namespace CoreEngine
 		void Actor::SetActorRotation(const FVector& newRotation)
 		{
 			RootComponent->SetComponentRotation(newRotation);
+		}
+
+		void Actor::SetActorTransform(const Transform& newTransform)
+		{
+			RootComponent->SetTransform(newTransform);
+		}
+
+		void Actor::AddActorLocation(const FVector& AddLocation)
+		{
+			RootComponent->AddComponentLocation(AddLocation);
+		}
+
+		void Actor::AddActorRotation(const FVector& AddValue)
+		{
+			RootComponent->AddComponentRotation(AddValue);
 		}
 
 		void Actor::SetOwner(Actor* newOwner)

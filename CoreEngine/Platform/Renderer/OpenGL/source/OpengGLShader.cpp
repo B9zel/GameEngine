@@ -77,10 +77,10 @@ namespace CoreEngine
 					glCompileShader(l_vertexShader);
 				}
 
-				int32 shaderSucceess;
+				int32 shaderSuccess;
 
-				glGetShaderiv(l_vertexShader, GL_COMPILE_STATUS, &shaderSucceess);
-				if (!shaderSucceess)
+				glGetShaderiv(l_vertexShader, GL_COMPILE_STATUS, &shaderSuccess);
+				if (!shaderSuccess)
 				{
 					char LogInfo[1024];
 					glGetShaderInfoLog(l_vertexShader, 1024, NULL, LogInfo);
@@ -97,8 +97,8 @@ namespace CoreEngine
 				glCompileShader(l_fragmentShader);
 
 
-				glGetShaderiv(l_fragmentShader, GL_COMPILE_STATUS, &shaderSucceess);
-				if (!shaderSucceess)
+				glGetShaderiv(l_fragmentShader, GL_COMPILE_STATUS, &shaderSuccess);
+				if (!shaderSuccess)
 				{
 					char LogInfo[1024];
 					glGetShaderInfoLog(l_fragmentShader, 1024, NULL, LogInfo);
@@ -115,8 +115,8 @@ namespace CoreEngine
 				glAttachShader(l_programShader, l_fragmentShader);
 				glLinkProgram(l_programShader);
 
-				glGetProgramiv(l_programShader, GL_LINK_STATUS, &shaderSucceess);
-				if (!shaderSucceess)
+				glGetProgramiv(l_programShader, GL_LINK_STATUS, &shaderSuccess);
+				if (!shaderSuccess)
 				{
 					char LogInfo[1024];
 					glGetProgramInfoLog(l_programShader, 1024, NULL, LogInfo);
@@ -129,7 +129,8 @@ namespace CoreEngine
 				{
 					m_ID = l_programShader;
 					m_IsCompile = true;
-					AnalysisShader(vertexShader, fragmentShader);
+					AnalysisTextureShader(vertexShader, fragmentShader);
+					AnalysisMatrix4(vertexShader);
 				}
 
 				glDeleteShader(l_vertexShader);
@@ -146,6 +147,11 @@ namespace CoreEngine
 			bool OpenGLShader::GetIsCompile()
 			{
 				return m_IsCompile;
+			}
+
+			bool OpenGLShader::GetHasAllMatrix()
+			{
+				return m_HasAllMatrix;
 			}
 
 			void OpenGLShader::Bind() const
@@ -169,15 +175,21 @@ namespace CoreEngine
 			}
 
 
-			bool OpenGLShader::SetUniformMatrix4x4(const String& nameParam, const FMatrix4x4& matrix)
+			bool OpenGLShader::SetUniformMatrix4x4(const String& nameParam, const FMatrix4x4& matrix, bool isBindShader)
 			{
 				int32 location = 0;
 				SHADER_LOCATION_PARAM(nameParam, location)
 
-					Bind();
-				glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
-				UnBind();
-
+					if (isBindShader)
+					{
+						Bind();
+						glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
+						UnBind();
+					}
+					else
+					{
+						glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
+					}
 				return true;
 			}
 
@@ -217,12 +229,25 @@ namespace CoreEngine
 				return true;
 			}
 
+			bool OpenGLShader::SetUniformVec3(const String& nameParam, const FVector& vec)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					Bind();
+				glUniform3f(location, vec.GetX(), vec.GetY(), vec.GetZ());
+				UnBind();
+
+				return true;
+			}
+
 			bool OpenGLShader::SetUniform1i(const String& nameParam, const int32 value, bool isEnableBind)
 			{
 				int32 location = 0;
 				if (!GetCachedLocationParam(nameParam, location)) {
 					if (!HasUniformLocation(nameParam.c_str())) {
 						{
+
 							Log::LogOutput(OPENGL_Shader, ELevelLog::ERROR, __FUNCTION__ ":" "211", "Can't to find uniform {0}", nameParam.data());
 						}; return false;
 					} location = GetUniformLocation(nameParam.c_str()); cachedParameters.insert(std::pair(nameParam, location));
@@ -251,50 +276,9 @@ namespace CoreEngine
 				}
 				return false;
 			}
-			void OpenGLShader::AnalysisShader(const String& vertex, const String& fragment)
+			void OpenGLShader::AnalysisTextureShader(const String& vertex, const String& fragment)
 			{
-				auto IsInComment = [this](const String& str, const size_t PosTarget)
-					{
-						// Check multi comment
-						size_t OpenPos = str.find("/*");
-						while (OpenPos != String::npos)
-						{
-							size_t ClosePos = str.find("*/", OpenPos);
-							if (ClosePos != String::npos)
-							{
-								if (PosTarget > OpenPos && PosTarget < ClosePos)
-								{
-									return true;
-								}
-								OpenPos = str.find("/*", ClosePos);
-							}
-						}
-
-						
-						// Check single comment
-						size_t BeginComment = str.find("//");
-
-						while (BeginComment != String::npos)
-						{
-							size_t NewLine = str.find("\n", BeginComment);
-							if (NewLine != String::npos)
-							{
-								if (BeginComment <= PosTarget && PosTarget < NewLine)
-								{
-									return true;
-								}
-								BeginComment = str.find("//", NewLine);
-							}
-							else
-							{
-								return true;
-							}
-						}
-						
-						return false;
-					};
-
-				auto Analysis = [this, &IsInComment](const String& shader)
+				auto Analysis = [this](const String& shader)
 					{
 						std::string_view searchLine = "uniform sampler";
 						size_t Pos = shader.find(searchLine);
@@ -327,6 +311,97 @@ namespace CoreEngine
 
 				Analysis(fragment);
 				Analysis(vertex);
+			}
+
+			void OpenGLShader::AnalysisMatrix4(const String& vertex)
+			{
+				auto Analysis = [this](const String& shader)
+					{
+						const std::string_view searchLine = "uniform mat4";
+						HashTableMap<String, bool> Matrix = { {"Model", false},{"View", false}, {"Projection", false} };
+
+						size_t Pos = shader.find(searchLine);
+						while (Pos != String::npos)
+						{
+							if (IsInComment(shader, Pos))
+							{
+								Pos = shader.find(searchLine, Pos + 1);
+								continue;
+							}
+							size_t endLine = shader.find_first_of(';', Pos); //shader.substr(Pos + searchLine.size(), a - Pos - searchLine.size());
+
+
+							size_t PosBeforeName = Pos + searchLine.size();
+							size_t sizeName = endLine - PosBeforeName;
+							String Name = shader.substr(PosBeforeName, sizeName);
+							Name.erase(std::remove(Name.begin(), Name.end(), ' '), Name.end());
+
+							if (Matrix.count(Name))
+							{
+								Matrix[Name] = true;
+							}
+
+							Pos = shader.find(searchLine, Pos + 1);
+						}
+
+						bool hasMatrix = true;
+						for (auto& el : Matrix)
+						{
+							if (!el.second)
+							{
+								hasMatrix = false;
+							}
+						}
+						m_HasAllMatrix = hasMatrix;
+					};
+
+				Analysis(vertex);
+			}
+
+
+			bool OpenGLShader::IsInComment(const String& str, const size_t PosTarget)
+			{
+				// Check multi comment
+				size_t OpenPos = str.find("/*");
+				while (OpenPos != String::npos)
+				{
+					size_t ClosePos = str.find("*/", OpenPos);
+					if (ClosePos != String::npos)
+					{
+						if (PosTarget > OpenPos && PosTarget < ClosePos)
+						{
+							return true;
+						}
+						OpenPos = str.find("/*", ClosePos);
+					}
+					else
+					{
+						return true;
+					}
+				}
+
+
+				// Check single comment
+				size_t BeginComment = str.find("//");
+
+				while (BeginComment != String::npos)
+				{
+					size_t NewLine = str.find("\n", BeginComment);
+					if (NewLine != String::npos)
+					{
+						if (BeginComment <= PosTarget && PosTarget < NewLine)
+						{
+							return true;
+						}
+						BeginComment = str.find("//", NewLine);
+					}
+					else
+					{
+						return true;
+					}
+				}
+
+				return false;
 			}
 		}
 	}

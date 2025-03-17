@@ -7,6 +7,7 @@ namespace CoreEngine
 	class EventKeyboardPressed : public Event
 	{
 	public:
+		EventKeyboardPressed() = default;
 		EventKeyboardPressed(const int32 key) : m_Key{ key } {}
 
 		int32 GetKey() const { return m_Key; }
@@ -21,6 +22,7 @@ namespace CoreEngine
 	class EventKeyboardReleased : public Event
 	{
 	public:
+		EventKeyboardReleased() = default;
 		EventKeyboardReleased(const int32 key) : m_Key{ key } {}
 
 		int32 GetKey() const { return m_Key; }
@@ -36,6 +38,7 @@ namespace CoreEngine
 	{
 	public:
 
+		EventKeyboardRepeat() = default;
 		EventKeyboardRepeat(const int32 key) : m_Key{ key } {}
 
 		int32 GetKey() const { return m_Key; }

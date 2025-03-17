@@ -3,12 +3,13 @@
 #include <Events/include/Event.h>
 
 
+
 namespace CoreEngine
 {
 	struct WindowOptions
 	{
 		WindowOptions() {}
-		WindowOptions(const String& title, uint32 widht, uint32 height) : Title{ title }, Width{widht}, Height{height} {}
+		WindowOptions(const String& title, uint32 width, uint32 height) : Title{ title }, Width{width}, Height{height} {}
 		String Title = "";
 		uint32 Width = 0;
 		uint32 Height = 0;
@@ -42,7 +43,7 @@ namespace CoreEngine
 
 		virtual bool GetIsCreateWindow() const;
 
-		void SetEventBind(const FunctionEventCallBack funtion) { winData.eventCallBack = funtion; }
+		void SetEventBind(const FunctionEventCallBack function) { winData.eventCallBack = function; }
 
 	protected:
 
@@ -56,10 +57,9 @@ namespace CoreEngine
 			uint32 Height = 0;
 			uint32 Width = 0;
 			String Title = "";
-
+			
 			FunctionEventCallBack eventCallBack;
 
 		} winData;
-
 	};
 }

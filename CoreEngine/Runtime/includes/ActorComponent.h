@@ -21,7 +21,7 @@ namespace CoreEngine
 			UpdateActorComponentFunction() : UpdateDelegate(nullptr, nullptr)
 			{
 				CanUpdate = true;
-				Inverval = 0.0f;
+				Interval = 0.0f;
 				LastTimeUpdate = 0.0f;
 				stage = EStageUpdate::PRE_UPDATE;
 			}
@@ -33,7 +33,7 @@ namespace CoreEngine
 				if (!CanUpdate) return;
 
 				LastTimeUpdate += deltaTime;
-				if (LastTimeUpdate >= Inverval)
+				if (LastTimeUpdate >= Interval)
 				{
 					UpdateDelegate.Invoke(std::move(deltaTime));
 					LastTimeUpdate = 0.0f;
@@ -56,9 +56,14 @@ namespace CoreEngine
 		{
 		public:
 
+			virtual void BeginPlay();
+
 			virtual void InitProperties() override;
 			virtual void RegisteredComponent();
 			virtual void TickComponent(float deltaTime) = 0;
+
+			void SetOwner(Actor* Owner);
+			Actor* GetOwner() const;
 			bool GetIsActive() const;
 
 		protected:
@@ -67,6 +72,8 @@ namespace CoreEngine
 
 			bool isRegistered = false;
 			bool isActivate = true;
+
+			Actor* Owner;
 		};
 	}
 }

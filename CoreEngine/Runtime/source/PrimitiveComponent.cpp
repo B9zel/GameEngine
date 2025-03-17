@@ -1,5 +1,6 @@
 #include <Runtime/includes/PrimitiveComponent.h>
 #include <Core/includes/PrimitiveProxy.h>
+#include <Runtime/includes/Actor.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT);
 
@@ -22,6 +23,9 @@ namespace CoreEngine
         }
         PrimitiveProxy* CoreEngine::Runtime::PrimitiveComponent::GetSceneProxy() const
         {
+            Actor* owner = GetOwner();
+            sceneProxy->SetTransform(owner->GetActorTransform());
+
             return sceneProxy;
         }
     }

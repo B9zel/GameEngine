@@ -1,6 +1,6 @@
 #pragma once
 #include <utility>
-//#include <Core/includes/Log.h>
+#include <iostream>
 #include <Core/includes/Base.h>
 
 
@@ -40,7 +40,6 @@ public:
 	virtual ~BaseFnPtr() = default;
 	
 	virtual TReturn Invoke(TArgs&&... param) = 0;
-	
 	virtual bool operator==(const BaseFnPtr<TReturn(TArgs...)>& other) const = 0;
 	
 	virtual ETypeFunction GetType() const = 0;
@@ -114,10 +113,15 @@ public:
 		{
 			return TReturn();
 		}
-
+		
 		return (pClass->*pFn)(std::forward<Args>(param)...);
 	}
-		
+	
+	void Assign(TClass* classOfMethod, FnPtr method)
+	{
+		pClass = classOfMethod;
+		pFn = method;
+	}
 
 	virtual ETypeFunction GetType() const override
 	{

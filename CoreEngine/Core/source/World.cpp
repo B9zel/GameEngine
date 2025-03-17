@@ -12,14 +12,16 @@ namespace CoreEngine
 	{
 		m_UpdateManager = UpdateManager::CreateInstance();
 		m_Scene = Allocator::Allocate<Render::Scene>();
+
+		m_LastTime = static_cast<float>(glfwGetTime());
 	}
 
 	void World::InitProperties()
 	{
 		m_Scene->SetWorld(this);
 		m_MainLevel->SetWorld(this);
-		m_MainLevel->ActorInitizize();
-		Engine::Get()->GetMamoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
+		m_MainLevel->ActorInitialize();
+		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
 	}
 
 	void World::WorldUpdate()
@@ -69,9 +71,7 @@ namespace CoreEngine
 	{
 		for (size_t i = 0; i < m_Levels.size(); i++)
 		{
-			m_Levels[i]->ActorInitizize();
+			m_Levels[i]->ActorInitialize();
 		}
-
 	}
-
 }

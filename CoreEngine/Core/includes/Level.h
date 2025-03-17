@@ -22,7 +22,7 @@ namespace CoreEngine
 
 		const DArray<Runtime::Actor*>& GetActors() const;
 
-		virtual void ActorInitizize();
+		virtual void ActorInitialize();
 		virtual void InitProperties() override;
 		
 	private:
@@ -33,6 +33,6 @@ namespace CoreEngine
 
 		DArray<Runtime::Object*> m_Objects;
 		DArray<Runtime::Actor*> m_Actors;
-		DArray<GB::GBNotify<Runtime::Actor*>> m_ActorsGC;
+		DArray<ObjectPtr<Runtime::Actor>> m_ActorsGC;
 	};
 }

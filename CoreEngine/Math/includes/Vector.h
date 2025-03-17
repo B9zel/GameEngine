@@ -27,12 +27,29 @@ using UVector2 = glm::uvec2;
 
 
 
+
 template<class T>
 class TVector3
 {
 public:
 
-	TVector3(T x = 0, T y = 0, T z = 0)
+	static const TVector3<T> ForwardVector;
+	static const TVector3<T> BackVector;
+	static const TVector3<T> UpVector;
+	static const TVector3<T> DownVector;
+	static const TVector3<T> RightVector;
+	static const TVector3<T> LeftVector;
+
+public:
+
+	TVector3(const T value = 0)
+	{
+		vector.x = value;
+		vector.y = value;
+		vector.z = value;
+	}
+
+	TVector3(const T x, const T y, const T z)
 	{
 		vector.x = x;
 		vector.y = y;
@@ -41,12 +58,20 @@ public:
 
 	TVector3(const TVector3& OtherVec)
 	{
-		this->operator=(OtherVec);
+		vector.x = OtherVec.vector.x;
+		vector.y = OtherVec.vector.y;
+		vector.z = OtherVec.vector.z;
 	}
 
 	TVector3(TVector3&& OtherVec)
 	{
-		this->operator=(std::move(OtherVec));
+		vector.x = OtherVec.vector.x;
+		vector.y = OtherVec.vector.y;
+		vector.z = OtherVec.vector.z;
+
+		OtherVec.vector.x = 0;
+		OtherVec.vector.y = 0;
+		OtherVec.vector.z = 0;
 	}
 
 	TVector3& operator=(const TVector3& otherVec)
@@ -111,7 +136,7 @@ public:
 		return *this;
 	}
 
-	TVector3 operator+(const TVector3& otherVec)
+	TVector3 operator+(const TVector3& otherVec) const
 	{
 		TVector3 res(vector.x, vector.y, vector.z);
 
@@ -119,7 +144,7 @@ public:
 		return res;
 	}
 
-	TVector3 operator-(const TVector3& otherVec)
+	TVector3 operator-(const TVector3& otherVec) const
 	{
 		TVector3 res(vector.x, vector.y, vector.z);
 
@@ -127,7 +152,7 @@ public:
 		return res;
 	}
 
-	TVector3 operator*(const TVector3& otherVec)
+	TVector3 operator*(const TVector3& otherVec) const
 	{
 		TVector3 res(vector.x, vector.y, vector.z);
 
@@ -135,7 +160,7 @@ public:
 		return res;
 	}
 
-	TVector3 operator/(const TVector3& otherVec)
+	TVector3 operator/(const TVector3& otherVec) const
 	{
 		TVector3 res(vector.x, vector.y, vector.z);
 
@@ -143,12 +168,60 @@ public:
 		return res;
 	}
 
-	TVector3 operator%(const TVector3& otherVec)
+	TVector3 operator%(const TVector3& otherVec) const
 	{
 		TVector3 res(vector.x, vector.y, vector.z);
 
 		res %= otherVec;
 		return res;
+	}
+
+	TVector3 operator+(const T& otherVec) const
+	{
+		TVector3 res(vector.x + otherVec, vector.y + otherVec, vector.z + otherVec);
+
+		return res;
+	}
+
+	TVector3 operator-(const T& otherVec) const
+	{
+		TVector3 res(vector.x - otherVec, vector.y - otherVec, vector.z - otherVec);
+
+		return res;
+	}
+
+	TVector3 operator*(const T& otherVec) const
+	{
+		TVector3 res(vector.x * otherVec, vector.y * otherVec, vector.z * otherVec);
+
+		return res;
+	}
+
+	TVector3 operator/(const T& otherVec) const
+	{
+		if (otherVec == static_cast<T>(0.0))
+		{
+			return res;
+		}
+		TVector3 res(vector.x / otherVec, vector.y / otherVec, vector.z / otherVec);
+
+		return res;
+	}
+
+	TVector3 operator%(const T& otherVec) const
+	{
+		TVector3 res(vector.x % otherVec, vector.y % otherVec, vector.z % otherVec);
+
+		return res;
+	}
+
+	TVector3& operator-()
+	{
+		vector.x = -vector.x;
+		vector.y = -vector.y;
+		vector.z = -vector.z;
+
+		return *this;
 	}
 
 	TVector3& operator++()
@@ -161,7 +234,7 @@ public:
 	{
 		TVector3 res(*this);
 		++*this;
-		
+
 		return res;
 	}
 
@@ -179,7 +252,7 @@ public:
 		return res;
 	}
 
-	T operator[](unsigned int pos)
+	T operator[](unsigned int pos) const
 	{
 		return vector[pos];
 	}
@@ -193,14 +266,31 @@ public:
 		return *this;
 	}
 
-	T Dot(const TVector3& Vec)
+	TVector3& SafeNormalize()
+	{
+		T Squarelength = LengthSquared();
+		if (Squarelength == static_cast<T>(0))
+		{
+			return *this;
+		}
+
+		T inv_Length = glm::inversesqrt(Squarelength);
+		vector.x *= inv_Length;
+		vector.y *= inv_Length;
+		vector.z *= inv_Length;
+
+		return *this;
+	}
+
+	T Dot(const TVector3& Vec) const
 	{
 		return glm::dot(vector, Vec.vector);
 	}
 
-	TVector3 Cross(const TVector3& Vec)
+	TVector3 Cross(const TVector3& Vec) const
 	{
-		return glm::cross(Vector, Vec);
+		glm::vec<3, T, glm::defaultp> CrossVec = glm::cross(vector, Vec.vector);
+		return TVector3(CrossVec.x, CrossVec.y, CrossVec.z);
 	}
 
 	T Length() const
@@ -230,7 +320,37 @@ public:
 		return vector.z;
 	}
 
+	void SetX(const T x)
+	{
+		vector.x = x;
+	}
+
+	void SetY(const T y)
+	{
+		vector.y = y;
+	}
+
+	void SetZ(const T z)
+	{
+		vector.z = z;
+	}
+
+
 public:
-	
+
 	glm::vec<3, T, glm::defaultp> vector;
 };
+
+
+const FVector FVector::ForwardVector = FVector(0.0f, 0.0f, -1.0f);
+const FVector FVector::BackVector = FVector(0.0f, 0.0f, 1.0f);
+const FVector FVector::UpVector = FVector(0.0f, 1.0f, 0.0f);
+const FVector FVector::DownVector = FVector(0.0f, -1.0f, 0.0f);
+const FVector FVector::RightVector = FVector(1.0f, 0.0f, 0.0f);
+const FVector FVector::LeftVector = FVector(-1.0f, 0.0f, 0.0f);
+const DVector DVector::ForwardVector = DVector(0.0, 0.0, -1.0);
+const DVector DVector::BackVector = DVector(0.0, 0.0, 1.0);
+const DVector DVector::UpVector = DVector(0.0, 1.0, 0.0);
+const DVector DVector::DownVector = DVector(0.0, -1.0, 0.0);
+const DVector DVector::RightVector = DVector(1.0, 0.0, 0.0);
+const DVector DVector::LeftVector = DVector(-1.0, 0.0, 0.0);

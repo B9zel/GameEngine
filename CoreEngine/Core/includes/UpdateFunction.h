@@ -15,7 +15,7 @@ namespace CoreEngine
 	enum class EStageUpdate : uint8;
 
 
-	// Stores pointer on Update method and decides when to call mthod
+	// Stores pointer on Update method and decides when to call method
 	class UpdateFunction
 	{
 	public:
@@ -42,7 +42,7 @@ namespace CoreEngine
 	protected:
 
 		bool CanUpdate;
-		float Inverval;
+		float Interval;
 		float LastTimeUpdate;
 		EStageUpdate stage;
 	};

@@ -6,8 +6,6 @@
 #include <Core/includes/Level.h>
 
 
-
-
 namespace CoreEngine
 {
 	namespace Runtime
@@ -28,26 +26,18 @@ namespace CoreEngine
 
 	struct SpawnParamConfiguration
 	{
+	public:
 		Level* SpawnLevel = nullptr;
 	};
 
-
-
-
 	class World : public CoreEngine::Runtime::Object
 	{
-	
 	public:
-
 		World();
-
 	public:
-
 		virtual void InitProperties() override;
-
 		virtual void WorldUpdate();
 		UpdateManager* GetUpdateManager();
-
 		float GetWorldDeltaTime() const;
 		const DArray<Level*>& GetLevels() const;
 
@@ -55,9 +45,7 @@ namespace CoreEngine
 		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
 
 		void OpenLevel(Level* level);
-
 		void InitializePlayActors();
-
 	private:
 
 		UniquePtr<UpdateManager> m_UpdateManager;
@@ -67,12 +55,9 @@ namespace CoreEngine
 
 		Render::SceneInterface* m_Scene;
 
-
 		float m_DeltaTime;
 		float m_LastTime;
 	};
-
-
 
 	template<class T>
 	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param )
@@ -99,9 +84,8 @@ namespace CoreEngine
 		}
 		T* NewActor = Runtime::CreateObject<T>(Owner);
 		NewActor->SetOwner(Owner);
-		NewActor->Registered();
+		NewActor->PostSpawnActor();
 		spawnToLevel->AddActor(NewActor);
-
 		
 		return NewActor;
 	}

@@ -4,7 +4,7 @@
 namespace CoreEngine
 {
 
-	enum class EEventType : unsigned
+	enum class EEventType : uint8
 	{
 		KEY_PRESSED = 0,
 		KEY_RELEASED,
@@ -18,6 +18,13 @@ namespace CoreEngine
 		WINDOW_CLOSE,
 
 		COUNT_ENUM
+	};
+
+
+	enum class EActionType : uint8
+	{
+		PRESSED = 0,
+		RELEASED
 	};
 
 

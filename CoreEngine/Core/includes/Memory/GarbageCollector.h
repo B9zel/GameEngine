@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/includes/Base.h>
-
-#include <Core/includes/GBNotify.h>
+#include <Templates/Function.h>
+#include <Core/includes/ObjectPtr.h>
 #include <Core/includes/TimerManager.h>
 
 
@@ -13,11 +13,8 @@
 
 namespace CoreEngine
 {
-	namespace GB
-	{
-		template<class T>
-		class GBNotify;
-	}
+	template<class T>
+	class ObjectPtr;
 }
 
 
@@ -44,7 +41,7 @@ namespace CoreEngine
 			static GarbageCollector* Create();
 			
 			template<class T>
-			void AddProperty(GBNotify<T*>* property);
+			void AddProperty(ObjectPtr<T>* Property);
 
 			void AddObject(Runtime::Object* object);
 			void AddRootObject(Runtime::Object* object);
@@ -52,7 +49,7 @@ namespace CoreEngine
 			void RemoveObject(Runtime::Object* object);
 			void RemoveReference(Runtime::Object* object);
 
-			static GarbageCollector* GetGBInstance() { return m_GBInstatnce; }
+			static GarbageCollector* GetGBInstance() { return m_GBInstance; }
 
 		private:
 
@@ -70,7 +67,7 @@ namespace CoreEngine
 
 		private:
 
-			static GarbageCollector* m_GBInstatnce;
+			static GarbageCollector* m_GBInstance;
 
 			HashTableSet<Runtime::Object*> m_Objects;
 			HashTableSet<Runtime::Object*> m_RootObjects;
@@ -81,9 +78,10 @@ namespace CoreEngine
 			TimerHandle collectHandler;
 		};
 		template<class T>
-		inline void GarbageCollector::AddProperty(GBNotify<T*>* property)
+		inline void GarbageCollector::AddProperty(ObjectPtr<T>* Property)
 		{
-			property->m_Mehtod.Assign(&GarbageCollector::OnChangePointer, this);
+			Property->m_Method.Assign(&GarbageCollector::OnChangePointer, this);
+	
 		}
 	}
 }

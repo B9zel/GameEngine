@@ -7,15 +7,19 @@ namespace CoreEngine
 	{
 	public:
 
+		EventCloseWindow() = default;
+
+
 		CREATE_EVENT_CLASS(WINDOW_CLOSE)
 	
 	};
 
-	class EventFocuseWindow : public Event
+	class EventFocusedWindow : public Event
 	{
 	public:
+		EventFocusedWindow() = default;
 
-		EventFocuseWindow(bool isEnter) : m_IsEnter{ isEnter } {}
+		EventFocusedWindow(bool isEnter) : m_IsEnter{ isEnter } {}
 
 		bool GetIsEnter() const { return m_IsEnter; }
 		void SetIsEnter(bool isEnter) { m_IsEnter = isEnter; }
@@ -30,6 +34,8 @@ namespace CoreEngine
 	class EventResizeWidnow : public Event
 	{
 	public:
+
+		EventResizeWidnow() = default;
 
 		EventResizeWidnow(int32 width, int32 height) : m_Width{ width }, m_Height{ height } {}
 

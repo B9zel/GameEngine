@@ -20,8 +20,7 @@ namespace CoreEngine
 
 			static API GetAPI();
 			static UniquePtr<RendererAPI> CreateAPI();
-			
-	
+
 		private:
 
 			static API m_Api;

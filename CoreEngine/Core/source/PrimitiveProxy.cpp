@@ -25,4 +25,14 @@ namespace CoreEngine
         return m_Textures;
     }
 
+    const Transform& PrimitiveProxy::GetTransform() const
+    {
+        return m_Transform;
+    }
+
+    void PrimitiveProxy::SetTransform(const Transform& transform)
+    {
+        m_Transform = transform;
+    }
+
 }

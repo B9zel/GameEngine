@@ -3,6 +3,8 @@
 #include <Render/includes/Shader.h>
 #include <Render/includes/VertexArrayObject.h>
 #include <Render/includes/Texture.h>
+#include <Math/includes/Transform.h>
+
 
 namespace CoreEngine
 {
@@ -18,12 +20,16 @@ namespace CoreEngine
 		virtual void AddShaderWithArrayObject(Render::Shader* shaderKey, Render::VertexArrayObject* arrayValue);
 		virtual void AddTexture(Render::Texture* NewTexture);
 		virtual const DArray<Render::Texture*>& GetTextures() const;
+		virtual const Transform& GetTransform() const;
+		virtual void SetTransform(const Transform& transform);
 		
 
 	private:
 
 		HashTableMap<Render::Shader*, Render::VertexArrayObject*> m_Shaders;
 		DArray<Render::Texture*> m_Textures;
+
+		Transform m_Transform;
 
 	public:
 		// Test

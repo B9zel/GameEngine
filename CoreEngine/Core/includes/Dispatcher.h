@@ -20,29 +20,40 @@ namespace CoreEngine
 
 	public:
 
+		Dispatcher()
+		{
+			m_MtDispatch.reserve(1);
+		}
+
 		template<class Class>
 		void AddBind(void(Class::* method)(Args...), Class* classOfMethod)
 		{
-			m_MtDispath.push_back(FunctionParam(method, classOfMethod));
+			m_MtDispatch.push_back(FunctionParam(method, classOfMethod));
+		}
+
+		
+		void AddBind(void(*Func)(Args...))
+		{
+			m_MtDispatch.push_back(FunctionParam(Func));
 		}
 		
 		template<class Class>
 		void AddBind(MethodPtr<Class, TypeParam>& bind)
 		{
-			m_MtDispath.push_back(bind);
+			m_MtDispatch.push_back(bind);
 		}
 
 		template<class Class>
 		bool Remove(void(Class::*method)(Args...), Class* classOfMethod)
 		{
-			if (m_MtDispath.empty()) return false;
+			if (m_MtDispatch.empty()) return false;
 
 			MethodPtr<Class, TypeParam> removeFn(method, classOfMethod);
-			for (DArray<FunctionParam>::iterator it = m_MtDispath.begin(); it != m_MtDispath.end(); ++it)
+			for (DArray<FunctionParam>::iterator it = m_MtDispatch.begin(); it != m_MtDispatch.end(); ++it)
 			{
 				if (*(it->GetFunction()) == removeFn)
 				{
-					m_MtDispath.erase(it);
+					m_MtDispatch.erase(it);
 					return true;
 				}
 			}
@@ -53,16 +64,18 @@ namespace CoreEngine
 
 		inline bool RemoveAll()
 		{
-			if (m_MtDispath.empty())
+			if (m_MtDispatch.empty())
 				return false;
 
-			m_MtDispath.clear();
+			m_MtDispatch.clear();
 			return true;
 		}
 
 		inline void Call(Args&&... param)
 		{
-			for (auto& el : m_MtDispath)
+			if (m_MtDispatch.empty()) return;
+
+			for (auto& el : m_MtDispatch)
 			{
 				el(std::forward<Args>(param)...);
 			}
@@ -70,10 +83,12 @@ namespace CoreEngine
 
 		const DArray<FunctionParam>& GetDispatch()
 		{
-			return m_MtDispath;
+			return m_MtDispatch;
 		}
+
 	private:
-		DArray<FunctionParam> m_MtDispath;
+
+		DArray<FunctionParam> m_MtDispatch;
 	};
 
 }

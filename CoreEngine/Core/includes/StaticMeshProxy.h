@@ -6,7 +6,7 @@
 
 namespace CoreEngine
 {
-	class StaticMehsProxy : public PrimitiveProxy
+	class StaticMeshProxy : public PrimitiveProxy
 	{
 	
 	};

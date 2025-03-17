@@ -2,7 +2,7 @@
 #include <Core/includes/Memory/GarbageCollector.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/Base.h>
-#include <Core/includes/GBNotify.h>
+#include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Layer.h>
 
 
@@ -11,17 +11,16 @@ namespace CoreEngine
 {
 	class Layer;
 	class Engine;
+	template<class T>
+	class ObjectPtr;
 	namespace GB
 	{
-		template<class T>
-		class GBNotify;
-
 		class GarbageCollector;
 	}
 }
 	
 
-#define PROPERTY(type, name) CoreEngine::GB::GBNotify<type> name
+#define PROPERTY(type, name) CoreEngine::ObjectPtr<type> name
 	
 
 
@@ -36,12 +35,12 @@ namespace CoreEngine
 		{
 		public:
 
-			Object() = default;
-			virtual ~Object() { EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Destoy object"); }
+			Object();
+			virtual ~Object() { EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Destroy object"); }
 
 		public:
 
-			virtual void InitProperties() {};
+			virtual void InitProperties();
 
 			template<class ReturnType>
 			ReturnType* CreateSubObject();
@@ -54,10 +53,9 @@ namespace CoreEngine
 
 		private:
 
-			PROPERTY(Object*, m_Outer);
+			ObjectPtr<Object> m_Outer;
 			World* m_World;
 
-			//DArray<Object*> m_SubObjects;
 
 			friend GB::GarbageCollector;
 		};

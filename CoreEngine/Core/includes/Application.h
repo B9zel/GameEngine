@@ -8,17 +8,14 @@
 #include "Base.h"
 
 
-
 int32 main(int32 argc, char** argv);
 
 namespace CoreEngine
 {
-
 	class Engine;
 	class Window;
 	class Layer;
 	class Event;
-
 
 	struct ApplicationOptions
 	{
@@ -73,21 +70,15 @@ namespace CoreEngine
 		UniquePtr<Window> m_window;
 		UniquePtr<Engine> m_Engine;
 
-
 		LayerStack m_stack;
-		ShaderLibrary m_shaderLibray;
+		ShaderLibrary m_shaderLibrary;
 		EventDispatch m_EventDispatch;
-		
 	
 		bool m_isRun;
-
 		static Application* m_Instance;
 
 	private:
 
 		friend int ::main(int argc, char** argv);
 	};
-
-
-
 }

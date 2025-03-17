@@ -7,12 +7,14 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
+		void ActorComponent::BeginPlay()
+		{
+		}
 		void ActorComponent::InitProperties()
 		{
 			Object::InitProperties();
 
-
-
+			updateFunc.SetUpdateMethod(&ActorComponent::TickComponent, this);
 		}
 		void ActorComponent::RegisteredComponent()
 		{
@@ -20,6 +22,15 @@ namespace CoreEngine
 
 			GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
 			isRegistered = true;
+		}
+		void ActorComponent::SetOwner(Actor* Owner)
+		{
+			this->Owner = Owner;
+		}
+
+		Actor* ActorComponent::GetOwner() const
+		{
+			return Owner;
 		}
 		bool ActorComponent::GetIsActive() const
 		{

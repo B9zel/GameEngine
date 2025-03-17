@@ -45,7 +45,7 @@ inline T* Allocator::AllocateAndConstruct(uint32 bytes, Args&& ...args)
 }
 
 /*
-*	Allocate memory and costruct object
+*	Allocate memory and construct object
 */
 template<class T, class ...Args>
 inline T* Allocator::Allocate(Args&& ...args)

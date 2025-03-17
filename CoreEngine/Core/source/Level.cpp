@@ -11,7 +11,7 @@ namespace CoreEngine
 		return m_Actors;
 	}
 
-	void Level::ActorInitizize()
+	void Level::ActorInitialize()
 	{
 		for (auto& Actor : GetActors())
 		{
@@ -32,7 +32,7 @@ namespace CoreEngine
 
 	void Level::AddActor(Runtime::Actor* newActor)
 	{
-		m_Actors.emplace_back(newActor);
+		m_Actors.push_back(newActor);
 		m_ActorsGC.push_back(newActor);
 	}
 }
