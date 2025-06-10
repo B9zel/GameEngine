@@ -1,6 +1,7 @@
 #include <Render/includes/Render.h>
 #include <Core/includes/PrimitiveProxy.h>
 #include <Core/includes/StaticMeshProxy.h>
+#include <Core/includes/LightProxy.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRendere.h>
 
 
@@ -32,25 +33,29 @@ namespace CoreEngine
 			default:
 				break;
 			}
-			
+
 			return render;
 		}
 
-		void Render::RenderPipelineProxy(const DArray<PrimitiveProxy*>& Primitives)
+		void Render::RenderPipelineProxy(const DArray<PrimitiveProxy*>& Primitives, const DArray<LightProxy*>& Lights)
 		{
+			using namespace CoreEngine::Render;
 			for (auto* Primitive : Primitives)
 			{
 				// Return later !!!!!!!!!!!
-				//if (StaticMehsProxy* StaticProxy = dynamic_cast<StaticMehsProxy*>(Primitive))
-				//{
-				//	RenderStaticMeshProxy(StaticProxy);
-				//}
-				RenderProxy(Primitive);
+				if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
+				{
+					RenderStaticMeshProxy(StaticProxy, Lights);
+				}
+				else
+				{
+					RenderProxy(Primitive);
+				}
 			}
 		}
 
-		
 
-		
+
+
 	}
 }

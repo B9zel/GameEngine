@@ -89,7 +89,7 @@ namespace CoreEngine
 
 		protected:
 
-			virtual void TickComponent(float deltaTime) override;
+			virtual void UpdateComponent(float deltaTime) override {}
 
 			virtual bool ProcessUpdateAction(Event* event);
 

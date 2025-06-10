@@ -17,7 +17,7 @@ namespace CoreEngine
 		case ETypeData::INT: return GL_INT;
 		case ETypeData::UNSIGNED_INT: return GL_UNSIGNED_INT;
 		}
-		EG_LOG(CORE, ELevelLog::WARNING, "Don't implementation type data");
+		EG_LOG(CORE, ELevelLog::ERROR, "Don't implementation type data");
 		return 0;
 	}
 
@@ -29,7 +29,7 @@ namespace CoreEngine
 		case ETypeData::INT: return sizeof(int);
 		case ETypeData::UNSIGNED_INT: return sizeof(unsigned int);
 		default:
-			EG_LOG(CORE, ELevelLog::WARNING, "Don't implementation type: {0}", static_cast<short>(type));
+			EG_LOG(CORE, ELevelLog::ERROR, "Don't implementation type: {0}", static_cast<short>(type));
 			return 0;
 		}
 	}
@@ -46,7 +46,7 @@ namespace CoreEngine
 			case ETypeDraw::STREAM:
 				return GL_STREAM_DRAW;
 			}
-			EG_LOG(CORE, ELevelLog::WARNING, "Not type draw");
+			EG_LOG(CORE, ELevelLog::ERROR, "Not type draw");
 			return 0;
 		}
 	}

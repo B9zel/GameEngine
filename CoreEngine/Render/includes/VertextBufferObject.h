@@ -2,18 +2,22 @@
 #include <Render/includes/Enums/TypeData.h>
 #include <Render/includes/Enums/TypeDraw.h>
 #include <Core/includes/Platform.h>
+#include <Core/includes/Base.h>
 
 
 namespace CoreEngine
 {
 	namespace Render
 	{
+		class VertexArrayObject;
 
 		class VertexBufferObject
 		{
 		public:
 
-			virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw) = 0;
+			static UniquePtr<VertexBufferObject> CreateVertexBufferObject();
+
+			virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray) = 0;
 
 			virtual void DeleteBuffer() = 0;
 

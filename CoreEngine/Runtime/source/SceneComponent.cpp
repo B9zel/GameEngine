@@ -70,7 +70,7 @@ void CoreEngine::Runtime::SceneComponent::SetComponentScale(const FVector& newSc
 {
 	for (auto& Child : childrenAttach)
 	{
-		Child->SetComponentScale(newScale - Child->GetComponentScale());
+		Child->SetComponentScale((Child->GetComponentScale() / Child->parentAttach->GetComponentScale()) * newScale);
 	}
 	transform.SetScale(newScale);
 }

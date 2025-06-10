@@ -7,27 +7,39 @@ DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT);
 
 namespace CoreEngine
 {
-    namespace Runtime
-    {
-        PrimitiveComponent::PrimitiveComponent()
-        {
-            try
-            {
-                sceneProxy = new PrimitiveProxy();
-            }
-            catch (const std::exception& error)
-            {
-                EG_LOG(PRIMITIVE_COMPONENT, ELevelLog::ERROR, error.what());
-                throw error;
-            }
-        }
-        PrimitiveProxy* CoreEngine::Runtime::PrimitiveComponent::GetSceneProxy() const
-        {
-            Actor* owner = GetOwner();
-            sceneProxy->SetTransform(owner->GetActorTransform());
+	namespace Runtime
+	{
+		PrimitiveComponent::PrimitiveComponent()
+		{
+			try
+			{
+				sceneProxy = new PrimitiveProxy();
+			}
+			catch (const std::exception& error)
+			{
+				EG_LOG(PRIMITIVE_COMPONENT, ELevelLog::ERROR, error.what());
+				throw error;
+			}
+		}
+		PrimitiveProxy* CoreEngine::Runtime::PrimitiveComponent::GetSceneProxy() const
+		{
+			// Actor* owner = GetOwner();
+			/*if (sceneProxy)
+			{
+				sceneProxy->SetTransform(GetTransform());
 
-            return sceneProxy;
-        }
-    }
+			}*/
+
+			return sceneProxy;
+		}
+
+		PrimitiveProxy* PrimitiveComponent::GetUpdateProxy() const
+		{
+			/*Transform ProxyTransform = GetTransform();
+			ProxyTransform.SetRotation(Math::ToDegreesVector(ProxyTransform.GetRotation()));*/
+			sceneProxy->SetTransform(GetTransform());
+			return sceneProxy;
+		}
+	}
 }
 

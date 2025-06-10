@@ -14,11 +14,13 @@ namespace CoreEngine
 			case RendererAPI::API::None:
 				EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
 				return nullptr;
-			case RendererAPI::API::OpenGL: 
+			case RendererAPI::API::OpenGL:
 				return MakeSharedPtr<OpenGL::OpenGLTexture2D>(path);
 			default:
 				break;
 			}
+			EG_LOG(CORE, ELevelLog::CRITICAL, "No implament API to create");
 		}
+
 	}
 }

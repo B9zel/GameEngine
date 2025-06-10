@@ -27,7 +27,7 @@ struct Math
 		return glm::radians(degrees);
 	}
 
-	static inline FVector ToRadianVector(FVector degrees)
+	static inline FVector ToRadianVector(const FVector& degrees)
 	{
 		return FVector(ToRadian(degrees.GetX()), ToRadian(degrees.GetY()), ToRadian(degrees.GetZ()));
 	}
@@ -37,8 +37,34 @@ struct Math
 		return glm::degrees(radian);
 	}
 
+	static inline FVector ToDegreesVector(const FVector& radian)
+	{
+		return FVector(ToDegrees(radian.GetX()), ToDegrees(radian.GetY()), ToDegrees(radian.GetZ()));
+	}
+
 	static inline double ToDegrees(double radian)
 	{
 		return glm::degrees(radian);
+	}
+
+	template<class T>
+	static inline const T& Min(const T& Left, const T& Right)
+	{
+		return std::min(Left, Right);
+	}
+	template<class T>
+	static inline T& Min(T& Left, T&& Right)
+	{
+		return std::min(Left, Right);
+	}
+	template<class T>
+	static inline const T& Max(const T& Left, const T& Right)
+	{
+		return std::max(Left, Right);
+	}
+	template<class T>
+	static inline T Max(T& Left, T&& Right)
+	{
+		return std::max(Left, Right);
 	}
 };

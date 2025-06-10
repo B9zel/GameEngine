@@ -38,7 +38,7 @@ namespace CoreEngine
 		static UniquePtr<Engine> Create();
 
 		static Engine* Get();
-		
+
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
 		UniquePtr<MemoryManager>& GetMemoryManager() { return m_MemoryManager; }

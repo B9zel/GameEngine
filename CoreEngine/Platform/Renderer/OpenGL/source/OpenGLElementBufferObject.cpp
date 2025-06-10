@@ -18,19 +18,51 @@ namespace CoreEngine
 				DeleteBuffer();
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw,const VertexBufferObject& buffObj)
+			OpenGLElementBufferObject::OpenGLElementBufferObject(OpenGLElementBufferObject&& Other) noexcept
+			{
+				m_EBO = Other.m_EBO;
+				m_isCreate = Other.m_isCreate;
+				m_typeStorageData = Other.m_typeStorageData;
+
+				Other.m_EBO = 0;
+				Other.m_isCreate = false;
+				Other.m_typeStorageData = ETypeData::NONE;
+			}
+
+			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj)
 			{
 				if (IsCreate())
 				{
 					DeleteBuffer();
 				}
 
+				vertexArray.Bind();
+				buffObj.Bind();
 				glGenBuffers(1, &m_EBO);
-
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
+				vertexArray.UnBind();
+				buffObj.UnBind();
 				UnBind();
 
+				m_typeStorageData = typeData;
+				m_isCreate = true;
+			}
+
+			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray)
+			{
+				if (IsCreate())
+				{
+					DeleteBuffer();
+				}
+
+				vertexArray.Bind();
+				glGenBuffers(1, &m_EBO);
+				Bind();
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
+				vertexArray.UnBind();
+				UnBind();
+			
 				m_typeStorageData = typeData;
 				m_isCreate = true;
 			}
@@ -66,7 +98,7 @@ namespace CoreEngine
 					Bind();
 					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
 					UnBind();
-				}	
+				}
 				else
 				{
 					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);

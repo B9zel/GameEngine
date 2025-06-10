@@ -2,6 +2,7 @@
 
 #include <Render/includes/VertextBufferObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLConvertData.h>
+#include <Render/includes/VertexArrayObject.h>
 #include <Core/includes/Base.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -28,7 +29,7 @@ namespace CoreEngine
 
 			public:
 
-				virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw) override;
+				virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray) override;
 
 				virtual void DeleteBuffer() override;
 

@@ -18,16 +18,18 @@ namespace CoreEngine
 		class GarbageCollector;
 	}
 }
-	
+
 
 #define PROPERTY(type, name) CoreEngine::ObjectPtr<type> name
-	
+
 
 
 
 namespace CoreEngine
 {
 	class World;
+	template<typename T>
+	class ObjectPtr;
 
 	namespace Runtime
 	{

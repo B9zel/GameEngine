@@ -14,9 +14,6 @@ namespace CoreEngine
 			PressedKey = INT_MIN;
 		}
 
-		void InputComponent::TickComponent(float deltaTime)
-		{
-		}
 
 		bool InputComponent::ProcessUpdateAction(Event* event)
 		{
@@ -85,14 +82,14 @@ namespace CoreEngine
 
 					break;
 				}
-				case EEventType::MOUSE_MOVE:
-				{
-					auto* Event = dynamic_cast<EventMouseMotion*>(event);
-					for (auto& Bind : m_CallbackInputMotion)
-					{
-						Bind.Callback.Execute(Event->GetPosX(), Event->GetPosY());
-					}
 				}
+			}
+			if (event->GetEventType() == EEventType::MOUSE_MOVE)
+			{
+				auto* Event = dynamic_cast<EventMouseMotion*>(event);
+				for (auto& Bind : m_CallbackInputMotion)
+				{
+					Bind.Callback.Execute(Event->GetPosX(), Event->GetPosY());
 				}
 			}
 			return false;
@@ -154,7 +151,6 @@ namespace CoreEngine
 
 				break;
 			}
-
 			}
 			return false;
 		}

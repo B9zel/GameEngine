@@ -193,76 +193,93 @@ namespace CoreEngine
 				return true;
 			}
 
-			bool OpenGLShader::SetUniformFloat(const String& nameParam, float value)
-			{
-				int32 location = 0;
-				SHADER_LOCATION_PARAM(nameParam, location)
-
-					Bind();
-				glUniform1f(location, value);
-				UnBind();
-
-				return true;
-			}
-
-			bool OpenGLShader::SetUniformVec4(const String& nameParam, const FVector4& vec)
-			{
-				int32 location = 0;
-				SHADER_LOCATION_PARAM(nameParam, location)
-
-					Bind();
-				glUniform4f(location, vec.x, vec.y, vec.z, vec.a);
-				UnBind();
-
-				return true;
-			}
-
-			bool OpenGLShader::SetUniformVec2(const String& nameParam, const FVector2& vec)
-			{
-				int32 location = 0;
-				SHADER_LOCATION_PARAM(nameParam, location)
-
-					Bind();
-				glUniform2f(location, vec.x, vec.y);
-				UnBind();
-
-				return true;
-			}
-
-			bool OpenGLShader::SetUniformVec3(const String& nameParam, const FVector& vec)
-			{
-				int32 location = 0;
-				SHADER_LOCATION_PARAM(nameParam, location)
-
-					Bind();
-				glUniform3f(location, vec.GetX(), vec.GetY(), vec.GetZ());
-				UnBind();
-
-				return true;
-			}
-
 			bool OpenGLShader::SetUniform1i(const String& nameParam, const int32 value, bool isEnableBind)
 			{
 				int32 location = 0;
-				if (!GetCachedLocationParam(nameParam, location)) {
-					if (!HasUniformLocation(nameParam.c_str())) {
-						{
+				SHADER_LOCATION_PARAM(nameParam, location)
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform1i(location, value);
+						UnBind();
+					}
+					else
+					{
+						glUniform1i(location, value);
+					}
 
-							Log::LogOutput(OPENGL_Shader, ELevelLog::ERROR, __FUNCTION__ ":" "211", "Can't to find uniform {0}", nameParam.data());
-						}; return false;
-					} location = GetUniformLocation(nameParam.c_str()); cachedParameters.insert(std::pair(nameParam, location));
-				}
-				if (isEnableBind)
-				{
-					Bind();
-					glUniform1i(location, value);
-					UnBind();
-				}
-				else
-				{
-					glUniform1i(location, value);
-				}
+				return true;
+			}
 
+			bool OpenGLShader::SetUniformFloat(const String& nameParam, float value, bool isEnableBind)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform1f(location, value);
+						UnBind();
+					}
+					else
+					{
+						glUniform1f(location, value);
+					}
+				return true;
+			}
+
+			bool OpenGLShader::SetUniformVec4(const String& nameParam, const FVector4& vec, bool isEnableBind)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform4f(location, vec.GetX(), vec.GetY(), vec.GetZ(), vec.GetW());
+						UnBind();
+					}
+					else
+					{
+						glUniform4f(location, vec.GetX(), vec.GetY(), vec.GetZ(), vec.GetW());
+					}
+				return true;
+			}
+
+			bool OpenGLShader::SetUniformVec2(const String& nameParam, const FVector2& vec, bool isEnableBind)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform2f(location, vec.x, vec.y);
+						UnBind();
+					}
+					else
+					{
+						glUniform2f(location, vec.x, vec.y);
+					}
+				return true;
+			}
+
+			bool OpenGLShader::SetUniformVec3(const String& nameParam, const FVector& vec, bool isEnableBind)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform3f(location, vec.GetX(), vec.GetY(), vec.GetZ());
+						UnBind();
+					}
+					else
+					{
+						glUniform3f(location, vec.GetX(), vec.GetY(), vec.GetZ());
+					}
 				return true;
 			}
 

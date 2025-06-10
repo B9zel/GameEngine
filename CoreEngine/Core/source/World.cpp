@@ -3,6 +3,8 @@
 #include <Core/includes/Level.h>
 #include <Render/includes/Scene/SceneInterface.h>
 #include <Render/includes/Scene/Scene.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
+#include <Runtime/includes/PlayerController.h>
 #include <GLFW/glfw3.h>
 
 
@@ -51,6 +53,18 @@ namespace CoreEngine
 	const DArray<Level*>& World::GetLevels() const
 	{
 		return m_Levels;
+	}
+
+	FVector World::GetControllerLocation() const
+	{
+		for (auto* actor : m_MainLevel->GetActors())
+		{
+			if (dynamic_cast<Runtime::PlayerController*>(actor))
+			{
+				return actor->GetActorLocation();
+			}
+		}
+		return FVector(0);
 	}
 
 	void World::OpenLevel(Level* level)

@@ -17,7 +17,7 @@ namespace CoreEngine
 
 		public:
 
-			virtual void TickComponent(float deltaTime) override {}
+			virtual void UpdateComponent(float deltaTime) override {}
 
 			const Transform& GetTransform() const;
 			void SetTransform(const Transform& newTransform);

@@ -39,7 +39,7 @@ namespace CoreEngine
 					LastTimeUpdate = 0.0f;
 				}
 			}
-			
+
 			void SetUpdateMethod(void(ActorComponent::* method)(float), ActorComponent* obj)
 			{
 				UpdateDelegate = MethodPtr<Runtime::ActorComponent, void(float)>(obj, method);
@@ -60,7 +60,7 @@ namespace CoreEngine
 
 			virtual void InitProperties() override;
 			virtual void RegisteredComponent();
-			virtual void TickComponent(float deltaTime) = 0;
+			virtual void UpdateComponent(float deltaTime) = 0;
 
 			void SetOwner(Actor* Owner);
 			Actor* GetOwner() const;

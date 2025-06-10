@@ -34,6 +34,14 @@ namespace CoreEngine
 
 				return *this;
 			}
+			void OpenGLVertexArrayObject::CreateVertexArray()
+			{
+				if (!m_isCreate)
+				{
+					glGenVertexArrays(1, &m_VAO);
+					m_isCreate = true;
+				}
+			}
 			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
 				const VertexBufferObject& bufferObject, const uint32 beginStep)
 			{
@@ -47,8 +55,8 @@ namespace CoreEngine
 					glGenVertexArrays(1, &m_VAO);
 					m_isCreate = true;
 				}
-				bufferObject.Bind();
 				Bind();
+				bufferObject.Bind();
 				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 				glEnableVertexAttribArray(location);
 				UnBind();
@@ -58,9 +66,24 @@ namespace CoreEngine
 			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
 				const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep)
 			{
+				if (typeData == ETypeData::NONE)
+				{
+					EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int32>(typeData));
+					return;
+				}
+				if (!m_isCreate)
+				{
+					glGenVertexArrays(1, &m_VAO);
+					m_isCreate = true;
+				}
+				Bind();
+				bufferObject.Bind();
 				elementObject.Bind();
-				SetupIntorprit(location, sizeArgument, step, typeData, bufferObject, beginStep);
+				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+				glEnableVertexAttribArray(location);
 				elementObject.UnBind();
+				bufferObject.UnBind();
+				UnBind();
 
 				m_elementBuffer = &elementObject;
 			}
@@ -74,18 +97,18 @@ namespace CoreEngine
 			}
 			void OpenGLVertexArrayObject::Bind() const
 			{
-				if (m_elementBuffer)
+				/*if (m_elementBuffer)
 				{
 					m_elementBuffer->Bind();
-				}
+				}*/
 				glBindVertexArray(m_VAO);
 			}
 			void OpenGLVertexArrayObject::UnBind() const
 			{
-				if (m_elementBuffer)
+				/*if (m_elementBuffer)
 				{
 					m_elementBuffer->UnBind();
-				}
+				}*/
 				glBindVertexArray(0);
 			}
 			void OpenGLVertexArrayObject::ResetLinkElementBuffer()

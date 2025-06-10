@@ -2,6 +2,7 @@
 #include <Core/includes/Base.h>
 #include <Render/includes/Shader.h>
 #include <Render/includes/VertexArrayObject.h>
+#include <Render/includes/ElementBufferObject.h>
 #include <Render/includes/Texture.h>
 #include <Math/includes/Transform.h>
 
@@ -16,23 +17,30 @@ namespace CoreEngine
 
 	public:
 
-		virtual const HashTableMap<Render::Shader*, Render::VertexArrayObject*>& GetShaders() const;
-		virtual void AddShaderWithArrayObject(Render::Shader* shaderKey, Render::VertexArrayObject* arrayValue);
+		virtual const HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>& GetShaders() const;
+		virtual void AddShaderWithArrayObject(Render::Shader* shaderKey, Render::VertexArrayObject* arrayValue, Render::ElementBufferObject* elementValue);
 		virtual void AddTexture(Render::Texture* NewTexture);
-		virtual const DArray<Render::Texture*>& GetTextures() const;
-		virtual const Transform& GetTransform() const;
 		virtual void SetTransform(const Transform& transform);
-		
+		const DArray<Render::Texture*>& GetTextures() const;
+		const Transform& GetTransform() const;
+		void SetViewLocation(const FVector& Location);
+		void AddLightLocation(const FVector& Location);
+		const DArray<FVector>& GetLocationLights() const;
+		const FVector& GetViewLocation() const;
 
-	private:
 
-		HashTableMap<Render::Shader*, Render::VertexArrayObject*> m_Shaders;
-		DArray<Render::Texture*> m_Textures;
+	protected:
 
-		Transform m_Transform;
+		HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>> Shaders;
+		DArray<Render::Texture*> Textures;
+		DArray<FVector> PositionLights;
+		FVector ViewLocation;
+		Transform transform;
 
+		//Test
 	public:
-		// Test
-		unsigned int CountVertex = 0;
+
+		int32 CountVertex;
+		int32 CountIndeces;
 	};
 }

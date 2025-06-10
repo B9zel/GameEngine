@@ -8,6 +8,8 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
+		class Object;
+
 		template<class TParent, class TChild>
 		constexpr bool IsParentClass()
 		{

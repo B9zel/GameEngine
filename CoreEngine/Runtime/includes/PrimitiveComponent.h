@@ -17,11 +17,12 @@ namespace CoreEngine
 
 		public:
 
-			PrimitiveProxy* GetSceneProxy() const;
+			virtual PrimitiveProxy* GetSceneProxy() const;
+			virtual PrimitiveProxy* GetUpdateProxy() const;
 
-		protected:
-
+			//Test
 			PrimitiveProxy* sceneProxy;
+
 		};
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/includes/Engine.h>
-//#include <Runtime/CoreObject/Include/Object.h>
+
 #include <Core/includes/Base.h>
 #include <Core/includes/Memory/GarbageCollector.h>
 #include <Core/includes/MemoryManager.h>
@@ -26,7 +26,7 @@ namespace CoreEngine
 	public:
 
 		~ObjectPtr();
-		
+
 
 		ObjectPtr();
 		ObjectPtr(T* value);
@@ -89,18 +89,18 @@ namespace CoreEngine
 	inline ObjectPtr<T>::ObjectPtr(T* value) : ObjectPtr()
 	{
 		m_Property = value;
-		
+
 		m_Method.Invoke(std::move(nullptr), std::move(m_Property));
 	}
 
 	template<class T>
-	inline ObjectPtr<T>::ObjectPtr(ObjectPtr&& Other) noexcept : ObjectPtr() 
+	inline ObjectPtr<T>::ObjectPtr(ObjectPtr&& Other) noexcept : ObjectPtr()
 	{
 		T* oldData = m_Property;
 		m_Property = Other.m_Property;
 
 		Other.m_Property = nullptr;
-		
+
 		//m_Method.Invoke(std::move(oldData), std::move(m_Property));
 		//Other.m_Method.Invoke(m_Property, nullptr);
 	}
@@ -132,7 +132,7 @@ namespace CoreEngine
 
 		return *this;
 	}
-	
+
 	template<class T>
 	ObjectPtr<T>& ObjectPtr<T>::operator=(ObjectPtr&& other) noexcept
 	{
@@ -141,8 +141,8 @@ namespace CoreEngine
 		m_Property = Other.m_Property;
 		Other.m_Property = nullptr;
 
-	///	m_Method.Invoke(std::move(oldData), std::move(m_Property));
-	//	Other.m_Method.Invoke(m_Property, nullptr);
+		///	m_Method.Invoke(std::move(oldData), std::move(m_Property));
+		//	Other.m_Method.Invoke(m_Property, nullptr);
 
 		return *this;
 	}
@@ -152,5 +152,5 @@ namespace CoreEngine
 	{
 		return m_Property != nullptr;
 	}
-	
+
 }

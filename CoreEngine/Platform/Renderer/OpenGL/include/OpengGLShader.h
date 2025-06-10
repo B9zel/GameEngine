@@ -40,10 +40,10 @@ namespace CoreEngine
 
 				virtual bool SetUniformMatrix4x4(const String& nameParam, const FMatrix4x4& matrix, bool isBindShader = true) override;
 				virtual bool SetUniform1i(const String& nameParam, const int32 value, bool isEnableBind = true) override;
-				bool SetUniformFloat(const String& nameParam, float value);
-				bool SetUniformVec4(const String& nameParam, const FVector4& vec);
-				bool SetUniformVec2(const String& nameParam, const FVector2& vec);
-				bool SetUniformVec3(const String& nameParam, const FVector& vec);
+				virtual bool SetUniformFloat(const String& nameParam, float value, bool isEnableBind = true) override;
+				virtual bool SetUniformVec4(const String& nameParam, const FVector4& vec, bool isEnableBind = true) override;
+				virtual bool SetUniformVec2(const String& nameParam, const FVector2& vec, bool isEnableBind = true) override;
+				virtual bool SetUniformVec3(const String& nameParam, const FVector& vec, bool isEnableBind = true) override;
 
 				bool HasUniformLocation(const char* nameParam);
 				int32 GetUniformLocation(const char* nameParam);

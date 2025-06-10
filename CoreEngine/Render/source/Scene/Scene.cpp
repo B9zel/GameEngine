@@ -3,16 +3,21 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/PrimitiveComponent.h>
 #include <Render/includes/Render.h>
+#include <Core/includes/PrimitiveProxy.h>
+#include <Core/includes/LightProxy.h>
+#include <Runtime/includes/BaseLightComponent.h>.h>
 
 
 namespace CoreEngine
 {
+
 	namespace Render
 	{
 		void Scene::CollectProxy()
 		{
 			if (!GetWorld()) return;
 			m_RenderProxy.clear();
+			m_LightProxy.clear();
 
 
 			for (auto& Level : GetWorld()->GetLevels())
@@ -23,7 +28,11 @@ namespace CoreEngine
 					{
 						if (auto* Primitive = dynamic_cast<Runtime::PrimitiveComponent*>(Component))
 						{
-							m_RenderProxy.emplace_back(Primitive->GetSceneProxy());
+							m_RenderProxy.emplace_back(Primitive->GetUpdateProxy());
+						}
+						else if (auto* Light = dynamic_cast<Runtime::BaseLightComponent*>(Component))
+						{
+							m_LightProxy.emplace_back(Light->GetLightProxy());
 						}
 					}
 				}
@@ -45,7 +54,7 @@ namespace CoreEngine
 		{
 			if (!m_RenderProxy.empty())
 			{
-				Engine::Get()->GetRender()->RenderPipelineProxy(m_RenderProxy);
+				Engine::Get()->GetRender()->RenderPipelineProxy(m_RenderProxy, m_LightProxy);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.20)
 
 set(CORE_PROJECT_NAME CoreEngine)
 
@@ -44,3 +44,6 @@ target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glad)
 
 add_subdirectory(../libraries/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glm)
+
+add_subdirectory(../libraries/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
+target_link_libraries(${CORE_PROJECT_NAME} PUBLIC assimp)

@@ -1,6 +1,6 @@
 #pragma once
 #include <Render/includes/Scene/SceneInterface.h>
-#include <Core/includes/PrimitiveProxy.h>
+
 #include <Core/includes/Base.h>
 #include <Core/includes/World.h>
 
@@ -8,6 +8,9 @@
 
 namespace CoreEngine
 {
+	class PrimitiveProxy;
+	class LightProxy;
+
 	namespace Render
 	{
 
@@ -33,6 +36,7 @@ namespace CoreEngine
 		private:
 
 			DArray<PrimitiveProxy*> m_RenderProxy;
+			DArray<LightProxy*> m_LightProxy;
 			World* m_World;
 		};
 	}

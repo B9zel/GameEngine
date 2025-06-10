@@ -4,7 +4,7 @@
 namespace CoreEngine
 {
 	namespace Render
-	{		
+	{
 		enum class ETypeChannel : uint8_t
 		{
 			NONE = 0,
@@ -15,11 +15,11 @@ namespace CoreEngine
 		enum class EParameterName : uint8_t
 		{
 			// Takes on the values : REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER
-			TEXTURE_WRAP_S = 0, 
+			TEXTURE_WRAP_S = 0,
 			TEXTURE_WRAP_T,
 			// Use for 3D texture
 			TEXTURE_WRAP_R,
-		
+
 			TEXTURE_MIN_FILTER,
 			TEXTURE_MAG_FILTER
 		};
@@ -64,14 +64,14 @@ namespace CoreEngine
 
 			virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const = 0;
 			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const = 0;
-			
+
 			virtual const char* GetPath() const = 0;
 			virtual uint32 GetWidth() const = 0;
 			virtual uint32 GetHeight() const = 0;
 
 			virtual bool IsLoad() const = 0;
 
-			virtual void Bind(uint32 layout=0) const = 0;
+			virtual void Bind(uint32 layout = 0) const = 0;
 			virtual void UnBind() const = 0;
 
 		};

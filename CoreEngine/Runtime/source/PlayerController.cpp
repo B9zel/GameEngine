@@ -82,20 +82,6 @@ namespace CoreEngine
 		{
 			Queue<Event*>* events = (playerInput->GetReverseQueueEvents());
 
-			//auto ExecuteInput = [&](const ObjectPtr<InputComponent>& Input)
-				/*	{
-						if (!Input) return;
-
-						int64 size = events->Size();
-
-						for (int64 i = 0; i < size; i++)
-						{
-							Input->ProcessUpdateAxis(events->Front());
-							Input->ProcessUpdateAction(events->Front());
-							events->PopFront();
-						}
-						Input->ExecuteAxis();
-					};*/
 			auto& InputControlledPawn = GetControlledPawn()->inputComponent;
 			int64 size = events->Size();
 

@@ -1,18 +1,22 @@
 #pragma once
 
-#include <glm/vec4.hpp>
+#include <Math/includes/Vector4.h>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <glm/geometric.hpp>
 #include <type_traits>
+#include <Core/includes/Base.h>
+#include <spdlog/fmt/ostr.h>
+#include <format>
 
 
 template<class T>
 class TVector3;
 
-using FVector4 = glm::vec4;
-using DVector4 = glm::dvec4;
-using IVector4 = glm::ivec4;
-using UVector4 = glm::uvec4;
+using FVector4 = TVector4<float>;
+using DVector4 = TVector4<double>;
+using IVector4 = TVector4<int>;
+using UVector4 = TVector4<unsigned int>;
 
 using FVector = TVector3<float>;
 using DVector = TVector3<double>;
@@ -168,13 +172,13 @@ public:
 		return res;
 	}
 
-	TVector3 operator%(const TVector3& otherVec) const
-	{
-		TVector3 res(vector.x, vector.y, vector.z);
+	//TVector3 operator%(const TVector3& otherVec) const
+	//{
+	//	TVector3 res(vector.x, vector.y, vector.z);
 
-		res %= otherVec;
-		return res;
-	}
+	//	res %= otherVec;
+	//	return res;
+	//}
 
 	TVector3 operator+(const T& otherVec) const
 	{
@@ -201,16 +205,9 @@ public:
 	{
 		if (otherVec == static_cast<T>(0.0))
 		{
-			return res;
+			return FVector(0, 0, 0);
 		}
 		TVector3 res(vector.x / otherVec, vector.y / otherVec, vector.z / otherVec);
-
-		return res;
-	}
-
-	TVector3 operator%(const T& otherVec) const
-	{
-		TVector3 res(vector.x % otherVec, vector.y % otherVec, vector.z % otherVec);
 
 		return res;
 	}
@@ -303,19 +300,17 @@ public:
 		return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
 	}
 
-	T GetX() const
+	inline T GetX() const
 	{
 		return vector.x;
 	}
 
-
-	T GetY() const
+	inline T GetY() const
 	{
 		return vector.y;
 	}
 
-
-	T GetZ() const
+	inline T GetZ() const
 	{
 		return vector.z;
 	}
@@ -335,11 +330,32 @@ public:
 		vector.z = z;
 	}
 
+	//String ConvertToString() const;
+
 
 public:
 
 	glm::vec<3, T, glm::defaultp> vector;
 };
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const TVector3<T>& Vec)
+{
+	os << "X: ";
+	os << Vec.GetX();
+	os << " Y: ";
+	os << Vec.GetY();
+	os << " Z: ";
+	os << Vec.GetZ();
+
+	return os;
+}
+//template<class T>
+//String TVector3<T>::ConvertToString() const
+//{
+//	fmt
+//		return std::format("X: {} Y: {} Z: {}", static_cast<T>(vector.x), static_cast<T>(vector.y), static_cast<T>(vector.z));
+//}
 
 
 const FVector FVector::ForwardVector = FVector(0.0f, 0.0f, -1.0f);

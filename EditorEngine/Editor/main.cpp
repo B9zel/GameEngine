@@ -1,7 +1,7 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 #include "includes/EditorApplication.h"
-#include <Core/includes/Base.h>
+//#include <Core/includes/Base.h>
 #include <Core/includes/Engine.h>
 #include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Memory/GarbageCollector.h>
@@ -31,17 +31,16 @@
 #include <Runtime/includes/CameraManager.h>
 #include <Runtime/includes/CameraComponent.h>
 #include <Core/includes/InputDevice.h>
+#include <Runtime/includes/MeshComponent.h>
+#include <Runtime/includes/PointLightComponent.h>
+#include <Runtime/includes/SpotLightComponent.h>
+#include <Runtime/includes/DirectionLightComponent.h>
 
 
-//float arr[] = { 0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
-//				0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Bottom Right
-//				-0.5f, -0.5f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
-//				-0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // Top Left 
-//};
 
 float arr[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
 		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
 		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
@@ -81,6 +80,52 @@ float arr[] = {
 		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+};
+
+float arri[] = {
+	-0.5f, -0.5f,  0.5f, 0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // 0
+	 0.5f, -0.5f,  0.5f, 0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // 1
+	 0.5f,  0.5f,  0.5f, 0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // 2
+	-0.5f,  0.5f,  0.5f, 0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // 3
+
+	// Задняя грань
+	-0.5f, -0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // 4
+	 0.5f, -0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // 5
+	 0.5f,  0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // 6
+	-0.5f,  0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // 7
+
+	// Левая грань
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0,0.0f, 0.0, // 8
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0,1.0f, 0.0, // 9
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0,1.0f, 1.0, // 10
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0 ,0.0f, 1.0, // 11
+
+	// Правая грань
+	0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // 12
+	0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // 13
+	0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // 14
+	0.5f,  0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // 15
+
+	// Верхняя грань
+	-0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // 16
+	0.5f,  0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // 17
+	0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // 18
+	-0.5f,  0.5f,  0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // 19
+
+	// Нижняя грань
+	-0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // 20
+	0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // 21
+	0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // 22
+	-0.5f, -0.5f,  0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 1.0f
+};
+
+int Index[] = {
+	0, 1, 2, 2, 3, 0,   // Передняя грань
+	4, 5, 6, 6, 7, 4,   // Задняя грань
+	8, 9, 10, 10, 11, 8, // Левая грань
+	12, 13, 14, 14, 15, 12, // Правая грань
+	16, 17, 18, 18, 19, 16,
+	20, 21, 22, 22, 23, 20
 };
 
 
@@ -152,19 +197,10 @@ public:
 
 		ImGui::End();
 
-
-		//shader.SetUniformMatrix4x4("scale", mat);
-		//shader.SetUniformMatrix4x4("offset", matOffset);
-		//shader.SetUniformMatrix4x4("rotate", matRotate);
 		shader.SetUniformVec4("inputColor", FVector4(color[0], color[1], color[2], color[3]));
 		shader.SetUniform1i("ourTexture", 0);
 		shader.SetUniform1i("ourTexture1", 1);
 		shader.SetUniformFloat("a", a);
-
-
-		//shader.SetUniformVec2("iResolution", FVector2(800, 450));//FVector2(CoreEngine::Application::Get()->GetWindow().GetWidth(), CoreEngine::Application::Get()->GetWindow().GetHeight()));
-
-		//shader.SetUniform1i("outTexture", 0);
 
 		texture.Bind();
 		//texture2.Bind(1);
@@ -177,7 +213,7 @@ public:
 
 		shader.UnBind();
 		arrObj.UnBind();
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
@@ -215,7 +251,6 @@ public:
 
 	MyController()
 	{
-		//SetActorLocation(FVector(0, 0, -3));
 		SetActorRotation(FVector(0, 0, 0));
 		LastMousePos = FVector2(0.0f, 0.0f);
 	}
@@ -227,9 +262,6 @@ protected:
 	{
 		PlayerController::SetupInputComponent();
 
-		//inputComponent->BindAction(GLFW_KEY_W, CoreEngine::Runtime::EActionType::PRESSED, &MyController::Test, this)6;
-		inputComponent->BindAction(GLFW_KEY_W, CoreEngine::EActionType::PRESSED, &MyController::Test2, this);
-
 		inputComponent->BindAxis(GLFW_KEY_W, 1, &MyController::MoveForward, this);
 		inputComponent->BindAxis(GLFW_KEY_S, -1, &MyController::MoveForward, this);
 		inputComponent->BindAxis(GLFW_KEY_A, 1, &MyController::MoveLeft, this);
@@ -237,9 +269,6 @@ protected:
 		inputComponent->BindAxis(GLFW_KEY_E, 1, &MyController::MoveUp, this);
 		inputComponent->BindAxis(GLFW_KEY_Q, -1, &MyController::MoveUp, this);
 		inputComponent->BindMouseMotionAxis(&MyController::MoveRight, this);
-		//inputComponent->BindAction(GLFW_MOUSE_BUTTON_1, CoreEngine::Runtime::EActionType::PRESSED, &MyController::Test, this);
-		//SetActorRotation(FVector(0, 1, 0));
-		//SetActorLocation(FVector(0, 0, -3));
 	}
 
 	void MoveRight(double axisX, double axisY)
@@ -265,7 +294,6 @@ protected:
 		}
 		CoreEngine::Engine::Get()->GetInputDevice()->SetMousePos(DVector2(100, 100));
 		LastMousePos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
-		//	SetActorRotation(FVector(0, 10, -10));
 	}
 
 	void MoveLeft(float axis)
@@ -277,7 +305,6 @@ protected:
 		if (axis == -1)
 		{
 			AddActorLocation(-GetActorRightVector() * 0.01);
-
 		}
 	}
 	void MoveUp(float axis)
@@ -290,47 +317,13 @@ protected:
 		if (axis == 1)
 		{
 			AddActorLocation(GetActorForwardVector() * 0.01);
-			//	AddActorLocation(FVector(0, 0, -0.1));
 		}
 		if (axis == -1)
 		{
 			AddActorLocation(-GetActorForwardVector() * 0.01);
-
 		}
-		//	SetActorRotation(FVector(0, Math::Clamp(GetActorRotation().GetY() + 0.01, 0, 90), 0.0));
 	}
 
-	void AxisTest(float a)
-	{
-		using namespace CoreEngine::Runtime;
-
-		//	this->AddActorLocation(FVector(0, 0, 0.01));
-
-		FMatrix4x4 mat = cameraManager->GetViewMatrix();
-		/*for (size_t i = 0; i < 4; i++)
-		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				std::cout << mat[i][j] << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;*/
-		//	std::cout << GetActorRotation().GetX() << " " << GetActorRotation().GetY() << " " << GetActorRotation().GetZ() << std::endl;
-			//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Controller {0}", a);
-	}
-
-
-	void Test()
-	{
-		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "PResss controller");
-	}
-
-	void Test2()
-	{
-		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Release");
-
-	}
 
 private:
 
@@ -347,25 +340,40 @@ public:
 		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
 		shade.CompileShader(shadPair.first, shadPair.second);
 
-		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
+		arrObj.CreateVertexArray();
+		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, arrObj);
 		arrObj.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, vertObj);
 
 		SetActorLocation(FVector(3, 2, -7));
-		SetActorScale(FVector(0.5));
+		SetActorScale(FVector(0.2));
 		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
 		LightCube->GetSceneProxy()->CountVertex = 108;
-		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj);
+		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
 		LightCube->GetSceneProxy()->SetTransform(GetActorTransform());
 
+		/*LightObj = CreateSubObject<CoreEngine::Runtime::DirectionLightComponent>();
+		LightObj->SetIntencity(10);
+		LightObj->SetComponentRotation(FVector(0, 0, 0));
+		LightObj->SetComponentLocation(FVector(3, 2, -7));*/
+
+	}
+
+	virtual void Update(float deltaTime) override
+	{
+		CoreEngine::Runtime::Actor::Update(deltaTime);
+		//AddActorRotation(FVector(0.1, 0, 0));
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Actor {0} {1} {2}", GetActorRotation().GetX(), GetActorRotation().GetY(), GetActorRotation().GetZ());
+		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Direction {0} {1} {2}", LightObj->GetComponentRotation().GetX(), LightObj->GetComponentRotation().GetY(), LightObj->GetComponentRotation().GetZ());
+		//AddActorRotation(FVector(100 * deltaTime, 0, 0));
 	}
 
 private:
 
+	CoreEngine::ObjectPtr<CoreEngine::Runtime::DirectionLightComponent> LightObj;
 	CoreEngine::Runtime::PrimitiveComponent* LightCube;
 	CoreEngine::Render::OpenGL::OpenGLShader shade;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
-
 };
 
 class Quad : public CoreEngine::Runtime::Pawn
@@ -374,100 +382,89 @@ public:
 
 	Quad()
 	{
+		mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>();
+		mesh->LoadMesh("C:/Projects/3D_Models/Table.obj");
+		mesh->SetComponentScale(FVector(0.8));
+		mesh->AddComponentLocation(FVector(0, -1, 0));
+		//mesh->SetComponentScale(FVector(2));
+		//mesh->AddComponentLocation(FVector(0, 0, -5));
+		//mesh->SetComponentScale(FVector(10));
 		String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
-		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/ShaderBase.glsl").c_str());
+		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/StaticMeshBaseShader.glsl").c_str());
 		Shader.CompileShader(shadPair.first, shadPair.second);
-		Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
-		VertexBuffer.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC);
+		//Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
+		VertexArray.CreateVertexArray();
+		VertexBuffer.CreaterBuffer(arri, 192, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, VertexArray);
+		ElementBuffer.CreateBuffer(Index, 36, CoreEngine::ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, VertexArray);
 		VertexArray.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer);
 		VertexArray.SetupIntorprit(1, 3, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer, 3);
 		VertexArray.SetupIntorprit(2, 2, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer, 6);
-		texture.ChangeTexture("../../Shaders/container.jpg");
-		texture2.ChangeTexture("../../Shaders/basi3p04.png");
-		texture3.ChangeTexture("../../Shaders/bowt.png");
-		texture3.ChangeTexture("C:/UnrealEngine/UE_5.3/Templates/TP_VehicleAdv/Media/TP_VehicleAdv_Preview.png");
+		/*	texture.ChangeTexture("../../Shaders/container.jpg");
+			texture2.ChangeTexture("../../Shaders/basi3p04.png");
+			texture3.ChangeTexture("../../Shaders/bowt.png");
+			texture3.ChangeTexture("C:/UnrealEngine/UE_5.3/Templates/TP_VehicleAdv/Media/TP_VehicleAdv_Preview.png");*/
 
 		SetActorLocation(FVector(0, 0, -5));
-		//SetActorScale(FVector(4, 4, 4));
-		//SetActorLocation(FVector(2.0f, 5.0f, -15.0f));
+		SetActorScale(FVector(1));
 
-		angle = 1;
-		quad = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
-		quad->GetSceneProxy()->CountVertex = 108;
-		quad->GetSceneProxy()->AddShaderWithArrayObject(&Shader, &VertexArray);
-		//quad->GetSceneProxy()->AddTexture(&texture);
-		//quad->GetSceneProxy()->AddTexture(&texture2);
-		//quad->GetSceneProxy()->AddTexture(&texture3);
-		//quad->GetSceneProxy()->AddTexture(&texture4);
-		quad->GetSceneProxy()->SetTransform(GetActorTransform());
+		/*quad = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
+		quad->GetSceneProxy()->CountVertex = 0;
+		quad->GetSceneProxy()->CountIndeces = 36;
+		quad->GetSceneProxy()->AddShaderWithArrayObject(&Shader, &VertexArray, &ElementBuffer);
+		quad->GetSceneProxy()->SetTransform(GetActorTransform());*/
 	}
+
 
 	virtual void Update(float deltaTime) override
 	{
 		Pawn::Update(deltaTime);
-		Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
-		Shader.SetUniformVec3("ViewPos", GetOwner()->GetActorLocation());
-		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", GetOwner()->GetActorLocation().GetX(), GetOwner()->GetActorLocation().GetY(), GetOwner()->GetActorLocation().GetZ());
-		scale += deltaTime;
-		angle = abs(cos(scale)) + 0.2;
-		SetActorRotation(GetActorRotation() + FVector(0.0, 1, 0.0));
-		//SetActorRotation(GetActorRotation() + FVector(0.0f, 0.0f, -0.005));
-		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, scale);
-		//SetActorScale(FVector(angle, angle, angle));
-		//SetActorLocation(FVector(scale/ 5,0, -5));
-		//SetActorRotation(FVector(0, scale, 0));
-	//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", GetActorLocation().GetX(), GetActorLocation().GetY(), GetActorLocation().GetZ());
-		quad->GetSceneProxy()->SetTransform(GetActorTransform());
+		//Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
+		// Shader.SetUniformVec3("ViewPos", GetOwner()->GetActorLocation());
 	}
+
 protected:
 
 	virtual void SetupInputPlayerController(CoreEngine::Runtime::InputComponent* Input) override
 	{
 		Pawn::SetupInputPlayerController(Input);
 
-		Input->BindAction(GLFW_MOUSE_BUTTON_1, CoreEngine::EActionType::PRESSED, &Quad::Test, this);
 		inputComponent->BindAxis(GLFW_KEY_RIGHT, 1, &Quad::MoveRight, this);
 		inputComponent->BindAxis(GLFW_KEY_LEFT, -1, &Quad::MoveRight, this);
 		inputComponent->BindAxis(GLFW_KEY_UP, 1, &Quad::MoveForward, this);
 		inputComponent->BindAxis(GLFW_KEY_DOWN, -1, &Quad::MoveForward, this);
-
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Input setup");
+		inputComponent->BindAxis(GLFW_KEY_N, 1, &Quad::MoveRotate, this);
+		inputComponent->BindAxis(GLFW_KEY_M, -1, &Quad::MoveRotate, this);
+		inputComponent->BindAxis(GLFW_KEY_L, -1, &Quad::MoveUp, this);
+		inputComponent->BindAxis(GLFW_KEY_P, 1, &Quad::MoveUp, this);
 	}
 	void MoveForward(float a)
 	{
+		//AddActorLocation(FVector(0, 0, a * 0.01));
 
-		AddActorLocation(FVector(0, 0, a * 0.001));
-
-
-		//if (a == 10.0f)
-		{
-
-			//EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Pawn {0}", a);
-		}
-		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pawn {0}", a);
+		GetWorld()->GetLevels()[0]->GetActors()[3]->AddActorLocation(FVector(0.1 * a, 0, 0));
+	}
+	void MoveRotate(float a)
+	{
+		GetWorld()->GetLevels()[0]->GetActors()[3]->AddActorRotation(FVector(0, 25 * a, 0));
 	}
 	void MoveRight(float a)
 	{
-		AddActorLocation(FVector(a * 0.001, 0, 0));
-		//if (a == 10.0f)
-		{
-
-			//EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Pawn {0}", a);
-		}
-		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pawn {0}", a);
+		//AddActorLocation(FVector(a * 0.01, 0, 0));
+		GetWorld()->GetLevels()[0]->GetActors()[3]->AddActorLocation(FVector(0, 0, 0.1 * a));
 	}
-
-	void Test()
+	void MoveUp(float a)
 	{
-		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "PResss");
+		AddActorLocation(FVector(0, a * 0.01, 0));
 	}
 
 private:
 
 	CoreEngine::Runtime::PrimitiveComponent* quad = nullptr;
+	CoreEngine::Runtime::MeshComponent* mesh = nullptr;
 
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject VertexBuffer;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject VertexArray;
+	CoreEngine::Render::OpenGL::OpenGLElementBufferObject ElementBuffer;
 	CoreEngine::Render::OpenGL::OpenGLShader Shader;
 
 	float Arr2[24] = { 0.5,  -0.5,		1.0, 0.0,
@@ -483,12 +480,53 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture2;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture3;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture4;
-
-	float angle = 0;
-	float scale = 0;
 };
 
+class LightActor : public CoreEngine::Runtime::Actor
+{
+public:
 
+	LightActor()
+	{
+		LightObj = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>();
+		LightObj->SetColor(FVector(0, 1, 0));
+		LightObj->SetConstant(1.0f);
+		LightObj->SetLinear(0.2f);
+		LightObj->SetQuadratic(0.3f);
+		LightObj->SetIntencity(10);
+		LightObj->SetCutOff(50);
+		LightObj->SetOuterCutOff(60);
+
+
+		String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
+		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
+		shade.CompileShader(shadPair.first, shadPair.second);
+
+		arrObj.CreateVertexArray();
+		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, arrObj);
+		arrObj.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, vertObj);
+		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
+		LightCube->GetSceneProxy()->CountVertex = 108;
+		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
+		LightCube->GetSceneProxy()->SetTransform(GetActorTransform());
+
+	}
+
+	virtual void Update(float delta) override
+	{
+		Actor::Update(delta);
+
+		//LightCube->GetSceneProxy()->
+	}
+
+private:
+
+	CoreEngine::ObjectPtr<CoreEngine::Runtime::SpotLightComponent> LightObj;
+	CoreEngine::Runtime::PrimitiveComponent* LightCube;
+	CoreEngine::Render::OpenGL::OpenGLShader shade;
+	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
+	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
+};
 
 class FirstLevel : public CoreEngine::Level
 {
@@ -496,15 +534,13 @@ class FirstLevel : public CoreEngine::Level
 	{
 		auto* controller = GetWorld()->SpawnActor<MyController>(nullptr);
 		auto* pawn = GetWorld()->SpawnActor<Quad>(controller);
-		auto* ac = GetWorld()->SpawnActor<Light>(controller);
+		auto* acc = GetWorld()->SpawnActor<Light>(controller);
+		auto* ac = GetWorld()->SpawnActor<LightActor>(controller);
 		controller->Possess(pawn);
 
 		Level::ActorInitialize();
 	}
 };
-
-
-
 
 
 int main(int argc, char** argv)
@@ -516,9 +552,6 @@ int main(int argc, char** argv)
 	app->Get()->m_Engine->GetWorld()->OpenLevel(level);
 	app->PushLayer(new RenderLayer);
 
-
-
 	app->Start();
-
 }
 

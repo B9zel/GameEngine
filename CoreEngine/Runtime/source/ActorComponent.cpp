@@ -14,7 +14,7 @@ namespace CoreEngine
 		{
 			Object::InitProperties();
 
-			updateFunc.SetUpdateMethod(&ActorComponent::TickComponent, this);
+			updateFunc.SetUpdateMethod(&ActorComponent::UpdateComponent, this);
 		}
 		void ActorComponent::RegisteredComponent()
 		{

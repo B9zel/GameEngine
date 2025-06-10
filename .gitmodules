@@ -14,3 +14,6 @@
 [submodule "libraries/Stb_image"]
 	path = libraries/Stb_image
 	url = https://github.com/nothings/stb.git
+[submodule "libraries/assimp"]
+	path = libraries/assimp
+	url = https://github.com/assimp/assimp.git

@@ -40,6 +40,7 @@ namespace CoreEngine
 		UpdateManager* GetUpdateManager();
 		float GetWorldDeltaTime() const;
 		const DArray<Level*>& GetLevels() const;
+		FVector GetControllerLocation() const;
 
 		template<class T>
 		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
@@ -60,7 +61,7 @@ namespace CoreEngine
 	};
 
 	template<class T>
-	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param )
+	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)
 	{
 		if (!Runtime::IsParentClass<Runtime::Actor, T>())
 		{
@@ -86,7 +87,7 @@ namespace CoreEngine
 		NewActor->SetOwner(Owner);
 		NewActor->PostSpawnActor();
 		spawnToLevel->AddActor(NewActor);
-		
+
 		return NewActor;
 	}
 }

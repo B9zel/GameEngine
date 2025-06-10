@@ -148,7 +148,10 @@ namespace CoreEngine
 				if (RootComponent)
 				{
 					newClass->SetupToAttachment(RootComponent);
+					newClass->SetTransform(RootComponent->GetTransform());
 				}
+
+
 			}
 			Components.emplace_back(obj);
 			ComponentsGC.emplace_back(obj);

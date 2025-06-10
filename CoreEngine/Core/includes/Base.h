@@ -15,7 +15,7 @@
 
 template<class TReturn, class... Args>
 class Function;
-	
+
 #define STRINGCON_DETAILS(x) #x
 #define STRINGCON(x) STRINGCON_DETAILS(x)
 
@@ -36,47 +36,49 @@ class Function;
 #define DEVELOPMENT_DEBUG
 
 #ifdef EG_PLATFORM_WINDOWS
-	#define ENGINE_DEBUGBREAK  __debugbreak()
+#define ENGINE_DEBUGBREAK  __debugbreak()
 #else
-	#define ENGINE_DEBUGBREAK 
+#define ENGINE_DEBUGBREAK 
 #endif // _WIN64 || _WIN32
 
-	#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-	#define CHECK(is) { CORE_ASSERT(!is, "Fail check"); }
-	
-	#define FUNCTION_NAME __FUNCTION__
-	#define NUMBER_LINE  STRINGCON(__LINE__)
+#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+#define CHECK(is) { CORE_ASSERT(!is, "Fail check"); }
 
-	#define FUNCTION_STAT FUNCTION_NAME ":" NUMBER_LINE
+#define FUNCTION_NAME __FUNCTION__
+#define NUMBER_LINE  STRINGCON(__LINE__)
+
+#define FUNCTION_STAT FUNCTION_NAME ":" NUMBER_LINE
 #else
-	#define ENGINE_DEBUGBREAK 
+#define ENGINE_DEBUGBREAK 
 
-	#define CORE_CHECK(is) 
-	#define CHECK(is)
-	#define CORE_ASSERT(is, log)
-	#define FUNCTION_NAME 
-	#define NUMBER_LINE
+#define CORE_CHECK(is) 
+#define CHECK(is)
+#define CORE_ASSERT(is, log)
+#define FUNCTION_NAME 
+#define NUMBER_LINE
 
-	#define FUNCTION_STAT
+#define FUNCTION_STAT
 
-	
+
 #endif // ENGINE_DEBUG
 
 using String = typename std::string;
 
+using StringView = typename std::string_view;
+
 template<class T>
 using SharedPtr = std::shared_ptr<T>;
 
-template<class T>
-using UniquePtr = std::unique_ptr<T>;
+template<class T, class Deleter = std::default_delete<T>>
+using UniquePtr = std::unique_ptr<T, Deleter>;
 
-template<class T,class Allocattor=std::allocator<T>>
+template<class T, class Allocattor = std::allocator<T>>
 using DArray = std::vector<T, Allocattor>;
 
 template<class T, size_t Size>
 using StaticArray = std::array<T, Size>;
 
-template<class First,class Second>
+template<class First, class Second>
 using Pair = std::pair<First, Second>;
 
 template<class T>
@@ -84,13 +86,13 @@ using Deque = std::deque<T>;
 
 
 
-template<class Key,class Value, class Hasher = std::hash<Key>>
+template<class Key, class Value, class Hasher = std::hash<Key>>
 using HashTableMap = std::unordered_map<Key, Value, Hasher>;
 
-template<class Value, class Hasher = std::hash<Value>, class ValueEqual=std::equal_to<Value>>
+template<class Value, class Hasher = std::hash<Value>, class ValueEqual = std::equal_to<Value>>
 using HashTableSet = std::unordered_set<Value, Hasher, ValueEqual>;
 
-template<class T,class ... Args>
+template<class T, class ... Args>
 UniquePtr<T> MakeUniquePtr(Args&& ...args)
 {
 	return std::make_unique<T>(std::forward<Args>(args)...);
@@ -118,6 +120,8 @@ T FromString(const String& str)
 	iss >> toValue;
 	return toValue;
 }
+
+unsigned int AligneSizeofBy2(const unsigned int Bytes);
 
 
 #include <Templates/Function.h>
