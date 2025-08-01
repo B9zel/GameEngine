@@ -35,7 +35,8 @@
 #include <Runtime/includes/PointLightComponent.h>
 #include <Runtime/includes/SpotLightComponent.h>
 #include <Runtime/includes/DirectionLightComponent.h>
-
+#include <Editor/includes/EditorEngine.h>
+#include <Events/include/Event.h>
 
 
 float arr[] = {
@@ -268,11 +269,26 @@ protected:
 		inputComponent->BindAxis(GLFW_KEY_D, -1, &MyController::MoveLeft, this);
 		inputComponent->BindAxis(GLFW_KEY_E, 1, &MyController::MoveUp, this);
 		inputComponent->BindAxis(GLFW_KEY_Q, -1, &MyController::MoveUp, this);
+		inputComponent->BindAction(GLFW_MOUSE_BUTTON_RIGHT, CoreEngine::EActionType::PRESSED, &MyController::RightPress, this);
+		inputComponent->BindAction(GLFW_MOUSE_BUTTON_RIGHT, CoreEngine::EActionType::RELEASED, &MyController::RightRelease, this);
 		inputComponent->BindMouseMotionAxis(&MyController::MoveRight, this);
+	}
+
+	void RightPress()
+	{
+		CurrentMouseLoc = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
+		IsLooking = true;
+	}
+
+	void RightRelease()
+	{
+
+		IsLooking = false;
 	}
 
 	void MoveRight(double axisX, double axisY)
 	{
+		if (!IsLooking) return;
 		if (LastMousePos.x == 0.0f && LastMousePos.y == 0.0f)
 		{
 			LastMousePos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
@@ -292,8 +308,9 @@ protected:
 
 			SetActorRotation(GetActorRotation() + FVector((DeltaY * 0.1), 0.0f, 0.0f));
 		}
-		CoreEngine::Engine::Get()->GetInputDevice()->SetMousePos(DVector2(100, 100));
 		LastMousePos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
+		CoreEngine::Engine::Get()->GetInputDevice()->SetMousePos(LastMousePos);
+
 	}
 
 	void MoveLeft(float axis)
@@ -324,10 +341,23 @@ protected:
 		}
 	}
 
+	virtual void Update(float DeltaTime) override
+	{
+		CoreEngine::Runtime::PlayerController::Update(DeltaTime);
+
+		if (IsLooking)
+		{
+
+		}
+
+	}
+
 
 private:
 
+	bool IsLooking{ false };
 	DVector2 LastMousePos;
+	DVector2 CurrentMouseLoc;
 };
 
 class Light : public CoreEngine::Runtime::Actor
@@ -546,11 +576,12 @@ class FirstLevel : public CoreEngine::Level
 int main(int argc, char** argv)
 {
 
-	CoreEngine::ApplicationOptions options("Test", argv[0]);
+	CoreEngine::ApplicationOptions options("Test", argv[0], nullptr);
 	auto app = MakeUniquePtr<Editor::EditorApplication>(options);
+	app->CreateApp();
 	auto* level = new FirstLevel();
-	app->Get()->m_Engine->GetWorld()->OpenLevel(level);
-	app->PushLayer(new RenderLayer);
+	app->Get()->InstanceEngine->GetWorld()->OpenLevel(level);
+	//app->PushLayer(new RenderLayer);
 
 	app->Start();
 }

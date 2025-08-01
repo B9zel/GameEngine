@@ -40,8 +40,8 @@ namespace CoreEngine
 
 		private:
 
-			FVector& CalculateForwardDirection();
-			FVector& CalculateRightDirection();
+			FVector CalculateForwardDirection();
+			FVector CalculateRightDirection();
 
 		protected:
 

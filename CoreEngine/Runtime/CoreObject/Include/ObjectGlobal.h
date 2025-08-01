@@ -2,6 +2,7 @@
 #include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/MemoryManager.h>
 #include <Core/includes/Application.h>
+#include <ReflectionSystem/Include/ReflectionMacros.h>
 
 
 namespace CoreEngine

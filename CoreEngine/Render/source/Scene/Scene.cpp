@@ -5,7 +5,7 @@
 #include <Render/includes/Render.h>
 #include <Core/includes/PrimitiveProxy.h>
 #include <Core/includes/LightProxy.h>
-#include <Runtime/includes/BaseLightComponent.h>.h>
+#include <Runtime/includes/BaseLightComponent.h>
 
 
 namespace CoreEngine

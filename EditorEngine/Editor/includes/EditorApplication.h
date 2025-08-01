@@ -8,11 +8,21 @@ namespace Editor
 	{
 	public:
 
-		EditorApplication(const CoreEngine::ApplicationOptions& option);
+		EditorApplication(CoreEngine::ApplicationOptions& option);
+		~EditorApplication();
+
+	public:
+
+		virtual void CreateApp() override;
+
+	protected:
+
+		virtual void ConstructEngine() override;
+
 
 	private:
 
-		
+
 	};
 
 

@@ -25,10 +25,10 @@ namespace CoreEngine
 	{
 		GEngine = this;
 
-		m_TimerManager  = MakeUniquePtr<TimerManager>();
+		m_TimerManager = MakeUniquePtr<TimerManager>();
 		m_MemoryManager = MemoryManager::Create();
-		m_Input			= MakeUniquePtr<InputDevice>();
-		m_Render		= Render::Render::Create();
+		m_Input = MakeUniquePtr<InputDevice>();
+		m_Render = Render::Render::Create();
 
 		m_World.reset(Allocator::Allocate<World>());
 	}
@@ -57,9 +57,9 @@ namespace CoreEngine
 			return UniquePtr<Engine>(GEngine);
 		}
 
-		GEngine = new Engine();
+		GEngine = new ThisClass();
 		CHECK(GEngine);
-		
+
 		return UniquePtr<Engine>(GEngine);
 	}
 

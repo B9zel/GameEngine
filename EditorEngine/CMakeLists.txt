@@ -6,9 +6,7 @@ FILE(GLOB_RECURSE INCLUDES_FILES **.h)
 FILE(GLOB_RECURSE SOURCE_FILES **.cpp)
 
 
-add_executable(${EDITOR_PROJECT_NAME}
-				${INCLUDES_FILES}
-				${SOURCE_FILES})
+
 				
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${INCLUDES_FILES} ${SOURCE_FILES})
 
@@ -32,8 +30,18 @@ add_library(ImGui STATIC
 			${INCLUDE_IMGUI_FILES}
 			${SOURCE_IMGUI_FILES})
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
+		${INCLUDES_FILES}
+		${SOURCE_FILES})
+
+add_executable(${EDITOR_PROJECT_NAME}
+				${INCLUDES_FILES}
+				${SOURCE_FILES})
+
+
 target_include_directories(ImGui PUBLIC ../libraries)
 target_include_directories(ImGui PUBLIC ../libraries/imgui)
+target_include_directories(${EDITOR_PROJECT_NAME} PUBLIC .)
 
 target_link_libraries(${EDITOR_PROJECT_NAME} CoreEngine ImGui)
 

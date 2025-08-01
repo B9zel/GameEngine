@@ -26,11 +26,13 @@ namespace CoreEngine
 					auto* Event = dynamic_cast<EventKeyboardPressed*>(event);
 					if (m_CallbackInputAction.count(Event->GetKey()))
 					{
-						BindInputActionInfo& Action = m_CallbackInputAction[Event->GetKey()];
-						if (Action.Action == EActionType::PRESSED)
+						for (auto& Input : m_CallbackInputAction[Event->GetKey()])
 						{
-							Action.Callback.Execute();
-							return true;
+							if (Input.Action == EActionType::PRESSED)
+							{
+								Input.Callback.Execute();
+								return true;
+							}
 						}
 					}
 
@@ -41,11 +43,13 @@ namespace CoreEngine
 					auto* Event = dynamic_cast<EventKeyboardReleased*>(event);
 					if (m_CallbackInputAction.count(Event->GetKey()))
 					{
-						BindInputActionInfo& Action = m_CallbackInputAction[Event->GetKey()];
-						if (Action.Action == EActionType::RELEASED)
+						for (auto& Input : m_CallbackInputAction[Event->GetKey()])
 						{
-							Action.Callback.Execute();
-							return true;
+							if (Input.Action == EActionType::RELEASED)
+							{
+								Input.Callback.Execute();
+								return true;
+							}
 						}
 					}
 
@@ -57,11 +61,14 @@ namespace CoreEngine
 					auto* Event = dynamic_cast<EventMouseButtonPressed*>(event);
 					if (m_CallbackInputAction.count(Event->GetButton()))
 					{
-						BindInputActionInfo& Action = m_CallbackInputAction[Event->GetButton()];
-						if (Action.Action == EActionType::PRESSED)
+						for (auto& Input : m_CallbackInputAction[Event->GetButton()])
 						{
-							Action.Callback.Execute();
-							return true;
+							if (Input.Action == EActionType::PRESSED)
+							{
+								Input.Callback.Execute();
+								return true;
+							}
+
 						}
 					}
 
@@ -72,11 +79,13 @@ namespace CoreEngine
 					auto* Event = dynamic_cast<EventMouseButtonReleased*>(event);
 					if (m_CallbackInputAction.count(Event->GetButton()))
 					{
-						BindInputActionInfo& Action = m_CallbackInputAction[Event->GetButton()];
-						if (Action.Action == EActionType::RELEASED)
+						for (auto& Input : m_CallbackInputAction[Event->GetButton()])
 						{
-							Action.Callback.Execute();
-							return true;
+							if (Input.Action == EActionType::RELEASED)
+							{
+								Input.Callback.Execute();
+								return true;
+							}
 						}
 					}
 
@@ -159,7 +168,13 @@ namespace CoreEngine
 		{
 			if (!m_CallbackInputAction.count(Key)) return false;
 
-			m_CallbackInputAction[Key].Callback.Execute();
+			for (auto& Input : m_CallbackInputAction[Key])
+			{
+				if (Input.Action == Action)
+				{
+					Input.Callback.Execute();
+				}
+			}
 
 			return true;
 		}
@@ -194,7 +209,7 @@ namespace CoreEngine
 				}
 			}
 		}
-		const HashTableMap<int, BindInputActionInfo>& InputComponent::GetActionBinds() const
+		const HashTableMap<int, DArray<BindInputActionInfo>>& InputComponent::GetActionBinds() const
 		{
 			return m_CallbackInputAction;
 		}

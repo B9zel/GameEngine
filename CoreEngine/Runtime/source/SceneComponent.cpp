@@ -114,7 +114,7 @@ void CoreEngine::Runtime::SceneComponent::SetupToAttachment(SceneComponent* atta
 	attach->childrenAttach.push_back(this);
 }
 
-FVector& CoreEngine::Runtime::SceneComponent::CalculateForwardDirection()
+FVector CoreEngine::Runtime::SceneComponent::CalculateForwardDirection()
 {
 	const FVector& Rotation = transform.GetRotation();
 	FVector direction(0, 0, 0);
@@ -129,7 +129,7 @@ FVector& CoreEngine::Runtime::SceneComponent::CalculateForwardDirection()
 	return direction;
 }
 
-FVector& CoreEngine::Runtime::SceneComponent::CalculateRightDirection()
+FVector CoreEngine::Runtime::SceneComponent::CalculateRightDirection()
 {
 	return FVector::UpVector.Cross(GetForwardVector()).SafeNormalize();
 }

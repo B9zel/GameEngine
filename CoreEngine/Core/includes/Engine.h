@@ -23,10 +23,15 @@ namespace CoreEngine
 	{
 	public:
 
+		using ThisClass = Engine;
+
+	public:
+
 		/*
 		* Update all classes
 		*/
-		void Update();
+		virtual void Update();
+		Engine();
 		virtual ~Engine() = default;
 
 	public:
@@ -35,9 +40,9 @@ namespace CoreEngine
 		*  Create singleton class Engine
 		*  @return Instance of Engine class
 		*/
-		static UniquePtr<Engine> Create();
+		static UniquePtr<ThisClass> Create();
 
-		static Engine* Get();
+		static ThisClass* Get();
 
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
@@ -53,7 +58,6 @@ namespace CoreEngine
 
 	protected:
 
-		Engine();
 
 	private:
 

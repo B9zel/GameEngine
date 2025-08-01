@@ -82,7 +82,7 @@ namespace CoreEngine
 			void ExecuteEvent(Event& event);
 			void ExecuteAxis();
 
-			const HashTableMap<int, BindInputActionInfo>& GetActionBinds() const;
+			const HashTableMap<int, DArray<BindInputActionInfo>>& GetActionBinds() const;
 			const HashTableMap<int, BindInputAxisInfo>& GetAxisBinds() const;
 
 			virtual bool ProcessUpdateAxis(Event* event);
@@ -105,7 +105,7 @@ namespace CoreEngine
 
 		private:
 
-			HashTableMap<int, BindInputActionInfo> m_CallbackInputAction;
+			HashTableMap<int, DArray<BindInputActionInfo>> m_CallbackInputAction;
 			HashTableMap<int, BindInputAxisInfo> m_CallbackInputAxis;
 			DArray<BindInputMouseMoveInfo> m_CallbackInputMotion;
 
@@ -123,7 +123,7 @@ namespace CoreEngine
 			ActionBind.Callback.ClassOfMethod = ClassOfMethod;
 			ActionBind.Callback.Method = static_cast<void(Actor::*)()>(Method);
 
-			m_CallbackInputAction[Key] = ActionBind;
+			m_CallbackInputAction[Key].push_back(ActionBind);
 		}
 		template<class TClass>
 		inline void InputComponent::BindAxis(const uint32 Key, const float InputValue, void(TClass::* Method)(float), TClass* ClassOfMethod)

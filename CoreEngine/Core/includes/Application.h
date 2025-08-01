@@ -5,7 +5,7 @@
 #include <Core/includes/LayerStack.h>
 #include <Events/include/Event.h>
 #include <Core/includes/Engine.h>
-#include "Base.h"
+#include <Core/includes/Base.h>
 
 
 int32 main(int32 argc, char** argv);
@@ -19,8 +19,8 @@ namespace CoreEngine
 
 	struct ApplicationOptions
 	{
-		ApplicationOptions() : applicationName{""}, pathToApp{""} {}
-		ApplicationOptions(const String appName,const String path) : applicationName{appName}, pathToApp{path} 
+		ApplicationOptions() : applicationName{ "" }, pathToApp{ "" }, EngineInstance{ nullptr } {}
+		ApplicationOptions(const String appName, const String path, Engine* engine) : applicationName{ appName }, pathToApp{ path }, EngineInstance{ engine }
 		{
 			const String projectDirectName = "GameEngine";
 			size_t pos = path.find(projectDirectName);
@@ -34,13 +34,14 @@ namespace CoreEngine
 		String applicationName;
 		String pathToApp;
 		String pathToProject;
+		UniquePtr<Engine> EngineInstance;
 	};
 
 	class Application
 	{
 	public:
 
-		Application(const ApplicationOptions& options);
+		Application(ApplicationOptions& options);
 		virtual ~Application() = default;
 
 		Application(const Application&) = delete;
@@ -51,29 +52,31 @@ namespace CoreEngine
 	public:
 
 		static Application* Get() { return m_Instance; }
-		
-		const ApplicationOptions& GetAppOptions() const { return m_appOptions; }
 
-		Window& GetWindow() const { return *m_window; }
+		const ApplicationOptions& GetAppOptions() const { return appOptions; }
+
+		Window& GetWindow() const { return *window; }
 		virtual void Start();
 		virtual void OnEvent(Event& event);
+		virtual void CreateApp();
 
-		void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
+		//void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
 
 	protected:
 
 		void Exit(Event& event);
-		
-	private:
+		virtual void ConstructEngine();
 
-		ApplicationOptions m_appOptions;
-		UniquePtr<Window> m_window;
-		UniquePtr<Engine> m_Engine;
+	protected:
 
-		LayerStack m_stack;
-		ShaderLibrary m_shaderLibrary;
-		EventDispatch m_EventDispatch;
-	
+		ApplicationOptions appOptions;
+		UniquePtr<Window> window;
+		UniquePtr<Engine> InstanceEngine;
+
+		//LayerStack m_stack;
+		ShaderLibrary shaderLibrary;
+		EventDispatch EventDispatcher;
+
 		bool m_isRun;
 		static Application* m_Instance;
 

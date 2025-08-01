@@ -29,7 +29,7 @@ class Function;
 //#define BIND_FUNCTION(function) [this](auto&&... args) -> decltype(auto) { return this->function(std::forward<decltype(args)>(args)...);}
 
 #define ENGINE_DEBUG _DEBUG
-
+#define WITH_EDITOR 0
 
 #ifdef ENGINE_DEBUG
 

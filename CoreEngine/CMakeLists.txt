@@ -25,6 +25,8 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 		${SOURCE_FILES})
 
 
+
+
 	
 target_include_directories(StbImage PUBLIC ../libraries/Stb_image)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC StbImage)

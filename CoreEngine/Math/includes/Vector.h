@@ -7,7 +7,9 @@
 #include <type_traits>
 #include <Core/includes/Base.h>
 #include <spdlog/fmt/ostr.h>
-#include <format>
+
+#include <cstdio>
+//#include <format>
 
 
 template<class T>

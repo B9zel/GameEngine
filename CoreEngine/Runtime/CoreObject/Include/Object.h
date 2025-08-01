@@ -4,6 +4,7 @@
 #include <Core/includes/Base.h>
 #include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Layer.h>
+#include <ReflectionSystem/Include/MetaClass.h>
 
 
 
@@ -50,6 +51,9 @@ namespace CoreEngine
 			void SetWorld(World* newWorld);
 			World* GetWorld();
 
+			//Reflection::MetaClass* GetMetaClass() const;
+			//static Reflection::MetaClass* GetStaticMetaClass();
+
 			virtual void StartDestroy() {}
 			virtual void FinishDestroy() {}
 
@@ -57,7 +61,6 @@ namespace CoreEngine
 
 			ObjectPtr<Object> m_Outer;
 			World* m_World;
-
 
 			friend GB::GarbageCollector;
 		};

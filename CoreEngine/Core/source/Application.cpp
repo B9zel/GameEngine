@@ -3,6 +3,7 @@
 #include <Core/includes/Window.h>
 #include <Core/includes/World.h>
 #include <Core/includes/Dispatcher.h>
+#include <Core/includes/Base.h>
 
 
 
@@ -11,39 +12,47 @@ namespace CoreEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	Application::Application(const ApplicationOptions& options)
+	Application::Application(ApplicationOptions& options)
 	{
-		CORE_ASSERT(m_Instance, "Already create application");	
-		m_Instance = this;
 
-		m_appOptions.applicationName = options.applicationName;
-		m_appOptions.pathToApp = options.pathToApp;
-		m_appOptions.pathToProject = options.pathToProject;
-		
-		Log::Init();
-	
-		m_window = Window::CreateWindow(CoreEngine::WindowOptions(m_appOptions.applicationName, 800, 400));
-		m_window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
+		appOptions.applicationName = options.applicationName;
+		appOptions.pathToApp = options.pathToApp;
+		appOptions.pathToProject = options.pathToProject;
+		//m_Engine = move(options.EngineInstance);
 
-		m_Engine = Engine::Create();
 
-		m_EventDispatch.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::Exit, this));
 	}
 
 	void Application::Start()
 	{
-		m_Engine->PostInitialize();
+		InstanceEngine->PostInitialize();
 		while (m_isRun)
-		{			
-			m_Engine->Update();
-			m_window->OnUpdate();
+		{
+			InstanceEngine->Update();
+			window->OnUpdate();
 		}
 	}
 
 	void Application::OnEvent(Event& event)
 	{
-		m_EventDispatch.Dispatch<EventCloseWindow>(event);		
-		m_Engine->TakeInputEvent(event);
+		EventDispatcher.Dispatch<EventCloseWindow>(event);
+		InstanceEngine->TakeInputEvent(event);
+	}
+
+	void Application::CreateApp()
+	{
+		CORE_ASSERT(m_Instance, "Already create application");
+		m_Instance = this;
+
+		Log::Init();
+
+		window = Window::CreateWindow(CoreEngine::WindowOptions(appOptions.applicationName, 800, 400));
+		window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
+
+		ConstructEngine();
+
+
+		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::Exit, this));
 	}
 
 	void Application::Exit(Event& event)
@@ -51,4 +60,11 @@ namespace CoreEngine
 		m_isRun = false;
 		glfwTerminate();
 	}
+
+	void Application::ConstructEngine()
+	{
+		if (InstanceEngine) return;
+		InstanceEngine = MakeUniquePtr<Engine>();
+	}
+
 }

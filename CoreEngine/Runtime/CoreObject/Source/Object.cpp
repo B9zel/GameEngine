@@ -24,5 +24,10 @@ namespace CoreEngine
 		{
 			return m_World;
 		}
+		/*	Reflection::MetaClass* Object::GetMetaClass() const
+			{
+				return GetStaticMetaClass();
+			}*/
+
 	}
 }
