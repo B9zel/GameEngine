@@ -208,11 +208,11 @@ namespace CoreEngine
 				{
 					if (channel == 3)
 					{
-						CORE_ASSERT(m_channel != ETypeChannel::RGB, "RGB texture cannot have RGBA mipmap");
+						CORE_UNASSERT(m_channel != ETypeChannel::RGB, "RGB texture cannot have RGBA mipmap");
 					}
 					else if (channel == 4)
 					{
-						CORE_ASSERT(m_channel != ETypeChannel::RGBA, "RGBA texture cannot have RGB mipmap");
+						CORE_UNASSERT(m_channel != ETypeChannel::RGBA, "RGBA texture cannot have RGB mipmap");
 					}
 
 					Bind();

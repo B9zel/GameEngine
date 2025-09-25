@@ -3,6 +3,7 @@
 #include <Core/includes/Dispatcher.h>
 #include <Core/includes/Base.h>
 #include <Events/include/Event.h>
+#include <InputComponent.generated.h>
 
 
 namespace CoreEngine
@@ -64,9 +65,12 @@ namespace CoreEngine
 		};
 
 
-
-		class InputComponent : public ActorComponent
+		RCLASS()
+			class InputComponent : public ActorComponent
 		{
+
+			GENERATED_BODY()
+
 		public:
 
 			InputComponent();

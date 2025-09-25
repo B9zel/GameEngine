@@ -1,6 +1,6 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
-
+#include <PrimitiveComponent.generated.h>
 
 
 namespace CoreEngine
@@ -9,8 +9,11 @@ namespace CoreEngine
 
 	namespace Runtime
 	{
-		class PrimitiveComponent : public SceneComponent
+		RCLASS()
+			class PrimitiveComponent : public SceneComponent
 		{
+			GENERATED_BODY()
+
 		public:
 
 			PrimitiveComponent();

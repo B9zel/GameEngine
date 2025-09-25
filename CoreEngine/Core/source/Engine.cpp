@@ -12,6 +12,7 @@
 
 #include <Render/includes/Render.h>
 #include <Core/includes/Window.h>
+#include <ReflectionSystem/Include/ReflectionManager.h>
 
 
 
@@ -29,6 +30,7 @@ namespace CoreEngine
 		m_MemoryManager = MemoryManager::Create();
 		m_Input = MakeUniquePtr<InputDevice>();
 		m_Render = Render::Render::Create();
+		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
 
 		m_World.reset(Allocator::Allocate<World>());
 	}

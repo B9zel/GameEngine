@@ -1,7 +1,7 @@
 #pragma once
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/CameraComponent.h>
-
+#include <CameraManager.generated.h>
 
 namespace CoreEngine
 {
@@ -10,8 +10,11 @@ namespace CoreEngine
 		class CameraComponent;
 		class PlayerController;
 
-		class CameraManager : public Actor
+		RCLASS()
+			class CameraManager : public Actor
 		{
+			GENERATED_BODY()
+
 		public:
 
 			CameraManager();

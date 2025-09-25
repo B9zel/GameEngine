@@ -1,6 +1,7 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 #include "includes/EditorApplication.h"
+
 //#include <Core/includes/Base.h>
 #include <Core/includes/Engine.h>
 #include <Core/includes/ObjectPtr.h>
@@ -245,6 +246,22 @@ private:
 	FMatrix4x4 matRotate;
 };
 
+class Test : CoreEngine::Runtime::Object
+{
+public:
+
+	Test()
+	{
+		TestVar = 5;
+	}
+
+public:
+
+	void Update()
+	{
+		
+	}
+};
 
 class MyController : public CoreEngine::Runtime::PlayerController
 {
@@ -362,6 +379,7 @@ private:
 
 class Light : public CoreEngine::Runtime::Actor
 {
+
 public:
 
 	Light()
@@ -392,7 +410,17 @@ public:
 	{
 		CoreEngine::Runtime::Actor::Update(deltaTime);
 		//AddActorRotation(FVector(0.1, 0, 0));
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Actor {0} {1} {2}", GetActorRotation().GetX(), GetActorRotation().GetY(), GetActorRotation().GetZ());
+		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Actor {0} {1} {2}", GetActorRotation().GetX(), GetActorRotation().GetY(), GetActorRotation().GetZ());
+		//auto Class = CoreEngine::Engine::Get()->GetReflectionManger()->FindMetaClas("Object");
+	/*	auto Prop = GetStaticClass()->GetPropertyFieldByName(this, "TestVar");
+		if (Prop)
+		{
+
+			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", Prop->Name, Prop->IsPointer, *Prop->GetSourcePropertyByName<int>(this));
+			Prop->SetSourceProperty(this, *Prop->GetSourcePropertyByName<int>(this) + 1);
+		}
+
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, TestVar);*/
 		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Direction {0} {1} {2}", LightObj->GetComponentRotation().GetX(), LightObj->GetComponentRotation().GetY(), LightObj->GetComponentRotation().GetZ());
 		//AddActorRotation(FVector(100 * deltaTime, 0, 0));
 	}
@@ -404,6 +432,8 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLShader shade;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
+
+	Test t;
 };
 
 class Quad : public CoreEngine::Runtime::Pawn

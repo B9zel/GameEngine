@@ -4,7 +4,7 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/Level.h>
-
+#include <World.generated.h>
 
 namespace CoreEngine
 {
@@ -30,8 +30,11 @@ namespace CoreEngine
 		Level* SpawnLevel = nullptr;
 	};
 
-	class World : public CoreEngine::Runtime::Object
+	RCLASS()
+		class World : public CoreEngine::Runtime::Object
 	{
+		GENERATED_BODY()
+
 	public:
 		World();
 	public:

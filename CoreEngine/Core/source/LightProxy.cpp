@@ -1,4 +1,5 @@
 #include <Core/includes/LightProxy.h>
+
 #include <Math/includes/Math.h>
 
 namespace CoreEngine

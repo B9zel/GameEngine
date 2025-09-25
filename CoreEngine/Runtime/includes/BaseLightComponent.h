@@ -1,6 +1,6 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
-
+#include <BaseLightComponent.generated.h>
 
 
 namespace CoreEngine
@@ -9,8 +9,11 @@ namespace CoreEngine
 
 	namespace Runtime
 	{
+		RCLASS();
 		class BaseLightComponent : public SceneComponent
 		{
+			GENERATED_BODY()
+
 		public:
 
 			virtual LightProxy* GetLightProxy() = 0;

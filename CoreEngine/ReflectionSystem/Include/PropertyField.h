@@ -1,5 +1,5 @@
 #pragma once
-
+#include <Core/includes/Base.h>
 #include <ReflectionSystem/Include/BaseField.h>
 
 
@@ -34,14 +34,46 @@ namespace CoreEngine
 			CHAR
 		};
 
+		EPrimitiveTypes ConvertToPropertyEnumFromString(const StringView& NameType);
+
 
 		struct TypePropertyField
 		{
-			~TypePropertyField() noexcept {}
 
-			TypePropertyField(const TypePropertyField& Other) = default;
+			TypePropertyField() = default;
+			~TypePropertyField() noexcept {}
+			TypePropertyField(const String& Type)
+			{
+				// Is pointer
+				uint64 Pos = Type.find("*");
+		
+				NameType = Type;
+				IsComplexType = Pos >= 0;
+				Primitive = ConvertToPropertyEnumFromString(IsComplexType ? Type.substr(0, Pos) : Type);
+			}
 
 		public:
+
+			TypePropertyField(const TypePropertyField& Other) = default;
+			TypePropertyField( TypePropertyField&& Other) = default;
+			TypePropertyField& operator=(TypePropertyField&&) = default;
+			TypePropertyField& operator=(const TypePropertyField& Other)
+			{
+				IsComplexType = Other.IsComplexType;
+				Primitive = Other.Primitive;
+				if (IsComplexType)
+				{
+					ComplexType = Other.ComplexType;
+				}
+				else
+				{
+					NameType = Other.NameType;
+				}
+				return *this;
+			}
+
+		public:
+
 			bool IsComplexType;
 			EPrimitiveTypes Primitive;
 			union
@@ -56,6 +88,27 @@ namespace CoreEngine
 
 			virtual ~PropertyField() noexcept {
 			}
+		public:
+
+			PropertyField() = default;
+			PropertyField(const PropertyField& Other)
+			{
+				Size = Other.Size;
+				Offset = Other.Offset;
+				IsPointer = Other.IsPointer;
+				Params = Other.Params;
+				TypeProperty = Other.TypeProperty;
+			}
+
+			PropertyField& operator=(const PropertyField& Other)
+			{
+				Size = Other.Size;
+				Offset = Other.Offset;
+				IsPointer = Other.IsPointer;
+				Params = Other.Params;
+				TypeProperty = Other.TypeProperty;
+				return *this;
+			}
 
 		public:
 
@@ -69,8 +122,19 @@ namespace CoreEngine
 			template<class TypeProperty>
 			TypeProperty* GetSourcePropertyByName(void* InstanceClass)
 			{
-				return reinterpret_cast<TypeProperty*>(InstanceClass + Offset);
+				return reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 			}
+
+			template<typename TypeProperty>
+			void SetSourceProperty(void* InstanceClass, const TypeProperty NewValur)
+			{
+				TypeProperty* Variable = reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
+				if (Variable)
+				{
+					*Variable = NewValur;
+				}
+			}
+
 		};
 
 	}

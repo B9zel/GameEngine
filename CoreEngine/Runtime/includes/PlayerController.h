@@ -2,6 +2,7 @@
 #include <Runtime/includes/Controller.h>
 #include <Runtime/includes/PlayerInput.h>
 #include <Core/includes/Base.h>
+#include <PlayerController.generated.h>
 
 
 namespace CoreEngine
@@ -13,8 +14,11 @@ namespace CoreEngine
 		class InputComponent;
 		class CameraComponent;
 
+		RCLASS()
 		class PlayerController : public Controller
 		{
+			GENERATED_BODY()
+
 		public:
 
 			PlayerController();

@@ -1,17 +1,17 @@
 #pragma once
 #include <Runtime/CoreObject/Include/Object.h>
-
+#include <GameInstance.generated.h>
 
 
 namespace CoreEngine
 {
 	namespace Runtime
 	{
-
-		class GameInstance : public CoreEngine::Runtime::Object
+		RCLASS()
+			class GameInstance : public CoreEngine::Runtime::Object
 		{
-		
-		
+			GENERATED_BODY()
+
 		};
 
 

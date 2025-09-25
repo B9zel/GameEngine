@@ -1,9 +1,48 @@
 cmake_minimum_required(VERSION 3.20)
 
 set(CORE_PROJECT_NAME CoreEngine)
+set(OutputPythonBuildPathName "OutputGenFiles")
+set(OutputPythonBuildPath "")
 
 FILE(GLOB_RECURSE INCLUDES_FILES **.h)
 FILE(GLOB_RECURSE SOURCE_FILES **.cpp)
+
+set(STRING_RESULT "")
+
+string(ASCII 27 Esc)
+file( READ "${CMAKE_SOURCE_DIR}/BuildGeneration/BuildGenConfig.ini" LIB_PATH_STR)
+string(REGEX REPLACE "\n" "${Esc};" LIB_PATH_LINES "${LIB_PATH_STR}")
+foreach(LINE ${LIB_PATH_LINES})
+    string(FIND ${LINE} "=" POSITION)
+    if(NOT "${POSITION}" STREQUAL "-1")
+            #remove the key, leave the content untouch
+            string(REPLACE "${KEY}" "" STRING_RESULT ${LINE})
+            # Swap the appended Esc character back out in favour of a line feed
+            string(REGEX REPLACE "${Esc}" "" STRING_RESULT ${STRING_RESULT})
+            string(STRIP ${STRING_RESULT} STRING_RESULT)
+            string(FIND ${STRING_RESULT} "=" POSITION)
+            if (NOT ${POSITION} STREQUAL "-1" )
+                string(SUBSTRING ${STRING_RESULT} 0 ${POSITION} KEY)
+                string(STRIP ${KEY} KEY)
+                math(EXPR POSITION "${POSITION} + 1")
+                string(SUBSTRING ${STRING_RESULT} ${POSITION} -1 VALUE)
+                string(STRIP ${VALUE} VALUE)
+                if (${KEY} STREQUAL ${OutputPythonBuildPathName})
+                message(STATUS ${KEY} " ========= "  ${VALUE})
+                    set(OutputPythonBuildPath ${VALUE})
+                    break()
+                endif()
+            endif()
+    endif()
+endforeach()
+
+message(STATUS ${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath})
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath})
+    message(STATUS HERHEH)
+    FILE(GLOB_RECURSE GENERATED_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath}/**.h)
+    FILE(GLOB_RECURSE GENERATED_FILES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath}/**.cpp)
+endif()
+include_directories(${OutputPythonBuildPath})
 
 set(INCLUDE_STB_IMAGE_FILES
 	../libraries/Stb_image/stb_image.h)
@@ -13,17 +52,25 @@ set(SOURCE_STB_IMAGE_FILES
 add_library(StbImage STATIC
 	${INCLUDE_STB_IMAGE_FILES}
 	${SOURCE_STB_IMAGE_FILES})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
+		${INCLUDES_FILES}
+		${SOURCE_FILES}
+		)
 	
 	
 add_library(${CORE_PROJECT_NAME} STATIC 
 		${INCLUDES_FILES}
 		${SOURCE_FILES}
+		${GENERATED_FILES}
+		${GENERATED_FILES_CPP}
 		)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
-		${INCLUDES_FILES}
-		${SOURCE_FILES})
 
+target_include_directories(${CORE_PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/)
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath} PROPERTIES GENERATED TRUE)
 
 
 
@@ -49,3 +96,6 @@ target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glm)
 
 add_subdirectory(../libraries/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC assimp)
+
+
+

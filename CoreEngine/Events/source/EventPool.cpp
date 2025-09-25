@@ -32,7 +32,7 @@ namespace CoreEngine
 			for (uint64 j = 0; j < i.second.size(); j++)
 			{
 				UniquePtr< EventCell> newCells = MakeUniquePtr<EventCell>();
-				newCells->event = CreateEventBuyType(i.first);
+				newCells->event = CreateEventByType(i.first);
 				i.second[j] = std::move(newCells);
 			}
 
@@ -63,7 +63,7 @@ namespace CoreEngine
 		}
 	}
 
-	UniquePtr<Event> EventPool::CreateEventBuyType(const EEventType& eType)
+	UniquePtr<Event> EventPool::CreateEventByType(const EEventType& eType)
 	{
 		switch (eType)
 		{

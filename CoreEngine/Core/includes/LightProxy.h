@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/includes/Base.h>
 #include <Math/includes/Vector.h>
 #include <Runtime/includes/Enums/TypeLight.h>
 

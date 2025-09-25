@@ -1,17 +1,20 @@
 #pragma once
 #include <Runtime/includes/Actor.h>
-
+#include <Pawn.generated.h>
 
 namespace CoreEngine
 {
 	namespace Runtime
-	{	
+	{
 		class Controller;
 		class PlayerController;
 		class InputComponent;
 
+		RCLASS();
 		class Pawn : public Actor
 		{
+			GENERATED_BODY()
+
 		public:
 
 			Pawn();
@@ -27,7 +30,7 @@ namespace CoreEngine
 		protected:
 
 			virtual void SetupInputPlayerController(InputComponent* inputController);
-		
+
 		protected:
 
 			Controller* OwningController;
@@ -35,5 +38,6 @@ namespace CoreEngine
 
 			friend PlayerController;
 		};
+
 	}
 }

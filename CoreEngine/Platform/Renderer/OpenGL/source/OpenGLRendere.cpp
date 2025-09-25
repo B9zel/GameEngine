@@ -63,7 +63,7 @@ namespace CoreEngine
 				m_SSBOPointLight.CreaterBuffer(PointLights.data(), PointLights.size(), sizeof(SimplyPointLightProxy), ETypeDraw::STREAM);
 				m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeDraw::STREAM);
 
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
+				//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
 
 
 				for (size_t i = 0; i < Proxy->GetIndeces().size(); i++)
@@ -111,13 +111,13 @@ namespace CoreEngine
 						shader->SetUniform1i("CountDirectionLight", DirectionLights.size(), false);
 						shader->SetUniform1i("CountSpotLight", SpotLights.size(), false);
 
-						int b;
-						glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
-						EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
-						/*if (!Proxy->GetLocationLights().empty())
+						//int b;
+						//glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
+						//EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
+						if (!Proxy->GetLocationLights().empty())
 						{
 							shader->SetUniformVec3("PosLight", Proxy->GetLocationLights()[0], false);
-						}*/
+						}
 
 
 						int ebo;
@@ -126,35 +126,35 @@ namespace CoreEngine
 						m_SSBOSpotLight.Bind(2);
 						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
 						//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-						float* dat = nullptr;
-						dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
+						//float* dat = nullptr;
+						//dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
 
-						if (dat)
-						{
-							for (int i = 0; i < 60 / sizeof(float); i += 3)
-							{
-								EG_LOG(CORE, ELevelLog::INFO, "{0}, {1}, {2}", dat[i], dat[i + 1], dat[i + 2]);
-							}
-						}
+						//if (dat)
+						//{
+						//	for (int i = 0; i < 60 / sizeof(float); i += 3)
+						//	{
+						//		EG_LOG(CORE, ELevelLog::INFO, "{0}, {1}, {2}", dat[i], dat[i + 1], dat[i + 2]);
+						//	}
+						//}
 
-						int a;
-						int locat = glGetUniformLocation(3, "CountPointLight");
-						glGetUniformiv(3, locat, &a),
+						//int a;
+						//int locat = glGetUniformLocation(3, "CountPointLight");
+						//glGetUniformiv(3, locat, &a),
 
-							//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
-							glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
-						EG_LOG(CORE, ELevelLog::INFO, ebo);
-						void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-						if (d != nullptr)
-						{
-							PointLightProxy* l = reinterpret_cast<PointLightProxy*>(d);
-							for (size_t i = 0; i < 32; i++)
-							{
+						//	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
+						//	glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
+						//EG_LOG(CORE, ELevelLog::INFO, ebo);
+						//void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+						//if (d != nullptr)
+						//{
+						//	PointLightProxy* l = reinterpret_cast<PointLightProxy*>(d);
+						//	for (size_t i = 0; i < 32; i++)
+						//	{
 
-								//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, *((double*)l + i * sizeof(double)));
-							}
+						//		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, *((double*)l + i * sizeof(double)));
+						//	}
 
-						}
+						//}
 						glDrawElements(GL_TRIANGLES, Proxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 
 						shader->UnBind();

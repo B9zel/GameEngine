@@ -1,6 +1,6 @@
 #pragma once
 #include <Runtime/includes/Actor.h>
-
+#include <Controller.generated.h>
 
 
 namespace CoreEngine
@@ -9,9 +9,13 @@ namespace CoreEngine
 	{
 		class Pawn;
 
-		class Controller : public Actor
+		RCLASS()
+			class Controller : public Actor
 		{
+			GENERATED_BODY()
+
 		public:
+
 
 			Pawn* GetControlledPawn() const;
 			void SetControlledPawn(Pawn* NewPawn);

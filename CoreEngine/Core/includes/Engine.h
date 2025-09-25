@@ -6,6 +6,10 @@
 
 namespace CoreEngine
 {
+	namespace Reflection
+	{
+		class ReflectionManager;
+	}
 	namespace Render
 	{
 		class Render;
@@ -16,7 +20,6 @@ namespace CoreEngine
 	class TimerManager;
 	class Engine;
 	class World;
-
 
 	// Main class, that manage all Managers and subsystems
 	class Engine
@@ -49,6 +52,7 @@ namespace CoreEngine
 		UniquePtr<MemoryManager>& GetMemoryManager() { return m_MemoryManager; }
 		UniquePtr<Render::Render>& GetRender() { return m_Render; }
 		UniquePtr<World>& GetWorld() { return m_World; }
+		UniquePtr<Reflection::ReflectionManager>& GetReflectionManger() { return m_ReflectionManger; }
 
 		FVector2 GetScreenSize() const;
 
@@ -66,6 +70,7 @@ namespace CoreEngine
 		UniquePtr<Render::Render> m_Render;
 		UniquePtr<TimerManager> m_TimerManager;
 		UniquePtr<class World> m_World;
+		UniquePtr<class Reflection::ReflectionManager> m_ReflectionManger;
 
 		static Engine* GEngine;
 	};

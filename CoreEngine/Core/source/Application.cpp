@@ -41,7 +41,7 @@ namespace CoreEngine
 
 	void Application::CreateApp()
 	{
-		CORE_ASSERT(m_Instance, "Already create application");
+		CORE_UNASSERT(m_Instance, "Already create application");
 		m_Instance = this;
 
 		Log::Init();

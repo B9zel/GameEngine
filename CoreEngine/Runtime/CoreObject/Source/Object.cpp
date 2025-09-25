@@ -10,6 +10,8 @@ namespace CoreEngine
 		{
 			m_World = nullptr;
 			m_Outer = nullptr;
+			SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::PendingKill));
+			IsMarkedGC = false;
 			InitProperties();
 		}
 		void Object::InitProperties()

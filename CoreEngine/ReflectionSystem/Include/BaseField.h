@@ -9,7 +9,12 @@ namespace CoreEngine
 	{
 		struct BaseField
 		{
-			virtual ~BaseField() {};
+			virtual ~BaseField() noexcept {}
+
+		public:
+
+			BaseField() {
+			}
 
 		public:
 

@@ -3,6 +3,7 @@
 #include <Core/includes/World.h>
 #include <Render/includes/Render.h>
 #include <Core/includes/InputDevice.h>
+#include <ReflectionSystem/Include/ReflectionManager.h>
 #include <imgui/imgui.h>
 #include <Editor/includes/EditorEngine.h>
 #include <imgui/backends/imgui_impl_opengl3.h>

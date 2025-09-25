@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/includes/Engine.h>
-
+#include <Core/includes/InputDevice.h>
+#include <Render/includes/Framebuffer.h>
 
 namespace Editor
 {
@@ -14,7 +15,7 @@ namespace Editor
 
 	public:
 
-		EditorEngine() = default;
+		EditorEngine();
 
 	public:
 
@@ -30,6 +31,8 @@ namespace Editor
 		String buf;
 		float my_color[4];
 		bool my_tool_active{ true };
+
+		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
 
 	};
 }

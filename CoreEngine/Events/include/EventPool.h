@@ -37,7 +37,7 @@ namespace CoreEngine
 		Event* GetEventClass(const EEventType& eventType);
 		void GiveEventClass(Event* event);
 
-		UniquePtr<Event> CreateEventBuyType(const EEventType& eType);
+		UniquePtr<Event> CreateEventByType(const EEventType& eType);
 
 	private:
 

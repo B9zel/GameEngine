@@ -14,7 +14,7 @@ namespace CoreEngine
 
 		Render::Render()
 		{
-			CORE_ASSERT(isInit, "Render already create");
+			CORE_UNASSERT(isInit, "Render already create");
 			isInit = true;
 		}
 

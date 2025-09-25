@@ -20,7 +20,7 @@ namespace CoreEngine
 			{
 				glfwMakeContextCurrent(m_window);
 
-				CORE_ASSERT(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Can't initialize GLAD");
+				CORE_UNASSERT(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Can't initialize GLAD");
 				EG_LOG(CORE, ELevelLog::INFO, "Initialize GLAD\n");
 
 

@@ -5,6 +5,7 @@
 #include <Core/includes/World.h>
 #include <Core/includes/UpdateManager.h>
 #include <Math/includes/Transform.h>
+#include <Actor.generated.h>
 
 
 namespace CoreEngine
@@ -54,9 +55,12 @@ namespace CoreEngine
 		};
 
 
-
+		RCLASS();
 		class Actor : public Object
 		{
+
+			GENERATED_BODY()
+
 		public:
 
 			friend UpdateFunction;
@@ -104,7 +108,7 @@ namespace CoreEngine
 			template<class TClass>
 			TClass* FindComponentByClass();
 			template<class TClass>
-			DArray<TClass*>& FindComponentsByClass();
+			DArray<TClass*> FindComponentsByClass();
 
 			const DArray<ActorComponent*>& GetComponents() const;
 
@@ -180,7 +184,7 @@ namespace CoreEngine
 			return nullptr;
 		}
 		template<class TClass>
-		inline DArray<TClass*>& Actor::FindComponentsByClass()
+		inline DArray<TClass*> Actor::FindComponentsByClass()
 		{
 			if (!IsParentClass<ActorComponent, TClass>()) return DArray<TClass*>();
 			DArray<TClass*> Res;

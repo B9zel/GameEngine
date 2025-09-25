@@ -2,15 +2,19 @@
 #include <Core/includes/Base.h>
 #include <Runtime/includes/ActorComponent.h>
 #include <Math/includes/Transform.h>
-
+#include <SceneComponent.generated.h>
 
 
 namespace CoreEngine
 {
 	namespace Runtime
 	{
+		RCLASS();
 		class SceneComponent : public ActorComponent
 		{
+			GENERATED_BODY()
+
+
 		public:
 
 			SceneComponent();

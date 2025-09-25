@@ -57,7 +57,7 @@ namespace CoreEngine
 
 
 		m_Window = glfwCreateWindow(winData.Width, winData.Height, winData.Title.c_str(), nullptr, nullptr);
-		CORE_ASSERT(!m_Window, "Can't create GLFW window");
+		CORE_UNASSERT(!m_Window, "Can't create GLFW window");
 		EG_LOG(CORE, ELevelLog::INFO, "Create GLFW window");
 
 

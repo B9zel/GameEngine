@@ -43,7 +43,7 @@ target_include_directories(ImGui PUBLIC ../libraries)
 target_include_directories(ImGui PUBLIC ../libraries/imgui)
 target_include_directories(${EDITOR_PROJECT_NAME} PUBLIC .)
 
-target_link_libraries(${EDITOR_PROJECT_NAME} CoreEngine ImGui)
+target_link_libraries(${EDITOR_PROJECT_NAME} PUBLIC CoreEngine ImGui)
 
 target_link_libraries(ImGui PRIVATE glad glfw)
 

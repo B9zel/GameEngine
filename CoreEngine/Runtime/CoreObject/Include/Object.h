@@ -1,10 +1,12 @@
 #pragma once
-#include <Core/includes/Memory/GarbageCollector.h>
-#include <Runtime/CoreObject/Include/ObjectGlobal.h>
+
 #include <Core/includes/Base.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Layer.h>
 #include <ReflectionSystem/Include/MetaClass.h>
+#include <ReflectionSystem/Include/ReflectionMacros.h>
+#include <Object.generated.h>
 
 
 
@@ -23,6 +25,13 @@ namespace CoreEngine
 
 #define PROPERTY(type, name) CoreEngine::ObjectPtr<type> name
 
+enum class ObjectGCFlags : uint8
+{
+	None = 0,
+	RootObject = FLAG_OFFSET(0),
+	PendingKill = FLAG_OFFSET(1)
+};
+
 
 
 
@@ -34,8 +43,12 @@ namespace CoreEngine
 
 	namespace Runtime
 	{
+		RCLASS();
 		class Object
 		{
+
+			GENERATED_BODY()
+
 		public:
 
 			Object();
@@ -57,10 +70,19 @@ namespace CoreEngine
 			virtual void StartDestroy() {}
 			virtual void FinishDestroy() {}
 
+		public:
+
+			RPROPERTY();
+			int TestVar{ 0 };
+
 		private:
 
 			ObjectPtr<Object> m_Outer;
 			World* m_World;
+			// GC
+			uint32 StateObjectFlagGC;
+			bool IsMarkedGC;
+
 
 			friend GB::GarbageCollector;
 		};
@@ -71,5 +93,7 @@ namespace CoreEngine
 			ReturnType* obj = CreateObject<ReturnType>(this);
 			return obj;
 		}
+
+
 	}
 }

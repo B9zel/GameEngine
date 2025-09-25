@@ -1,7 +1,7 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
 #include <Math/includes/Matrix.h>
-
+#include <CameraComponent.generated.h>
 
 namespace CoreEngine
 {
@@ -13,9 +13,11 @@ namespace CoreEngine
 			ORTHOGRAPH
 		};
 
-
-		class CameraComponent : public SceneComponent
+		RCLASS()
+			class CameraComponent : public SceneComponent
 		{
+			GENERATED_BODY()
+
 		public:
 
 			CameraComponent();

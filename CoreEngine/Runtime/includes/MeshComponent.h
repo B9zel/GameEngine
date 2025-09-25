@@ -1,11 +1,13 @@
 #pragma once
+#include <Core/includes/Base.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <Core/includes/Base.h>
 #include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
 #include <Runtime/includes/PrimitiveComponent.h>
 #include <Render/includes/Model.h>
+#include <MeshComponent.generated.h>
+
 
 
 namespace CoreEngine
@@ -17,8 +19,11 @@ namespace CoreEngine
 	}
 	namespace Runtime
 	{
+		RCLASS();
 		class MeshComponent : public PrimitiveComponent
 		{
+			GENERATED_BODY()
+
 		public:
 
 			MeshComponent();

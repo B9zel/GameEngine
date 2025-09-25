@@ -13,6 +13,7 @@ namespace CoreEngine
 	public:
 
 		InputDevice() = default;
+		virtual ~InputDevice() = default;
 
 	public:
 

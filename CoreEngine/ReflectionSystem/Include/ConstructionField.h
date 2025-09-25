@@ -21,7 +21,7 @@ namespace CoreEngine
 			ETypeConstructionFiled TypeConstruction;
 
 
-			PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty)
+			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty)
 			{
 				for (PropertyField*& Property : PropertyFileds)
 				{
@@ -31,6 +31,11 @@ namespace CoreEngine
 					}
 				}
 				return nullptr;
+			}
+
+			void AddPropertyField(PropertyField* NewProperty)
+			{
+				PropertyFileds.emplace_back(NewProperty);
 			}
 		};
 	}

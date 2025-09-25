@@ -1,5 +1,5 @@
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #pragma once
-
 #include <Core/includes/PlatformDetection.h>
 #include <Core/includes/Platform.h>
 #include <string>
@@ -13,6 +13,7 @@
 
 
 
+
 template<class TReturn, class... Args>
 class Function;
 
@@ -22,6 +23,7 @@ class Function;
 
 #define PASTE_DETAILS(x, y) x##y
 #define PASTE(x, y) (PASTE_DETAILS(x, y))
+#define FLAG_OFFSET(x) 1 << x
 
 
 #define BIND_EVENT(Method, Class) Function<void(Event&)>(Method,Class)
@@ -41,8 +43,10 @@ class Function;
 #define ENGINE_DEBUGBREAK 
 #endif // _WIN64 || _WIN32
 
-#define CORE_ASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-#define CHECK(is) { CORE_ASSERT(!is, "Fail check"); }
+#define CORE_UNASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+#define CORE_ASSERT(is, log) { if (!(is)) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+#define ASSERT(log) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }
+#define CHECK(is) { CORE_UNASSERT(!is, "Fail check"); }
 
 #define FUNCTION_NAME __FUNCTION__
 #define NUMBER_LINE  STRINGCON(__LINE__)
@@ -53,7 +57,7 @@ class Function;
 
 #define CORE_CHECK(is) 
 #define CHECK(is)
-#define CORE_ASSERT(is, log)
+#define CORE_UNASSERT(is, log)
 #define FUNCTION_NAME 
 #define NUMBER_LINE
 
@@ -72,6 +76,9 @@ using SharedPtr = std::shared_ptr<T>;
 template<class T, class Deleter = std::default_delete<T>>
 using UniquePtr = std::unique_ptr<T, Deleter>;
 
+template<class T>
+using WeakPtr = std::weak_ptr<T>;
+
 template<class T, class Allocattor = std::allocator<T>>
 using DArray = std::vector<T, Allocattor>;
 
@@ -83,7 +90,6 @@ using Pair = std::pair<First, Second>;
 
 template<class T>
 using Deque = std::deque<T>;
-
 
 
 template<class Key, class Value, class Hasher = std::hash<Key>>
@@ -123,6 +129,20 @@ T FromString(const String& str)
 
 unsigned int AligneSizeofBy2(const unsigned int Bytes);
 
+
+inline bool HasFlag(const uint32 FlagVar, const uint32 FindedFlag)
+{
+	return (FlagVar & FindedFlag) != 0;
+}
+
+inline void SetFlag(uint32& FlagVar, const uint32 AddFlag)
+{
+	FlagVar |= AddFlag;
+}
+inline void RemoveFlag(uint32& FlagVar, const uint32 RemFlag)
+{
+	FlagVar &= ~RemFlag;
+}
 
 #include <Templates/Function.h>
 #include <Templates/Queue.h>

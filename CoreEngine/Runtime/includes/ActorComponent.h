@@ -1,7 +1,7 @@
 #pragma once
 #include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/UpdateFunction.h>
-
+#include <ActorComponent.generated.h>
 
 
 namespace CoreEngine
@@ -51,9 +51,11 @@ namespace CoreEngine
 			MethodPtr<Runtime::ActorComponent, void(float)> UpdateDelegate;
 		};
 
-
+		RCLASS();
 		class ActorComponent : public CoreEngine::Runtime::Object
 		{
+			GENERATED_BODY()
+
 		public:
 
 			virtual void BeginPlay();
