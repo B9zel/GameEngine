@@ -10,7 +10,7 @@
 
 namespace CoreEngine
 {
-	World::World()
+	World::World(const InitializeObject& Initilize) : Object(Initilize)
 	{
 		m_UpdateManager = UpdateManager::CreateInstance();
 		m_Scene = Allocator::Allocate<Render::Scene>();

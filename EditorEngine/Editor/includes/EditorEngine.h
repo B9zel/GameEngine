@@ -1,7 +1,9 @@
 #pragma once
 #include <Core/includes/Engine.h>
 #include <Core/includes/InputDevice.h>
+#include <Editor/includes/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
+#include <Editor/includes/SceneHierarhy.h>
 
 namespace Editor
 {
@@ -33,6 +35,7 @@ namespace Editor
 		bool my_tool_active{ true };
 
 		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
-
+		EditorViewport Viewport;
+		SceneHierarhy SceneHier;
 	};
 }

@@ -26,7 +26,7 @@ namespace CoreEngine
 
 		public:
 
-			MeshComponent();
+			MeshComponent(const InitializeObject& Object);
 
 		public:
 
@@ -58,7 +58,7 @@ namespace CoreEngine
 			String m_PathToMesh;
 
 			//Test
-			UniquePtr<Render::Shader> m_Shader;
+			DArray<UniquePtr<Render::Shader>> m_Shader;
 		};
 	}
 }

@@ -8,7 +8,7 @@ namespace CoreEngine
 	namespace Runtime
 	{
 
-		SpotLightComponent::SpotLightComponent()
+		SpotLightComponent::SpotLightComponent(const InitializeObject& Object) : BaseLightComponent(Object)
 		{
 			LightProxy = MakeUniquePtr<SpotLightProxy>();
 		}

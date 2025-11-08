@@ -16,7 +16,7 @@ namespace CoreEngine
 
 		public:
 
-			PrimitiveComponent();
+			PrimitiveComponent(const InitializeObject& Object);
 
 		public:
 

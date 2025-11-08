@@ -1,8 +1,10 @@
 import os.path
 import pathlib as pl
 from GeneralFile import GetNameFilesWithoutExtenshion
+from FieldTypes import *
 
-def GenerateHeader(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuputFile, FieldClass):
+
+def GenerateHeader(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuputFile, FieldClass:list):
     # Check
     openFilePath = (pl.Path(__file__).parent / DirectoryOuputFile).absolute() / (
             GetNameFilesWithoutExtenshion(NameOpenFile) + ".generated.h")
@@ -20,18 +22,23 @@ def GenerateHeader(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
 
     # if preGenClasses not in conteinFile:
     write += preGenClasses
-    CurrentFileId = f"{NameOpenFile}_{FieldClass.Name}"
-    write += f"namespace {FieldClass.Namespace} "
-    write +="{\n" + \
-            f"class {ClassNameLine}; \n" \
-            "}\n"
-    write += f"struct Construct_{FieldClass.Name}_Statics; \n"
-    write +=f"DeclareNewClass({ClassNameLine}Generated) \n" + \
-            f"#define {CurrentFileId}_{FieldClass.LineGenBody.Location}_GENERATED_BODY \\" \
-            "\npublic: \\" \
-            f"\n          static CoreEngine::Reflection::ClassField* GetStaticClass(); \\" \
-            f"\n          friend struct Construct_{FieldClass.Name}_Statics; \\" \
-            f"\nprivate:\n"
+    CurrentFileId = f"{NameOpenFile}_{FieldClass[0].Name}"
+    for Field in FieldClass:
+        if Field.Namespace:
+            write += f"namespace {Field.Namespace} "
+            write +="{\n" + \
+                    f"class {Field.Name}; \n" \
+                    "}\n"
+        else:
+            write += f"class {Field.Name}; \n"
+
+        write += f"struct Construct_{Field.Name}_Statics; \n"
+        write +=f"DeclareNewClass({Field.Name}Generated) \n" + \
+                f"#define {CurrentFileId}_{Field.LineGenBody.Location}_GENERATED_BODY \\" \
+                "\npublic: \\" \
+                f"\n          static CoreEngine::Reflection::ClassField* GetStaticClass(); \\" \
+                f"\n          friend struct Construct_{Field.Name}_Statics; \\" \
+                f"\nprivate:\n"
     write += f"#undef CURRENT_FILE_ID \n" \
              f"#define CURRENT_FILE_ID {CurrentFileId}"
 
@@ -52,29 +59,43 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
 
     VariableGen = ""
     GenPropertyName = []
+    Implement = ""
+    for Field in FieldClass:
+        Implement += f"struct Construct_{Field.Name}_Statics \n" + "{\n" \
+                    f"Construct_{Field.Name}_Statics() {r"{}"}\n"
 
-    Implement = f"struct Construct_{FieldClass.Name}_Statics \n" + "{\n" \
-                f"Construct_{FieldClass.Name}_Statics() {r"{}"}"
+        for Var in Field.Variable:
+            if Var.TypePrimitive == ETypePrimitive.PRIMITIVE:
+                if Var.IsPointer:
+                    Implement += f"\tGenerateClassPropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), CoreEngine::Reflection::EPropertyFieldParams())\n"
+                else:
+                    Implement += f"\tGeneratePropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, CoreEngine::Reflection::EPropertyFieldParams())\n"
+            elif Var.TypePrimitive == ETypePrimitive.ARRAY:
+                if Var.IsPointer:
+                    PosPointerChr = Var.InnerType.find("*")
+                    Implement += f"\tGenerateClassArrayPropertyFiled({Var.NameVar}, {Var.Type}, {Var.InnerType[:PosPointerChr]}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, CoreEngine::Reflection::EPropertyFieldParams())\n"
+                else:
+                    Implement += f"\tGenerateArrayPropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, CoreEngine::Reflection::EPropertyFieldParams())\n"
+            GenPropertyName.append(f"Field_{Var.NameVar}")
+        DeclareGenVer = f"\tstatic DArray<UniquePtr<CoreEngine::Reflection::PropertyField>>& GetPropertyFieldArray()" + " { \n"
+        DeclareGenVer += f"\t\tstatic bool HasInit = false;\n"
+        DeclareGenVer += f"\t\tstatic DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> {Field.Name}Generated_Fields; \n"
+        DeclareGenVer += "\t\tif (!HasInit) {\n"
+        for i in GenPropertyName:
+            DeclareGenVer += f"\t\t{Field.Name}Generated_Fields.emplace_back(MakeUniquePtr<Construct_{Field.Name}_Statics::{i}>());\n"
+        DeclareGenVer += f"\t\t\tHasInit = true;"
+        DeclareGenVer += "\n\t\t}\n"
 
-    for Var in FieldClass.Variable:
-        Implement += f"\tGeneratePropertyFiled({Var.NameVar}, {Var.Type}, offsetof({FieldClass.Namespace}::{FieldClass.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, CoreEngine::Reflection::EPropertyFieldParams())\n"
-        GenPropertyName.append(f"Field_{Var.NameVar}")
+        DeclareGenVer += f"\t\treturn {Field.Name}Generated_Fields;\n"
+        DeclareGenVer += "\t} \n"
+        Implement += DeclareGenVer
+        Implement += "\n};\n\n"
+       # DeclareGenVer = f"DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Construct_{FieldClass.Name}_Statics::{FieldClass.Name}Generated_Fields = " + "std::move([]() {\n" \
+        #                "\tDArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Vec;\n"
 
-    DeclareGenVer = f"\tstatic DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> {FieldClass.Name}Generated_Fields;"
-    Implement += DeclareGenVer
-    Implement += "\n};\n\n"
-
-    DeclareGenVer = f"DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Construct_{FieldClass.Name}_Statics::{FieldClass.Name}Generated_Fields = " + "std::move([]() {\n" \
-	                "\tDArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Vec;\n"
-    for i in GenPropertyName:
-        DeclareGenVer += f"\tVec.emplace_back(MakeUniquePtr<Construct_{FieldClass.Name}_Statics::{i}>());\n"
-    DeclareGenVer += "\treturn Vec; \n}());\n"
-
-    Implement += DeclareGenVer
-
-    Parent = f"{FieldClass.Parent}::GetStaticClass()" if FieldClass.Parent else "nullptr"
-    Implement += f"ImplementNewClass({ClassNameLine}Generated, \"{ClassNameLine}\", EClassFieldParams::NONE,sizeof({FieldClass.Namespace}::{FieldClass.Name}), Construct_{FieldClass.Name}_Statics::{FieldClass.Name}Generated_Fields, {Parent})\n" \
-                f"ImplementStaticClass({FieldClass.Namespace}::{FieldClass.Name}, {ClassNameLine}Generated,\"{FieldClass.Name}\")\n"
+        Parent = f"{Field.Parent}::GetStaticClass()" if Field.Parent else "nullptr"
+        Implement += f"ImplementNewClass({Field.Name}Generated, \"{Field.Name}\", EClassFieldParams::NONE,sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
+                    f"ImplementStaticClass({Field.Namespace}::{Field.Name}, {ClassNameLine}Generated,\"{Field.Name}\")\n"
 
 
     if preGenImplement not in conteinFile:
@@ -91,8 +112,8 @@ def ParseClassesOfFile(Classes, file, OutputFiles):
         return
     finish_header = []
     finish_source = []
-    for i in Classes:
-        res_gen = GenerateCodeClass(i.Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, i)
+    if Classes:
+        res_gen = GenerateCodeClass(Classes[0].Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, Classes)
         for j in res_gen[1]:
             finish_header.append(j)
         for j in res_gen[2]:
@@ -143,8 +164,8 @@ def ParseClassesOfFile(Classes, file, OutputFiles):
         return
     finish_header = []
     finish_source = []
-    for i in Classes:
-        res_gen = GenerateCodeClass(i.Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, i)
+    if Classes:
+        res_gen = GenerateCodeClass(Classes[0].Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, Classes)
         for j in res_gen[1]:
             finish_header.append(j)
         for j in res_gen[2]:

@@ -9,7 +9,7 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		PrimitiveComponent::PrimitiveComponent()
+		PrimitiveComponent::PrimitiveComponent(const InitializeObject& Object) : SceneComponent(Object)
 		{
 			try
 			{

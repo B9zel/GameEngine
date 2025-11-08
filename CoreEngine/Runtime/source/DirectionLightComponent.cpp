@@ -12,10 +12,11 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		DirectionLightComponent::DirectionLightComponent()
+		DirectionLightComponent::DirectionLightComponent(const InitializeObject& Object) : BaseLightComponent(Object)
 		{
 			LightProxy = MakeUniquePtr<DirectionLightProxy>();
 		}
+
 		LightProxy* DirectionLightComponent::GetLightProxy()
 		{
 			const FVector4& Rotat = FVector4((GetComponentRotation()), 0);

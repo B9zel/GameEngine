@@ -20,7 +20,10 @@ namespace CoreEngine
 
 		public:
 
-			CameraComponent();
+			CameraComponent(const InitializeObject& Object);
+
+		public:
+
 			virtual void InitProperties() override;
 			virtual void SetComponentRotation(const FVector& Rotate) override;
 

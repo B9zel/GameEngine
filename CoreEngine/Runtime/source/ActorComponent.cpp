@@ -7,6 +7,9 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
+		ActorComponent::ActorComponent(const InitializeObject& InitParam) : Object(InitParam)
+		{
+		}
 		void ActorComponent::BeginPlay()
 		{
 		}

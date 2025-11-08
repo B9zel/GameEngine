@@ -14,7 +14,7 @@ namespace CoreEngine
 		{
 		public:
 
-			DirectionLightComponent();
+			DirectionLightComponent(const InitializeObject& Object);
 
 		public:
 

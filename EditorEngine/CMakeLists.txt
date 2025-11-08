@@ -23,6 +23,7 @@ set(SOURCE_IMGUI_FILES
 	../libraries/imgui/imgui_draw.cpp
 	../libraries/imgui/imgui_tables.cpp
 	../libraries/imgui/imgui_widgets.cpp
+	../libraries/imgui/imgui_demo.cpp
 )
 
 

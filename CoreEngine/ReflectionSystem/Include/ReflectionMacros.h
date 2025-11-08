@@ -65,15 +65,60 @@
            struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::PropertyField	\
            {                                                                                    \
                PASTE_DETAILS(Field_, VarName)() {                                            \
-                     Size = sizeof(Type);                                                      \
+                     SizeByte = sizeof(Type);                                                      \
                      Name = STRINGCON_DETAILS(VarName);                                        \
-                      Offset = OffsetFromObject;                                              \
-                     IsPointer = IsPointerField;                                            \
+                     Offset = OffsetFromObject;                                              \
+                                                             \
                      Params = Param;                                                        \
-                     TypeProperty = CoreEngine::Reflection::TypePropertyField(STRINGCON_DETAILS(Type));  \
+                     TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(STRINGCON_DETAILS(Type));  \
                }                                                           \
                PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
                PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
            };                                                      \
 
+#define GenerateClassPropertyFiled(VarName, Type, OffsetFromObject, Param)       \
+           struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::PropertyField	\
+           {                                                                                    \
+               PASTE_DETAILS(Field_, VarName)() {                                            \
+                     SizeByte = sizeof(Type*);                                                      \
+                     Name = STRINGCON_DETAILS(VarName);                                        \
+                     Offset = OffsetFromObject;                                              \
+                                                             \
+                     Params = Param;                                                        \
+                     TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(Type::GetStaticClass());  \
+               }                                                           \
+               PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+               PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+           };   
 
+
+
+#define GenerateArrayPropertyFiled(VarName, Type, OffsetFromObject, IsPointerField, Param)       \
+           struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::ArrayPropertyField	\
+           {                                                                                    \
+               PASTE_DETAILS(Field_, VarName)() {                                            \
+                     SizeByte = sizeof(Type);                                                      \
+                     Name = STRINGCON_DETAILS(VarName);                                        \
+                     Offset = OffsetFromObject;                                              \
+                                                             \
+                     Params = Param;                                                        \
+                     TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(STRINGCON_DETAILS(Type));  \
+               }                                                           \
+               PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+               PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+           };  
+
+#define GenerateClassArrayPropertyFiled(VarName, TemplateType, InnerType, OffsetFromObject, IsPointerField, Param)       \
+           struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::ArrayPropertyField	\
+           {                                                                                    \
+               PASTE_DETAILS(Field_, VarName)() {                                            \
+                     SizeByte = sizeof(TemplateType);                                                      \
+                     Name = STRINGCON_DETAILS(VarName);                                        \
+                     Offset = OffsetFromObject;                                              \
+                                                             \
+                     Params = Param;                                                        \
+                     TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(InnerType::GetStaticClass());  \
+               }                                                           \
+               PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+               PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+           };  

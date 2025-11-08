@@ -57,7 +57,15 @@ namespace CoreEngine
 				}
 				Bind();
 				bufferObject.Bind();
-				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+				if (typeData == ETypeData::INT || typeData == ETypeData::UNSIGNED_INT)
+				{
+					glVertexAttribIPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+				}
+				else
+				{
+					glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+
+				}
 				glEnableVertexAttribArray(location);
 				UnBind();
 				bufferObject.UnBind();

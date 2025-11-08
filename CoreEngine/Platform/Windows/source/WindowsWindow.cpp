@@ -37,7 +37,6 @@ namespace CoreEngine
 	{
 		m_context->SwapBuffer();
 		glfwPollEvents();
-
 		Engine::Get()->GetRender()->ClearBuffersScreen();
 	}
 

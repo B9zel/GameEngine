@@ -4,9 +4,10 @@
 
 
 
-
 namespace CoreEngine
 {
+	class UUID;
+
 	class StaticMeshProxy : public PrimitiveProxy
 	{
 	public:
@@ -15,8 +16,10 @@ namespace CoreEngine
 
 		void AddIndeces(const DArray<uint32>& Indeces);
 		const DArray<const DArray<uint32>*>& GetIndeces() const;
+		
 		void AddArrayObject(const Render::VertexArrayObject* VertexArray);
 		const DArray<const Render::VertexArrayObject*>& GetArrayObject() const;
+
 
 		void ClearData();
 

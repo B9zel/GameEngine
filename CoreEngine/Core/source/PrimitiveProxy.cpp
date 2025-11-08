@@ -1,4 +1,6 @@
 #include <Core/includes/PrimitiveProxy.h>
+#include <Core/includes/UUID.h>
+
 
 namespace CoreEngine
 {
@@ -54,5 +56,13 @@ namespace CoreEngine
 	{
 		transform = Transform;
 	}
+	void PrimitiveProxy::SetUUID(const UUID* uuid)
+	{
+		m_UUID = const_cast<UUID*>(uuid);
+	}
 
+	const UUID* PrimitiveProxy::GetUUID() const
+	{
+		return m_UUID;
+	}
 }

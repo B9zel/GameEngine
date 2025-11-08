@@ -60,7 +60,11 @@ namespace CoreEngine
 			void Init();
 
 			void Collect();
-			void MarkLiveObjects(HashTableSet<Runtime::Object*>& outMarkedObjects);
+			void ResetMarks();
+
+			void MarkObject(Runtime::Object* object);
+
+			void MarkLiveObjects();
 			void MarkObject(Runtime::Object* object, HashTableSet<Runtime::Object*>& outMarkedObjects);
 
 			void OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr);

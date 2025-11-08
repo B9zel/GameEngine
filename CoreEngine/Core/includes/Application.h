@@ -1,14 +1,13 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <Core/includes/Engine.h>
 #include <Core/includes/ShaderLibrary.h>
 #include <Core/includes/LayerStack.h>
 #include <Events/include/Event.h>
-#include <Core/includes/Engine.h>
 #include <Core/includes/Base.h>
 
 
-int32 main(int32 argc, char** argv);
 
 namespace CoreEngine
 {
@@ -56,6 +55,7 @@ namespace CoreEngine
 		const ApplicationOptions& GetAppOptions() const { return appOptions; }
 
 		Window& GetWindow() const { return *window; }
+		const UniquePtr<Engine>& GetEngine() const { return InstanceEngine; }
 		virtual void Start();
 		virtual void OnEvent(Event& event);
 		virtual void CreateApp();
@@ -82,6 +82,6 @@ namespace CoreEngine
 
 	private:
 
-		friend int ::main(int argc, char** argv);
+		//friend int ::main(int argc, char** argv);
 	};
 }

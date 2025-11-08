@@ -26,9 +26,6 @@ namespace CoreEngine
 		m_ArrayObject.clear();
 
 	}
-	/*  DArray<Render::Shader*>& StaticMehsProxy::GetShaders() const
-	{
-		return m_Shaders;
-	}*/
+	
 }
 

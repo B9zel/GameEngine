@@ -10,7 +10,8 @@
 #include <memory>
 #include <sstream>
 #include <deque>
-
+#include <stack>
+#include <algorithm>
 
 
 
@@ -58,6 +59,8 @@ class Function;
 #define CORE_CHECK(is) 
 #define CHECK(is)
 #define CORE_UNASSERT(is, log)
+#define CORE_ASSERT(is, log)
+#define ASSERT(log)
 #define FUNCTION_NAME 
 #define NUMBER_LINE
 
@@ -90,6 +93,9 @@ using Pair = std::pair<First, Second>;
 
 template<class T>
 using Deque = std::deque<T>;
+
+template<class T, class Conteiner = Deque<T>>
+using Stack = std::stack<T, Conteiner>;
 
 
 template<class Key, class Value, class Hasher = std::hash<Key>>

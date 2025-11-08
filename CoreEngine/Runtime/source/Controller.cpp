@@ -6,6 +6,9 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
+		Controller::Controller(const InitializeObject& Object) : Actor(Object)
+		{
+		}
 		Pawn* Controller::GetControlledPawn() const
 		{
 			return ControlledPawn;

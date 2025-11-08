@@ -14,7 +14,9 @@ namespace CoreEngine
 
 			static UniquePtr<ReflectionManager> CreateReflectionManager();
 			void RegisterNewClass(const String& NameClass,const SharedPtr<ClassField>& NewClass);
-			ClassField* FindMetaClas(const String& NameClass);
+			ClassField* FindMetaClass(const String& NameClass);
+			const DArray<WeakPtr<ClassField>>& GetAllClasses() const;
+			bool HasPropertyField(const String& NameProperty) const;
 
 		private:
 

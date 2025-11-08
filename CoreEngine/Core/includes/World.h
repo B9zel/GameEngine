@@ -36,7 +36,7 @@ namespace CoreEngine
 		GENERATED_BODY()
 
 	public:
-		World();
+		World(const InitializeObject& Initilize);
 	public:
 		virtual void InitProperties() override;
 		virtual void WorldUpdate();
@@ -46,7 +46,35 @@ namespace CoreEngine
 		FVector GetControllerLocation() const;
 
 		template<class T>
-		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
+		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration())
+		{
+			if (!Runtime::IsParentClass<Runtime::Actor, T>())
+			{
+				EG_LOG(CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
+				return nullptr;
+			}
+
+			Level* spawnToLevel = nullptr;
+			if (Param.SpawnLevel)
+			{
+				spawnToLevel = Param.SpawnLevel;
+			}
+			else
+			{
+				spawnToLevel = m_Levels.front();
+				if (!spawnToLevel)
+				{
+					EG_LOG(CORE, ELevelLog::ERROR, "There is no single level");
+					return nullptr;
+				}
+			}
+			T* NewActor = Runtime::CreateObject<T>(Owner);
+			NewActor->SetOwner(Owner);
+			NewActor->PostSpawnActor();
+			spawnToLevel->AddActor(NewActor);
+
+			return NewActor;
+		}
 
 		void OpenLevel(Level* level);
 		void InitializePlayActors();
@@ -55,6 +83,7 @@ namespace CoreEngine
 		UniquePtr<UpdateManager> m_UpdateManager;
 
 		DArray<Level*> m_Levels;
+		RPROPERTY();
 		Level* m_MainLevel;
 
 		Render::SceneInterface* m_Scene;
@@ -63,34 +92,6 @@ namespace CoreEngine
 		float m_LastTime;
 	};
 
-	template<class T>
-	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)
-	{
-		if (!Runtime::IsParentClass<Runtime::Actor, T>())
-		{
-			EG_LOG(CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
-			return nullptr;
-		}
-
-		Level* spawnToLevel = nullptr;
-		if (Param.SpawnLevel)
-		{
-			spawnToLevel = Param.SpawnLevel;
-		}
-		else
-		{
-			spawnToLevel = m_Levels.front();
-			if (!spawnToLevel)
-			{
-				EG_LOG(CORE, ELevelLog::ERROR, "There is no single level");
-				return nullptr;
-			}
-		}
-		T* NewActor = Runtime::CreateObject<T>(Owner);
-		NewActor->SetOwner(Owner);
-		NewActor->PostSpawnActor();
-		spawnToLevel->AddActor(NewActor);
-
-		return NewActor;
-	}
+	/*template<typename T>
+	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)*/
 }

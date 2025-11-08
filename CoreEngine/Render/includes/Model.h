@@ -15,7 +15,14 @@ namespace CoreEngine
 		FVector Position;
 		FVector Normal;
 		FVector2 TexCoord;
+		int32 ID;
 	};
+
+	struct SpecificationVertexData
+	{
+		int32 ObjectID;
+	};
+
 	namespace Render
 	{
 		class VertexBufferObject;
@@ -44,7 +51,7 @@ namespace CoreEngine
 			static Model* CreateModel();
 			void ClearModel();
 
-			void SetupModel(aiMesh* Mesh, const aiScene* Scene);
+			void SetupModel(aiMesh* Mesh, const aiScene* Scene, const SpecificationVertexData& Data);
 
 			const DArray<uint32>& GetIndeces() const;
 			const UniquePtr<VertexArrayObject>& GetVertexArrayObject() const;

@@ -1,5 +1,5 @@
 #include <Runtime/includes/Pawn.h>
-#include <Runtime/includes/InputComponent.h>
+
 #include <Runtime/includes/Controller.h>
 
 
@@ -7,9 +7,10 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		Pawn::Pawn()
+		Pawn::Pawn(const InitializeObject& Object) : Actor(Object)
 		{
 			OwningController = nullptr;
+			inputComponent = nullptr;
 		}
 
 		Controller* Pawn::GetOwningController() const
@@ -39,7 +40,7 @@ namespace CoreEngine
 				{
 					inputComponent->RegisteredComponent();
 					
-					SetupInputPlayerController(inputComponent.Get());
+					SetupInputPlayerController(inputComponent);
 				}
 			}
 		}

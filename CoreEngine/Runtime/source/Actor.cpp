@@ -1,6 +1,6 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/SceneComponent.h>
-#include <Runtime/includes/ActorComponent.h>
+
 #include <Runtime/includes/Controller.h>
 
 
@@ -9,7 +9,7 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		Actor::Actor() : actorUpdate(), RootComponent(nullptr)
+		Actor::Actor(const InitializeObject& Initilize) : Object(Initilize), actorUpdate(), RootComponent(nullptr)
 		{
 			RootComponent = CreateSubObject<SceneComponent>();
 

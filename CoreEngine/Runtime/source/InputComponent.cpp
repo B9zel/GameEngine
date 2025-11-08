@@ -9,7 +9,7 @@ namespace CoreEngine
 		DECLARE_LOG_CATEGORY_EXTERN(INPUT_COMPONENT_LOG);
 
 
-		InputComponent::InputComponent()
+		InputComponent::InputComponent(const InitializeObject& Object) : ActorComponent(Object)
 		{
 			PressedKey = INT_MIN;
 		}
@@ -195,6 +195,8 @@ namespace CoreEngine
 		}
 		void InputComponent::ExecuteAxis()
 		{
+			if (m_CallbackInputAxis.empty()) return;
+
 			for (auto& el : m_CallbackInputAxis)
 			{
 				BindInputAxisInfo& Axis = el.second;

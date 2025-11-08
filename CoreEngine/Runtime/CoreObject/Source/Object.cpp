@@ -6,17 +6,20 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		Object::Object()
+		Object::Object(const InitializeObject& Initialize)
 		{
 			m_World = nullptr;
 			m_Outer = nullptr;
-			SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::PendingKill));
+			SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
 			IsMarkedGC = false;
+			PrivateClass = Initialize.Class;
+			ObjectID.GenerateID();
+
 			InitProperties();
 		}
 		void Object::InitProperties()
 		{
-			SetWorld(Engine::Get()->GetWorld().get());
+			SetWorld(Engine::Get()->GetWorld());
 		}
 		void Object::SetWorld(World* newWorld)
 		{
@@ -26,10 +29,28 @@ namespace CoreEngine
 		{
 			return m_World;
 		}
-		/*	Reflection::MetaClass* Object::GetMetaClass() const
-			{
-				return GetStaticMetaClass();
-			}*/
+		Reflection::ClassField* Object::GetClass() const
+		{
+			return PrivateClass;
+		}
 
+		const UUID& Object::GetUUID() const
+		{
+			return ObjectID;
+		}
+
+		bool Object::GetIsMarked() const
+		{
+			return IsMarkedGC;
+		}
+
+		void Object::SetMarked(const bool Value)
+		{
+			IsMarkedGC = Value;
+		}
+		uint32 Object::GetGCState() const
+		{
+			return StateObjectFlagGC;
+		}
 	}
 }

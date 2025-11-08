@@ -1,5 +1,4 @@
 #pragma once
-#include <Core/includes/Engine.h>
 
 #include <Core/includes/Base.h>
 #include <Core/includes/Memory/GarbageCollector.h>

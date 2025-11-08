@@ -13,7 +13,7 @@ namespace CoreEngine
 		{
 		public:
 
-			SpotLightComponent();
+			SpotLightComponent(const InitializeObject& Object);
 
 		public:
 

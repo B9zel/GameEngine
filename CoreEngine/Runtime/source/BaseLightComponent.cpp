@@ -5,6 +5,9 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
+		BaseLightComponent::BaseLightComponent(const InitializeObject& Object) : SceneComponent(Object)
+		{
+		}
 		void BaseLightComponent::SetColor(const FVector& NewColor)
 		{
 			Color = NewColor;

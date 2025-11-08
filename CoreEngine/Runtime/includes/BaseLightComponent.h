@@ -16,6 +16,8 @@ namespace CoreEngine
 
 		public:
 
+			BaseLightComponent(const InitializeObject& Object);
+
 			virtual LightProxy* GetLightProxy() = 0;
 
 			void SetColor(const FVector& NewColor);

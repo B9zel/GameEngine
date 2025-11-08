@@ -1,6 +1,6 @@
 #include <ReflectionSystem/Include/ReflectionManager.h>
 #include <ReflectionSystem/Include/ClassField.h>
-#include <ReflectionSystem/Include/PropertyField.h>
+
 
 
 
@@ -32,9 +32,15 @@ namespace CoreEngine
 				EG_LOG(ReflectionManagerLog, ELevelLog::ERROR, "{0} already exist", NameClass);
 				return;
 			}
+			for (auto& Field : NewClass->PropertyFileds)
+			{
+				//Field
+			}
+
+
 			FieldsClass.emplace(NameClass, NewClass);
 		}
-		ClassField* ReflectionManager::FindMetaClas(const String& NameClass)
+		ClassField* ReflectionManager::FindMetaClass(const String& NameClass)
 		{
 			auto& FindedClass = FieldsClass.find(NameClass);
 			if (FindedClass != FieldsClass.end())
@@ -42,6 +48,35 @@ namespace CoreEngine
 				return FindedClass->second.get();
 			}
 			return nullptr;
+		}
+
+		const DArray<WeakPtr<ClassField>>& ReflectionManager::GetAllClasses() const
+		{
+			static DArray<WeakPtr<ClassField>> Classes;
+			Classes.clear();
+			Classes.reserve(FieldsClass.size());
+			
+			for (auto& Pair : FieldsClass)
+			{
+				Classes.emplace_back(Pair.second);
+			}
+			return Classes;
+		}
+		bool ReflectionManager::HasPropertyField(const String& NameProperty) const
+		{
+			auto& ClassesArr = GetAllClasses();
+			for (auto& Class : ClassesArr)
+			{
+				auto& ClassObj = Class.lock();
+				for (auto& Property : ClassObj->PropertyFileds)
+				{
+					if (Property->Name == NameProperty)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 }

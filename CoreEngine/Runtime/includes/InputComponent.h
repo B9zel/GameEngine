@@ -73,7 +73,7 @@ namespace CoreEngine
 
 		public:
 
-			InputComponent();
+			InputComponent(const InitializeObject& Object);
 
 			template<class TClass>
 			void BindAction(const uint32 Key, const EActionType& Action, void(TClass::* Method)(), TClass* ClassOfMethod);

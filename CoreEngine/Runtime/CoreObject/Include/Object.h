@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/includes/Base.h>
-#include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/ObjectPtr.h>
-#include <Core/includes/Layer.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
+#include <Core/includes/UUID.h>
 #include <ReflectionSystem/Include/MetaClass.h>
 #include <ReflectionSystem/Include/ReflectionMacros.h>
 #include <Object.generated.h>
@@ -29,7 +29,8 @@ enum class ObjectGCFlags : uint8
 {
 	None = 0,
 	RootObject = FLAG_OFFSET(0),
-	PendingKill = FLAG_OFFSET(1)
+	LiveObject = FLAG_OFFSET(1),
+	Unreachable = FLAG_OFFSET(2)
 };
 
 
@@ -41,22 +42,28 @@ namespace CoreEngine
 	template<typename T>
 	class ObjectPtr;
 
+	struct InitializeObject
+	{
+		Reflection::ClassField* Class = nullptr;
+	};
+
 	namespace Runtime
 	{
 		RCLASS();
 		class Object
 		{
 
-			GENERATED_BODY()
+			GENERATED_BODY();
 
 		public:
 
-			Object();
+			Object(const InitializeObject& Initilize);
 			virtual ~Object() { EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Destroy object"); }
 
 		public:
 
 			virtual void InitProperties();
+			virtual Reflection::ClassField* GetClass() const;
 
 			template<class ReturnType>
 			ReturnType* CreateSubObject();
@@ -64,25 +71,29 @@ namespace CoreEngine
 			void SetWorld(World* newWorld);
 			World* GetWorld();
 
+			const UUID& GetUUID() const;
+			bool GetIsMarked() const;
+			void SetMarked(const bool Value);
+
+			uint32 GetGCState() const;
+
 			//Reflection::MetaClass* GetMetaClass() const;
 			//static Reflection::MetaClass* GetStaticMetaClass();
 
 			virtual void StartDestroy() {}
 			virtual void FinishDestroy() {}
 
-		public:
-
-			RPROPERTY();
-			int TestVar{ 0 };
-
 		private:
 
 			ObjectPtr<Object> m_Outer;
 			World* m_World;
-			// GC
-			uint32 StateObjectFlagGC;
-			bool IsMarkedGC;
 
+			UUID ObjectID;
+			Reflection::ClassField* PrivateClass;
+
+			// GC
+			uint32 StateObjectFlagGC{ 0 };
+			bool IsMarkedGC;
 
 			friend GB::GarbageCollector;
 		};

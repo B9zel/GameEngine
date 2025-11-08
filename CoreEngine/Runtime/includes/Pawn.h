@@ -1,5 +1,6 @@
 #pragma once
 #include <Runtime/includes/Actor.h>
+#include <Runtime/includes/InputComponent.h>
 #include <Pawn.generated.h>
 
 namespace CoreEngine
@@ -17,7 +18,7 @@ namespace CoreEngine
 
 		public:
 
-			Pawn();
+			Pawn(const InitializeObject& Object);
 
 		public:
 
@@ -34,7 +35,8 @@ namespace CoreEngine
 		protected:
 
 			Controller* OwningController;
-			ObjectPtr<InputComponent> inputComponent;
+			RPROPERTY();
+			InputComponent* inputComponent;
 
 			friend PlayerController;
 		};

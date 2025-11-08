@@ -1,13 +1,13 @@
 #pragma once
-#include <ReflectionSystem/Include/PropertyField.h>
 #include <ReflectionSystem/Include/BaseField.h>
+#include <ReflectionSystem/Include/PropertyField.h>
 
 namespace CoreEngine
 {
 	namespace Reflection
 	{
-		struct BaseField;
-		struct PropertyField;
+		/*struct BaseField;
+		struct PropertyField;*/
 
 		enum class ETypeConstructionFiled : uint8
 		{
@@ -20,10 +20,11 @@ namespace CoreEngine
 			DArray<PropertyField*> PropertyFileds;
 			ETypeConstructionFiled TypeConstruction;
 
+		public:
 
-			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty)
+			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty) const
 			{
-				for (PropertyField*& Property : PropertyFileds)
+				for (PropertyField* Property : PropertyFileds)
 				{
 					if (Property->Name == NameProperty)
 					{
@@ -37,6 +38,23 @@ namespace CoreEngine
 			{
 				PropertyFileds.emplace_back(NewProperty);
 			}
+
+		public:
+
+			bool operator==(const ConstructionField& Other) const
+			{
+				bool ResEq = BaseField::operator==(Other);
+				if (!ResEq) return false;
+
+				ResEq = Size == Other.Size;
+				if (!ResEq) return false;
+
+				ResEq = TypeConstruction == Other.TypeConstruction;
+				if (!ResEq) return false;
+
+				return PropertyFileds == Other.PropertyFileds;
+			}
+
 		};
 	}
 }

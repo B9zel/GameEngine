@@ -5,6 +5,7 @@
 #include <Core/includes/World.h>
 #include <Core/includes/UpdateManager.h>
 #include <Math/includes/Transform.h>
+#include <Runtime/includes/ActorComponent.h>
 #include <Actor.generated.h>
 
 
@@ -67,7 +68,7 @@ namespace CoreEngine
 
 		public:
 
-			Actor();
+			Actor(const InitializeObject& Initilize);
 
 		public:
 
@@ -128,7 +129,7 @@ namespace CoreEngine
 			UpdateActorFunction actorUpdate;
 
 			Actor* Owner;
-
+			RPROPERTY();
 			DArray<ActorComponent*> Components;
 			DArray<ObjectPtr<ActorComponent>> ComponentsGC;
 

@@ -17,7 +17,7 @@ namespace CoreEngine
 
 		public:
 
-			SceneComponent();
+			SceneComponent(const InitializeObject& Object);
 
 		public:
 

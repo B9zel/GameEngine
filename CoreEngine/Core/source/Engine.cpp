@@ -13,6 +13,7 @@
 #include <Render/includes/Render.h>
 #include <Core/includes/Window.h>
 #include <ReflectionSystem/Include/ReflectionManager.h>
+#include <Events/include/Event.h>
 
 
 
@@ -31,8 +32,9 @@ namespace CoreEngine
 		m_Input = MakeUniquePtr<InputDevice>();
 		m_Render = Render::Render::Create();
 		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
-
-		m_World.reset(Allocator::Allocate<World>());
+		m_World = Runtime::CreateObject<World>();
+		m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
+	
 	}
 
 	FVector2 Engine::GetScreenSize() const
@@ -43,6 +45,7 @@ namespace CoreEngine
 
 	void Engine::PostInitialize()
 	{
+		
 		m_World->InitProperties();
 	}
 

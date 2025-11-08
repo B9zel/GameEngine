@@ -26,7 +26,7 @@ namespace CoreEngine
 				DArray<SimplyDirectionLightProxy> DirectionLights;
 				DArray<SimplyPointLightProxy> PointLights;
 				DArray<SimpleSpotLightProxy> SpotLights;
-
+			
 				for (int64 i = 0; i < Lights.size(); i++)
 				{
 					switch (Lights[i]->GetTypeLight())
@@ -64,20 +64,20 @@ namespace CoreEngine
 				m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeDraw::STREAM);
 
 				//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
-
-
+				//glDisable(GL_BLEND);
+			
+				int test = 0;
 				for (size_t i = 0; i < Proxy->GetIndeces().size(); i++)
 				{
 					for (auto& el : Proxy->GetShaders())
 					{
+
+						//if (test++ == 0) continue;
 						auto* shader = el.first;
 						auto* vertexArray = Proxy->GetArrayObject()[i];
 
-
 						vertexArray->Bind();
 						shader->Bind();
-
-
 
 						auto& Textures = Proxy->GetTextures();
 
@@ -110,6 +110,19 @@ namespace CoreEngine
 						shader->SetUniform1i("CountPointLight", PointLights.size(), false);
 						shader->SetUniform1i("CountDirectionLight", DirectionLights.size(), false);
 						shader->SetUniform1i("CountSpotLight", SpotLights.size(), false);
+						/*if (Proxy->GetUUID()->IsValid())
+						{
+							shader->SetUniform1i("id", Proxy->GetUUID()->GetID(), false);
+
+						}
+						else
+						{
+
+							shader->SetUniform1i("id", 0, false);
+						}*/
+						/*shader->SetUniform1i("texture", 0, false);
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, 3);*/
 
 						//int b;
 						//glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
@@ -137,10 +150,10 @@ namespace CoreEngine
 						//	}
 						//}
 
-						//int a;
-						//int locat = glGetUniformLocation(3, "CountPointLight");
-						//glGetUniformiv(3, locat, &a),
-
+						/*unsigned int a;
+						int locat = glGetUniformLocation(3, "ID");
+						glGetUniformuiv(3, locat, &a);
+						EG_LOG(CORE, ELevelLog::INFO, a);*/
 						//	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
 						//	glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
 						//EG_LOG(CORE, ELevelLog::INFO, ebo);
@@ -162,7 +175,9 @@ namespace CoreEngine
 
 						glBindTexture(GL_TEXTURE_2D, 0);
 					}
+					test = 0;
 				}
+				//glEnable(GL_BLEND);
 			}
 
 

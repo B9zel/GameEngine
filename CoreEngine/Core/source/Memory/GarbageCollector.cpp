@@ -4,7 +4,7 @@
 #include <Core/includes/Engine.h>
 #include <Core/includes/TimerManager.h>
 #include <Core/includes/World.h>
-
+#include <ReflectionSystem/Include/BaseField.h>
 
 
 namespace CoreEngine
@@ -50,7 +50,7 @@ namespace CoreEngine
 		void GarbageCollector::AddRootObject(Runtime::Object* object)
 		{
 			m_RootObjects.insert(object);
-			AddObject(object);
+			//AddObject(object);
 		}
 
 		void GarbageCollector::AddReference(Runtime::Object* object)
@@ -89,14 +89,17 @@ namespace CoreEngine
 
 		void GarbageCollector::Collect()
 		{
-			HashTableSet<Runtime::Object*> markedObjects;
-			MarkLiveObjects(markedObjects);
+			ResetMarks();
+			MarkLiveObjects();
 			EG_LOG(CORE, ELevelLog::WARNING, "Collect");
 
-			DArray<Runtime::Object*> deleteObjects;
+			static DArray<Runtime::Object*> deleteObjects;
+			deleteObjects.clear();
 			for (auto* obj : m_Objects)
 			{
-				if (markedObjects.find(obj) == markedObjects.end())
+				if (!obj) continue;
+
+				if (obj->GetGCState() == static_cast<uint32>(ObjectGCFlags::Unreachable))
 				{
 					deleteObjects.push_back(obj);
 					
@@ -111,17 +114,68 @@ namespace CoreEngine
 			}
 		}
 
-		void GarbageCollector::MarkLiveObjects(HashTableSet<Runtime::Object*>& outMarkedObjects)
+		void GarbageCollector::ResetMarks()
+		{
+			for (auto* RootObj : m_RootObjects)
+			{
+				SetFlag(RootObj->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::Unreachable));
+				RemoveFlag(RootObj->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
+			}
+
+			for (auto* obj : m_Objects)
+			{
+				SetFlag(obj->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::Unreachable));
+				RemoveFlag(obj->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
+			}
+		}
+
+		void GarbageCollector::MarkObject(Runtime::Object* object)
+		{
+			if (!object || object->GetGCState() == static_cast<uint32>(ObjectGCFlags::LiveObject)) return;
+			RemoveFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::Unreachable));
+			SetFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
+			
+			Reflection::ClassField* CurrentClass = object->GetClass();
+			while (CurrentClass != nullptr)
+			{
+				for (auto* Variable : CurrentClass->PropertyFileds)
+				{
+					if (Variable->GetIsPointer() && Variable->GetIsSupportReflectionSystem())
+					{
+						//MarkObject(*Variable->GetSourcePropertyByName<Runtime::Object*>(object));
+						if (Variable->GetPrimitiveType() == Reflection::EConteinType::ARRAY)
+						{
+							if (auto* ArrayField = dynamic_cast<Reflection::ArrayPropertyField*>(Variable))
+							{
+								for (uint64 i = 0; i < ArrayField->GetSizeArray<Runtime::Object*>(object); ++i)
+								{
+									MarkObject(*ArrayField->GetElement<Runtime::Object*>(object, i));
+								}
+							}
+						}
+						else if (Variable->GetPrimitiveType() == Reflection::EConteinType::PRIMITIVE)
+						{
+							MarkObject(*Variable->GetSourcePropertyByName<Runtime::Object*>(object));
+						}
+					}
+				}
+				CurrentClass = CurrentClass->ParentClass;
+			}
+			
+
+		}
+
+		void GarbageCollector::MarkLiveObjects()
 		{
 			for (auto& el : m_RootObjects)
 			{
-				MarkObject(el, outMarkedObjects);
+				MarkObject(el);
 			}
 
-			for (auto& el : m_ReferenceObjects)
+			/*for (auto& el : m_ReferenceObjects)
 			{
 				MarkObject(el.first, outMarkedObjects);
-			}
+			}*/
 		}
 
 		void GarbageCollector::MarkObject(Runtime::Object* object, HashTableSet<Runtime::Object*>& outMarkedObjects)
@@ -129,6 +183,7 @@ namespace CoreEngine
 			if (outMarkedObjects.find(object) != outMarkedObjects.end()) return;
 
 			outMarkedObjects.insert(object);
+			
 		}
 
 

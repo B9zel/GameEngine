@@ -50,7 +50,7 @@ namespace CoreEngine
 			m_VBO->DeleteBuffer();
 		}
 
-		void Model::SetupModel(aiMesh* Mesh, const aiScene* Scene)
+		void Model::SetupModel(aiMesh* Mesh, const aiScene* Scene, const SpecificationVertexData& Data)
 		{
 
 			for (int64 i = 0; i < Mesh->mNumVertices; i++)
@@ -82,6 +82,7 @@ namespace CoreEngine
 				{
 					vertex.TexCoord = FVector2(0.0f, 0.0f);
 				}
+				vertex.ID = Data.ObjectID;
 
 				m_Vertices.emplace_back(vertex);
 			}
@@ -127,14 +128,18 @@ namespace CoreEngine
 					m_Vertices[i].Normal = FVector(0, 1, 0);
 				}
 			}
+			
+			// Better way to everyone element has 4 bytes or equal count of bytes
+			const int32 CountFloat = sizeof(m_Vertices[0]) /  sizeof(float); // 3 pos, 3 normal, 2 texcoord
 
 			m_VAO->CreateVertexArray();
-			m_VBO->CreaterBuffer(m_Vertices.data(), m_Vertices.size() * 8, ETypeData::FLOAT, ETypeDraw::STATIC, *m_VAO.get());
+			m_VBO->CreaterBuffer(m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT, ETypeDraw::STATIC, *m_VAO.get());
 			m_EBO->CreateBuffer(m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, *m_VAO.get());
 			std::cout << offsetof(Vertex, Vertex::TexCoord) << std::endl;
-			m_VAO->SetupIntorprit(0, 3, 8, ETypeData::FLOAT, *m_VBO.get());
-			m_VAO->SetupIntorprit(1, 3, 8, ETypeData::FLOAT, *m_VBO.get(), 3);
-			m_VAO->SetupIntorprit(2, 2, 8, ETypeData::FLOAT, *m_VBO.get(), 6);
+			m_VAO->SetupIntorprit(0, 3, 9, ETypeData::FLOAT, *m_VBO.get());
+			m_VAO->SetupIntorprit(1, 3, 9, ETypeData::FLOAT, *m_VBO.get(), 3);
+			m_VAO->SetupIntorprit(2, 2, 9, ETypeData::FLOAT, *m_VBO.get(), 6);
+			m_VAO->SetupIntorprit(3, 1, 9, ETypeData::INT, *m_VBO.get(), 8);
 
 		}
 

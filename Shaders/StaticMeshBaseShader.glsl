@@ -4,11 +4,13 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 Normal;
 layout (location = 2) in vec2 texCoord;
+layout (location = 3) in int ID;
 
 
 out vec2 TexCoord;
 out vec3 NormalFr;
 out vec3 FragPos;
+layout(location = 4) out flat int OutID;
 
 uniform mat4 Model;
 uniform mat4 Projection;
@@ -16,10 +18,13 @@ uniform mat4 View;
 
 void main()
 {
+    OutID = ID;
     TexCoord = texCoord;
     NormalFr = normalize(mat3(transpose(inverse(Model))) * Normal);
     FragPos = vec3(Model * vec4(position, 1.0f));
+   
     gl_Position = Projection * View * Model * vec4(position, 1.0f);
+    
 }
 
 
@@ -87,8 +92,11 @@ layout(std430, binding = 2) buffer SpotLightLayout
 in vec3 NormalFr;
 in vec2 TexCoord;
 in vec3 FragPos;
+layout(location = 4) in flat int OutID;
 
-out vec4 color;
+layout(location = 0) out vec4 color;
+layout(location = 1) out int ObjectID;
+//layout(location = 1) out vec4 ObjectID;
 
 uniform sampler2D ourTexture1;
 uniform vec3 PosLight;
@@ -206,6 +214,7 @@ vec3 CalculateSpotLight()
 
 void main()
 {
+    
     vec3 ObjColor = vec3( 1, 1, 1);
     vec3 ambient = vec3(0.01) * ObjColor;
 
@@ -258,7 +267,49 @@ void main()
     //
     result += (CalculateDirectionLight() + CalculatePointLight() + CalculateSpotLight()) * ObjColor;
     result += ambient;
-
+    ObjectID = OutID;
     color = vec4(result, 1.0f);  //* texture(ourTexture1, TexCoord); 
    
+    /*switch (ObjectID.r)
+    {
+        case 0:
+            color = vec4(1.0, 0.0, 0.0, 1.0);
+            break;
+        case 1:
+            color = vec4(0.0, 1.0, 0.0, 1.0);
+            break;
+        case 2:
+            color = vec4(0.0, 0.0, 1.0, 1.0);
+            break;
+        case 3:
+            color = vec4(1.0, 1.0, 0.0, 1.0);
+            break;
+        case 4:
+            color = vec4(1.0, 0.0, 1.0, 1.0);
+            break;
+        case 5:
+            color = vec4(0.0, 1.0, 1.0, 1.0);
+            break;
+        case 6:
+            color = vec4(1.0, 0.0, 0.0, 1.0);
+            break;
+        case 7:
+            color = vec4(0.0, 1.0, 0.0, 1.0);
+            break;
+        case 8:
+            color = vec4(0.0, 0.0, 1.0, 1.0);
+            break;
+        case 9:
+            color = vec4(1.0, 1.0, 0.0, 1.0);
+            break;
+        case 10:
+            color = vec4(1.0, 0.0, 1.0, 1.0);
+            break;
+        case 11:
+            color = vec4(0.0, 1.0, 1.0, 1.0);
+            break;
+        default:
+            break;
+    }*/
+
 }

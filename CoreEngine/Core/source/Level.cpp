@@ -1,11 +1,14 @@
 #include <Core/includes/Level.h>
+#include <Runtime/includes/Actor.h>
 #include <Core/includes/World.h>
 
-#include <Runtime/includes/Actor.h>
 
 
 namespace CoreEngine
-{	
+{
+	Level::Level(const InitializeObject& Object) : Object(Object)
+	{
+	}
 	const DArray<Runtime::Actor*>& Level::GetActors() const
 	{
 		return m_Actors;

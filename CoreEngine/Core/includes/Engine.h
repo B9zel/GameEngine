@@ -1,7 +1,8 @@
 #pragma once
+#include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Base.h>
 #include <Math/includes/Vector.h>
-#include <Events/include/Event.h>
+
 
 
 namespace CoreEngine
@@ -20,6 +21,7 @@ namespace CoreEngine
 	class TimerManager;
 	class Engine;
 	class World;
+	class Event;
 
 	// Main class, that manage all Managers and subsystems
 	class Engine
@@ -45,13 +47,13 @@ namespace CoreEngine
 		*/
 		static UniquePtr<ThisClass> Create();
 
-		static ThisClass* Get();
+		static Engine* Get();
 
 		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
 		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
 		UniquePtr<MemoryManager>& GetMemoryManager() { return m_MemoryManager; }
 		UniquePtr<Render::Render>& GetRender() { return m_Render; }
-		UniquePtr<World>& GetWorld() { return m_World; }
+		World* GetWorld() { return m_World; }
 		UniquePtr<Reflection::ReflectionManager>& GetReflectionManger() { return m_ReflectionManger; }
 
 		FVector2 GetScreenSize() const;
@@ -69,7 +71,8 @@ namespace CoreEngine
 		UniquePtr<MemoryManager> m_MemoryManager;
 		UniquePtr<Render::Render> m_Render;
 		UniquePtr<TimerManager> m_TimerManager;
-		UniquePtr<class World> m_World;
+
+		World* m_World;
 		UniquePtr<class Reflection::ReflectionManager> m_ReflectionManger;
 
 		static Engine* GEngine;

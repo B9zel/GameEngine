@@ -1,6 +1,5 @@
 #include <Runtime/includes/PlayerController.h>
-#include <Runtime/includes/CameraManager.h>
-#include <Runtime/includes/InputComponent.h>
+
 #include <Runtime/includes/Pawn.h>
 #include <Core/includes/Base.h>
 
@@ -10,7 +9,7 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		PlayerController::PlayerController()
+		PlayerController::PlayerController(const InitializeObject& Object) : Controller(Object)
 		{
 			canTransferEvent = true;
 		}
@@ -89,7 +88,7 @@ namespace CoreEngine
 			{
 				inputComponent->ProcessUpdateAxis(events->Front());
 				inputComponent->ProcessUpdateAction(events->Front());
-				if (InputControlledPawn.IsValid())
+				if (InputControlledPawn)
 				{
 					InputControlledPawn->ProcessUpdateAxis(events->Front());
 					InputControlledPawn->ProcessUpdateAction(events->Front());
@@ -97,7 +96,7 @@ namespace CoreEngine
 				events->PopFront();
 			}
 			inputComponent->ExecuteAxis();
-			if (InputControlledPawn.IsValid())
+			if (InputControlledPawn)
 			{
 				InputControlledPawn->ExecuteAxis();
 			}

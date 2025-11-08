@@ -11,8 +11,8 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		CameraManager::CameraManager()
-		{
+		CameraManager::CameraManager(const InitializeObject& Object) : Actor(Object)
+		{ 
 			m_FieldOfView = 45;
 			m_zFar = 1000;
 			m_zNear = 0.1;

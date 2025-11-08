@@ -1,7 +1,7 @@
 #pragma once
 #include <ReflectionSystem/Include/BaseField.h>
-#include <ReflectionSystem/Include/ConstructionField.h>
 
+#include <ReflectionSystem/Include/ConstructionField.h>
 
 
 
@@ -14,15 +14,18 @@ namespace CoreEngine
 {
 	namespace Reflection
 	{
+		struct PropertyField;
 
 		struct ClassField : public ConstructionField
 		{
 			EClassFieldParams Params;
 			ClassField* ParentClass = nullptr;
 
-			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty) override
+		public:
+
+			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty) const override
 			{
-				for (PropertyField*& Property : PropertyFileds)
+				for (PropertyField* Property : PropertyFileds)
 				{
 					if (Property->Name == NameProperty)
 					{
@@ -35,6 +38,43 @@ namespace CoreEngine
 				}
 				return nullptr;
 			}
+
+			bool IsChildClassOf(const ClassField* OtherClass)
+			{
+				if (!OtherClass) return false;
+
+				ClassField* CurrentClass = this;
+				while (CurrentClass)
+				{
+					if (*CurrentClass == *OtherClass)
+					{
+						return true;
+					}
+					CurrentClass = CurrentClass->ParentClass;
+				}
+				return false;
+			}
+
+
+		public:
+
+			bool operator==(const ClassField& Other) const
+			{
+				bool ResEq = true;
+				/*if (ParentClass && Other.ParentClass)
+				{
+					ResEq = *ParentClass == *Other.ParentClass;					
+				}
+				else if (ParentClass)*/
+
+				ResEq = ConstructionField::operator==(Other);
+				if (!ResEq) return false;
+
+				ResEq = Params == Other.Params;
+				
+				return ResEq;
+			}
+
 		};
 	}
 }

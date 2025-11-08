@@ -7,44 +7,72 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <Core/includes/Application.h>
 #include <Core/includes/Window.h>
+#include <Render/includes/Framebuffer.h>
 
 namespace Editor
 {
 	EditorEngine::EditorEngine()
 	{
+		using namespace CoreEngine::Render;
+
 		CoreEngine::Render::FramebufferSpecification Spec;
-		Spec.Height = Application::Get()->GetWindow().GetHeight();
+		Spec.Height =  Application::Get()->GetWindow().GetHeight();
 		Spec.Width = Application::Get()->GetWindow().GetWidth();
+		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RGBA8));
+		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RED_INTEGER));
+		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8));
+
 		FrameBuffer = CoreEngine::Render::Framebuffer::Create(Spec);
-		
 	}
 	void EditorEngine::Update()
 	{
-		FrameBuffer->Bind();
-		GetRender()->ClearBuffersScreen();
+		FrameBuffer->Bind(); // Enable write render in buffer 
+
+		GetRender()->ClearBuffersScreen(); // Clear buffer
 		Engine::Update();
-		FrameBuffer->UnBind();
+
+
+		//glBindFramebuffer(GL_READ_FRAMEBUFFER, 1);
+		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // 0 — default (главный) буфер
+
+		//// 2) Копируем весь размер
+		//glBlitFramebuffer(
+		//	0, 0, FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height,   // src rect
+		//	0, 0, Application::Get()->GetWindow().GetWidth(), Application::Get()->GetWindow().GetHeight(),   // dst rect (можно масштабировать)
+		//	GL_COLOR_BUFFER_BIT,   // копируем только цвет
+		//	GL_NEAREST             // фильтр (или GL_LINEAR если нужно сглаживание)
+		//);
+
+		//// 3) Отвязываем (по желанию)
+		//glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+		FrameBuffer->UnBind(); // Disable write render in buffer 
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-
+		bool a = false;
 		ImGui::NewFrame();
-		//	ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow(&a);
+
+
 		RenderEditor();
+		
+
 		ImGui::Render();
+		/*FrameBuffer->Bind();
+		FrameBuffer->ClearTexture(1);
+		FrameBuffer->UnBind();*/
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		
 	}
 
 	void EditorEngine::RenderEditor()
 	{
-		//ImGui::Text("Hello, world %d", 123);
-		//if (ImGui::Button("Save"))
-		//{
+		Viewport.DrawViewport(FrameBuffer);
+		SceneHier.DrawSceneHierarchy();
 
-		//}
-		////MySaveFunction();
-		//ImGui::InputText("string", buf.data(), IM_ARRAYSIZE(buf.data()));
-		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
 		if (ImGui::BeginMenuBar())
 		{
@@ -75,18 +103,7 @@ namespace Editor
 
 
 		ImGui::EndChild();
-		ImGui::End();
-		static ImVec2 lastSize = ImVec2(0, 0);
-		ImGui::Begin("Viewport");
-		uint32 Texture = FrameBuffer->GetColorAttachmentID();
-		ImGui::Image((ImTextureID)(intptr_t)Texture, ImVec2(FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height - 36), ImVec2(0, 1), ImVec2(1, 0));
-		ImVec2 Space = ImGui::GetWindowSize();;
-		if (Space.x != lastSize.x || Space.y != lastSize.y)
-		{
-			FrameBuffer->Resize(abs(Space.x), abs(Space.y));
-			lastSize = Space;
-			EG_LOG(CORE, ELevelLog::INFO, "{0} {1}", abs(Space.x), (Space.y));
-		}
+	
 		ImGui::End();
 	}	
 	

@@ -7,14 +7,27 @@ namespace CoreEngine
 {
 	namespace Reflection
 	{
+
+
 		struct BaseField
 		{
-			virtual ~BaseField() noexcept {}
+			virtual ~BaseField() noexcept = default;
 
 		public:
 
 			BaseField() {
 			}
+
+			bool operator==(const BaseField& Other) const
+			{
+				return Other.Name == Name;
+			}
+
+			bool operator!=(const BaseField& Other) const
+			{
+				return !this->operator==(Other);
+			}
+
 
 		public:
 

@@ -16,6 +16,8 @@ namespace CoreEngine
 
 		public:
 
+			Controller(const InitializeObject& Object);
+
 
 			Pawn* GetControlledPawn() const;
 			void SetControlledPawn(Pawn* NewPawn);

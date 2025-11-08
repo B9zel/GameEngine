@@ -17,7 +17,7 @@ namespace CoreEngine
 
 		public:
 
-			CameraManager();
+			CameraManager(const InitializeObject& Object);
 
 		public:
 

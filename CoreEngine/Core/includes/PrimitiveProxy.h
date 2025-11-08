@@ -9,6 +9,8 @@
 
 namespace CoreEngine
 {
+	class UUID;
+
 	class PrimitiveProxy
 	{
 	public:
@@ -27,6 +29,8 @@ namespace CoreEngine
 		void AddLightLocation(const FVector& Location);
 		const DArray<FVector>& GetLocationLights() const;
 		const FVector& GetViewLocation() const;
+		void SetUUID(const UUID* uuid);
+		const UUID* GetUUID() const;
 
 
 	protected:
@@ -36,6 +40,8 @@ namespace CoreEngine
 		DArray<FVector> PositionLights;
 		FVector ViewLocation;
 		Transform transform;
+		UUID* m_UUID;
+
 
 		//Test
 	public:

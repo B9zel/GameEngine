@@ -2,7 +2,7 @@
 
 #include <Core/includes/StaticMeshProxy.h>
 #include <Runtime/includes/Actor.h>
-#include <Core/includes/World.h>
+//#include <Core/includes/World.h>
 #include <glad/glad.h>
 
 
@@ -12,13 +12,16 @@ namespace CoreEngine
 	{
 		DECLARE_LOG_CATEGORY_EXTERN(MESH_COMPONENT_LOG);
 
-		MeshComponent::MeshComponent()
+		MeshComponent::MeshComponent(const InitializeObject& Object) : PrimitiveComponent(Object)
 		{
-			m_Shader = Render::Shader::CreateShader();
+			m_Shader.push_back(Render::Shader::CreateShader());
+			//m_Shader.push_back(Render::Shader::CreateShader());
 			m_Proxy = MakeUniquePtr<StaticMeshProxy>();
 
-			auto& Shaders = m_Shader->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
-			m_Shader->CompileShader(Shaders.first, Shaders.second);
+			auto& Shaders = m_Shader[0]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
+			m_Shader[0]->CompileShader(Shaders.first, Shaders.second);
+			//Shaders = m_Shader[1]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/IdVisualShader.glsl").c_str());
+			//m_Shader[1]->CompileShader(Shaders.first, Shaders.second);
 		}
 
 
@@ -64,11 +67,15 @@ namespace CoreEngine
 		{
 			m_Proxy->ClearData();
 			m_Proxy->SetTransform(transform);
+			m_Proxy->SetUUID(&GetOwner()->GetUUID());
 			//m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
 			//m_Proxy->AddLightLocation(FVector(3, 2, -7));
 			if (!m_Models.empty())
 			{
-				m_Proxy->AddShaderWithArrayObject(m_Shader.get(), m_Models[0]->GetVertexArrayObject().get(), m_Models[0]->GetEBO().get());
+				for (uint64 i = 0; i < m_Shader.size(); i++)
+				{
+					m_Proxy->AddShaderWithArrayObject(m_Shader[i].get(), m_Models[0]->GetVertexArrayObject().get(), m_Models[0]->GetEBO().get());
+				}
 			}
 			for (uint64 i = 0; i < m_Models.size(); i++)
 			{
@@ -84,7 +91,9 @@ namespace CoreEngine
 			{
 				aiMesh* mesh = Scene->mMeshes[Node->mMeshes[i]];
 				UniquePtr<Render::Model, ModelDeleter> NewModel(Render::Model::CreateModel());
-				NewModel->SetupModel(mesh, Scene);
+				SpecificationVertexData Data;
+				Data.ObjectID = GetOwner()->GetUUID().GetID();
+				NewModel->SetupModel(mesh, Scene, Data);
 				m_Models.emplace_back(std::move(NewModel));
 			}
 

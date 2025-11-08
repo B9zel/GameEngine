@@ -211,6 +211,24 @@ namespace CoreEngine
 				return true;
 			}
 
+			bool OpenGLShader::SetUniform1ui(const String& nameParam, const uint32 value, bool isEnableBind)
+			{
+				int32 location = 0;
+				SHADER_LOCATION_PARAM(nameParam, location)
+
+					if (isEnableBind)
+					{
+						Bind();
+						glUniform1ui(location, value);
+						UnBind();
+					}
+					else
+					{
+						glUniform1ui(location, value);
+					}
+				return true;
+			}
+
 			bool OpenGLShader::SetUniformFloat(const String& nameParam, float value, bool isEnableBind)
 			{
 				int32 location = 0;

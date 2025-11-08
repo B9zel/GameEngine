@@ -2,6 +2,8 @@
 #include <Runtime/includes/Controller.h>
 #include <Runtime/includes/PlayerInput.h>
 #include <Core/includes/Base.h>
+#include <Runtime/includes/CameraManager.h>
+#include <Runtime/includes/InputComponent.h>
 #include <PlayerController.generated.h>
 
 
@@ -21,7 +23,7 @@ namespace CoreEngine
 
 		public:
 
-			PlayerController();
+			PlayerController(const InitializeObject& Object);
 			~PlayerController() = default;
 
 		public:
@@ -43,8 +45,11 @@ namespace CoreEngine
 
 		protected:
 
-			ObjectPtr<CameraManager> cameraManager;
-			ObjectPtr<InputComponent> inputComponent;
+			RPROPERTY();
+			CameraManager* cameraManager;
+			RPROPERTY();
+			InputComponent* inputComponent;
+
 			UniquePtr<PlayerInput> playerInput;
 
 			UpdateActorFunction updateInput;

@@ -9,10 +9,11 @@ namespace CoreEngine
 	namespace Runtime
 	{
 
-		PoinLightComponent::PoinLightComponent()
+		PoinLightComponent::PoinLightComponent(const InitializeObject& Object) : BaseLightComponent(Object)
 		{
 			LightProxy = MakeUniquePtr<PointLightProxy>();
 		}
+
 		LightProxy* PoinLightComponent::GetLightProxy()
 		{
 			LightProxy->SetLocation(GetComponentLocation());

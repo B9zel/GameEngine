@@ -1,9 +1,10 @@
 #include <Core/includes/Application.h>
 
+#include <Core/includes/Base.h>
 #include <Core/includes/Window.h>
 #include <Core/includes/World.h>
 #include <Core/includes/Dispatcher.h>
-#include <Core/includes/Base.h>
+
 
 
 
@@ -30,6 +31,7 @@ namespace CoreEngine
 		{
 			InstanceEngine->Update();
 			window->OnUpdate();
+			
 		}
 	}
 

@@ -14,7 +14,7 @@ namespace CoreEngine
 		{
 		public:
 
-			PoinLightComponent();
+			PoinLightComponent(const InitializeObject& Object);
 
 		public:
 

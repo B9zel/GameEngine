@@ -2,13 +2,29 @@
 #include <Core/includes/Base.h>
 #include <ReflectionSystem/Include/BaseField.h>
 
+//#include <ReflectionSystem/Include/ClassField.h>
+//#include <ReflectionSystem/Include/ConstructionField.h>
+#include <ReflectionSystem/Include/ReflectionManager.h>
+
 
 
 namespace CoreEngine
 {
+	class Engine;
+
 	namespace Reflection
 	{
 		struct ConstructionField;
+		class ReflectionManager;
+		struct ClassField;
+
+
+		enum class EConteinType : uint8
+		{
+			NONE = 0,
+			PRIMITIVE,
+			ARRAY
+		};
 
 		enum class EPropertyFieldParams : uint8
 		{
@@ -34,54 +50,66 @@ namespace CoreEngine
 			CHAR
 		};
 
-		EPrimitiveTypes ConvertToPropertyEnumFromString(const StringView& NameType);
+		EPrimitiveTypes ConvertToPropertyEnumFromString(const String& NameType);
+		bool GetIsSupportSimpleTypeFromString(const String& NameType);
 
+		struct BaseTypePropertyType
+		{
+			static SharedPtr<BaseTypePropertyType> Create(const String& Type);
+			static SharedPtr<BaseTypePropertyType> Create(ClassField* TypeField);
 
-		struct TypePropertyField
+			virtual String GetNameType() const = 0;
+			virtual bool GetIsPointer() const = 0;
+		};
+
+		struct SimplePropertyTypeField : public BaseTypePropertyType
 		{
 
-			TypePropertyField() = default;
-			~TypePropertyField() noexcept {}
-			TypePropertyField(const String& Type)
-			{
-				// Is pointer
-				uint64 Pos = Type.find("*");
-		
-				NameType = Type;
-				IsComplexType = Pos >= 0;
-				Primitive = ConvertToPropertyEnumFromString(IsComplexType ? Type.substr(0, Pos) : Type);
-			}
+			SimplePropertyTypeField() = default;
+			~SimplePropertyTypeField() noexcept {}
+			SimplePropertyTypeField(const String& Type);
+			
+		public:
+
+			SimplePropertyTypeField(const SimplePropertyTypeField& Other) = default;
+			SimplePropertyTypeField( SimplePropertyTypeField&& Other) = default;
+			SimplePropertyTypeField& operator=(SimplePropertyTypeField&&) = default;
+			SimplePropertyTypeField& operator=(const SimplePropertyTypeField& Other);
 
 		public:
 
-			TypePropertyField(const TypePropertyField& Other) = default;
-			TypePropertyField( TypePropertyField&& Other) = default;
-			TypePropertyField& operator=(TypePropertyField&&) = default;
-			TypePropertyField& operator=(const TypePropertyField& Other)
-			{
-				IsComplexType = Other.IsComplexType;
-				Primitive = Other.Primitive;
-				if (IsComplexType)
-				{
-					ComplexType = Other.ComplexType;
-				}
-				else
-				{
-					NameType = Other.NameType;
-				}
-				return *this;
-			}
+			virtual String GetNameType() const override;
+			virtual bool GetIsPointer() const;
+
+		private:
+
+			String& RemoveSpace(String& Str);
 
 		public:
 
-			bool IsComplexType;
 			EPrimitiveTypes Primitive;
-			union
-			{
-				String NameType;
-				ConstructionField* ComplexType = nullptr;
-			};
+		
+			String NameType;
 		};
+
+		struct ComplexPropertyTypeField : public BaseTypePropertyType
+		{
+		public:
+
+			ComplexPropertyTypeField(const String& Type);// : BaseTypePropertyType()
+			ComplexPropertyTypeField(ClassField* Field);// : BaseTypePropertyType()
+			
+
+		public:
+
+			virtual String GetNameType() const override;
+			virtual bool GetIsPointer() const;
+
+		public:
+
+			ConstructionField* TypeField;
+		};
+
 
 		struct PropertyField : public BaseField
 		{
@@ -93,31 +121,23 @@ namespace CoreEngine
 			PropertyField() = default;
 			PropertyField(const PropertyField& Other)
 			{
-				Size = Other.Size;
+				SizeByte = Other.SizeByte;
 				Offset = Other.Offset;
-				IsPointer = Other.IsPointer;
 				Params = Other.Params;
 				TypeProperty = Other.TypeProperty;
 			}
 
 			PropertyField& operator=(const PropertyField& Other)
 			{
-				Size = Other.Size;
+				SizeByte = Other.SizeByte;
 				Offset = Other.Offset;
-				IsPointer = Other.IsPointer;
 				Params = Other.Params;
 				TypeProperty = Other.TypeProperty;
+				
 				return *this;
 			}
 
 		public:
-
-			uint32 Size;
-			uint32 Offset;
-			bool IsPointer;
-			EPropertyFieldParams Params;
-			TypePropertyField TypeProperty;
-
 
 			template<class TypeProperty>
 			TypeProperty* GetSourcePropertyByName(void* InstanceClass)
@@ -135,7 +155,55 @@ namespace CoreEngine
 				}
 			}
 
+			bool GetIsPointer() const
+			{
+				return TypeProperty->GetIsPointer();
+			}
+
+			bool GetIsSupportReflectionSystem() const;
+			virtual EConteinType GetPrimitiveType() const;
+
+		public:
+
+			uint32 SizeByte;
+			uint32 Offset;
+			EPropertyFieldParams Params;
+			SharedPtr<BaseTypePropertyType> TypeProperty;
 		};
 
+		struct ArrayPropertyField : public PropertyField
+		{
+		public:
+
+			ArrayPropertyField() = default;
+
+		public:
+
+			template<class TypeStorage>
+			TypeStorage* GetElement(void* Instance, const uint32 Index)
+			{
+				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
+				if (Variable)
+				{
+					return &((*Variable)[Index]);
+				}
+				return nullptr;
+			}
+
+			template<class TypeStorage>
+			int64 GetSizeArray(void* Instance)
+			{
+				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
+				if (Variable)
+				{
+					return Variable->size();
+				}
+				return -1;
+			}
+
+			virtual EConteinType GetPrimitiveType() const override;
+		};
 	}
+
+
 }

@@ -3,7 +3,7 @@
 
 
 
-CoreEngine::Runtime::SceneComponent::SceneComponent()
+CoreEngine::Runtime::SceneComponent::SceneComponent(const InitializeObject& Object) : ActorComponent(Object)
 {
 	transform.SetLocation(FVector(0, 0, 0));
 	transform.SetScale(FVector(1, 1, 1));

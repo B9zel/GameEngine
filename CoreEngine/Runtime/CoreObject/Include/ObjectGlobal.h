@@ -33,12 +33,18 @@ namespace CoreEngine
 		T* CreateObject(Object* Outer = nullptr)
 		{
 			static_assert(IsParentClass<Object, T>(), "The class being created must be a descendant of the object.");
-
+			
+			if (!T::GetStaticClass())
+			{
+				EG_LOG(CORE, ELevelLog::ERROR, "Static class don't exist");
+			}
 			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
 			T* newObject = memManager->AllocateMemoryForObject<T>();
 
 			memManager->GetGarbageCollector()->AddObject(newObject);
-			Allocator::Construct(newObject);
+			InitializeObject InitParam;
+			InitParam.Class = T::GetStaticClass();
+			Allocator::Construct(newObject, InitParam);
 
 			return newObject;
 		}

@@ -40,8 +40,14 @@ def ParseFileForGenerater(FileList:list):
             NextLineClass = True
 
 
+i = 0
 for file in files:
     GenFileNextIteration = False
+    if i >= 98:
+        print()
+    i += 1
+
+
     with open(file, "r") as f:
         line = f.readlines()
         ParseFile(line, ClassKeyWord, CreateFile, file ,OutputFiles)

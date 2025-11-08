@@ -58,6 +58,10 @@ namespace CoreEngine
 
 		public:
 
+			ActorComponent(const InitializeObject& InitParam);
+
+		public:
+
 			virtual void BeginPlay();
 
 			virtual void InitProperties() override;

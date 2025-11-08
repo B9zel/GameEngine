@@ -7,7 +7,7 @@ namespace CoreEngine
 	namespace Runtime
 	{
 
-		CameraComponent::CameraComponent()
+		CameraComponent::CameraComponent(const InitializeObject& Object) : SceneComponent(Object)
 		{
 			typeProjection = ETypeView::PERSPECTIVE;
 			SetComponentRotation(FVector(0.0f, 0.0f, 0.0f));
