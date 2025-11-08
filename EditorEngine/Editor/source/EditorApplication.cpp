@@ -8,6 +8,8 @@
 #include <Editor/includes/EditorEngine.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui_internal.h>
+
 
 namespace Editor
 {
@@ -39,6 +41,7 @@ namespace Editor
 		ImGui::StyleColorsDark();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init();

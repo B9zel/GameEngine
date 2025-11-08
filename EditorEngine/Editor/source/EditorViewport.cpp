@@ -87,7 +87,8 @@ namespace Editor
 			const int Width = FrameBuffer->GetSpecifiction().Width;
 			const int Height = FrameBuffer->GetSpecifiction().Height;
 			
-			if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
+			//if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
+			if (false)
 			{
 				//localY = FrameBuffer->GetSpecifiction().Height - (localY);
 				//localX -=  ImGui::GetScrollX();
@@ -135,6 +136,43 @@ namespace Editor
 			FrameBuffer->UnBind();
 			ImGui::EndChild();
 			ImGui::PopStyleVar();
+			ImGui::End();
+			ImGui::Begin("Drag and Drop Example");
+
+			static int sourceValue = 42;
+			static int targetValue = 0;
+			//////
+			// Источник
+			static const char* items[] = { "Cube", "Sphere", "Light" };
+			static const char* selected = nullptr;
+
+
+			for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+			{
+				ImGui::Selectable(items[i]);
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("OBJECT_NAME", items[i], strlen(items[i]) + 1);
+					ImGui::Text("Dragging %s", items[i]);
+					ImGui::EndDragDropSource();
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OBJECT_NAME"))
+					{
+						const char* dropped = (const char*)payload->Data;
+						selected = dropped;
+					}
+					ImGui::EndDragDropTarget();
+				}
+			}
+
+			if (selected)
+				ImGui::Text("Selected object: %s", selected);
+			///////
+
 			ImGui::End();
 	}
 }
