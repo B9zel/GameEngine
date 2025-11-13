@@ -23,8 +23,8 @@ namespace CoreEngine
 
 			virtual void UpdateComponent(float deltaTime) override {}
 
-			const Transform& GetTransform() const;
-			void SetTransform(const Transform& newTransform);
+			const FTransform& GetTransform() const;
+			void SetTransform(const FTransform& newTransform);
 
 			FVector GetComponentLocation() const;
 			FVector GetComponentScale() const;
@@ -49,10 +49,14 @@ namespace CoreEngine
 
 		protected:
 
-			Transform transform;
+			RPROPERTY(EditorVisible);
+			FTransform Transform;
 			FVector Front;
 			SceneComponent* parentAttach;
 			DArray<SceneComponent*> childrenAttach;
+
+			RPROPERTY();
+			FVector m_Gravity;
 		};
 	}
 }

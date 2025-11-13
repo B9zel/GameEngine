@@ -4,6 +4,8 @@
 #include <Editor/includes/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
 #include <Editor/includes/SceneHierarhy.h>
+#include <Editor/includes/EditorDetails.h>
+
 
 namespace Editor
 {
@@ -22,6 +24,8 @@ namespace Editor
 	public:
 
 		virtual void Update() override;
+		void SetSelectedObject(Runtime::Object* NewSelected);
+		Runtime::Object* GetSelectedObject() const;
 
 	protected:
 
@@ -35,7 +39,16 @@ namespace Editor
 		bool my_tool_active{ true };
 
 		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
-		EditorViewport Viewport;
-		SceneHierarhy SceneHier;
+
+		DArray<SharedPtr<BaseEdtiorPanel>> EditorWidgets;
+
+		SharedPtr<EditorViewport> Viewport;
+
+
+
+		SharedPtr<SceneHierarhy> SceneHier;
+		SharedPtr<EditorDetails> DetailsPanel;
+
+		Runtime::Object* SelectedObject{ nullptr };
 	};
 }

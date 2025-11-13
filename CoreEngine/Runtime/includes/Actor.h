@@ -81,7 +81,7 @@ namespace CoreEngine
 
 			void Registered();
 			template<class ReturnType>
-			ReturnType* CreateSubObject();
+			ReturnType* CreateSubObject(const String& Name);
 
 			template<class ReturnType>
 			ReturnType* CreateRuntimeSubObject();
@@ -92,7 +92,7 @@ namespace CoreEngine
 			FVector GetActorLocation() const;
 			FVector GetActorScale() const;
 			FVector GetActorRotation() const;
-			Transform GetActorTransform() const;
+			FTransform GetActorTransform() const;
 			FVector GetActorForwardVector() const;
 			FVector GetActorRightVector() const;
 			Actor* GetOwner() const;
@@ -100,7 +100,7 @@ namespace CoreEngine
 			void SetActorLocation(const FVector& newLocation);
 			void SetActorScale(const FVector& newScale);
 			void SetActorRotation(const FVector& newRotation);
-			void SetActorTransform(const Transform& newTransform);
+			void SetActorTransform(const FTransform& newTransform);
 			void SetOwner(Actor* newOwner);
 
 			void AddActorLocation(const FVector& AddValue);
@@ -141,7 +141,7 @@ namespace CoreEngine
 			FVector m_Direction;
 		};
 		template<class ReturnType>
-		inline ReturnType* Actor::CreateSubObject()
+		inline ReturnType* Actor::CreateSubObject(const String& Name)
 		{
 			ReturnType* obj = CreateObject<ReturnType>(this);
 			if (obj)
@@ -155,9 +155,9 @@ namespace CoreEngine
 					newClass->SetupToAttachment(RootComponent);
 					newClass->SetTransform(RootComponent->GetTransform());
 				}
-
-
 			}
+			obj->SetName(Name);
+
 			Components.emplace_back(obj);
 			ComponentsGC.emplace_back(obj);
 			return obj;

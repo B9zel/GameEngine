@@ -41,6 +41,7 @@ namespace CoreEngine
 		
 		//RPROPERTY();
 	//	DArray<float> m_Floats;
+
 		RPROPERTY();
 		DArray<Runtime::Object*> m_Objects;
 

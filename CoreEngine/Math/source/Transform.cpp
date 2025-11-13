@@ -4,21 +4,21 @@
 
 
 
-Transform::Transform(const FVector& Location, const FVector& Rotation, const FVector& Scale) : Location(Location), Scale(Scale), Rotation(Rotation)
+FTransform::FTransform(const FVector& Location, const FVector& Rotation, const FVector& Scale) : Location(Location), Scale(Scale), Rotation(Rotation)
 {
 }
 
-Transform::Transform(const Transform& Other)
+FTransform::FTransform(const FTransform& Other)
 {
 	this->operator=(Other);
 }
 
-Transform::Transform(Transform&& Other)
+FTransform::FTransform(FTransform&& Other) noexcept
 {
 	this->operator=(std::move(Other));
 }
 
-Transform& Transform::operator=(const Transform& OtherTransform)
+FTransform& FTransform::operator=(const FTransform& OtherTransform)
 {
 	Location = OtherTransform.Location;
 	Scale = OtherTransform.Scale;
@@ -27,7 +27,7 @@ Transform& Transform::operator=(const Transform& OtherTransform)
 	return *this;
 }
 
-Transform& Transform::operator=(Transform&& OtherTransform)
+FTransform& FTransform::operator=(FTransform&& OtherTransform) noexcept
 {
 	Location = std::move(OtherTransform.Location);
 	Scale = std::move(OtherTransform.Scale);
@@ -36,64 +36,85 @@ Transform& Transform::operator=(Transform&& OtherTransform)
 	return *this;
 }
 
-void Transform::SetLocation(const FVector& NewLocation)
+bool FTransform::operator==(const FTransform& Other) const
+{
+	return Other.Location.vector == Location.vector && Other.Rotation.vector == Rotation.vector && Other.Scale.vector == Scale.vector;
+}
+
+bool FTransform::operator!=(const FTransform& Other) const
+{
+	return !(this->operator==(Other));
+}
+
+void FTransform::SetLocation(const FVector& NewLocation)
 {
 	Location = NewLocation;
 }
 
-void Transform::SetRotation(const FVector& NewRotation)
+void FTransform::SetRotation(const FVector& NewRotation)
 {
 	Rotation = NewRotation;
 }
 
-void Transform::SetScale(const FVector& NewScale)
+void FTransform::SetScale(const FVector& NewScale)
 {
 	Scale = NewScale;
 }
 
-void Transform::SetLocationAndRotation(const FVector& NewLocation, const FVector& NewRotation)
+void FTransform::SetLocationAndRotation(const FVector& NewLocation, const FVector& NewRotation)
 {
 	SetLocation(NewLocation);
 	SetRotation(NewRotation);
 }
 
-void Transform::SetTransform(const FVector& Location, const FVector& Rotation, const FVector& Scale)
+void FTransform::SetTransform(const FVector& Location, const FVector& Rotation, const FVector& Scale)
 {
 	SetLocation(Location);
 	SetRotation(Rotation);
 	SetScale(Scale);
 }
 
-FVector Transform::GetLocation() const
+FVector FTransform::GetLocation() const
 {
 	return Location;
 }
 
-FVector Transform::GetRotation() const
+FVector FTransform::GetRotation() const
 {
 	return Rotation;
 }
 
-FVector Transform::GetScale() const
+FVector FTransform::GetScale() const
+{
+	return Scale;
+}
+
+FVector& FTransform::GetLocationRef()
+{
+	return Location;
+}
+
+FVector& FTransform::GetRotationRef()
+{
+	return Rotation;
+}
+
+FVector& FTransform::GetScaleRef()
 {
 	return Scale;
 }
 
 
-Transform Transform::GetTransform() const
+FTransform FTransform::GetTransform() const
 {
-	return Transform(*this);
+	return FTransform(*this);
 }
 
-FMatrix4x4 Transform::ToMatrix() const
+FMatrix4x4 FTransform::ToMatrix() const
 {
-	FMatrix4x4 matrix(1);
+	FMatrix4x4 Rotat = Rotate(FMatrix4x4(1.0f), Rotation.GetX(), FVector(1.0f, 0.0f, 0.0f)) 
+		* Rotate(FMatrix4x4(1.0f), Rotation.GetY(), FVector(0.0f, 1.0f, 0.0f))
+		* Rotate(FMatrix4x4(1.0f), Rotation.GetZ(), FVector(0.0f, 0.0f, 1.0f));
 
-	matrix = Translate(matrix, Location);
-	matrix = Rotate(matrix, Math::ToRadian(Rotation.GetX()), FVector(1.0f, 0.0f, 0.0f));
-	matrix = Rotate(matrix, Math::ToRadian(Rotation.GetY()), FVector(0.0f, 1.0f, 0.0f));
-	matrix = Rotate(matrix, Math::ToRadian(Rotation.GetZ()), FVector(0.0f, 0.0f, 1.0f));
-	matrix = ToScale(matrix, Scale);
-
-	return matrix;
+	return  Translate(FMatrix4x4(1.0f), Location) * Rotat * ToScale(FMatrix4x4(1.0f), Scale);
 }

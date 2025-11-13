@@ -13,6 +13,7 @@ namespace CoreEngine
 
 			virtual void Init() = 0;
 			virtual void SwapBuffer() = 0;
+			virtual void UpdateContext() = 0;
 
 			static UniquePtr<GraphicsContext> CreateContext(void* window);
 		};

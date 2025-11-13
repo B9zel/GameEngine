@@ -40,6 +40,10 @@ namespace CoreEngine
 		Engine::Get()->GetRender()->ClearBuffersScreen();
 	}
 
+	Render::GraphicsContext* WindowsWindow::GetContext() const
+	{
+		return m_context.get();
+	}
 
 	void WindowsWindow::Init(const WindowOptions& options)
 	{

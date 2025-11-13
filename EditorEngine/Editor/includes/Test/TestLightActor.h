@@ -19,7 +19,7 @@ public:
 
 	LightActor(const CoreEngine::InitializeObject& Object) : Actor(Object)
 	{
-		LightObj = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>();
+		LightObj = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>("Spot light");
 		LightObj->SetColor(FVector(0, 1, 0));
 		LightObj->SetConstant(1.0f);
 		LightObj->SetLinear(0.2f);
@@ -36,7 +36,7 @@ public:
 		arrObj.CreateVertexArray();
 		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, arrObj);
 		arrObj.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, vertObj);
-		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
+		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>("Light cube");
 		LightCube->GetSceneProxy()->CountVertex = 108;
 		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
 		LightCube->GetSceneProxy()->SetTransform(GetActorTransform());

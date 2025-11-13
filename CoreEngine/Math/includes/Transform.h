@@ -4,19 +4,22 @@
 
 
 
-class Transform
+class FTransform
 {
 public:
 
-	Transform() = default;
-	~Transform() = default;
+	FTransform() = default;
+	~FTransform() = default;
 
-	Transform(const FVector& Location, const FVector& Rotation, const FVector& Scale);
-	Transform(const Transform& Other);
-	Transform(Transform&& Other);
+	FTransform(const FVector& Location, const FVector& Rotation, const FVector& Scale);
+	FTransform(const FTransform& Other);
+	FTransform(FTransform&& Other) noexcept;
 
-	Transform& operator=(const Transform& OtherTransform);
-	Transform& operator=(Transform&& OtherTransform);
+	FTransform& operator=(const FTransform& OtherTransform);
+	FTransform& operator=(FTransform&& OtherTransform) noexcept;
+
+	bool operator==(const FTransform& Other) const;
+	bool operator!=(const FTransform& Other) const;
 
 public:
 
@@ -31,8 +34,11 @@ public:
 	FVector GetLocation() const;
 	FVector GetRotation() const;
 	FVector GetScale() const;
+	FVector& GetLocationRef();
+	FVector& GetRotationRef();
+	FVector& GetScaleRef();
 	
-	Transform GetTransform() const;
+	FTransform GetTransform() const;
 
 
 	FMatrix4x4 ToMatrix() const;

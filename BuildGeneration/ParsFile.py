@@ -67,6 +67,7 @@ def GarbagePropertyFields(pr, cursor):
                 NewMacros = MacrosData()
                 NewMacros.Name = token.spelling
                 NewMacros.Location = token.location.line
+                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)))
                 garbageMacrosProperty.append(NewMacros)
         except UnicodeDecodeError:
             continue
@@ -86,12 +87,16 @@ def GarbagePropertyFields(pr, cursor):
                 NewProperty = ArrayType()
                 NewProperty.InnerType = TypeCollectRes[2]
                 NewProperty.IsPointer = "*" in NewProperty.InnerType
+            elif TypeCollectRes[1] == ETypePrimitive.CUSTOM_PRIMITIVE:
+                NewProperty = VariableField()
+                NewProperty.IsPointer = False
             else:
                 NewProperty = VariableField()
                 NewProperty.IsPointer = node.type.kind == cindex.TypeKind.POINTER
             NewProperty.NameVar = node.spelling
             NewProperty.Type = TypeCollectRes[0]
             NewProperty.TypePrimitive = TypeCollectRes[1]
+            NewProperty.Params = FindedMacros[0].Params
 
             PropertyFields.append(NewProperty)
             garbageMacrosProperty.remove(*FindedMacros)
@@ -111,6 +116,32 @@ def GetDeclarationFromType(type):
             return declaration
     return None
 
+def CollectPropertyConfig(tu, token:list):
+    if not token:
+        return []
+    ResCollect = []
+
+    def SearchCheck(j):
+        return j[1].spelling == "RPROPERTY"
+
+
+    FindPos = list(filter(SearchCheck, enumerate(token)))
+    begin = False
+    end = False
+
+    if FindPos:
+        for i in range(FindPos[0][0] + 1, len(token)):
+            if token[i].spelling == "(":
+                begin = True
+            elif token[i].spelling == ")":
+                end = True
+                break
+            elif token[i].spelling not in (",", ";"):
+                ResCollect.append(token[i].spelling)
+
+    return ResCollect
+
+
 def CollectNamespaceOfProperty(cursor):
     parts = []
     parent = cursor.semantic_parent
@@ -123,21 +154,21 @@ def CollectNamespaceOfProperty(cursor):
     return "::".join(reversed(parts))
 
 def CollectFullTypeName(tu, cursor) -> (str, ETypePrimitive, str):
-    tokens = list(pr.get_tokens(extent=cursor.extent))
+    tokens = list(tu.get_tokens(extent=cursor.extent))
     if not tokens:
-        tokens = [tok for tok in pr.get_tokens(extent=pr.cursor.extent) if
+        tokens = [tok for tok in tu.get_tokens(extent=pr.cursor.extent) if
                   tok.location.line in (cursor.location.line - 1, cursor.location.line, cursor.location.line + 1) and tok.location.file.name == cursor.location.name]
 
     templateType = ExtractTemplateInnder("".join(i.spelling for i in tokens), "DArray")
     if templateType[0]:
         return f"DArray<{GetNamespace(cursor)}::{templateType[1]}>", ETypePrimitive.ARRAY, f"{GetNamespace(cursor)}::{templateType[1]}"
+    if tokens[0].spelling in ("FVector", "FTransform"):
+        return tokens[0].spelling, ETypePrimitive.CUSTOM_PRIMITIVE, ""
 
     declar = GetDeclarationFromType(cursor.type)
     if declar:
         namespaces = CollectNamespaceOfProperty(declar)
         Type = declar.type.spelling
-        # if cursor.type.kind == cindex.TypeKind.POINTER:
-        #     Type += "*"
         return f"{namespaces}::{Type}", ETypePrimitive.PRIMITIVE, ""
     spell = cursor.type.spelling
     if "::" in spell:
@@ -271,7 +302,7 @@ index = cindex.Index.create()
 for file in files:
     GenFileNextIteration = False
     pathg = os.path.abspath(file)
-    pr = index.parse(pathg, args=["-x", "c++","-std=c++17","-nostdinc", "-I.", r"-IC:\Projects\C++\GameEngine\CoreEngine\Core, -IC:\Projects\C++\GameEngine\CoreEngine\Core\Base.h"], options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+    pr = index.parse(pathg, args=["-x", "c++","-std=c++17","-nostdinc", "-I.", r"-IC:\Projects\C++\GameEngine\CoreEngine\Core", "-DRPROPERTY(x)="], options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
     # print(f"\n\nStart {file.name}\n\n")
     ParseClassesOfFile(ParseFile(pr, FindedClassMacros(pr)), file, OutputFiles)
     # for i in ParseFile(pr.cursor, FindedClassMacros(pr)):

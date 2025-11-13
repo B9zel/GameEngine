@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/includes/Window.h>
-#include <Render/includes/GraphicsContext.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -25,6 +25,8 @@ namespace CoreEngine
 		virtual void* GetNativeWindow() const override;
 
 		virtual void OnUpdate() override;	
+
+		virtual Render::GraphicsContext* GetContext() const override;
 		
 	protected:
 

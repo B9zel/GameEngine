@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/includes/Base.h>
 #include <Events/include/Event.h>
-
+#include <Render/includes/GraphicsContext.h>
 
 
 namespace CoreEngine
@@ -42,6 +42,8 @@ namespace CoreEngine
 		virtual void* GetNativeWindow() const = 0;
 
 		virtual bool GetIsCreateWindow() const;
+
+		virtual Render::GraphicsContext* GetContext() const = 0;
 
 		void SetEventBind(const FunctionEventCallBack function) { winData.eventCallBack = function; }
 

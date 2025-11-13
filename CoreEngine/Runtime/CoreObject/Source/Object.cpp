@@ -13,7 +13,10 @@ namespace CoreEngine
 			SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
 			IsMarkedGC = false;
 			PrivateClass = Initialize.Class;
+			CHECK(PrivateClass);
+
 			ObjectID.GenerateID();
+			Name = PrivateClass->Name;
 
 			InitProperties();
 		}
@@ -48,9 +51,19 @@ namespace CoreEngine
 		{
 			IsMarkedGC = Value;
 		}
+		void Object::SetName(const String& NewName)
+		{
+			Name = NewName;
+		}
+
 		uint32 Object::GetGCState() const
 		{
 			return StateObjectFlagGC;
+		}
+
+		const String& Object::GetName() const
+		{
+			return Name;
 		}
 	}
 }

@@ -29,7 +29,7 @@ public:
 
 		SetActorLocation(FVector(3, 2, -7));
 		SetActorScale(FVector(0.2));
-		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>();
+		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>("Primitive type");
 		LightCube->GetSceneProxy()->CountVertex = 108;
 		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
 		LightCube->GetSceneProxy()->SetTransform(GetActorTransform());

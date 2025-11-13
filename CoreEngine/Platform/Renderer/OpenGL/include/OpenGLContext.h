@@ -20,7 +20,7 @@ namespace CoreEngine
 				OpenGLContext(GLFWwindow* window);
 
 				virtual void Init() override;
-
+				virtual void UpdateContext() override;
 				virtual void SwapBuffer() override;
 
 			private:

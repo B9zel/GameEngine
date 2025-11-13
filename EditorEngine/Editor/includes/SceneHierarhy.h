@@ -1,14 +1,15 @@
 #pragma once
+#include <Editor/includes/BaseEditorPanel.h>
 
 
 namespace Editor
 {
-	class SceneHierarhy
+	class SceneHierarhy : public BaseEdtiorPanel
 	{
 	public:
 
-		virtual void DrawSceneHierarchy();
+		SceneHierarhy() = default;
 
-
+		virtual void Draw() override;
 	};
 }

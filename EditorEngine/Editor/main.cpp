@@ -1,21 +1,17 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 #include "includes/EditorApplication.h"
+#include <Editor/includes/Test/TestEditorLevel.h>
 
 //#include <Core/includes/Base.h>
 #include <Core/includes/Engine.h>
-#include <Core/includes/ObjectPtr.h>
-#include <Core/includes/Memory/GarbageCollector.h>
-#include <Core/includes/TimerManager.h>
-#include <Runtime/includes/PrimitiveComponent.h>
+
 #include <Core/includes/PrimitiveProxy.h>
 #include <Core/includes/World.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/imgui.h>
-#include <iostream>
-#include <Math/includes/Math.h>
-#include <Math/includes/Transform.h>
+
 #include <Math/includes/Vector.h>
 #include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLElementBufferObject.h>
@@ -23,22 +19,8 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
-#include <Runtime/includes/SceneComponent.h>
-#include <Templates/Function.h>
-#include <Core/includes/UpdateFunction.h>
-#include <Runtime/includes/PlayerController.h>
-#include <Runtime/includes/Pawn.h>
-#include <Runtime/includes/InputComponent.h>
-#include <Runtime/includes/CameraManager.h>
-#include <Runtime/includes/CameraComponent.h>
-#include <Core/includes/InputDevice.h>
-#include <Runtime/includes/MeshComponent.h>
-#include <Runtime/includes/PointLightComponent.h>
-#include <Runtime/includes/SpotLightComponent.h>
-#include <Runtime/includes/DirectionLightComponent.h>
-#include <Editor/includes/EditorEngine.h>
-#include <Events/include/Event.h>
-#include <Editor/includes/Test/TestEditorLevel.h>
+
+
 
 
 

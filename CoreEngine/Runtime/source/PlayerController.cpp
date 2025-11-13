@@ -30,7 +30,7 @@ namespace CoreEngine
 			playerInput = MakeUniquePtr<PlayerInput>();
 			playerInput->Register();
 
-			inputComponent = CreateSubObject<InputComponent>();
+			inputComponent = CreateSubObject<InputComponent>("Input component");
 			inputComponent->RegisteredComponent();
 			inputComponent->TakeEvent.AddBind(&PlayerController::OnTakeEvent, this);
 			inputComponent->TakeProcessedEvent.AddBind(&PlayerController::OnTakeProcessedEvent, this);

@@ -57,6 +57,10 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
     conteinFile = "".join(NewCppFile.readlines())
     preGenImplement = f'#include <{PathToOpenedFile}> \n\n'
 
+
+
+
+
     VariableGen = ""
     GenPropertyName = []
     Implement = ""
@@ -65,11 +69,17 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
                     f"Construct_{Field.Name}_Statics() {r"{}"}\n"
 
         for Var in Field.Variable:
-            if Var.TypePrimitive == ETypePrimitive.PRIMITIVE:
-                if Var.IsPointer:
-                    Implement += f"\tGenerateClassPropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), CoreEngine::Reflection::EPropertyFieldParams())\n"
+            Params = "CoreEngine::Reflection::EPropertyFieldParams()" if not Var.Params else ""
+            for Pararm in Var.Params:
+                if not Params:
+                    Params += f"CoreEngine::Reflection::EPropertyFieldParams::{Pararm}"
                 else:
-                    Implement += f"\tGeneratePropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, CoreEngine::Reflection::EPropertyFieldParams())\n"
+                    Params += f"|CoreEngine::Reflection::EPropertyFieldParams::{Pararm}"
+            if Var.TypePrimitive in (ETypePrimitive.PRIMITIVE, ETypePrimitive.CUSTOM_PRIMITIVE):
+                if Var.IsPointer:
+                    Implement += f"\tGenerateClassPropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {Params})\n"
+                else:
+                    Implement += f"\tGeneratePropertyFiled({Var.NameVar}, {Var.Type}, offsetof({Field.Namespace}::{Field.Name}, {Var.NameVar}), {"true" if Var.IsPointer else "false"}, {Params})\n"
             elif Var.TypePrimitive == ETypePrimitive.ARRAY:
                 if Var.IsPointer:
                     PosPointerChr = Var.InnerType.find("*")

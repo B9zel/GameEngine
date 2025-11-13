@@ -8,6 +8,7 @@
 #include <Core/includes/PrimitiveProxy.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 #include <Runtime/includes/InputComponent.h>
+#include <ReflectionSystem/Include/PropertyField.h>
 #include <TestQuad.generated.h>
 
 
@@ -22,7 +23,7 @@ public:
 
 	Quad(const CoreEngine::InitializeObject& Object) : Pawn(Object)
 	{
-		mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>();
+		mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
 		mesh->LoadMesh("C:/Projects/3D_Models/Table.obj");
 		mesh->SetComponentScale(FVector(0.8));
 		mesh->AddComponentLocation(FVector(0, -1, 0));
@@ -123,6 +124,11 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture2;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture3;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture4;
+
+	RPROPERTY(EditorVisible);
+	int32 Test = 0;
+	RPROPERTY(EditorVisible);
+	int64 TestTestTestTest = 0;
 
 private:
 

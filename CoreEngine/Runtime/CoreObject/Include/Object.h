@@ -66,14 +66,17 @@ namespace CoreEngine
 			virtual Reflection::ClassField* GetClass() const;
 
 			template<class ReturnType>
-			ReturnType* CreateSubObject();
+			ReturnType* CreateSubObject(const String& Name);
 
 			void SetWorld(World* newWorld);
 			World* GetWorld();
 
 			const UUID& GetUUID() const;
 			bool GetIsMarked() const;
+			const String& GetName() const;
+
 			void SetMarked(const bool Value);
+			void SetName(const String& NewName);
 
 			uint32 GetGCState() const;
 
@@ -90,6 +93,7 @@ namespace CoreEngine
 
 			UUID ObjectID;
 			Reflection::ClassField* PrivateClass;
+			String Name;
 
 			// GC
 			uint32 StateObjectFlagGC{ 0 };
@@ -99,9 +103,10 @@ namespace CoreEngine
 		};
 
 		template<class ReturnType>
-		inline ReturnType* Object::CreateSubObject()
+		inline ReturnType* Object::CreateSubObject(const String& Name)
 		{
 			ReturnType* obj = CreateObject<ReturnType>(this);
+			obj->Name = Name;
 			return obj;
 		}
 

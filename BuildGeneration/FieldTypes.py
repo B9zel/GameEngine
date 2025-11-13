@@ -3,13 +3,14 @@ from enum import Enum
 
 class ETypePrimitive(Enum):
     PRIMITIVE = 0
-    ARRAY = 1
+    CUSTOM_PRIMITIVE = 2
+    ARRAY = 3
 
 class VariableField:
     def __init__(self):
         self.NameVar = ""
         self.Type = ""
-        self.Params = ""
+        self.Params = []
         self.TypePrimitive = ETypePrimitive.PRIMITIVE
 
 class ArrayType(VariableField):
@@ -35,3 +36,4 @@ class MacrosData:
     def __init__(self):
         self.Location = 0
         self.Name = ""
+        self.Params = []

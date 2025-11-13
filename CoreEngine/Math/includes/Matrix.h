@@ -28,7 +28,7 @@ inline FMatrix4x4 CreateMatrixLookAt(const FVector& Position, const FVector& Tar
 
 inline FMatrix4x4 CreatePerspectiveMatrix(const float fieldOfView, uint32 Width, uint32 Height, const float zNear, const float zFar)
 {
-	return glm::perspective(fieldOfView, static_cast<float>(Width) / static_cast<float>(Height), zNear, zFar);
+	return glm::perspective(fieldOfView, static_cast<float>(Width) / static_cast<float>(Height == 0.0 ? 1.0 : Height), zNear, zFar);
 }
 
 inline FMatrix4x4 CreateOrthoMatrix(const float Left, const float Right, const float Bottom, const float Top, const float zNear, const float zFar)

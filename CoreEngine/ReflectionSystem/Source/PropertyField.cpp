@@ -24,6 +24,8 @@ namespace CoreEngine
 				{"uint32", EPrimitiveTypes::UINT32},{"unsigned int", EPrimitiveTypes::UINT32},
 				{"uint64", EPrimitiveTypes::UINT64},{"unsigned long long", EPrimitiveTypes::UINT64},
 				{"String", EPrimitiveTypes::STRING},
+				{"FVector", EPrimitiveTypes::VECTOR3F },
+				{"FTransform", EPrimitiveTypes::TRANSFORM }
 		};
 
 		EPrimitiveTypes ConvertToPropertyEnumFromString(const String& NameType)
@@ -83,9 +85,9 @@ namespace CoreEngine
 			int64 PosFindedArray = Type.find(FindArray);
 			if (PosFindedArray >= 0)
 			{
-				SourceType = ExtractStrBetweenStr(Type, "<", ">");
-				SourceType = ExtractRightSubStrFindLast(SourceType, "::");
-				SourceType = ExtractLeftSubStrFindLast(SourceType, "*");
+				SourceType = Utils::ExtractStrBetweenStr(Type, "<", ">");
+				SourceType = Utils::ExtractRightSubStrFindLast(SourceType, "::");
+				SourceType = Utils::ExtractLeftSubStrFindLast(SourceType, "*");
 			}
 			else
 			{
@@ -124,6 +126,11 @@ namespace CoreEngine
 		{
 			return false;
 		}
+
+		ETypeOfPropertyType SimplePropertyTypeField::GetTypeOfPropertyType() const
+		{
+			return ETypeOfPropertyType::SIMPLE;
+		}
 		// End SimplePropertyField
 
 		ComplexPropertyTypeField::ComplexPropertyTypeField(const String& Type)
@@ -136,7 +143,7 @@ namespace CoreEngine
 		{
 			TypeField = Field;
 		}
-
+		// Begin ComplexPropertyTypeField
 		String ComplexPropertyTypeField::GetNameType() const
 		{
 			return TypeField ? TypeField->Name : "";
@@ -145,7 +152,13 @@ namespace CoreEngine
 		{
 			return true;
 		}
+		ETypeOfPropertyType ComplexPropertyTypeField::GetTypeOfPropertyType() const
+		{
+			return ETypeOfPropertyType::COMPLEX;
+		}
+		// End ComplexPropertyTypeField
 
+		// Begin PropertyField
 		bool PropertyField::GetIsSupportReflectionSystem() const
 		{
 			return CoreEngine::Engine::Get()->GetReflectionManger()->HasPropertyField(Name);
@@ -155,7 +168,7 @@ namespace CoreEngine
 		{
 			return EConteinType::PRIMITIVE;
 		}
-		
+		// End PropertyField
 
 		// Begin ArrayPropertyField
 		EConteinType ArrayPropertyField::GetPrimitiveType() const

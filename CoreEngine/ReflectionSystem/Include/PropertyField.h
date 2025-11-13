@@ -18,6 +18,11 @@ namespace CoreEngine
 		class ReflectionManager;
 		struct ClassField;
 
+		enum class ETypeOfPropertyType : uint8
+		{
+			SIMPLE = 0,
+			COMPLEX
+		};
 
 		enum class EConteinType : uint8
 		{
@@ -26,9 +31,10 @@ namespace CoreEngine
 			ARRAY
 		};
 
-		enum class EPropertyFieldParams : uint8
+		enum class EPropertyFieldParams : uint32
 		{
-			NONE = 0
+			NONE = 0,
+			EditorVisible = FLAG_OFFSET(0)
 		};
 
 		enum class EPrimitiveTypes : uint8
@@ -47,7 +53,9 @@ namespace CoreEngine
 			FLOAT_DOUBLE,
 			STRING,
 			BOOL,
-			CHAR
+			CHAR,
+			VECTOR3F,
+			TRANSFORM
 		};
 
 		EPrimitiveTypes ConvertToPropertyEnumFromString(const String& NameType);
@@ -57,9 +65,10 @@ namespace CoreEngine
 		{
 			static SharedPtr<BaseTypePropertyType> Create(const String& Type);
 			static SharedPtr<BaseTypePropertyType> Create(ClassField* TypeField);
-
+			
 			virtual String GetNameType() const = 0;
 			virtual bool GetIsPointer() const = 0;
+			virtual ETypeOfPropertyType GetTypeOfPropertyType() const = 0;
 		};
 
 		struct SimplePropertyTypeField : public BaseTypePropertyType
@@ -80,6 +89,7 @@ namespace CoreEngine
 
 			virtual String GetNameType() const override;
 			virtual bool GetIsPointer() const;
+			virtual ETypeOfPropertyType GetTypeOfPropertyType() const override;
 
 		private:
 
@@ -104,6 +114,7 @@ namespace CoreEngine
 
 			virtual String GetNameType() const override;
 			virtual bool GetIsPointer() const;
+			virtual ETypeOfPropertyType GetTypeOfPropertyType() const override;
 
 		public:
 

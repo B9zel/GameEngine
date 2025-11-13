@@ -23,6 +23,17 @@ namespace Editor
 		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8));
 
 		FrameBuffer = CoreEngine::Render::Framebuffer::Create(Spec);
+
+		Viewport = MakeSharedPtr<EditorViewport>();
+		SceneHier = MakeSharedPtr<SceneHierarhy>();
+		SceneHier->SetOwnerEditor(this);
+
+		DetailsPanel = MakeSharedPtr<EditorDetails>();
+		DetailsPanel->SetOwnerEditor(this);
+
+		EditorWidgets.push_back(Viewport);
+		EditorWidgets.push_back(SceneHier);
+		EditorWidgets.push_back(DetailsPanel);
 	}
 	void EditorEngine::Update()
 	{
@@ -31,35 +42,23 @@ namespace Editor
 		GetRender()->ClearBuffersScreen(); // Clear buffer
 		Engine::Update();
 
-
-		//glBindFramebuffer(GL_READ_FRAMEBUFFER, 1);
-		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // 0 — default (главный) буфер
-
-		//// 2) Копируем весь размер
-		//glBlitFramebuffer(
-		//	0, 0, FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height,   // src rect
-		//	0, 0, Application::Get()->GetWindow().GetWidth(), Application::Get()->GetWindow().GetHeight(),   // dst rect (можно масштабировать)
-		//	GL_COLOR_BUFFER_BIT,   // копируем только цвет
-		//	GL_NEAREST             // фильтр (или GL_LINEAR если нужно сглаживание)
-		//);
-
-		//// 3) Отвязываем (по желанию)
-		//glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
 		FrameBuffer->UnBind(); // Disable write render in buffer 
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		bool a = false;
 		ImGui::NewFrame();
-		ImGui::ShowDemoWindow(&a);
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
+		ImGui::ShowDemoWindow();
 
 
 		RenderEditor();
 		
-
 		ImGui::Render();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+
+		Application::Get()->GetWindow().GetContext()->UpdateContext();
 		/*FrameBuffer->Bind();
 		FrameBuffer->ClearTexture(1);
 		FrameBuffer->UnBind();*/
@@ -68,10 +67,25 @@ namespace Editor
 		
 	}
 
+	void EditorEngine::SetSelectedObject(Runtime::Object* NewSelected)
+	{
+		SelectedObject = NewSelected;
+	}
+
+	Runtime::Object* EditorEngine::GetSelectedObject() const
+	{
+		return SelectedObject;
+	}
+
 	void EditorEngine::RenderEditor()
 	{
-		Viewport.DrawViewport(FrameBuffer);
-		SceneHier.DrawSceneHierarchy();
+		Viewport->SetFrameBuffer(FrameBuffer);
+		DetailsPanel->SetSelectableObject(SelectedObject);
+
+		for (auto& Widget : EditorWidgets)
+		{
+			Widget->Draw();
+		}
 
 		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
 		if (ImGui::BeginMenuBar())

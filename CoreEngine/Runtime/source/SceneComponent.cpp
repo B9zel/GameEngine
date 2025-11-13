@@ -5,37 +5,41 @@
 
 CoreEngine::Runtime::SceneComponent::SceneComponent(const InitializeObject& Object) : ActorComponent(Object)
 {
-	transform.SetLocation(FVector(0, 0, 0));
-	transform.SetScale(FVector(1, 1, 1));
-	transform.SetRotation(FVector(0, 0, 0));
+	Transform.SetLocation(FVector(0, 0, 0));
+	Transform.SetScale(FVector(1, 1, 1));
+	Transform.SetRotation(FVector(0, 0, 0));
 	Front = FVector(0, 0, -1);
 
 	parentAttach = nullptr;
 }
 
-const Transform& CoreEngine::Runtime::SceneComponent::GetTransform() const
+const FTransform& CoreEngine::Runtime::SceneComponent::GetTransform() const
 {
-	return transform;
+	return Transform;
 }
 
-void CoreEngine::Runtime::SceneComponent::SetTransform(const Transform& newTransform)
+void CoreEngine::Runtime::SceneComponent::SetTransform(const FTransform& newTransform)
 {
-	transform = newTransform;
+	if (Transform == newTransform) return;
+
+	SetComponentLocation(newTransform.GetLocation());
+	SetComponentRotation(newTransform.GetRotation());
+	SetComponentScale(newTransform.GetScale());
 }
 
 FVector CoreEngine::Runtime::SceneComponent::GetComponentLocation() const
 {
-	return transform.GetLocation();
+	return Transform.GetLocation();
 }
 
 FVector CoreEngine::Runtime::SceneComponent::GetComponentScale() const
 {
-	return transform.GetScale();
+	return Transform.GetScale();
 }
 
 FVector CoreEngine::Runtime::SceneComponent::GetComponentRotation() const
 {
-	return transform.GetRotation();
+	return Transform.GetRotation();
 }
 
 FVector CoreEngine::Runtime::SceneComponent::GetForwardVector()
@@ -50,29 +54,31 @@ FVector CoreEngine::Runtime::SceneComponent::GetRightVector()
 
 void CoreEngine::Runtime::SceneComponent::SetComponentRotation(const FVector& newRotation)
 {
+	//AddComponentRotation(newRotation - transform.GetRotationRef());
 	for (auto& Child : childrenAttach)
 	{
-		Child->SetComponentRotation(newRotation - Child->GetComponentRotation());
+		Child->SetComponentRotation(newRotation - Transform.GetRotation() + Child->GetComponentRotation());
 	}
-	transform.SetRotation(newRotation);
+	Transform.SetRotation(newRotation);
 }
 
 void CoreEngine::Runtime::SceneComponent::SetComponentLocation(const FVector& newLocation)
 {
 	for (auto& Child : childrenAttach)
-	{
-		Child->SetComponentLocation(newLocation - Child->GetComponentLocation());
+	{	
+		Child->SetComponentLocation(newLocation - Transform.GetLocation() + Child->GetComponentLocation());
 	}
-	transform.SetLocation(newLocation);
+	Transform.SetLocation(newLocation);
 }
 
 void CoreEngine::Runtime::SceneComponent::SetComponentScale(const FVector& newScale)
 {
+	
 	for (auto& Child : childrenAttach)
 	{
 		Child->SetComponentScale((Child->GetComponentScale() / Child->parentAttach->GetComponentScale()) * newScale);
 	}
-	transform.SetScale(newScale);
+	Transform.SetScale(newScale);
 }
 
 void CoreEngine::Runtime::SceneComponent::AddComponentRotation(const FVector& addRotation)
@@ -81,7 +87,7 @@ void CoreEngine::Runtime::SceneComponent::AddComponentRotation(const FVector& ad
 	{
 		Child->AddComponentRotation(addRotation);
 	}
-	transform.SetRotation(transform.GetRotation() + addRotation);
+	Transform.SetRotation(Transform.GetRotation() + addRotation);
 }
 
 void CoreEngine::Runtime::SceneComponent::AddComponentLocation(const FVector& addLocation)
@@ -90,7 +96,7 @@ void CoreEngine::Runtime::SceneComponent::AddComponentLocation(const FVector& ad
 	{
 		Child->AddComponentLocation(addLocation);
 	}
-	transform.SetLocation(transform.GetLocation() + addLocation);
+	Transform.SetLocation(Transform.GetLocation() + addLocation);
 }
 
 void CoreEngine::Runtime::SceneComponent::AddComponentScale(const FVector& addScale)
@@ -99,7 +105,7 @@ void CoreEngine::Runtime::SceneComponent::AddComponentScale(const FVector& addSc
 	{
 		Child->AddComponentScale(addScale);
 	}
-	transform.SetScale(transform.GetScale() + addScale);
+	Transform.SetScale(Transform.GetScale() + addScale);
 }
 
 void CoreEngine::Runtime::SceneComponent::SetupToAttachment(SceneComponent* attach)
@@ -116,7 +122,7 @@ void CoreEngine::Runtime::SceneComponent::SetupToAttachment(SceneComponent* atta
 
 FVector CoreEngine::Runtime::SceneComponent::CalculateForwardDirection()
 {
-	const FVector& Rotation = transform.GetRotation();
+	const FVector& Rotation = Transform.GetRotation();
 	FVector direction(0, 0, 0);
 
 	direction.SetZ(cos(Math::ToRadian(Rotation.GetY())) * cos(Math::ToRadian(Rotation.GetX())));

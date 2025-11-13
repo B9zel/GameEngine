@@ -1,5 +1,6 @@
 #include <Editor/includes/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
+
 #include <imgui/imgui.h>
 #include <glad/glad.h>
 
@@ -10,18 +11,18 @@ namespace Editor
 	EditorViewport::EditorViewport()
 	{
 	}
-	void EditorViewport::DrawViewport(SharedPtr<CoreEngine::Render::Framebuffer>& FrameBuffer)
+	void EditorViewport::Draw()
 	{
 		ImGui::Begin("Viewport");
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
-		
+
 		uint32 Texture = FrameBuffer->GetColorAttachmentID(0);
 
 		ImVec2 avail = ImGui::GetContentRegionAvail();
 		ImGuiIO& io = ImGui::GetIO();
-		
+
 		// реальный размер текстуры в логических (ImGui) пиксел€х
 		ImVec2 texLogicalSize = ImVec2((float)FrameBuffer->GetSpecifiction().Width / io.DisplayFramebufferScale.x,
 			(float)FrameBuffer->GetSpecifiction().Height / io.DisplayFramebufferScale.y);
@@ -73,106 +74,122 @@ namespace Editor
 		//	GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//FrameBuffer->Bind();
-			ImVec2 pos = ImGui::GetCursorScreenPos();
-			ImVec2 mouse = ImGui::GetMousePos();
-			float localX =  mouse.x - pos.x;
-			float localY =  abs(mouse.y - pos.y);
-		
-			static int NumDraw = 2;
-			
-			
-			ImVec2 p0 = ImGui::GetItemRectMin();
-			ImVec2 p1 = ImGui::GetItemRectMax();
-			//ImVec2 size = ImVec2(p1.x - p0.x, p1.y - p0.y);
-			const int Width = FrameBuffer->GetSpecifiction().Width;
-			const int Height = FrameBuffer->GetSpecifiction().Height;
-			
-			//if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
-			if (false)
+		ImVec2 pos = ImGui::GetCursorScreenPos();
+		ImVec2 mouse = ImGui::GetMousePos();
+		float localX = mouse.x - pos.x;
+		float localY = abs(mouse.y - pos.y);
+
+		static int NumDraw = 2;
+
+
+		ImVec2 p0 = ImGui::GetItemRectMin();
+		ImVec2 p1 = ImGui::GetItemRectMax();
+		//ImVec2 size = ImVec2(p1.x - p0.x, p1.y - p0.y);
+		const int Width = FrameBuffer->GetSpecifiction().Width;
+		const int Height = FrameBuffer->GetSpecifiction().Height;
+
+		//if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
+		if (false)
+		{
+			//localY = FrameBuffer->GetSpecifiction().Height - (localY);
+			//localX -=  ImGui::GetScrollX();
+			//localY -=  ImGui::GetScrollY();
+			FrameBuffer->Bind();
+			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1}, {2}", FrameBuffer->ReadPixel(1, localX, localY), localX, localY);
+
+
+			IsDraw = true;
+
+		}
+		if (IsDraw)
+		{
+
+			FrameBuffer->Bind();
+			for (int i = 0; i < Width; i++)
 			{
-				//localY = FrameBuffer->GetSpecifiction().Height - (localY);
-				//localX -=  ImGui::GetScrollX();
-				//localY -=  ImGui::GetScrollY();
-				FrameBuffer->Bind();
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1}, {2}", FrameBuffer->ReadPixel(1, localX, localY), localX, localY);
-				
-
-				IsDraw = true;
-
-			}
-			if (IsDraw)
-			{
-
-				FrameBuffer->Bind();
-				for (int i = 0; i < Width; i++)
+				for (int j = 0; j < Height; j++)
 				{
-					for (int j = 0; j < Height; j++)
+					// верхний левый угол картинки
+					ImVec2 size = ImGui::GetItemRectSize();   // размер картинки
+
+
+					//relY = Height - relY;
+					//  оординаты мыши относительно картинки
+					int a = FrameBuffer->ReadPixel(1, i, Height - j);
+					if (a != 0)
 					{
-						// верхний левый угол картинки
-						ImVec2 size = ImGui::GetItemRectSize();   // размер картинки
+						float relX = i + p0.x + ImGui::GetScrollX();
+						float relY = j + p0.y + ImGui::GetScrollY();
+						ImDrawList* draw_list = ImGui::GetWindowDrawList();
+						draw_list->AddCircle(ImVec2(relX, relY), 1.0f, IM_COL32(255, 0, 0, 255));
 
-
-						//relY = Height - relY;
-						//  оординаты мыши относительно картинки
-						int a = FrameBuffer->ReadPixel(1, i, Height - j);
-						if (a != 0)
-						{
-							float relX = i + p0.x + ImGui::GetScrollX();
-							float relY = j + p0.y + ImGui::GetScrollY();
-							ImDrawList* draw_list = ImGui::GetWindowDrawList();
-							draw_list->AddCircle(ImVec2(relX, relY), 1.0f, IM_COL32(255, 0, 0, 255));
-
-							EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1} : {2}", relX, relY, a);
-						}
-
+						EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1} : {2}", relX, relY, a);
 					}
+
 				}
-				if (CrentDraw > NumDraw)
-				{
-					IsDraw = false;
-				}
-				CrentDraw++;
 			}
-			FrameBuffer->UnBind();
-			ImGui::EndChild();
-			ImGui::PopStyleVar();
-			ImGui::End();
-			ImGui::Begin("Drag and Drop Example");
-
-			static int sourceValue = 42;
-			static int targetValue = 0;
-			//////
-			// »сточник
-			static const char* items[] = { "Cube", "Sphere", "Light" };
-			static const char* selected = nullptr;
-
-
-			for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+			if (CrentDraw > NumDraw)
 			{
-				ImGui::Selectable(items[i]);
-
-				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-				{
-					ImGui::SetDragDropPayload("OBJECT_NAME", items[i], strlen(items[i]) + 1);
-					ImGui::Text("Dragging %s", items[i]);
-					ImGui::EndDragDropSource();
-				}
-
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OBJECT_NAME"))
-					{
-						const char* dropped = (const char*)payload->Data;
-						selected = dropped;
-					}
-					ImGui::EndDragDropTarget();
-				}
+				IsDraw = false;
 			}
+			CrentDraw++;
+		}
+		FrameBuffer->UnBind();
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+		ImGui::End();
+		//ImGui::Begin("Drag and Drop Example");
 
-			if (selected)
-				ImGui::Text("Selected object: %s", selected);
-			///////
+		static int sourceValue = 42;
+		static int targetValue = 0;
+		//////
+		// »сточник
+		//static const char* items[] = { "Cube", "Sphere", "Light" };
+		//static const char* selected = nullptr;
 
-			ImGui::End();
+		//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
+		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+		//	if (ImGui::Selectable("Drag"))
+		//	{
+		//		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Drag Started");
+		//		//ImGui::SetDragDropPayload("OBJECT_NAME", items[i], strlen(items[i]) + 1);
+		//	}
+		//	ImGui::PopStyleColor(3);
+		//	ImGui::PopStyleVar(2);
+		//for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+		//{
+		//	ImGui::Selectable(items[i]);
+		//	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+		//	{
+		//		ImGui::SetDragDropPayload("OBJECT_NAME", items[i], strlen(items[i]) + 1);
+		//		ImGui::Text("Dragging %s", items[i]);
+		//		ImGui::EndDragDropSource();
+		//	}
+
+		//	if (ImGui::BeginDragDropTarget())
+		//	{
+		//		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OBJECT_NAME"))	
+		//		{
+		//			const char* dropped = (const char*)payload->Data;
+		//			selected = dropped;
+		//		}
+		//		ImGui::EndDragDropTarget();
+		//	}
+		//}
+
+		//if (selected)
+		//	ImGui::Text("Selected object: %s", selected);
+		/////////
+
+		//ImGui::End();
 	}
+
+	void EditorViewport::SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer)
+	{
+		FrameBuffer = Buffer;
+	}
+
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include <Core/includes/Application.h>
-#include "EditorLayer.h"
 
 namespace Editor
 {

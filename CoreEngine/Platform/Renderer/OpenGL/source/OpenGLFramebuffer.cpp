@@ -141,7 +141,7 @@ namespace CoreEngine
 
 			void OpenGLFramebuffer::Resize(const uint32 Width, const uint32 Height)
 			{
-				if (Width <= MaxBufferSize && Height <= MaxBufferSize)
+				if (0 < Width &&  Width <= MaxBufferSize && 0 < Height && Height <= MaxBufferSize)
 				{
 					Specific.Width = Width;
 					Specific.Height = Height;

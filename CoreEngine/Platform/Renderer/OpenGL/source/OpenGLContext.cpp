@@ -32,6 +32,11 @@ namespace CoreEngine
 				glfwSwapInterval(0);
 			}
 
+			void OpenGLContext::UpdateContext()
+			{
+				glfwMakeContextCurrent(m_window);
+			}
+
 			void OpenGLContext::SwapBuffer()
 			{
 				glfwSwapBuffers(m_window);

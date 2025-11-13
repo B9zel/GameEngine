@@ -5,24 +5,28 @@
 #include <ReflectionSystem/Include/ClassField.h>
 #include <Runtime/includes/Actor.h>
 #include <Core/includes/Level.h>
+#include <Editor/includes/EditorEngine.h>
 
 
 
 namespace Editor
 {
-	void SceneHierarhy::DrawSceneHierarchy()
+
+	void SceneHierarhy::Draw()
 	{
 		ImGui::Begin("Scene hierarchy");
-		
+
 		for (auto* Level : CoreEngine::Engine::Get()->GetWorld()->GetLevels())
 		{
 			for (auto* Actor : Level->GetActors())
 			{
-				ImGui::Button(Actor->GetClass()->Name.c_str());
+				if (ImGui::Selectable(Actor->GetClass()->Name.c_str(), Actor == OwnerEditor->GetSelectedObject()))
+				{
+					OwnerEditor->SetSelectedObject(Actor);
+				}
 			}
 		}
 
-		//ImGui::TreeNode
 
 		ImGui::End();
 	}

@@ -1,14 +1,11 @@
 #include "../EditorEngine/Editor/includes/EditorApplication.h"
-#include <Core/includes/Window.h>
-#include <Core/includes/World.h>
-#include <Render/includes/Render.h>
-#include <Core/includes/InputDevice.h>
-#include <ReflectionSystem/Include/ReflectionManager.h>
-#include <imgui/imgui.h>
 #include <Editor/includes/EditorEngine.h>
+#include <Core/includes/Window.h>
+#include <imgui/imgui.h>
+#include <imgui_internal.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui_internal.h>
+
 
 
 namespace Editor
@@ -42,6 +39,7 @@ namespace Editor
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init();

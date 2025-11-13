@@ -66,7 +66,7 @@ namespace CoreEngine
 		PrimitiveProxy* MeshComponent::GetUpdateProxy() const
 		{
 			m_Proxy->ClearData();
-			m_Proxy->SetTransform(transform);
+			m_Proxy->SetTransform(Transform);
 			m_Proxy->SetUUID(&GetOwner()->GetUUID());
 			//m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
 			//m_Proxy->AddLightLocation(FVector(3, 2, -7));

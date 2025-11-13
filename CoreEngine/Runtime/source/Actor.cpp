@@ -11,7 +11,7 @@ namespace CoreEngine
 	{
 		Actor::Actor(const InitializeObject& Initilize) : Object(Initilize), actorUpdate(), RootComponent(nullptr)
 		{
-			RootComponent = CreateSubObject<SceneComponent>();
+			RootComponent = CreateSubObject<SceneComponent>("Scene component");
 
 			isBeginedPlay = false;
 			isRegister = false;
@@ -119,7 +119,7 @@ namespace CoreEngine
 			return RootComponent->GetComponentRotation();
 		}
 
-		Transform Actor::GetActorTransform() const
+		FTransform Actor::GetActorTransform() const
 		{
 			return RootComponent->GetTransform();
 		}
@@ -154,7 +154,7 @@ namespace CoreEngine
 			RootComponent->SetComponentRotation(newRotation);
 		}
 
-		void Actor::SetActorTransform(const Transform& newTransform)
+		void Actor::SetActorTransform(const FTransform& newTransform)
 		{
 			RootComponent->SetTransform(newTransform);
 		}

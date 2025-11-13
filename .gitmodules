@@ -15,3 +15,7 @@
 [submodule "libraries/assimp"]
 	path = libraries/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "libraries/imgui"]
+	path = libraries/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
