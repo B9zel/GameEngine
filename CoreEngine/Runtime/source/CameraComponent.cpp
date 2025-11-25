@@ -23,9 +23,13 @@ namespace CoreEngine
 		{
 			SceneComponent::SetComponentRotation(Rotate);
 
-			direction.SetX(cos(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));
+			/*direction.SetX(cos(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));
 			direction.SetX(sin(Math::ToRadian(Rotate.GetX())));
-			direction.SetX(sin(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));
+			direction.SetX(sin(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));*/
+
+			direction.SetX(cos(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));
+			direction.SetY(sin(Math::ToRadian(Rotate.GetX())));
+			direction.SetZ(sin(Math::ToRadian(Rotate.GetY())) * cos(Math::ToRadian(Rotate.GetX())));
 
 			direction.Normalize();
 		}

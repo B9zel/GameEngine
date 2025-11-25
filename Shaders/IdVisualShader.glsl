@@ -28,7 +28,7 @@ void main()
 
 uniform usampler2D texture;
 in vec2 TexCoord;
-layout(location = 0) out vec4 FragColor;
+layout(location = 0) out vec4 outColor; 
 
 void main()
 {
@@ -36,11 +36,11 @@ void main()
     uint IdValue = texture(texture, TexCoord, 0).r;
     if (IdValue == 8)
     {
-        FragColor = vec4(IdValue,0, 0, 1.0);
+        outColor = vec4(IdValue,0, 0, 1.0);
     }
     else
     {
-       FragColor = vec4(1.0f, 1.0f,1.0f, 0.0);
+       outColor = vec4(1.0f, 1.0f,1.0f, 0.0);
     }
    // gl_FragColor = vec4(1.0f, 1.0f,1.0f, 1.0);
 }

@@ -13,6 +13,11 @@ namespace CoreEngine
 		void ActorComponent::BeginPlay()
 		{
 		}
+		void ActorComponent::UpdateComponent(float deltaTime)
+		{
+
+		}
+
 		void ActorComponent::InitProperties()
 		{
 			Object::InitProperties();

@@ -31,7 +31,6 @@ namespace CoreEngine
 		{
 			InstanceEngine->Update();
 			window->OnUpdate();
-			
 		}
 	}
 

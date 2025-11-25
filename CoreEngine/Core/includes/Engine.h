@@ -15,6 +15,7 @@ namespace CoreEngine
 	{
 		class Render;
 	}
+	class SaveManager;
 	class InputDevice;
 	class MemoryManager;
 	class UpdateManager;
@@ -70,6 +71,7 @@ namespace CoreEngine
 		UniquePtr<InputDevice> m_Input;
 		UniquePtr<MemoryManager> m_MemoryManager;
 		UniquePtr<Render::Render> m_Render;
+		
 		UniquePtr<TimerManager> m_TimerManager;
 
 		World* m_World;

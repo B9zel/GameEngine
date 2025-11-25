@@ -8,6 +8,14 @@ namespace CoreEngine
 
     GB::GarbageCollector* MemoryManager::m_collector = nullptr;
 
+    Runtime::Object* MemoryManager::AllocateMemory(const uint64 Byte)
+    {
+        return static_cast<Runtime::Object*>(Allocator::Allocate(Byte));
+    }
+
+    MemoryManager::MemoryManager()
+    {
+    }
 
     UniquePtr<MemoryManager> MemoryManager::Create()
     {
@@ -22,6 +30,7 @@ namespace CoreEngine
        
         return UniquePtr<MemoryManager>(m_MemoryInstance);
     }
+
 
     MemoryManager::~MemoryManager()
     {

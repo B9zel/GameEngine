@@ -8,9 +8,13 @@
 #include <Core/includes/Application.h>
 #include <Core/includes/Window.h>
 #include <Render/includes/Framebuffer.h>
+#include <Core/includes/Memory/SaveManager.h>
+#include <Editor/includes/EditorViewportClient.h>
 
 namespace Editor
 {
+	using namespace CoreEngine;
+
 	EditorEngine::EditorEngine()
 	{
 		using namespace CoreEngine::Render;
@@ -34,15 +38,22 @@ namespace Editor
 		EditorWidgets.push_back(Viewport);
 		EditorWidgets.push_back(SceneHier);
 		EditorWidgets.push_back(DetailsPanel);
+
+		m_ViewportCamera = MakeUniquePtr<EditorViewportClient>();
 	}
 	void EditorEngine::Update()
 	{
-		FrameBuffer->Bind(); // Enable write render in buffer 
+		m_ViewportCamera->Update(GetWorld()->GetWorldDeltaTime(), Viewport->GetIsFocused());
 
+		// Start render scene
+		FrameBuffer->Bind(); // Enable write render in buffer 
+		
 		GetRender()->ClearBuffersScreen(); // Clear buffer
 		Engine::Update();
 
 		FrameBuffer->UnBind(); // Disable write render in buffer 
+		// Finish render scene
+
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -50,7 +61,6 @@ namespace Editor
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
 		ImGui::ShowDemoWindow();
-
 
 		RenderEditor();
 		
@@ -62,9 +72,9 @@ namespace Editor
 		/*FrameBuffer->Bind();
 		FrameBuffer->ClearTexture(1);
 		FrameBuffer->UnBind();*/
+		//GetWorld()->GetSaveManager()->PrintSerializeData();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		
+		//GetWorld()->GetSaveManager()->SaveSceneSerializedData();
 	}
 
 	void EditorEngine::SetSelectedObject(Runtime::Object* NewSelected)

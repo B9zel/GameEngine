@@ -32,6 +32,9 @@ namespace CoreEngine
 
 		virtual void ActorInitialize();
 		virtual void InitProperties() override;
+
+		virtual void PreSerialize() override;
+		virtual void Serialize(SerializeAchive& Achive) override;
 		
 	private:
 		

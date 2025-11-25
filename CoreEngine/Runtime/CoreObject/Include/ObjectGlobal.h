@@ -3,6 +3,7 @@
 #include <Core/includes/MemoryManager.h>
 #include <Core/includes/Application.h>
 #include <ReflectionSystem/Include/ReflectionMacros.h>
+#include <ReflectionSystem/Include/RegistryMap/MapRegistryClass.h>
 
 
 namespace CoreEngine
@@ -37,6 +38,7 @@ namespace CoreEngine
 			if (!T::GetStaticClass())
 			{
 				EG_LOG(CORE, ELevelLog::ERROR, "Static class don't exist");
+				return nullptr;
 			}
 			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
 			T* newObject = memManager->AllocateMemoryForObject<T>();
@@ -48,6 +50,29 @@ namespace CoreEngine
 
 			return newObject;
 		}
+
+		template<class T>
+		T* CreateObject(Reflection::ClassField* Class, Object* Outer = nullptr)
+		{
+			if (!Class) return nullptr;
+
+			if (!T::GetStaticClass())
+			{
+				EG_LOG(CORE, ELevelLog::ERROR, "Static class don't exist");
+				return nullptr;
+			}
+
+			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
+			Runtime::Object* NewObject = memManager->AllocateMemoryForObject(Class->Size);
+
+			InitializeObject InitParam;
+			InitParam.Class = Class;
+			Class->ConstructInstanceObject(NewObject, InitParam);
+			memManager->GetGarbageCollector()->AddObject(newObject);
+
+			return dynamic_cast<T*>(NewObject);
+		}
+
 		template<class T>
 		T* CreateObjectWithInit(Object* Outer = nullptr)
 		{

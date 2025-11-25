@@ -32,6 +32,7 @@ namespace CoreEngine
 						}
 						else if (auto* Light = dynamic_cast<Runtime::BaseLightComponent*>(Component))
 						{
+							if (!Light->GetIsVisible()) continue;
 							m_LightProxy.emplace_back(Light->GetLightProxy());
 						}
 					}

@@ -1,27 +1,108 @@
 #include "Editor/includes/Util/DrawUtils.h"
 #include "Math/includes/Matrix.h"
 #include "imgui_internal.h"
+//#include <imgui.h>
 
 
 namespace Editor
 {
+	uint64 CalculateSizeOfPropertyName(const String& Str, const float MaxWidth)
+	{
+		float Avail = MaxWidth - ImGui::CalcTextSize("...").x - ImGui::GetStyle().ItemSpacing.x;
+
+		ImVec2 TextSize = ImGui::CalcTextSize(Str.c_str());
+
+		if (TextSize.x <= Avail)
+		{
+			return Str.size();
+		}
+		else
+		{
+			uint64 Size = Str.size();
+			int64 Low = 0;
+			int64 High = Size;
+			while (Low < High)
+			{
+				uint64 mid = (Low + High + 1) / 2;
+				ImVec2 FillSize = ImGui::CalcTextSize((Str.substr(0, mid) + "...").c_str());
+				if (FillSize.x <= Avail)
+				{
+					Low = mid;
+				}
+				else
+				{
+					High = mid - 1;
+				}
+			}
+			return Low;
+		}
+	}
+
+
+
+
 	template<class T>
 	static void DrawScalar(const String& Id, ImGuiDataType Type, const String& Name, T& Scalar, T Max, T Min, const float ColumnWidth)
 	{
 		ImGui::PushID(Id.c_str());
 
 		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0, (8.9) * Name.size());
+		ImGui::SetColumnWidth(0, ColumnWidth);
 
-		//ImGui::SetNextItemWidth(ColumnWidht);
-		ImGui::Text(Name.c_str());
+		float ColWidth = ImGui::GetColumnWidth(0);
+		
+		ImVec2 TextSize = ImGui::CalcTextSize(Name.c_str());
+		uint64 Size = CalculateSizeOfPropertyName(Name, ColWidth);
+		if (Size == Name.size())
+		{
+			ImGui::TextUnformatted(Name.c_str());
+		}
+		else
+		{
+			ImGui::TextUnformatted((Name.substr(0, Size) + "...").c_str());
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", Name.c_str());
+			}
+		}
+
+		/*if (TextSize.x <= Avail)
+		{
+			ImGui::TextUnformatted(Name.c_str());
+		}
+		else
+		{
+			uint64 Size = Name.size();
+			int64 Low = 0;
+			int64 High = Size;
+			while (Low < High)
+			{
+				uint64 mid = (Low + High + 1) / 2;
+				ImVec2 FillSize = ImGui::CalcTextSize((Name.substr(0, mid) + "...").c_str());
+				if (FillSize.x <= Avail)
+				{
+					Low = mid;
+				}
+				else
+				{
+					High = mid - 1;
+				}
+			}
+			ImGui::TextUnformatted((Name.substr(0, Low) + "...").c_str());
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", Name.c_str());
+			}
+		}*/
+
+
 		ImGui::NextColumn();
-		//ImGui::SetColumnWidth(1, 150);
 		ImGui::AlignTextToFramePadding();
 
 		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
-		ImGui::SameLine();
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 0));
+		//ImGui::SameLine();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		ImGui::PushItemWidth(-FLT_MIN);
 
 
 		ImGui::DragScalar(("##" + Name).c_str(), Type, &Scalar, 1.0f, &Min, &Max);
@@ -87,7 +168,7 @@ namespace Editor
 		DrawScalar(Id, ImGuiDataType_Double, Name, Scalar, Max, Min, ColumnWidht);
 	}
 
-	void DrawVector3(const String& Id, const String& NameOfVec, FVector& Vector, const ImVec4& Color, const float ColumnWidht)
+	void DrawVector3(const String& Id, const String& NameOfVec, FVector& Vector, const float ColumnWidht)
 	{
 		ImGui::PushID(Id.c_str());
 		ImGui::PushID(NameOfVec.c_str());
@@ -100,16 +181,8 @@ namespace Editor
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing | ImGuiStyleVar_WindowBorderSize, ImVec2(10, 0));
 		
-		ImDrawList* DrawList = ImGui::GetWindowDrawList();
-		ImVec2 Pos = ImGui::GetCursorScreenPos();
-		ImVec2 PosMax = ImVec2(Pos.x + 15, Pos.y + 15);
-		ImVec2 ScreePos = ImGui::GetCursorScreenPos();
-		ScreePos.y += 5;
-		/*DrawList->AddRect(ScreePos, PosMax, ImGui::GetColorU32(ImVec4(1.0, 0.0, 0.0, 1.f)), 3, ImDrawFlags_RoundCornersBottom);
-		DrawList->AddText(ScreePos, ImGui::GetColorU32(ImVec4(1.0, 1.0, 1.0, 1.f)), "X");*/
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 0, 0, 1));
-		//ImGui::SetCursorPosY(ScreePos.y);
 		ImGui::Text("X");
 		ImGui::PopStyleColor(2);
 		
@@ -146,16 +219,93 @@ namespace Editor
 	{
 		ImGui::PushID(Id.c_str());
 
-		if (ImGui::TreeNodeEx(NameOfTransform.c_str()))
+		if (ImGui::TreeNodeEx(NameOfTransform.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{	
-
-			DrawVector3(Id, "Location", Location, ImVec4(1, 0, 0, 1), ColumnWidth);
-			DrawVector3(Id, "Rotation", Rotation, ImVec4(0, 1, 0, 1), ColumnWidth);
-			DrawVector3(Id, "Scale", Scale, ImVec4(0, 0, 1, 1), ColumnWidth);
+			DrawVector3(Id, "Location", Location, ColumnWidth);
+			DrawVector3(Id, "Rotation", Rotation,  ColumnWidth);
+			DrawVector3(Id, "Scale", Scale, ColumnWidth);
 
 			ImGui::TreePop();
 		}
 
 		ImGui::PopID();
 	}
+	void DrawString(const String& Id, const String& NameString, String& SourceStr,const uint32 MaxBufferSize, const float ColumnWidth)
+	{
+		ImGui::PushID(Id.c_str());
+
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, ColumnWidth);
+
+		float ColWidth = ImGui::GetColumnWidth(0);
+
+		ImVec2 TextSize = ImGui::CalcTextSize(NameString.c_str());
+		uint64 Size = CalculateSizeOfPropertyName(NameString, ColWidth);
+		if (Size == NameString.size())
+		{
+			ImGui::TextUnformatted(NameString.c_str());
+		}
+		else
+		{
+			ImGui::TextUnformatted((NameString.substr(0, Size) + "...").c_str());
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", NameString.c_str());
+			}
+		}
+		
+		ImGui::NextColumn();
+		ImGui::PushItemWidth(-FLT_MIN);
+		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
+		//ImGui::SameLine();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+		SourceStr.reserve(MaxBufferSize);
+		
+		ImGui::InputText(("##" + NameString).c_str(), SourceStr.data(), MaxBufferSize);
+		ImGui::PopStyleVar();
+		ImGui::PopItemWidth();
+		ImGui::Columns(1);
+		ImGui::PopID();
+	}
+
+	void DrawBool(const String& Id, const String& NameString, bool& Value, const float ColumnWidth)
+	{
+		ImGui::PushID(Id.c_str());
+
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, ColumnWidth);
+
+		float ColWidth = ImGui::GetColumnWidth(0);
+
+		ImVec2 TextSize = ImGui::CalcTextSize(NameString.c_str());
+		uint64 Size = CalculateSizeOfPropertyName(NameString, ColWidth);
+		if (Size == NameString.size())
+		{
+			ImGui::TextUnformatted(NameString.c_str());
+		}
+		else
+		{
+			ImGui::TextUnformatted((NameString.substr(0, Size) + "...").c_str());
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", NameString.c_str());
+			}
+		}
+
+		ImGui::NextColumn();
+		ImGui::PushItemWidth(-FLT_MIN);
+		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
+		//ImGui::SameLine();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+		
+
+		ImGui::Checkbox(("##" + NameString).c_str(), &Value);
+		ImGui::PopStyleVar();
+		ImGui::PopItemWidth();
+		ImGui::Columns(1);
+		ImGui::PopID();
+	}
+	
 }

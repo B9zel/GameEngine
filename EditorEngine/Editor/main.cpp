@@ -26,6 +26,7 @@
 
 
 
+
 unsigned int indexArr[] = { 0, 1, 2,
 							0, 2, 3 };
 
@@ -162,11 +163,46 @@ public:
 
 
 
-
+//void dump(const YAML::Node& n, const std::string& name) {
+//	std::cout << "---- " << name << " ----\n";
+//	std::cout << "defined=" << (bool)n
+//		<< " IsMap=" << n.IsMap()
+//		<< " IsNull=" << n.IsNull()
+//		<< " size=" << n.size() << "\n";
+//	std::cout << name << " YAML:\n" << n << "\n\n";
+//}
 
 
 int main(int argc, char** argv)
 {
+	//YAML::Node a = YAML::Node(YAML::NodeType::Map);
+	//dump(a, "a (initial)");
+
+	//YAML::Node b = a;
+	//dump(b, "b after b = a");
+
+	//b.force_insert("aa", YAML::Node(YAML::NodeType::Map));
+	//dump(a, "a after b[\"aa\"] = Map");
+	//dump(b, "b after b[\"aa\"] = Map");
+
+	//YAML::Node c = b["aa"];
+	//b = c;
+	//dump(a, "a after b = b[\"aa\"]");
+	//dump(b, "b after b = b[\"aa\"]");
+
+	//b["b"] = YAML::Node(YAML::NodeType::Map);
+	//dump(a, "a after b[\"b\"] = Map");
+	//dump(b, "b after b[\"b\"] = Map");
+
+	////b.reset();
+	//b = b["b"];
+	//dump(a, "a after b = b[\"b\"]");
+	//dump(b, "b after b[\"b\"]");
+
+	//c["c"] = "5";
+	//dump(a, "a after b[\"c\"] = \"5\"");
+	//dump(b, "b after b[\"c\"] = \"5\"");
+
 
 	CoreEngine::ApplicationOptions options("Test", argv[0], nullptr);
 	auto app = MakeUniquePtr<Editor::EditorApplication>(options);
@@ -177,6 +213,7 @@ int main(int argc, char** argv)
 	auto* level = CoreEngine::Runtime::CreateObject< FirstLevel>(app->GetEngine()->GetWorld());// new FirstLevel(Init);
 	app->Get()->GetEngine()->GetWorld()->OpenLevel(level);
 	//app->PushLayer(new RenderLayer);
+
 
 	app->Start();
 }

@@ -104,8 +104,9 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
         #                "\tDArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Vec;\n"
 
         Parent = f"{Field.Parent}::GetStaticClass()" if Field.Parent else "nullptr"
-        Implement += f"ImplementNewClass({Field.Name}Generated, \"{Field.Name}\", EClassFieldParams::NONE,sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
+        Implement += f"ImplementNewClass({Field.Name}Generated, {Field.Name},{Field.Namespace}, EClassFieldParams::NONE,sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
                     f"ImplementStaticClass({Field.Namespace}::{Field.Name}, {ClassNameLine}Generated,\"{Field.Name}\")\n"
+        Implement += f"GenetateRegistryClass({Field.Name}, {Field.Namespace})"
 
 
     if preGenImplement not in conteinFile:

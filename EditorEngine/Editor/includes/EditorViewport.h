@@ -21,6 +21,7 @@ namespace Editor
 		virtual void Draw() override;
 
 		void SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer);
+		bool GetIsFocused() const;
 
 	private:
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.30)
 
 set(ProjectName BuildGeneration)
 set(PYTHON_VENV ${CMAKE_CURRENT_SOURCE_DIR}/venv/Scripts/python.exe)

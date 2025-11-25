@@ -10,10 +10,11 @@ namespace Editor
 	static int CrentDraw = 0;
 	EditorViewport::EditorViewport()
 	{
+
 	}
 	void EditorViewport::Draw()
 	{
-		ImGui::Begin("Viewport");
+		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoMove);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
@@ -23,14 +24,14 @@ namespace Editor
 		ImVec2 avail = ImGui::GetContentRegionAvail();
 		ImGuiIO& io = ImGui::GetIO();
 
-		// реальный размер текстуры в логических (ImGui) пикселях
+		
 		ImVec2 texLogicalSize = ImVec2((float)FrameBuffer->GetSpecifiction().Width / io.DisplayFramebufferScale.x,
 			(float)FrameBuffer->GetSpecifiction().Height / io.DisplayFramebufferScale.y);
-
-		// выберите поведение: "fit" (вписать в avail) или "fill" (растянуть по ширине/высоте)
+		
+		
 		bool fitPreserveAspect = true;
 
-		// вычисляем displaySize
+		
 		ImVec2 displaySize = texLogicalSize;
 		if (fitPreserveAspect) {
 			if (displaySize.x > avail.x || displaySize.y > avail.y) {
@@ -40,20 +41,20 @@ namespace Editor
 			}
 		}
 		else {
-			// fill - растянуть в доступную область (можно сохранить aspect или нет)
+		
 			displaySize = avail;
 		}
 
 		// Положим Image в child (чтобы не появлялся scroll)
 		ImGui::BeginChild("ViewportChild", displaySize, false,
-			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
+			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground);
 		// optionally выровнять по центру
 		ImVec2 cur = ImGui::GetCursorPos();
 		float padX = (ImGui::GetContentRegionAvail().x - displaySize.x) * 0.5f;
 		if (padX > 0.0f) ImGui::SetCursorPosX(cur.x + padX);
 
 		ImGui::Image((void*)Texture, displaySize, ImVec2(0, 1), ImVec2(1, 0)); //, ImVec2(0, 1), ImVec2(1, 0)
+		m_IsFocusedViewport = ImGui::IsItemHovered();
 
 		ImVec2 Space = avail;
 		if (Space.x != lastSize.x || Space.y != lastSize.y)
@@ -190,6 +191,11 @@ namespace Editor
 	void EditorViewport::SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer)
 	{
 		FrameBuffer = Buffer;
+	}
+
+	bool EditorViewport::GetIsFocused() const
+	{
+		return m_IsFocusedViewport;
 	}
 
 }

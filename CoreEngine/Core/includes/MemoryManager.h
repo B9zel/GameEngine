@@ -12,33 +12,37 @@
 */
 
 
-
-
 namespace CoreEngine
 {
+	namespace Runtime
+	{
+		class Object;
+	}
 	namespace GB
 	{
 		class GarbageCollector;
 	}
-
+	
 	class MemoryManager
 	{
 	public:
 
-		static UniquePtr<MemoryManager> Create();
-
 		virtual ~MemoryManager();
 
-		static MemoryManager* GetInstance() { return m_MemoryInstance; }
+	public:
 
+		static UniquePtr<MemoryManager> Create();
+		static MemoryManager* GetInstance() { return m_MemoryInstance; }
 		static GB::GarbageCollector* GetGarbageCollector() { return m_collector; }
 
 		template<class T>
 		T* AllocateMemoryForObject();
+		
+		Runtime::Object* AllocateMemory(const uint64 Byte);
 
 	protected:
 
-		MemoryManager() = default;
+		MemoryManager();
 
 	private:
 

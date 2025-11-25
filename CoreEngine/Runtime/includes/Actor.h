@@ -113,6 +113,9 @@ namespace CoreEngine
 
 			const DArray<ActorComponent*>& GetComponents() const;
 
+			virtual void PreSerialize() override;
+			virtual void Serialize(SerializeAchive& Achive) override;
+
 		protected:
 
 			virtual void BeginPlay();

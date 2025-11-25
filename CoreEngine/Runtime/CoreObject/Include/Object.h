@@ -6,6 +6,7 @@
 #include <Core/includes/UUID.h>
 #include <ReflectionSystem/Include/MetaClass.h>
 #include <ReflectionSystem/Include/ReflectionMacros.h>
+#include <ReflectionSystem/Include/RegistryMap/MapRegistryClass.h>
 #include <Object.generated.h>
 
 
@@ -39,6 +40,7 @@ enum class ObjectGCFlags : uint8
 namespace CoreEngine
 {
 	class World;
+	class SerializeAchive;
 	template<typename T>
 	class ObjectPtr;
 
@@ -72,19 +74,18 @@ namespace CoreEngine
 			World* GetWorld();
 
 			const UUID& GetUUID() const;
-			bool GetIsMarked() const;
 			const String& GetName() const;
 
-			void SetMarked(const bool Value);
 			void SetName(const String& NewName);
 
 			uint32 GetGCState() const;
-
-			//Reflection::MetaClass* GetMetaClass() const;
-			//static Reflection::MetaClass* GetStaticMetaClass();
+			bool GetHasSerialized() const;
 
 			virtual void StartDestroy() {}
 			virtual void FinishDestroy() {}
+			
+			virtual void PreSerialize();
+			virtual void Serialize(SerializeAchive& Archive);
 
 		private:
 
@@ -97,7 +98,10 @@ namespace CoreEngine
 
 			// GC
 			uint32 StateObjectFlagGC{ 0 };
-			bool IsMarkedGC;
+			//
+
+			// Serialize
+			bool HasSerialize{ false };
 
 			friend GB::GarbageCollector;
 		};

@@ -12,6 +12,8 @@ enum class EClassFieldParams : uint8
 };
 namespace CoreEngine
 {
+	struct InitializeObject;
+
 	namespace Reflection
 	{
 		struct PropertyField;
@@ -55,6 +57,7 @@ namespace CoreEngine
 				return false;
 			}
 
+			virtual void ConstructInstanceObject(Runtime::Object*, const CoreEngine::InitializeObject&) = 0;
 
 		public:
 

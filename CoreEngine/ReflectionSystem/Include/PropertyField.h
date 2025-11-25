@@ -11,6 +11,12 @@
 namespace CoreEngine
 {
 	class Engine;
+	class SerializeAchive;
+
+	namespace Runtime
+	{
+		class Object;
+	}
 
 	namespace Reflection
 	{
@@ -90,6 +96,7 @@ namespace CoreEngine
 			virtual String GetNameType() const override;
 			virtual bool GetIsPointer() const;
 			virtual ETypeOfPropertyType GetTypeOfPropertyType() const override;
+			EPrimitiveTypes GetPropertyType() const;
 
 		private:
 
@@ -166,19 +173,26 @@ namespace CoreEngine
 				}
 			}
 
-			bool GetIsPointer() const
-			{
-				return TypeProperty->GetIsPointer();
-			}
+			bool GetIsPointer() const;
 
 			bool GetIsSupportReflectionSystem() const;
 			virtual EConteinType GetPrimitiveType() const;
+			virtual BaseTypePropertyType* GetTypeProperty();
+			
+			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance);
+
+		private:
+
+			void SerializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance);
 
 		public:
 
 			uint32 SizeByte;
 			uint32 Offset;
 			EPropertyFieldParams Params;
+
+		protected:
+
 			SharedPtr<BaseTypePropertyType> TypeProperty;
 		};
 
@@ -201,6 +215,19 @@ namespace CoreEngine
 				return nullptr;
 			}
 
+			
+			bool GetElement(void* Instance, const uint32 Index)
+			{
+				DArray<bool>* Variable = reinterpret_cast<DArray<bool>*>(reinterpret_cast<uint64>(Instance) + Offset);
+				if (Variable)
+				{
+					return (*Variable)[Index];
+				}
+				return false;
+			}
+
+
+
 			template<class TypeStorage>
 			int64 GetSizeArray(void* Instance)
 			{
@@ -213,6 +240,12 @@ namespace CoreEngine
 			}
 
 			virtual EConteinType GetPrimitiveType() const override;
+			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance);
+
+		private:
+
+			void SerializedDefenition(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance);
+
 		};
 	}
 

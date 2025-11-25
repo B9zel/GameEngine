@@ -1,6 +1,6 @@
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Math/includes/Transform.h>
 #include <Math/includes/Matrix.h>
-#include <Math/includes/Math.h>
 
 
 

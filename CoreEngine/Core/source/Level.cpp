@@ -33,6 +33,40 @@ namespace CoreEngine
 		
 	}
 
+	void Level::PreSerialize()
+	{
+		Object::PreSerialize();
+
+		for (auto* Object : m_Objects)
+		{
+			Object->PreSerialize();
+		}
+		for (auto* Actor : m_Actors)
+		{
+			Actor->PreSerialize();
+		}
+	}
+
+	void Level::Serialize(SerializeAchive& Achive)
+	{
+		Object::Serialize(Achive);
+
+		for (auto* Object : m_Objects)
+		{
+			if (!Object->GetHasSerialized())
+			{
+				Object->Serialize(Achive);
+			}
+		}
+		for (auto* Actor : m_Actors)
+		{
+			if (!Actor->GetHasSerialized())
+			{
+				Actor->Serialize(Achive);
+			}
+		}
+	}
+
 	void Level::AddActor(Runtime::Actor* newActor)
 	{
 		m_Actors.push_back(newActor);

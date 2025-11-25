@@ -5,6 +5,7 @@
 #include <Render/includes/Scene/Scene.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Runtime/includes/PlayerController.h>
+#include <Core/includes/Memory/SaveManager.h>
 #include <GLFW/glfw3.h>
 
 
@@ -14,6 +15,8 @@ namespace CoreEngine
 	{
 		m_UpdateManager = UpdateManager::CreateInstance();
 		m_Scene = Allocator::Allocate<Render::Scene>();
+		m_SaveManager = MakeUniquePtr<SaveManager>();
+		m_SaveManager->SetWorld(this);
 
 		m_LastTime = static_cast<float>(glfwGetTime());
 	}
@@ -40,9 +43,14 @@ namespace CoreEngine
 		m_Scene->StartRender();
 	}
 
-	UpdateManager* World::GetUpdateManager()
+	UpdateManager* World::GetUpdateManager() const
 	{
 		return m_UpdateManager.get();
+	}
+
+	SaveManager* World::GetSaveManager() const
+	{
+		return m_SaveManager.get();
 	}
 
 	float World::GetWorldDeltaTime() const
@@ -65,6 +73,20 @@ namespace CoreEngine
 			}
 		}
 		return FVector(0);
+	}
+
+	void World::PreSerialize()
+	{
+		Object::PreSerialize();
+
+		m_MainLevel->PreSerialize();
+	}
+
+	void World::Serialize(SerializeAchive& Achive)
+	{
+		Object::Serialize(Achive);
+
+		m_MainLevel->Serialize(Achive);
 	}
 
 	void World::OpenLevel(Level* level)

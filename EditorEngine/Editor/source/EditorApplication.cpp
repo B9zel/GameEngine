@@ -5,7 +5,8 @@
 #include <imgui_internal.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
-
+#include <Core/includes/World.h>
+#include <Core/includes/Memory/SaveManager.h>
 
 
 namespace Editor
@@ -43,6 +44,13 @@ namespace Editor
 	
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init();
+	}
+
+	void EditorApplication::Start()
+	{
+		CoreEngine::Application::Start();
+
+		InstanceEngine->GetWorld()->GetSaveManager()->SaveSceneSerializedData();
 	}
 
 	void EditorApplication::ConstructEngine()

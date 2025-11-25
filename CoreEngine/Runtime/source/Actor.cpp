@@ -177,5 +177,23 @@ namespace CoreEngine
 		{
 			return Components;
 		}
+		void Actor::PreSerialize()
+		{
+			Object::PreSerialize();
+
+			for (auto* Component : GetComponents())
+			{
+				Component->PreSerialize();
+			}
+		}
+		void Actor::Serialize(SerializeAchive& Achive)
+		{
+			Object::Serialize(Achive);
+
+			for (auto* Component : GetComponents())
+			{
+				Component->Serialize(Achive);
+			}
+		}
 	}
 }

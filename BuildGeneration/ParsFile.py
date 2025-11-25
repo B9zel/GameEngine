@@ -46,7 +46,7 @@ def GetNamespace(cursor):
 def FindedClassMacros(pr:cindex.TranslationUnit):
     res:MacrosData = []
     for token in pr.get_tokens(extent=pr.cursor.extent):
-        print(token.location.line, token.location.column)
+        #print(token.location.line, token.location.column)
         if token.location.line == 180 and token.location.column == 1:
             print()
         try:
@@ -162,7 +162,7 @@ def CollectFullTypeName(tu, cursor) -> (str, ETypePrimitive, str):
     templateType = ExtractTemplateInnder("".join(i.spelling for i in tokens), "DArray")
     if templateType[0]:
         return f"DArray<{GetNamespace(cursor)}::{templateType[1]}>", ETypePrimitive.ARRAY, f"{GetNamespace(cursor)}::{templateType[1]}"
-    if tokens[0].spelling in ("FVector", "FTransform"):
+    if tokens[0].spelling in ("FVector", "FTransform", "String", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"):
         return tokens[0].spelling, ETypePrimitive.CUSTOM_PRIMITIVE, ""
 
     declar = GetDeclarationFromType(cursor.type)

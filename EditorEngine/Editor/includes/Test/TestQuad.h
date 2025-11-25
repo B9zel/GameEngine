@@ -34,7 +34,7 @@ public:
 		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/StaticMeshBaseShader.glsl").c_str());
 		auto& shad = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/IdVisualShader.glsl").c_str());
 		Shader.CompileShader(shadPair.first, shadPair.second);
-		ShaderID.CompileShader(shad.first, shad.second);
+		//ShaderID.CompileShader(shad.first, shad.second);
 		//Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
 		VertexArray.CreateVertexArray();
 		VertexBuffer.CreaterBuffer(arri, 192, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, VertexArray);
@@ -126,9 +126,25 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture4;
 
 	RPROPERTY(EditorVisible);
-	int32 Test = 0;
+	int8 Test8 = 0;
 	RPROPERTY(EditorVisible);
-	int64 TestTestTestTest = 0;
+	int16 Test16 = 0;
+	RPROPERTY(EditorVisible);
+	int32 Test32 = 0;
+	RPROPERTY(EditorVisible);
+	int64 TestTestTestTest64 = 0;
+	RPROPERTY(EditorVisible);
+	uint8 TestU8 = 0;
+	RPROPERTY(EditorVisible);
+	uint16 TestU16 = 0;
+	RPROPERTY(EditorVisible);
+	uint32 TestU32 = 0;
+	RPROPERTY(EditorVisible);
+	uint64 TestTestTestTestU64 = 0;
+	RPROPERTY(EditorVisible);
+	String TestTestTestTestString ;
+	RPROPERTY(EditorVisible);
+	FVector TestTestTestTestVector ;
 
 private:
 

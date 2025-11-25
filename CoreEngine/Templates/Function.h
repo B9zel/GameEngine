@@ -39,7 +39,7 @@ public:
 	
 	virtual ~BaseFnPtr() = default;
 	
-	virtual TReturn Invoke(TArgs&&... param) = 0;
+	virtual TReturn Invoke(TArgs&&... param) const = 0;
 	virtual bool operator==(const BaseFnPtr<TReturn(TArgs...)>& other) const = 0;
 	
 	virtual ETypeFunction GetType() const = 0;
@@ -59,7 +59,34 @@ public:
 
 	FunctionPtr(FnPtr function) : pFn {function} {}
 
-	virtual TReturn Invoke(Args&&... param) override
+	FunctionPtr(const FunctionPtr& Other)
+	{
+		pFn = Other.pFn;
+	}
+	FunctionPtr(FunctionPtr&& Other)
+	{
+		pFn = Other.pFn;
+		Other.pFn = nullptr;
+	}
+
+	FunctionPtr& operator=(const FunctionPtr& Other)
+	{
+		pFn = Other.pFn;
+
+		return *this;
+	}
+
+	FunctionPtr& operator=(FunctionPtr&& Other)
+	{
+		pFn = Other.pFn;
+		Other.pFn = nullptr;
+
+		return *this;
+	}
+	
+public:
+
+	virtual TReturn Invoke(Args&&... param) const override
 	{
 		if (std::is_void_v<TReturn>)
 			(void)(pFn(std::forward<Args>(param)...));
@@ -82,6 +109,12 @@ public:
 		if (pFn != pMethod.pFn) return false;
 
 		return true;
+	}
+
+	FunctionPtr& operator=(FnPtr NewFunction)
+	{
+		pFn = NewFunction;
+		return *this;
 	}
 
 public:
@@ -107,7 +140,7 @@ public:
 
 	MethodPtr(TClass* classOfMethod, FnPtr method) : pFn{ method }, pClass{ classOfMethod } {}
 
-	virtual TReturn Invoke(Args&&... param) override
+	virtual TReturn Invoke(Args&&... param) const override
 	{
 		if (!pClass || !pFn)
 		{

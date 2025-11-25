@@ -1,8 +1,11 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.30)
 
 set(CORE_PROJECT_NAME CoreEngine)
 set(OutputPythonBuildPathName "OutputGenFiles")
 set(OutputPythonBuildPath "")
+
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 FILE(GLOB_RECURSE INCLUDES_FILES **.h)
 FILE(GLOB_RECURSE SOURCE_FILES **.cpp)
@@ -44,6 +47,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${OutputPythonBuildPath})
 endif()
 include_directories(${OutputPythonBuildPath})
 
+# Create stb_image library
 set(INCLUDE_STB_IMAGE_FILES
 	../libraries/Stb_image/stb_image.h)
 set(SOURCE_STB_IMAGE_FILES
@@ -52,11 +56,25 @@ set(SOURCE_STB_IMAGE_FILES
 add_library(StbImage STATIC
 	${INCLUDE_STB_IMAGE_FILES}
 	${SOURCE_STB_IMAGE_FILES})
+#
+
+#FILE(GLOB_RECURSE INCLUDE_JSON ../libraries/json/include/**.hpp)
+#FILE(GLOB_RECURSE SRC_JSON ../libraries/json/**.cpp)
+#add_library(Json STATIC 
+#    ${INCLUDE_JSON} 
+#    ${SRC_JSON}
+#)
+add_library(Json INTERFACE)
+
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 		${INCLUDES_FILES}
 		${SOURCE_FILES}
 		)
+target_include_directories(Json INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libraries/json/include
+)
+
 	
 	
 add_library(${CORE_PROJECT_NAME} STATIC 
@@ -97,5 +115,10 @@ target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glm)
 add_subdirectory(../libraries/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC assimp)
 
+
+#add_subdirectory(../libraries/json ${CMAKE_CURRENT_BINARY_DIR}/json)
+#target_include_directories(Json PUBLIC ../libraries/json/include)
+target_link_libraries(${CORE_PROJECT_NAME} PUBLIC Json)
+#target_compile_features(Json PUBLIC cxx_std_17)
 
 

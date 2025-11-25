@@ -15,6 +15,8 @@ namespace Editor
 	void DrawUInt64(const String& Id, const String& Name, uint64& Scalar, uint64 Max, uint64 Min, const float ColumnWidht=50);
 	void DrawFloat(const String& Id, const String& Name, float& Scalar, float Max, float Min, const float ColumnWidht=50);
 	void DrawDouble(const String& Id, const String& Name, double& Scalar, double Max, double Min, const float ColumnWidht=50);
-	void DrawVector3(const String& Id, const String& NameOfVec, FVector& Vector, const ImVec4& Color, const float ColumnWidht=50);
+	void DrawVector3(const String& Id, const String& NameOfVec, FVector& Vector, const float ColumnWidht=50);
 	void DrawTransform(const String& Id, const String& NameOfTransform, FVector& Location, FVector& Rotation, FVector& Scale, const float ColumnWidth = 100);
+	void DrawString(const String& Id, const String& NameString, String& SourceStr,const uint32 MaxBufferSize, const float ColumnWidth = 100);
+	void DrawBool(const String& Id, const String& NameString, bool& Value, const float ColumnWidth = 100);
 }

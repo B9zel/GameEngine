@@ -13,6 +13,7 @@ namespace Editor
 	public:
 
 		virtual void CreateApp() override;
+		virtual void Start() override;
 
 	protected:
 

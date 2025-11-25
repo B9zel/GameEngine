@@ -14,6 +14,7 @@
 #include <Core/includes/Window.h>
 #include <ReflectionSystem/Include/ReflectionManager.h>
 #include <Events/include/Event.h>
+#include <Core/includes/Memory/SaveManager.h>
 
 
 
@@ -34,7 +35,7 @@ namespace CoreEngine
 		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
 		m_World = Runtime::CreateObject<World>();
 		m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
-	
+		
 	}
 
 	FVector2 Engine::GetScreenSize() const
@@ -71,6 +72,8 @@ namespace CoreEngine
 	void Engine::Update()
 	{
 		m_World->WorldUpdate();
+		m_World->GetSaveManager()->PreStartSerialized();
+		m_World->GetSaveManager()->StartSerialized();
 		m_TimerManager->Update(m_World->GetWorldDeltaTime());
 	}
 

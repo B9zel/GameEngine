@@ -12,6 +12,10 @@ namespace CoreEngine
 		{
 			GENERATED_BODY()
 
+		public: 
+
+			GameInstance(const InitializeObject& Initilize) : Object(Initilize) {}
+
 		};
 
 

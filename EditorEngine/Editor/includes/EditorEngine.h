@@ -9,7 +9,7 @@
 
 namespace Editor
 {
-	using namespace CoreEngine;
+	class EditorViewportClient;
 
 	class EditorEngine : public CoreEngine::Engine
 	{
@@ -24,8 +24,8 @@ namespace Editor
 	public:
 
 		virtual void Update() override;
-		void SetSelectedObject(Runtime::Object* NewSelected);
-		Runtime::Object* GetSelectedObject() const;
+		void SetSelectedObject(CoreEngine::Runtime::Object* NewSelected);
+		CoreEngine::Runtime::Object* GetSelectedObject() const;
 
 	protected:
 
@@ -39,16 +39,14 @@ namespace Editor
 		bool my_tool_active{ true };
 
 		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
-
 		DArray<SharedPtr<BaseEdtiorPanel>> EditorWidgets;
 
 		SharedPtr<EditorViewport> Viewport;
-
-
-
 		SharedPtr<SceneHierarhy> SceneHier;
 		SharedPtr<EditorDetails> DetailsPanel;
 
-		Runtime::Object* SelectedObject{ nullptr };
+		UniquePtr<EditorViewportClient> m_ViewportCamera;
+
+		CoreEngine::Runtime::Object* SelectedObject{ nullptr };
 	};
 }

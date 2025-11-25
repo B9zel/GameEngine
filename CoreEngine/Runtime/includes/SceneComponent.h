@@ -42,6 +42,8 @@ namespace CoreEngine
 
 			virtual void SetupToAttachment(SceneComponent* attach);
 
+			virtual const DArray<SceneComponent*>& GetChildrenAttaches() const;
+
 		private:
 
 			FVector CalculateForwardDirection();
@@ -53,10 +55,9 @@ namespace CoreEngine
 			FTransform Transform;
 			FVector Front;
 			SceneComponent* parentAttach;
-			DArray<SceneComponent*> childrenAttach;
 
-			RPROPERTY();
-			FVector m_Gravity;
+			RPROPERTY()
+			DArray<SceneComponent*> childrenAttach;
 		};
 	}
 }

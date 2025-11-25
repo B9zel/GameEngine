@@ -1,17 +1,14 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
 #include <Math/includes/Matrix.h>
+#include <Runtime/includes/Enums/ViewUtil.h>
 #include <CameraComponent.generated.h>
 
 namespace CoreEngine
 {
 	namespace Runtime
 	{
-		enum class ETypeView : uint8
-		{
-			PERSPECTIVE = 0,
-			ORTHOGRAPH
-		};
+
 
 		RCLASS()
 			class CameraComponent : public SceneComponent

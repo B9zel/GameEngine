@@ -6,6 +6,17 @@
 #include <ReflectionSystem/Include/ReflectionManager.h>
 
 
+namespace CoreEngine
+{
+    struct InitializeObject;
+}
+
+namespace CoreEngine::Runtime
+{
+    class Object;
+}
+
+
 #define RPROPERTY(...) 
 #define RCLASS(...) 
 
@@ -29,16 +40,17 @@
         public:                                                                 \
                                                                                  \
             static DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> PASTE_DETAILS(NameNewClass,_Fields);  \
+            virtual void ConstructInstanceObject(CoreEngine::Runtime::Object* Instance, const CoreEngine::InitializeObject& Initilizer) override;                   \
                                                                                 \
         public:																	\
             NameNewClass();															\
                                                                             \
         };
 
-#define ImplementNewClass(NameNewClass, NameClass, ClassFieldParams, SizeOfClass, FieldsOfClass, Parent) \
+#define ImplementNewClass(NameNewClass, NameClass, Namespace, ClassFieldParams, SizeOfClass, FieldsOfClass, Parent) \
         NameNewClass::NameNewClass() \
         {																	\
-                Name = NameClass;												\
+                Name = #NameClass;												\
                 Params = ClassFieldParams;									\
                 TypeConstruction = CoreEngine::Reflection::ETypeConstructionFiled::CLASS;  \
                 Size = SizeOfClass;											            \
@@ -47,7 +59,11 @@
                 {                                                                          \
                     PropertyFileds.emplace_back(FieldsOfClass[i].get());                         \
                 }                                                                           \
-        }	
+        }	                                                                                            \
+        void NameNewClass::ConstructInstanceObject(CoreEngine::Runtime::Object* Instance, const CoreEngine::InitializeObject& Initilizer)  \
+        {                                                                                                           \
+            new(Instance) Namespace::NameClass(Initilizer);                                                                     \
+        }                                                                                                             \
 
 #define ImplementStaticClass(ClassOfMethod, NewClass, NameSourceClass) \
             CoreEngine::Reflection::ClassField* ClassOfMethod::GetStaticClass() \
@@ -109,16 +125,45 @@
            };  
 
 #define GenerateClassArrayPropertyFiled(VarName, TemplateType, InnerType, OffsetFromObject, IsPointerField, Param)       \
-           struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::ArrayPropertyField	\
-           {                                                                                    \
-               PASTE_DETAILS(Field_, VarName)() {                                            \
-                     SizeByte = sizeof(TemplateType);                                                      \
-                     Name = STRINGCON_DETAILS(VarName);                                        \
-                     Offset = OffsetFromObject;                                              \
-                                                             \
-                     Params = Param;                                                        \
-                     TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(InnerType::GetStaticClass());  \
+           struct PASTE_DETAILS(Field_, VarName) : public CoreEngine::Reflection::ArrayPropertyField	                    \
+           {                                                                                                                 \
+               PASTE_DETAILS(Field_, VarName)() {                                                                            \
+                     SizeByte = sizeof(TemplateType);                                                                         \
+                     Name = STRINGCON_DETAILS(VarName);                                                                        \
+                     Offset = OffsetFromObject;                                                                                 \
+                                                                                                                                 \
+                     Params = Param;                                                                                             \
+                               \
                }                                                           \
                PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
                PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
+               virtual CoreEngine::Reflection::BaseTypePropertyType* GetTypeProperty() override \
+               {                                                                                \
+                   if (!TypeProperty)                                                           \
+                   {                                                                             \
+                       TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(InnerType::GetStaticClass()); \
+                   }                                                                                                    \
+                   return TypeProperty.get();                                                                             \
+               }                                                                                                            \
            };  
+
+#define GenetateRegistryClass(NameClass, Namespace) \
+    namespace {                             \
+        struct PASTE_DETAILS(RegistryGenerate_, NameClass) \
+        {                                                               \
+            PASTE_DETAILS(RegistryGenerate_, NameClass)() {               \
+                                                                        \
+                CoreEngine::Reflection::RegistryClass Class;                                    \
+                Class.CreateMetaClass = []()  -> CoreEngine::Reflection::ConstructionField*                          \
+                {                                                       \
+                    return Namespace::##NameClass::GetStaticClass();                 \
+                };                                                                  \
+                Class.ConstructClass = [](CoreEngine::Runtime::Object* ConstructObj, const CoreEngine::InitializeObject& Initialize)    \
+                    {                                                                                                       \
+                        new(ConstructObj) Namespace::##NameClass(Initialize);                                                    \
+                    }; \
+                CoreEngine::Reflection::MapRegistryClass::Instance().Register(#NameClass, std::move(Class)); \
+            }                                                                           \
+        };                                                                              \
+        static PASTE_DETAILS(RegistryGenerate_, NameClass) PASTE_DETAILS(_AutoRegistry_, NameClass);   \
+    }

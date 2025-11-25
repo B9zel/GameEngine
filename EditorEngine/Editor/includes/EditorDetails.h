@@ -1,6 +1,6 @@
 #pragma once
 #include <Editor/includes/BaseEditorPanel.h>
-
+#include <Core/includes/Base.h>
 
 namespace CoreEngine::Runtime
 {
@@ -28,10 +28,13 @@ namespace Editor
 
 		void DrawDetailsRecursive(CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Runtime::Object* SourceClass, bool IsDrawTree=true);
 		void DrawProperty(CoreEngine::Reflection::PropertyField* Property, CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Reflection::ClassField* MainClass, CoreEngine::Runtime::Object* SourceClass);
+
+		bool HasAnyPropertyDeep(CoreEngine::Reflection::ClassField* Class);
 		bool HasAnyProperty(CoreEngine::Reflection::ClassField* Class);
 
 	private:
 
 		CoreEngine::Runtime::Object* SelectedObject{ nullptr };
+		HashTableSet<CoreEngine::Reflection::ClassField*> HasEditorRender;
 	};
 }

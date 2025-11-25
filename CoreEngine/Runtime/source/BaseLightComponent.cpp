@@ -8,6 +8,12 @@ namespace CoreEngine
 		BaseLightComponent::BaseLightComponent(const InitializeObject& Object) : SceneComponent(Object)
 		{
 		}
+
+		LightProxy* BaseLightComponent::GetLightProxy()
+		{
+			return nullptr;
+		}
+
 		void BaseLightComponent::SetColor(const FVector& NewColor)
 		{
 			Color = NewColor;
@@ -23,6 +29,10 @@ namespace CoreEngine
 		const float BaseLightComponent::GetIntencity() const
 		{
 			return Intencity;
+		}
+		bool BaseLightComponent::GetIsVisible() const
+		{
+			return IsVisible;
 		}
 	}
 }

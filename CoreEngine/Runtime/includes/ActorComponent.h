@@ -66,7 +66,7 @@ namespace CoreEngine
 
 			virtual void InitProperties() override;
 			virtual void RegisteredComponent();
-			virtual void UpdateComponent(float deltaTime) = 0;
+			virtual void UpdateComponent(float deltaTime);
 
 			void SetOwner(Actor* Owner);
 			Actor* GetOwner() const;
