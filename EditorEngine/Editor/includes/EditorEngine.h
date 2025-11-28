@@ -26,6 +26,7 @@ namespace Editor
 		virtual void Update() override;
 		void SetSelectedObject(CoreEngine::Runtime::Object* NewSelected);
 		CoreEngine::Runtime::Object* GetSelectedObject() const;
+		EditorViewportClient* GetViewpoertClient() const;
 
 	protected:
 

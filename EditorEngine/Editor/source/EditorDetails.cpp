@@ -265,7 +265,7 @@ namespace Editor
 				{
 					bool* Value = Property->GetSourcePropertyByName<bool>(SelectedObject);
 
-					DrawBool(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, *Value);
+					DrawBool(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, *Value, WidthColumn);
 					break;
 				}
 				case CoreEngine::Reflection::EPrimitiveTypes::CHAR:

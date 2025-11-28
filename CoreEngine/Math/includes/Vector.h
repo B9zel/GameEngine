@@ -48,6 +48,11 @@ public:
 
 public:
 
+	TVector3(const glm::vec3& Vector)
+	{
+		vector = Vector;
+	}
+
 	TVector3(const T value = 0)
 	{
 		vector.x = value;
@@ -251,7 +256,11 @@ public:
 		return res;
 	}
 
-	T operator[](unsigned int pos) const
+	const T& operator[](unsigned int pos) const
+	{
+		return vector[pos];
+	}
+	T& operator[](unsigned int pos)
 	{
 		return vector[pos];
 	}

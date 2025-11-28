@@ -42,7 +42,7 @@ public:
 
 
 	FMatrix4x4 ToMatrix() const;
-
+	
 private:
 
 	FVector Location;

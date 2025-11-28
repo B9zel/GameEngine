@@ -21,6 +21,13 @@ namespace CoreEngine
 		return glfwGetMouseButton(window, button) == GLFW_PRESS;
 	}
 
+	bool InputDevice::GetIsButtonReleased(uint32 button)
+	{
+		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow());
+
+		return glfwGetMouseButton(window, button) == GLFW_RELEASE;
+	}
+
 	void InputDevice::SetMousePos(const DVector2& Pos)
 	{
 		glfwSetCursorPos(static_cast<GLFWwindow*>(Application::Get()->GetWindow().GetNativeWindow()), Pos.x, Pos.y);

@@ -1,9 +1,11 @@
 #pragma once
 #include <Editor/includes/BaseEditorPanel.h>
+#include <Core/includes/Base.h>
 
 namespace CoreEngine::Runtime
 {
 	class SceneComponent;
+	class Actor;
 }
 
 namespace Editor
@@ -18,6 +20,11 @@ namespace Editor
 
 	private:
 
-		void DrawAndWalkComponent(CoreEngine::Runtime::SceneComponent* Component);
+		void PushColorTree();
+
+	private:
+
+		void DrawAndWalkComponents(const DArray<CoreEngine::Runtime::SceneComponent*>& Components);
+		bool IsChildComponent(CoreEngine::Runtime::Actor* Actor);
 	};
 }

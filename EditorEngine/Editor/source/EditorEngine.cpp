@@ -10,6 +10,7 @@
 #include <Render/includes/Framebuffer.h>
 #include <Core/includes/Memory/SaveManager.h>
 #include <Editor/includes/EditorViewportClient.h>
+#include <ImGuizmo/ImGuizmo.h>
 
 namespace Editor
 {
@@ -29,6 +30,7 @@ namespace Editor
 		FrameBuffer = CoreEngine::Render::Framebuffer::Create(Spec);
 
 		Viewport = MakeSharedPtr<EditorViewport>();
+		Viewport->SetOwnerEditor(this);
 		SceneHier = MakeSharedPtr<SceneHierarhy>();
 		SceneHier->SetOwnerEditor(this);
 
@@ -40,6 +42,7 @@ namespace Editor
 		EditorWidgets.push_back(DetailsPanel);
 
 		m_ViewportCamera = MakeUniquePtr<EditorViewportClient>();
+		m_ViewportCamera->EventActiveMove.AddBind(&EditorViewport::OnActiveMoveCamera, Viewport.get());
 	}
 	void EditorEngine::Update()
 	{
@@ -59,6 +62,7 @@ namespace Editor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGuizmo::BeginFrame(); 
 
 		ImGui::ShowDemoWindow();
 
@@ -85,6 +89,11 @@ namespace Editor
 	Runtime::Object* EditorEngine::GetSelectedObject() const
 	{
 		return SelectedObject;
+	}
+
+	EditorViewportClient* EditorEngine::GetViewpoertClient() const
+	{
+		return m_ViewportCamera.get();
 	}
 
 	void EditorEngine::RenderEditor()

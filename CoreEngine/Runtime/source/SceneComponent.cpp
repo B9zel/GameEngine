@@ -1,5 +1,10 @@
 #include <Runtime/includes/SceneComponent.h>
-
+#include <Math/includes/Matrix.h>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/ext/quaternion_float.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
+//#include <glm/gtc/quaternion.hpp>
 
 namespace CoreEngine
 {
@@ -45,12 +50,12 @@ namespace CoreEngine
 			return Transform.GetRotation();
 		}
 
-		FVector SceneComponent::GetForwardVector()
+		FVector SceneComponent::GetForwardVector() const
 		{
 			return CalculateForwardDirection();
 		}
 
-		FVector SceneComponent::GetRightVector()
+		FVector SceneComponent::GetRightVector() const
 		{
 			return CalculateRightDirection();
 		}
@@ -128,22 +133,57 @@ namespace CoreEngine
 			return childrenAttach;
 		}
 
-		FVector SceneComponent::CalculateForwardDirection()
+		static float NormalizeDeg(float a)
 		{
-			const FVector& Rotation = Transform.GetRotation();
+			return a;
+			float x = std::fmod(a + 180.0f, 360.0f);
+			if (x < 0.0f) x += 360.0f;
+			return x - 180.0f;
+		}
+
+		static FVector NormalizeDegVec3(const FVector& v)
+		{
+			return FVector(NormalizeDeg(v.GetX()), NormalizeDeg(v.GetY()), NormalizeDeg(v.GetZ()));
+		}
+		FVector SceneComponent::CalculateForwardDirection() const
+		{
+			const FVector& Rotation = (Transform.GetRotation());
 			FVector direction(0, 0, 0);
 
-			direction.SetZ(cos(Math::ToRadian(Rotation.GetY())) * cos(Math::ToRadian(Rotation.GetX())));
-			direction.SetY(sin(Math::ToRadian(Rotation.GetX())));
-			direction.SetX(sin(Math::ToRadian(Rotation.GetY())) * cos(Math::ToRadian(Rotation.GetX())));
+			FVector RotInput = Rotation;
+				RotInput = Math::ToRadianVector(RotInput);
+			
+			FMatrix4x4 Mat;
+			if (!Math::LikelyRadians(Rotation))
+			{
 
-			direction.SetZ(-direction.GetZ());
-			direction.Normalize();
+				//Mat = glm::toMat4( glm::normalize(glm::quat(RotInput.vector)));
+			}
+			else
+			{
+
+			}
+			Mat = glm::eulerAngleXYZ(RotInput.GetX(), RotInput.GetY(), RotInput.GetZ());
+
+			glm::quat q = glm::quat_cast(Mat);
+			glm::mat4 ResMat = glm::toMat4(q);
+			FVector4 fw = ResMat * FVector4(FVector::ForwardVector.vector, 0.0f).vector;
+			direction = FVector(fw.vector).SafeNormalize();
+			//direction.SetX(sin(Math::ToRadian(Rotation.GetY())) * cos(Math::ToRadian(Rotation.GetX())));
+			//direction.SetY(sin(Math::ToRadian(Rotation.GetX())));
+			//direction.SetZ(cos(Math::ToRadian(Rotation.GetY())) * cos(Math::ToRadian(Rotation.GetX())));
+			//direction = glm::normalize(FVector::ForwardVector.vector * (glm::quat(Math::ToRadianVector(direction).vector)));
+			/*direction.SetX(cos(Pitch) * cos(-Yaw));
+			direction.SetY(sin(Pitch));
+			direction.SetZ(cos(Pitch) * sin(-Yaw));*/
+
+			//direction.SetZ(-direction.GetZ());
+			//direction.Normalize();
 
 			return direction;
 		}
 
-		FVector SceneComponent::CalculateRightDirection()
+		FVector SceneComponent::CalculateRightDirection() const
 		{
 			return FVector::UpVector.Cross(GetForwardVector()).SafeNormalize();
 		}

@@ -1,21 +1,43 @@
 #include <Editor/includes/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
-
+#include <Editor/includes/EditorEngine.h>
+#include <Editor/includes/EditorViewportClient.h>
+#include <Runtime/includes/SceneComponent.h>
+#include <Core/includes/InputDevice.h>
 #include <imgui/imgui.h>
 #include <glad/glad.h>
+#include <ImGuizmo/ImGuizmo.h>
+#include <Core/includes/World.h>
 
 namespace Editor
 {
+
+	static float NormalizeDeg(float a)
+	{
+		float x = std::fmod(a + 180.0f, 360.0f);
+		if (x < 0.0f) x += 360.0f;
+		return x - 180.0f;
+	}
+
+	static FVector NormalizeDegVec3(const FVector& v)
+	{
+		return FVector(NormalizeDeg(v.GetX()), NormalizeDeg(v.GetY()), NormalizeDeg(v.GetZ()));
+	}
+
+
 	static bool IsDraw = false;
 	static int CrentDraw = 0;
 	EditorViewport::EditorViewport()
 	{
-
+		m_GuizmoOpiration = ImGuizmo::OPERATION::TRANSLATE;
 	}
 	void EditorViewport::Draw()
 	{
 		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoMove);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+
+
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
 
@@ -44,6 +66,7 @@ namespace Editor
 		
 			displaySize = avail;
 		}
+		
 
 		// Положим Image в child (чтобы не появлялся scroll)
 		ImGui::BeginChild("ViewportChild", displaySize, false,
@@ -135,14 +158,102 @@ namespace Editor
 			}
 			CrentDraw++;
 		}
+
+		// Guizmo
+		FrameBuffer->Bind();
+		if (m_IsFocusedViewport)
+		{
+			if (CoreEngine::InputDevice::GetIsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && !ImGuizmo::IsUsing() && !ImGuizmo::IsOver())
+			{
+				ImVec2 pos = ImGui::GetCursorScreenPos();
+				ImVec2 mouse = ImGui::GetMousePos();
+
+				float localX = mouse.x - pos.x;
+				float localY = abs(mouse.y - pos.y);
+
+
+				int32 IdActor = FrameBuffer->ReadPixel(1, localX, localY);
+
+				auto* FindedActor = OwnerEditor->GetWorld()->GetActorPredicate([&](CoreEngine::Runtime::Actor* Actor)
+					{
+						return Actor->GetUUID().GetID() == IdActor;
+					});
+				if (FindedActor)
+				{
+					OwnerEditor->SetSelectedObject(FindedActor);
+				}
+			}
+
+
+
+			if (m_CanChangeOpirations)
+			{
+				if (CoreEngine::InputDevice::GetIsKeyPressed(GLFW_KEY_Q))
+				{
+					m_GuizmoOpiration = ImGuizmo::OPERATION::BOUNDS;
+				}
+				if (CoreEngine::InputDevice::GetIsKeyPressed(GLFW_KEY_W))
+				{
+					m_GuizmoOpiration = ImGuizmo::OPERATION::TRANSLATE;
+				}
+				if (CoreEngine::InputDevice::GetIsKeyPressed(GLFW_KEY_E))
+				{
+					m_GuizmoOpiration = ImGuizmo::OPERATION::ROTATE;
+				}
+				if (CoreEngine::InputDevice::GetIsKeyPressed(GLFW_KEY_R))
+				{
+					m_GuizmoOpiration = ImGuizmo::OPERATION::SCALE;
+				}
+			}
+		}
+
+		
+
+
+		if (auto* WorldObject = GetSceneComponentFromSelected())
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+
+			static FVector LastGuizmoRotate;
+
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
+			
+			FMatrix4x4 ObjectMatrix = WorldObject->GetTransform().ToMatrix();
+			FMatrix4x4 ViewMatrix = (OwnerEditor->GetViewpoertClient()->GetViewMatrix());
+			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection();
+			//ImGuizmo::DrawGrid(Math::GetValuePtr((ViewMatrix)), Math::GetValuePtr(ProjectionMatrix), Math::GetValuePtr(ObjectMatrix), 10);
+			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration), ImGuizmo::MODE::LOCAL, Math::GetValuePtr(ObjectMatrix));
+			if (ImGuizmo::IsUsing())
+			{
+				FVector Location, Rotation, Scale;
+				ImGuizmo::DecomposeMatrixToComponents(Math::GetValuePtr(ObjectMatrix), Math::GetValuePtr(Location.vector), Math::GetValuePtr(Rotation.vector), Math::GetValuePtr(Scale.vector));
+
+				WorldObject->SetComponentLocation(Location);
+
+				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", Rotation.GetX(), Rotation.GetY(), Rotation.GetZ());
+				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Last {0} {1} {2}", LastGuizmoRotate.GetX(), LastGuizmoRotate.GetY(), LastGuizmoRotate.GetZ());
+				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Minus {0} {1} {2}", (Rotation - LastGuizmoRotate).GetX(), (Rotation - LastGuizmoRotate).GetY(), (Rotation - LastGuizmoRotate).GetZ());
+				WorldObject->SetComponentRotation(Rotation - LastGuizmoRotate + WorldObject->GetComponentRotation());
+				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Post change {0} {1} {2}\n", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
+
+				LastGuizmoRotate = WorldObject->GetComponentRotation();
+				
+				WorldObject->SetComponentScale(Scale);
+			}
+		
+		}
+
 		FrameBuffer->UnBind();
+		
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 		ImGui::End();
 		//ImGui::Begin("Drag and Drop Example");
 
-		static int sourceValue = 42;
-		static int targetValue = 0;
+		/*static int sourceValue = 42;
+		static int targetValue = 0;*/
 		//////
 		// Источник
 		//static const char* items[] = { "Cube", "Sphere", "Light" };
@@ -196,6 +307,22 @@ namespace Editor
 	bool EditorViewport::GetIsFocused() const
 	{
 		return m_IsFocusedViewport;
+	}
+
+	void EditorViewport::OnActiveMoveCamera(bool IsActive)
+	{
+		m_CanChangeOpirations = !IsActive;
+	}
+
+	CoreEngine::Runtime::SceneComponent* EditorViewport::GetSceneComponentFromSelected() const
+	{
+		if (!OwnerEditor || !OwnerEditor->GetSelectedObject()) return nullptr;
+
+		if (OwnerEditor->GetSelectedObject()->GetClass()->IsChildClassOf(CoreEngine::Runtime::Actor::GetStaticClass()))
+		{
+			return dynamic_cast<CoreEngine::Runtime::Actor*>(OwnerEditor->GetSelectedObject())->GetRootComponent();
+		}
+		return dynamic_cast<CoreEngine::Runtime::SceneComponent*>(OwnerEditor->GetSelectedObject());
 	}
 
 }

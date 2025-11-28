@@ -16,7 +16,7 @@ namespace CoreEngine
 		{
 			SceneComponent::InitProperties();
 
-			viewMatrix = CreateMatrixLookAt(GetComponentLocation(), FVector(0, 0, 0), FVector(0, 1, 0));
+			viewMatrix = Math::CreateMatrixLookAt(GetComponentLocation(), FVector(0, 0, 0), FVector(0, 1, 0));
 		}
 
 		void CameraComponent::SetComponentRotation(const FVector& Rotate)
@@ -41,7 +41,7 @@ namespace CoreEngine
 
 		FMatrix4x4 CameraComponent::GetViewMatrix()
 		{
-			viewMatrix = CreateMatrixLookAt(GetComponentLocation(), GetComponentLocation() + direction, FVector(0, 1, 0));
+			viewMatrix = Math::CreateMatrixLookAt(GetComponentLocation(), GetComponentLocation() + direction, FVector(0, 1, 0));
 			return viewMatrix;
 		}
 

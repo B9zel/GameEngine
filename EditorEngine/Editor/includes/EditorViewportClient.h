@@ -2,6 +2,7 @@
 #include <Math/includes/Vector.h>
 #include <Math/includes/Matrix.h>
 #include <Runtime/includes/Enums/ViewUtil.h>
+#include <Core/includes/Dispatcher.h>
 
 namespace Editor
 {
@@ -34,7 +35,12 @@ namespace Editor
 
 		void Update(float DeltaTime, const bool IsHoveredViewport);
 
+	public:
+
+		CoreEngine::Dispatcher<bool> EventActiveMove;
+
 	private:
+
 
 		ViewportTransform m_Transform;
 		FMatrix4x4 m_ViewMatrix;

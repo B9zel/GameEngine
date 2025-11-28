@@ -20,15 +20,29 @@ namespace Editor
 		{
 			for (auto* Actor : Level->GetActors())
 			{
-				ImGuiTreeNodeFlags Flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_Framed;
+				ImGuiTreeNodeFlags Flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth;
+				const bool IsSelect = Actor == OwnerEditor->GetSelectedObject();
+				if (IsSelect || IsChildComponent(Actor))
+				{
+					Flag |= ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Selected;
+					if (IsSelect)
+					{
+						PushColorTree();
+					}
+				}
 				bool IsOpen = ImGui::TreeNodeEx(Actor->GetName().c_str(), Flag);
+
+				if (IsSelect)
+				{
+					ImGui::PopStyleColor(3);
+				}
 				if (ImGui::IsItemClicked())
 				{
 					OwnerEditor->SetSelectedObject(Actor);
 				}
 				if (IsOpen)
 				{
-					DrawAndWalkComponent(Actor->GetRootComponent());
+					DrawAndWalkComponents(Actor->GetRootComponent()->GetChildrenAttaches());
 					/*for (auto* Component : Actor->GetComponents())
 					{
 
@@ -57,29 +71,65 @@ namespace Editor
 		ImGui::End();
 	}
 
-	void SceneHierarhy::DrawAndWalkComponent(CoreEngine::Runtime::SceneComponent* Component)
+
+	void SceneHierarhy::DrawAndWalkComponents(const DArray<CoreEngine::Runtime::SceneComponent*>& Components)
 	{
-		if (!Component) return;
+		if (Components.empty()) return;
 
-		ImGuiTreeNodeFlags Flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
-		if (Component->GetChildrenAttaches().empty())
+		for (auto* SceneComponent : Components)
 		{
-			Flag |= ImGuiTreeNodeFlags_Leaf;
-		}
-
-		bool IsOpen = ImGui::TreeNodeEx((Component->GetName()).c_str(), Flag);
-		if (ImGui::IsItemClicked())
-		{
-			OwnerEditor->SetSelectedObject(Component);
-		}
-		if (IsOpen)
-		{
-			for (auto* SceneComponent : Component->GetChildrenAttaches())
+			ImGuiTreeNodeFlags Flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth;
+			if (OwnerEditor->GetSelectedObject() == SceneComponent)
 			{
-				DrawAndWalkComponent(SceneComponent);
+				PushColorTree();
+				Flag |= (OwnerEditor->GetSelectedObject() == SceneComponent ? ImGuiTreeNodeFlags_Selected : 0);
 			}
-			ImGui::TreePop();
+			if (SceneComponent->GetChildrenAttaches().empty())
+			{
+				Flag |= ImGuiTreeNodeFlags_Leaf;
+			}
+
+			bool IsOpen = ImGui::TreeNodeEx((SceneComponent->GetName()).c_str(), Flag);
+
+			if (OwnerEditor->GetSelectedObject() == SceneComponent)
+			{
+				ImGui::PopStyleColor(3);
+			}
+
+			if (ImGui::IsItemClicked())
+			{
+				OwnerEditor->SetSelectedObject(SceneComponent);
+			}
+			if (IsOpen)
+			{
+				/*for (auto* SceneComponent : SceneComponent->GetChildrenAttaches())
+				{
+					DrawAndWalkComponents(SceneComponent);
+				}*/
+				DrawAndWalkComponents(SceneComponent->GetChildrenAttaches());
+				ImGui::TreePop();
+			}
 		}
 		
+		
 	}
+	bool SceneHierarhy::IsChildComponent(CoreEngine::Runtime::Actor* Actor)
+	{
+		for (auto* Component : Actor->GetComponents())
+		{
+			if (OwnerEditor->GetSelectedObject() == Component)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void SceneHierarhy::PushColorTree()
+	{
+		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.32f, 0.55f, 0.95f, 1.f));
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
+	}
+
 }

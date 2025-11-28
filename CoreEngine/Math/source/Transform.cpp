@@ -1,7 +1,9 @@
 #define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Math/includes/Transform.h>
 #include <Math/includes/Matrix.h>
-
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 
 FTransform::FTransform(const FVector& Location, const FVector& Rotation, const FVector& Scale) : Location(Location), Scale(Scale), Rotation(Rotation)
@@ -112,9 +114,10 @@ FTransform FTransform::GetTransform() const
 
 FMatrix4x4 FTransform::ToMatrix() const
 {
-	FMatrix4x4 Rotat = Rotate(FMatrix4x4(1.0f), Rotation.GetX(), FVector(1.0f, 0.0f, 0.0f)) 
-		* Rotate(FMatrix4x4(1.0f), Rotation.GetY(), FVector(0.0f, 1.0f, 0.0f))
-		* Rotate(FMatrix4x4(1.0f), Rotation.GetZ(), FVector(0.0f, 0.0f, 1.0f));
+	//FMatrix4x4 RotatMat =  Math::Rotate(FMatrix4x4(1.0f), Rotat.GetX(), FVector(1.0f, 0.0f, 0.0f))
+	//	* Math::Rotate(FMatrix4x4(1.0f), Rotat.GetY(), FVector(0.0f, 1.0f, 0.0f))
+	//	* Math::Rotate(FMatrix4x4(1.0f), Rotat.GetZ(), FVector(0.0f, 0.0f, 1.0f));
 
-	return  Translate(FMatrix4x4(1.0f), Location) * Rotat * ToScale(FMatrix4x4(1.0f), Scale);
+	return Math::Translate(FMatrix4x4(1.0f), Location) * glm::toMat4(glm::quat(Math::ToRadianVector(Rotation).vector)) * Math::ToScale(FMatrix4x4(1.0f), Scale);
 }
+

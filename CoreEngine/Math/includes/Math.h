@@ -3,7 +3,7 @@
 #include <Math/includes/Vector.h>
 
 
-struct Math
+namespace Math
 {
 	template<class T1, class T2 = T1, class T3 = T1 >
 	static inline T1 Clamp(T1 current, T2 min, T3 max)
@@ -45,6 +45,14 @@ struct Math
 	static inline double ToDegrees(double radian)
 	{
 		return glm::degrees(radian);
+	}
+
+	static bool LikelyRadians(const FVector& v)
+	{
+		// Если компоненты ? 2? (?6.283), скорее всего радианы
+	
+		const float TWO_PI = 2.0f * 3.14159265358979323846f;
+		return (fabs(v.GetX()) <= TWO_PI) && (fabs(v.GetY()) <= TWO_PI) && (fabs(v.GetZ()) <= TWO_PI);
 	}
 
 	template<class T>

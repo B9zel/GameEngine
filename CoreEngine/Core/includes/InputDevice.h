@@ -20,6 +20,7 @@ namespace CoreEngine
 		static bool GetIsKeyPressed(uint32 key);
 		static void SetMousePos(const DVector2& Pos);
 		static bool GetIsButtonPressed(uint32 button);
+		static bool GetIsButtonReleased(uint32 button);
 		static DVector2 GetMousePos();
 
 		template<class Class>

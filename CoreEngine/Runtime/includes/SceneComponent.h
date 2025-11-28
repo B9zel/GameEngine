@@ -29,8 +29,8 @@ namespace CoreEngine
 			FVector GetComponentLocation() const;
 			FVector GetComponentScale() const;
 			FVector GetComponentRotation() const;
-			FVector GetForwardVector();
-			FVector GetRightVector();
+			FVector GetForwardVector() const;
+			FVector GetRightVector() const;
 
 			virtual void SetComponentRotation(const FVector& newRotation);
 			virtual void SetComponentLocation(const FVector& newLocation);
@@ -46,8 +46,8 @@ namespace CoreEngine
 
 		private:
 
-			FVector CalculateForwardDirection();
-			FVector CalculateRightDirection();
+			FVector CalculateForwardDirection() const;
+			FVector CalculateRightDirection() const;
 
 		protected:
 

@@ -1,6 +1,6 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/SceneComponent.h>
-
+#include <Math/includes/Vector.h>
 #include <Runtime/includes/Controller.h>
 
 

@@ -32,11 +32,11 @@ namespace Editor
 
 		if (GetTypeProjection() == ETypeView::PERSPECTIVE)
 		{
-			Projection = CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), static_cast<uint32>(ScreenSize.x), static_cast<uint32>(ScreenSize.y), m_zNear, m_zFar);
+			Projection = Math::CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), static_cast<uint32>(ScreenSize.x), static_cast<uint32>(ScreenSize.y), m_zNear, m_zFar);
 		}
 		else
 		{
-			Projection = CreateOrthoMatrix(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_zNear, m_zFar);
+			Projection = Math::CreateOrthoMatrix(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_zNear, m_zFar);
 		}
 		return Projection;
 	}
@@ -54,22 +54,21 @@ namespace Editor
 
 	FMatrix4x4 EditorViewportClient::GetViewMatrix()
 	{
-		m_ViewMatrix = CreateMatrixLookAt(GetLocation(), GetLocation() + m_Transform.LookAt, FVector(0, 1, 0));
+		m_ViewMatrix = Math::CreateMatrixLookAt(GetLocation(), GetLocation() + m_Transform.LookAt, FVector(0, 1, 0));
 		return m_ViewMatrix;
 	}
 
 	void EditorViewportClient::Update(float DeltaTime, const bool IsHoveredViewport)
 	{
 		CoreEngine::Engine::Get()->GetRender()->SetViewProjectionMatrix(GetViewMatrix(), CreateProjection());
-		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1}, {2}", m_Transform.LookAt.GetX(), m_Transform.LookAt.GetY(), m_Transform.LookAt.GetZ());
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, IsHoveredViewport);
-			//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", GetRotation().GetX(), GetRotation().GetY(), GetRotation().GetZ());
+	
 		if (!CoreEngine::InputDevice::GetIsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) || !IsHoveredViewport)
 		{
 			LastPosMouse = CoreEngine::InputDevice::GetMousePos();
-			//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1}", LastPosMouse.x, LastPosMouse.y);
+			EventActiveMove.Call(false);
 			return;
 		}
+		EventActiveMove.Call(true);
 		
 		FVector NewPos = GetLocation();
 		FVector NewRot = GetRotation();

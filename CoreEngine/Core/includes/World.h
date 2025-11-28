@@ -55,6 +55,12 @@ namespace CoreEngine
 
 		void OpenLevel(Level* level);
 		void InitializePlayActors();
+
+		template<class Predict>
+		DArray<Runtime::Actor*> GetAllActorsPredicate(Predict Predication);
+		template<class Predict>
+		Runtime::Actor* GetActorPredicate(Predict Predication);
+
 	private:
 
 		UniquePtr<UpdateManager> m_UpdateManager;
@@ -100,6 +106,34 @@ namespace CoreEngine
 		spawnToLevel->AddActor(NewActor);
 
 		return NewActor;
+	}
+
+
+	template<class Predict>
+	DArray<Runtime::Actor*> World::GetAllActorsPredicate(Predict Predication)
+	{
+		DArray<Runtime::Actor*> CollectActors;
+		for (Runtime::Actor* Actor : m_MainLevel->GetActors())
+		{
+			if (Predication(Actor))
+			{
+				CollectActors.push_back(Actor);
+			}
+		}
+		return CollectActors;
+	}
+
+	template<class Predict>
+	Runtime::Actor* World::GetActorPredicate(Predict Predication)
+	{
+		for (Runtime::Actor* Actor : m_MainLevel->GetActors())
+		{
+			if (Predication(Actor))
+			{
+				return Actor;
+			}
+		}
+		return nullptr;
 	}
 	/*template<typename T>
 	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)*/

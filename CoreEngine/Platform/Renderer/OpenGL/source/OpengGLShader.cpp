@@ -183,12 +183,12 @@ namespace CoreEngine
 					if (isBindShader)
 					{
 						Bind();
-						glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
+						glUniformMatrix4fv(location, 1, GL_FALSE, Math::GetValuePtr(matrix));
 						UnBind();
 					}
 					else
 					{
-						glUniformMatrix4fv(location, 1, GL_FALSE, GetValuePtr(matrix));
+						glUniformMatrix4fv(location, 1, GL_FALSE, Math::GetValuePtr(matrix));
 					}
 				return true;
 			}
