@@ -8,46 +8,57 @@ namespace CoreEngine
 {
 	//YAML::Node SerializeAchive::DataSave = YAML::Node(YAML::NodeType::Map);
 
+	bool SerializeAchive::HasData(const String& KeyName)
+	{
+		return HasDataNode(DataSave, KeyName);
+	}
+
 	void SerializeAchive::SerializeData(const String& NameData, const FVector& Data)
 	{
-		std::stringstream stream;
-		stream << "[" << Data.GetX() << "," << Data.GetY() << "," << Data.GetZ() << "]";
+		static DArray<float> VectorSerialized;
+		VectorSerialized.clear();
+		VectorSerialized = { Data.GetX(), Data.GetY(), Data.GetZ() };
+
+		//stream << "[" << Data.GetX() << "," << Data.GetY() << "," << Data.GetZ() << "]";
 		if (Prefixes.empty())
 		{
-			DataSave[NameData] = (stream.str());
+			DataSave[NameData] = VectorSerialized;
 		}
 		else
 		{
 			nlohmann::json& LastNode = FindLastNode();
-			LastNode[NameData] = (stream.str());
+			LastNode[NameData] = VectorSerialized;
 		}
 	}
 	
 	void SerializeAchive::SerializeData(const String& NameData, const FTransform& Data)
 	{
-		std::stringstream streamLocation;
-		streamLocation << "[" << Data.GetLocation().GetX() << "," << Data.GetLocation().GetY() << "," << Data.GetLocation().GetZ() << "]";
-
+		static DArray<float> VectorSerializedLocation;
+		VectorSerializedLocation.clear();
+		VectorSerializedLocation = { Data.GetLocation().GetX(), Data.GetLocation().GetY(), Data.GetLocation().GetZ() };
 		
-		std::stringstream streamRotation;
-		streamRotation << "[" << Data.GetRotation().GetX() << "," << Data.GetRotation().GetY() << "," << Data.GetRotation().GetZ() << "]";
+		static DArray<float> VectorSerializedRotation;
+		VectorSerializedRotation.clear();
+		VectorSerializedRotation = { Data.GetRotation().GetX(), Data.GetRotation().GetY(), Data.GetRotation().GetZ() };
 		
-		std::stringstream streamScale;
-		streamScale << "[" << Data.GetScale().GetX() << "," << Data.GetScale().GetY() << "," << Data.GetScale().GetZ() << "]";
+		static DArray<float> VectorSerializedScale;
+		VectorSerializedScale.clear();
+		VectorSerializedScale = { Data.GetScale().GetX(), Data.GetScale().GetY(), Data.GetScale().GetZ() };
+	
 		if (Prefixes.empty())
 		{
-			DataSave[NameData]["Location"] = (streamLocation.str());
-			DataSave[NameData]["Rotation"] = (streamRotation.str());
-			DataSave[NameData]["Scale"] = (streamScale.str());
+			DataSave[NameData]["Location"] = VectorSerializedLocation;
+			DataSave[NameData]["Rotation"] = VectorSerializedRotation;
+			DataSave[NameData]["Scale"] = VectorSerializedScale;
 		}
 		else
 		{
 		
 			nlohmann::json& LastNode = FindLastNode();
 
-			LastNode[NameData]["Location"] = (streamLocation.str());
-			LastNode[NameData]["Rotation"] = (streamRotation.str());
-			LastNode[NameData]["Scale"] = (streamScale.str());
+			LastNode[NameData]["Location"] = VectorSerializedLocation;
+			LastNode[NameData]["Rotation"] = VectorSerializedRotation;
+			LastNode[NameData]["Scale"] = VectorSerializedScale;
 		}
 	}
 
@@ -87,7 +98,6 @@ namespace CoreEngine
 		Prefixes.pop_back();
 	}
 
-
 	void dump(const nlohmann::json& n, const std::string& name) {
 		std::cout << "---- " << name << " ----\n";
 		std::cout << "defined=" 
@@ -101,25 +111,38 @@ namespace CoreEngine
 		nlohmann::json* LastNode = &DataSave;
 		for (auto& Prefix : Prefixes)
 		{
-			//if (!LastNode.) return nlohmann::json();
-			
-			//nlohmann::json child = GetChildNoCreate(LastNode, Prefix);
-	
 			auto child = LastNode->find(Prefix);
-			
 			if (!LastNode->count(Prefix))
 			{
-				
 				(*LastNode)[Prefix] = nlohmann::json({});
 				child = LastNode->find(Prefix);
-				//child = GetChildNoCreate(LastNode, Prefix);
 			}
 			
 			LastNode = &(*child);
-			
-			
 		}
 	
 		return *LastNode;
+	}
+	nlohmann::json& SerializeAchive::FindDeserializeLastNode()
+	{
+		nlohmann::json* LastNode = &DataSave;
+		for (auto& Prefix : Prefixes)
+		{
+			auto child = LastNode->find(Prefix);
+			LastNode = &(*child);
+
+
+		}
+
+		return *LastNode;
+	}
+	bool SerializeAchive::HasDataNode(nlohmann::json& Node, const String& NameKay)
+	{
+		return Node.count(NameKay);
+	}
+	std::istream& operator>>(std::istream& stream, SerializeAchive& j)
+	{
+		stream >> j.DataSave;
+		return stream;
 	}
 }

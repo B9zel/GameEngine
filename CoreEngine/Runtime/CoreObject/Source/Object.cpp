@@ -58,6 +58,11 @@ namespace CoreEngine
 			return HasSerialize;
 		}
 
+		bool Object::GetHasDeserialized() const
+		{
+			return HasDeserialize;
+		}
+
 		void Object::PreSerialize()
 		{
 			HasSerialize = false;
@@ -68,7 +73,6 @@ namespace CoreEngine
 			if (HasSerialize) return;
 			HasSerialize = true;
 
-
 			Reflection::ClassField* Class = GetClass();
 			Archive.PushPrefix(GetName());
 			Archive.SerializeData("NameClass", GetClass()->Name);
@@ -76,13 +80,58 @@ namespace CoreEngine
 			{
 				for (auto* Property : Class->PropertyFileds)
 				{
+					Archive.PushPrefix(Property->Name);
 					Property->Serialize(Archive, this);
+					Archive.PopPrefix();
 				}
 
 				Class = Class->ParentClass;
 			}
-			//GetWorld()->GetSaveManager()->SaveSceneSerializedData();
+			OnSerialize(Archive);  
+
 			Archive.PopPrefix();
+		}
+
+		void Object::PreDeserialize()
+		{
+			HasDeserialize = false;
+		}
+
+		void Object::Deserialize(SerializeAchive& Data)
+		{
+			if (HasDeserialize) return;
+			HasDeserialize = true;
+
+			Reflection::ClassField* Class = GetClass();
+			Data.PushPrefix(GetName());
+
+			while (Class != nullptr)
+			{
+				for (auto* Property : Class->PropertyFileds)
+				{
+					Data.PushPrefix(Property->Name);
+					Property->Deserialize(Data, this);
+					Data.PopPrefix();
+				}
+
+				Class = Class->ParentClass;
+			}
+			OnDeserialize(Data);
+
+			Data.PopPrefix();
+		}
+
+		void Object::MarkGarbage()
+		{
+			SetFlag(static_cast<uint32>(StateObjectFlagGC), static_cast<uint32>(ObjectGCFlags::Garbage));
+		}
+
+		void Object::OnDeserialize(SerializeAchive& Data)
+		{
+		}
+
+		void Object::OnSerialize(SerializeAchive& Archive)
+		{
 		}
 
 		const String& Object::GetName() const

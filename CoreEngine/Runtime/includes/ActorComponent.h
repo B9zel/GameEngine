@@ -68,6 +68,8 @@ namespace CoreEngine
 			virtual void RegisteredComponent();
 			virtual void UpdateComponent(float deltaTime);
 
+			virtual void DestroyComponent();
+
 			void SetOwner(Actor* Owner);
 			Actor* GetOwner() const;
 			bool GetIsActive() const;

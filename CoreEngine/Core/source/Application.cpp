@@ -53,10 +53,15 @@ namespace CoreEngine
 		ConstructEngine();
 
 
-		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::Exit, this));
+		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::ExitInput, this));
 	}
 
-	void Application::Exit(Event& event)
+	void Application::ExitInput(Event& event)
+	{
+		Exit();
+	}
+
+	void Application::Exit()
 	{
 		m_isRun = false;
 		glfwTerminate();

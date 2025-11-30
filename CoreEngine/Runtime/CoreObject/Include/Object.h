@@ -31,7 +31,8 @@ enum class ObjectGCFlags : uint8
 	None = 0,
 	RootObject = FLAG_OFFSET(0),
 	LiveObject = FLAG_OFFSET(1),
-	Unreachable = FLAG_OFFSET(2)
+	Unreachable = FLAG_OFFSET(2),
+	Garbage = FLAG_OFFSET(3)
 };
 
 
@@ -80,12 +81,23 @@ namespace CoreEngine
 
 			uint32 GetGCState() const;
 			bool GetHasSerialized() const;
+			bool GetHasDeserialized() const;
 
 			virtual void StartDestroy() {}
 			virtual void FinishDestroy() {}
 			
 			virtual void PreSerialize();
-			virtual void Serialize(SerializeAchive& Archive);
+			void Serialize(SerializeAchive& Archive);
+			virtual void PreDeserialize();
+			void Deserialize(SerializeAchive& Data);
+
+
+			virtual void MarkGarbage();
+
+		protected:
+
+			virtual void OnDeserialize(SerializeAchive& Data);
+			virtual void OnSerialize(SerializeAchive& Archive);
 
 		private:
 
@@ -102,6 +114,8 @@ namespace CoreEngine
 
 			// Serialize
 			bool HasSerialize{ false };
+			// Deserialize
+			bool HasDeserialize{ false };
 
 			friend GB::GarbageCollector;
 		};

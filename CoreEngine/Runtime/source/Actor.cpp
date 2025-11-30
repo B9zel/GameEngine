@@ -52,6 +52,10 @@ namespace CoreEngine
 			}
 		}
 
+		void Actor::EndPlay()
+		{
+		}
+
 		void Actor::Update(float deltaTime)
 		{
 		}
@@ -186,14 +190,46 @@ namespace CoreEngine
 				Component->PreSerialize();
 			}
 		}
-		void Actor::Serialize(SerializeAchive& Achive)
+		void Actor::PreDeserialize()
 		{
-			Object::Serialize(Achive);
+			Object::PreDeserialize();
+
+			for (auto* Component : GetComponents())
+			{
+				Component->PreDeserialize();
+			}
+		}
+		void Actor::Destroy()
+		{
+			EndPlay();
+			GetWorld()->DestroyActor(this);
+			OnDestroy();
+			for (auto& Component : Components)
+			{
+				Component->DestroyComponent();
+			}
+			GetWorld()->GetUpdateManager()->RemoveFunction(&actorUpdate);
+
+			MarkGarbage();
+		}
+
+		void Actor::OnDestroy()
+		{
+		}
+
+		void Actor::OnSerialize(SerializeAchive& Achive)
+		{
+			Object::OnSerialize(Achive);
 
 			for (auto* Component : GetComponents())
 			{
 				Component->Serialize(Achive);
 			}
+		}
+		void Actor::OnDeserialize(SerializeAchive& Achive)
+		{
+			Object::OnDeserialize(Achive);
+
 		}
 	}
 }

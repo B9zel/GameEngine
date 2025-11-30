@@ -1,6 +1,6 @@
 #pragma once
 #include <Runtime/includes/BaseLightComponent.h>
-
+#include <SpotLightComponent.generated.h>
 
 namespace CoreEngine
 {
@@ -8,9 +8,11 @@ namespace CoreEngine
 	class SpotLightProxy;
 	namespace Runtime
 	{
-
+		RCLASS()
 		class SpotLightComponent : public BaseLightComponent
 		{
+			GENERATED_BODY()
+
 		public:
 
 			SpotLightComponent(const InitializeObject& Object);

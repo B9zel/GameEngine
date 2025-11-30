@@ -114,13 +114,19 @@ namespace CoreEngine
 			const DArray<ActorComponent*>& GetComponents() const;
 
 			virtual void PreSerialize() override;
-			virtual void Serialize(SerializeAchive& Achive) override;
+			virtual void PreDeserialize() override;
+
+			virtual void Destroy();
 
 		protected:
 
 			virtual void BeginPlay();
+			virtual void EndPlay();
 			virtual void Update(float deltaTime);
 			virtual void OnRegistered();
+			virtual void OnSerialize(SerializeAchive& Achive) override;
+			virtual void OnDeserialize(SerializeAchive& Achive) override;
+			virtual void OnDestroy();
 
 		private:
 
@@ -134,7 +140,7 @@ namespace CoreEngine
 			Actor* Owner;
 			RPROPERTY();
 			DArray<ActorComponent*> Components;
-			DArray<ObjectPtr<ActorComponent>> ComponentsGC;
+			//DArray<ObjectPtr<ActorComponent>> ComponentsGC;
 
 		private:
 
@@ -162,7 +168,7 @@ namespace CoreEngine
 			obj->SetName(Name);
 
 			Components.emplace_back(obj);
-			ComponentsGC.emplace_back(obj);
+			//ComponentsGC.emplace_back(obj);
 			return obj;
 
 		}

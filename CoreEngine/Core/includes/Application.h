@@ -60,11 +60,13 @@ namespace CoreEngine
 		virtual void OnEvent(Event& event);
 		virtual void CreateApp();
 
+		virtual void Exit();
+
 		//void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
 
 	protected:
 
-		void Exit(Event& event);
+		void ExitInput(Event& event);
 		virtual void ConstructEngine();
 
 	protected:

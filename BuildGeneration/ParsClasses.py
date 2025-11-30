@@ -39,6 +39,8 @@ def GenerateHeader(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
                 f"\n          static CoreEngine::Reflection::ClassField* GetStaticClass(); \\" \
                 f"\n          friend struct Construct_{Field.Name}_Statics; \\" \
                 f"\nprivate:\n"
+    write += f"GenetateHeaderRegistryClass({Field.Name}, {Field.Namespace})\n"
+
     write += f"#undef CURRENT_FILE_ID \n" \
              f"#define CURRENT_FILE_ID {CurrentFileId}"
 
@@ -106,7 +108,7 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
         Parent = f"{Field.Parent}::GetStaticClass()" if Field.Parent else "nullptr"
         Implement += f"ImplementNewClass({Field.Name}Generated, {Field.Name},{Field.Namespace}, EClassFieldParams::NONE,sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
                     f"ImplementStaticClass({Field.Namespace}::{Field.Name}, {ClassNameLine}Generated,\"{Field.Name}\")\n"
-        Implement += f"GenetateRegistryClass({Field.Name}, {Field.Namespace})"
+        Implement += f"GenetateSourceRegistryClass({Field.Name}, {Field.Namespace})"
 
 
     if preGenImplement not in conteinFile:

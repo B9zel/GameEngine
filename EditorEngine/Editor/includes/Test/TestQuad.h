@@ -125,7 +125,7 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture3;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture4;
 
-	RPROPERTY(EditorVisible);
+	/*RPROPERTY(EditorVisible);
 	int8 Test8 = 0;
 	RPROPERTY(EditorVisible);
 	int16 Test16 = 0;
@@ -144,7 +144,7 @@ private:
 	RPROPERTY(EditorVisible);
 	String TestTestTestTestString ;
 	RPROPERTY(EditorVisible);
-	FVector TestTestTestTestVector ;
+	FVector TestTestTestTestVector ;*/
 
 private:
 

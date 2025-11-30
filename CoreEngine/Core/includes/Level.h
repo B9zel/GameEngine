@@ -34,7 +34,11 @@ namespace CoreEngine
 		virtual void InitProperties() override;
 
 		virtual void PreSerialize() override;
-		virtual void Serialize(SerializeAchive& Achive) override;
+		virtual void OnSerialize(SerializeAchive& Achive) override;
+
+		virtual void PreDeserialize() override;
+		virtual void OnDeserialize(SerializeAchive& Data) override;
+
 		
 	private:
 		
@@ -50,6 +54,6 @@ namespace CoreEngine
 
 		RPROPERTY();
 		DArray<Runtime::Actor*> m_Actors;
-		DArray<ObjectPtr<Runtime::Actor>> m_ActorsGC;
+		//DArray<ObjectPtr<Runtime::Actor>> m_ActorsGC;
 	};
 }

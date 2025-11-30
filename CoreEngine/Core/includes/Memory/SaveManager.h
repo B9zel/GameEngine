@@ -14,10 +14,15 @@ namespace CoreEngine
 
 		virtual void PreStartSerialized();
 		virtual void StartSerialized();
-		virtual void SaveSceneSerializedData();
+		virtual void SaveSceneSerializedData(const String& Path);
 
-		void PrintSerializeData();
+		virtual void PreStartDeserialized();
+		virtual void StartDeserialized(SerializeAchive& LoadedData);
 
+		virtual void SaveScene(const String& Path);
+		virtual bool LoadSaveScene(const String& Path);
+
+	
 	private:
 
 		World* WorldPtr;

@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/includes/Base.h>
-#include <Editor/includes/BaseEditorPanel.h>
+#include <Editor/includes/EditorUI/BaseEditorPanel.h>
 
 
 namespace CoreEngine::Runtime
@@ -16,7 +16,7 @@ namespace CoreEngine::Render
 
 namespace Editor
 {
-	class EditorViewport : public BaseEdtiorPanel
+	class EditorViewport : public BaseEditorPanel
 	{
 	public:
 

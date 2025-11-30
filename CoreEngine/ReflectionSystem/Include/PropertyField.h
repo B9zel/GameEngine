@@ -169,7 +169,7 @@ namespace CoreEngine
 				TypeProperty* Variable = reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 				if (Variable)
 				{
-					*Variable = NewValur;
+					(*Variable) = NewValur;
 				}
 			}
 
@@ -177,13 +177,15 @@ namespace CoreEngine
 
 			bool GetIsSupportReflectionSystem() const;
 			virtual EConteinType GetPrimitiveType() const;
-			virtual BaseTypePropertyType* GetTypeProperty();
+			virtual BaseTypePropertyType* GetTypeProperty() const;
 			
 			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance);
+			virtual void Deserialize(SerializeAchive& Archive, Runtime::Object* Instance);
 
-		private:
+		protected:
 
 			void SerializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance);
+			void DeserializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance);
 
 		public:
 
@@ -193,7 +195,7 @@ namespace CoreEngine
 
 		protected:
 
-			SharedPtr<BaseTypePropertyType> TypeProperty;
+			mutable SharedPtr<BaseTypePropertyType> TypeProperty;
 		};
 
 		struct ArrayPropertyField : public PropertyField
@@ -226,7 +228,15 @@ namespace CoreEngine
 				return false;
 			}
 
-
+			template<class TypeStorage>
+			void SetElement(void* Instance, const uint32 Index, TypeStorage NewValue)
+			{
+				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
+				if (Variable)
+				{
+					((*Variable)[Index]) = NewValue;
+				}
+			}
 
 			template<class TypeStorage>
 			int64 GetSizeArray(void* Instance)
@@ -240,12 +250,13 @@ namespace CoreEngine
 			}
 
 			virtual EConteinType GetPrimitiveType() const override;
-			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance);
+			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance) override;
+			virtual void Deserialize(SerializeAchive& Archive, Runtime::Object* Instance) override;
 
 		private:
 
 			void SerializedDefenition(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance);
-
+			void DeserializeDefinitionType(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance);
 		};
 	}
 

@@ -49,8 +49,6 @@ namespace Editor
 	void EditorApplication::Start()
 	{
 		CoreEngine::Application::Start();
-
-		InstanceEngine->GetWorld()->GetSaveManager()->SaveSceneSerializedData();
 	}
 
 	void EditorApplication::ConstructEngine()

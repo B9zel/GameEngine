@@ -1,15 +1,18 @@
 #pragma once
 #include <Core/includes/Engine.h>
 #include <Core/includes/InputDevice.h>
-#include <Editor/includes/EditorViewport.h>
+#include <Editor/includes/EditorUI/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
-#include <Editor/includes/SceneHierarhy.h>
-#include <Editor/includes/EditorDetails.h>
+#include <Editor/includes/EditorUI/SceneHierarhy.h>
+#include <Editor/includes/EditorUI/EditorDetails.h>
+
+
 
 
 namespace Editor
 {
 	class EditorViewportClient;
+	class EditorMenuBar;
 
 	class EditorEngine : public CoreEngine::Engine
 	{
@@ -40,11 +43,12 @@ namespace Editor
 		bool my_tool_active{ true };
 
 		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
-		DArray<SharedPtr<BaseEdtiorPanel>> EditorWidgets;
+		DArray<SharedPtr<BaseEditorPanel>> EditorWidgets;
 
 		SharedPtr<EditorViewport> Viewport;
 		SharedPtr<SceneHierarhy> SceneHier;
 		SharedPtr<EditorDetails> DetailsPanel;
+		SharedPtr<EditorMenuBar> MenuBar;
 
 		UniquePtr<EditorViewportClient> m_ViewportCamera;
 

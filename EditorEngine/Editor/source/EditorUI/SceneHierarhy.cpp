@@ -1,4 +1,4 @@
-#include <Editor/includes/SceneHierarhy.h>
+#include <Editor/includes/EditorUI/SceneHierarhy.h>
 #include <imgui/imgui.h>
 #include <Core/includes/Engine.h>
 #include <ReflectionSystem/Include/ReflectionManager.h>

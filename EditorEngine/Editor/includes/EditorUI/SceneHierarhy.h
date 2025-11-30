@@ -1,5 +1,5 @@
 #pragma once
-#include <Editor/includes/BaseEditorPanel.h>
+#include <Editor/includes/EditorUI/BaseEditorPanel.h>
 #include <Core/includes/Base.h>
 
 namespace CoreEngine::Runtime
@@ -10,7 +10,7 @@ namespace CoreEngine::Runtime
 
 namespace Editor
 {
-	class SceneHierarhy : public BaseEdtiorPanel
+	class SceneHierarhy : public BaseEditorPanel
 	{
 	public:
 

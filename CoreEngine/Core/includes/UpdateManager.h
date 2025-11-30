@@ -28,6 +28,7 @@ namespace CoreEngine
 		static UniquePtr<UpdateManager> CreateInstance();
 
 		void AddFunction(UpdateFunction* newFunc);
+		void RemoveFunction(UpdateFunction* RemFunc);
 		void ExecuteGroup(float deltaTime, const EStageUpdate stage);
 
 	protected:

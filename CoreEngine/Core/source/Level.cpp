@@ -1,7 +1,7 @@
 #include <Core/includes/Level.h>
 #include <Runtime/includes/Actor.h>
 #include <Core/includes/World.h>
-
+#include <Core/includes/Memory/SerializeArchive.h>
 
 
 namespace CoreEngine
@@ -47,9 +47,9 @@ namespace CoreEngine
 		}
 	}
 
-	void Level::Serialize(SerializeAchive& Achive)
+	void Level::OnSerialize(SerializeAchive& Achive)
 	{
-		Object::Serialize(Achive);
+		Object::OnSerialize(Achive);
 
 		for (auto* Object : m_Objects)
 		{
@@ -67,9 +67,61 @@ namespace CoreEngine
 		}
 	}
 
+	void Level::PreDeserialize()
+	{
+		Object::PreDeserialize();
+
+		for (auto* Object : m_Objects)
+		{
+			Object->PreDeserialize();
+		}
+		for (auto* Actor : m_Actors)
+		{
+			Actor->PreDeserialize();
+		}
+	}
+
+	void Level::OnDeserialize(SerializeAchive& Data)
+	{
+		Object::OnDeserialize(Data);
+
+		static DArray<Runtime::Actor*> DeleteActors;
+		DeleteActors.clear();
+
+		DeleteActors = m_Actors;
+		for (auto& i : DeleteActors)
+		{
+			i->Destroy();
+		}
+
+		bool Success = false;
+		for (auto& Elem : Data.FindLastNode()["m_Actors"])
+		{
+			GetWorld()->SpawnActor<Runtime::Actor>(Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr);
+			EG_LOG(CORE, ELevelLog::INFO, Elem.dump(4));
+		}
+
+		for (auto* Object : m_Objects)
+		{
+			if (!Object->GetHasDeserialized())
+			{
+				Object->Deserialize(Data);
+			}
+		}
+		Data.PushPrefix("m_Actors");
+		for (auto* Actor : m_Actors)
+		{
+			if (!Actor->GetHasDeserialized())
+			{
+				Actor->Deserialize(Data);
+			}
+		}
+		Data.PopPrefix();
+	}
+
 	void Level::AddActor(Runtime::Actor* newActor)
 	{
 		m_Actors.push_back(newActor);
-		m_ActorsGC.push_back(newActor);
+		//m_ActorsGC.push_back(newActor);
 	}
 }

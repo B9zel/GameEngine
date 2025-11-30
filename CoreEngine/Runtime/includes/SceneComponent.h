@@ -27,6 +27,7 @@ namespace CoreEngine
 			void SetTransform(const FTransform& newTransform);
 
 			FVector GetComponentLocation() const;
+			FVector GetReletiveLocation() const;
 			FVector GetComponentScale() const;
 			FVector GetComponentRotation() const;
 			FVector GetForwardVector() const;

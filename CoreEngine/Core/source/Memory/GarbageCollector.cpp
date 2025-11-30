@@ -99,7 +99,7 @@ namespace CoreEngine
 			{
 				if (!obj) continue;
 
-				if (obj->GetGCState() == static_cast<uint32>(ObjectGCFlags::Unreachable))
+				if (HasFlag(obj->GetGCState(), static_cast<uint32>(ObjectGCFlags::Unreachable)))
 				{
 					deleteObjects.push_back(obj);
 					
@@ -131,7 +131,7 @@ namespace CoreEngine
 
 		void GarbageCollector::MarkObject(Runtime::Object* object)
 		{
-			if (!object || object->GetGCState() == static_cast<uint32>(ObjectGCFlags::LiveObject)) return;
+			if (!object || HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::LiveObject)) || HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::Garbage))) return;
 			RemoveFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::Unreachable));
 			SetFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
 			

@@ -1,4 +1,4 @@
-#include "Editor/includes/EditorDetails.h"
+#include "Editor/includes/EditorUI/EditorDetails.h"
 
 #include <imgui/imgui.h>
 #include <Runtime/CoreObject/Include/Object.h> 

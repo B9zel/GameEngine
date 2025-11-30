@@ -31,6 +31,18 @@ namespace CoreEngine
 		m_GroupUpdate.find(newFunc->GetStage())->second.push_back(newFunc);
 	}
 
+	void UpdateManager::RemoveFunction(UpdateFunction* RemFunc)
+	{
+		if (!m_GroupUpdate.count(RemFunc->GetStage())) return;
+
+		auto& Group = m_GroupUpdate.find(RemFunc->GetStage())->second;
+		auto Finded = std::find(Group.begin(), Group.end(), RemFunc);
+		if (Finded != Group.end())
+		{
+			Group.erase(Finded);
+		}
+	}
+
 	void UpdateManager::ExecuteGroup(float deltaTime, const EStageUpdate stage)
 	{
 		if (!m_GroupUpdate.count(stage)) return;

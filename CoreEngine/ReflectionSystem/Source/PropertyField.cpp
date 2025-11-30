@@ -168,7 +168,7 @@ namespace CoreEngine
 		// Begin PropertyField
 		bool PropertyField::GetIsPointer() const
 		{
-			return TypeProperty->GetIsPointer();
+			return GetTypeProperty()->GetIsPointer();
 		}
 
 		bool PropertyField::GetIsSupportReflectionSystem() const
@@ -181,7 +181,7 @@ namespace CoreEngine
 			return EConteinType::PRIMITIVE;
 		}
 
-		BaseTypePropertyType* PropertyField::GetTypeProperty()
+		BaseTypePropertyType* PropertyField::GetTypeProperty() const
 		{
 			return TypeProperty.get();
 		}
@@ -201,9 +201,24 @@ namespace CoreEngine
 				SerializeDefinitionType(Archive, Instance);
 			}
 		}
+		void PropertyField::Deserialize(SerializeAchive& Archive, Runtime::Object* Instance)
+		{
+			if (GetIsPointer())
+			{
+				auto* Obj = GetSourcePropertyByName<Runtime::Object*>(Instance);
+				if (Obj && *Obj)
+				{
+					(*Obj)->Deserialize(Archive);
+				}
+			}
+			else
+			{
+				DeserializeDefinitionType(Archive, Instance);
+			}
+		}
 		void PropertyField::SerializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance)
 		{
-			auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(TypeProperty.get());
+			auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(GetTypeProperty());
 			if (!SimpleType) return;
 
 			switch (SimpleType->GetPropertyType())
@@ -261,13 +276,13 @@ namespace CoreEngine
 			case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_SINGLE:
 			{
 				auto* Property = GetSourcePropertyByName<float>(Instance);
-				Archive.SerializeData(Name, ToString(*Property));
+				Archive.SerializeData(Name, *Property);
 				break;
 			}
 			case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_DOUBLE:
 			{
 				auto* Property = GetSourcePropertyByName<double>(Instance);
-				Archive.SerializeData(Name, ToString(*Property));
+				Archive.SerializeData(Name, *Property);
 				break;
 			}
 			case CoreEngine::Reflection::EPrimitiveTypes::STRING:
@@ -304,6 +319,171 @@ namespace CoreEngine
 				break;
 			}
 		}
+		void PropertyField::DeserializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance)
+		{
+			auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(GetTypeProperty());
+			if (!SimpleType) return;
+
+			switch (SimpleType->GetPropertyType())
+			{
+			case CoreEngine::Reflection::EPrimitiveTypes::NONE:
+				break;
+			case CoreEngine::Reflection::EPrimitiveTypes::INT8:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int8>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::INT16:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int16>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::INT32:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int32>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::INT64:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int64>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::UINT8:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<uint8>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::UINT16:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int16>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::UINT32:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<uint32>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::UINT64:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<uint64>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_SINGLE:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<float>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_DOUBLE:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<double>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::STRING:
+			{
+				bool Success = false;
+				const String& Data = Archive.DeserializeData<String>(Name, Success);
+				//auto* SourceString = GetSourcePropertyByName<String>(Instance);
+				if (Success)
+				{
+					//SourceString->assign(Data);
+					SetSourceProperty<String>(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::BOOL:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<bool>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::CHAR:
+			{
+				bool Success = false;
+				auto Data = Archive.DeserializeData<int8>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::VECTOR3F:
+			{
+				bool Success = false;
+				FVector Data = Archive.DeserializeData<FVector>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			case CoreEngine::Reflection::EPrimitiveTypes::TRANSFORM:
+			{
+				bool Success = false;
+				FTransform Data = Archive.DeserializeData<FTransform>(Name, Success);
+				if (Success)
+				{
+					SetSourceProperty(Instance, Data);
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
 		// End PropertyField
 
 		// Begin ArrayPropertyField
@@ -328,9 +508,31 @@ namespace CoreEngine
 			}
 			else
 			{
-				auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(TypeProperty.get());
+				auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(GetTypeProperty());
 				
 				SerializedDefenition(SimpleType->GetPropertyType(), Archive, Instance);
+			}
+		}
+
+		void ArrayPropertyField::Deserialize(SerializeAchive& Archive, Runtime::Object* Instance)
+		{
+			if (GetTypeProperty()->GetTypeOfPropertyType() == ETypeOfPropertyType::COMPLEX)
+			{
+				int64 Size = GetSizeArray<Runtime::Object*>(Instance);
+				for (uint64 i = 0; i < Size; i++)
+				{
+					auto* Obj = GetElement<Runtime::Object*>(Instance, i);
+					if (Obj)
+					{
+						(*Obj)->Deserialize(Archive);
+					}
+				}
+			}
+			else
+			{
+				auto* SimpleType = dynamic_cast<SimplePropertyTypeField*>(GetTypeProperty());
+
+				DeserializeDefinitionType(SimpleType->GetPropertyType(), Archive, Instance);
 			}
 		}
 
@@ -436,6 +638,173 @@ namespace CoreEngine
 				}
 				default:
 					break;
+				}
+			}
+		}
+
+		void ArrayPropertyField::DeserializeDefinitionType(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance)
+		{
+			int64 Size = GetSizeArray<Runtime::Object*>(Instance);
+			for (uint64 i = 0; i < Size; i++)
+			{
+				switch (Type)
+				{
+				case CoreEngine::Reflection::EPrimitiveTypes::NONE:
+					break;
+				case CoreEngine::Reflection::EPrimitiveTypes::INT8:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<int8>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::INT16:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<int16>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::INT32:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<int32>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::INT64:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<int64>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::UINT8:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<uint8>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::UINT16:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<uint16>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::UINT32:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<uint32>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::UINT64:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<uint32>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_SINGLE:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<float>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::FLOAT_DOUBLE:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<double>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::STRING:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<String>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::BOOL:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<bool>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::CHAR:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<int8>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::VECTOR3F:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<FVector>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::TRANSFORM:
+				{
+					bool Success = false;
+					auto Data = Archive.DeserializeData<FTransform>(Name, Success);
+					if (Success)
+					{
+						SetElement(Instance, i, Data);
+					}
+					break;
+				}
+				default:
+					break;
+			
 				}
 			}
 		}

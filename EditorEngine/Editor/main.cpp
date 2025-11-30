@@ -19,7 +19,7 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
-
+#include <Editor/includes/Test/TestQuad.h>
 
 
 

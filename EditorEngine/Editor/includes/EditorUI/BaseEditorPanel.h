@@ -4,11 +4,11 @@ namespace Editor
 {
 	class EditorEngine;
 
-	class BaseEdtiorPanel
+	class BaseEditorPanel
 	{
 	public:
 
-		BaseEdtiorPanel() = default;
+		BaseEditorPanel() = default;
 		void SetOwnerEditor(Editor::EditorEngine* OwnerEditor);
 		virtual void Draw() = 0;
 

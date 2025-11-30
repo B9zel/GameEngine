@@ -82,11 +82,25 @@ namespace CoreEngine
 		m_MainLevel->PreSerialize();
 	}
 
-	void World::Serialize(SerializeAchive& Achive)
+	void World::OnSerialize(SerializeAchive& Achive)
 	{
-		Object::Serialize(Achive);
+		Object::OnSerialize(Achive);
 
 		m_MainLevel->Serialize(Achive);
+	}
+
+	void World::PreDeserialize()
+	{
+		Object::PreDeserialize();
+
+		m_MainLevel->PreDeserialize();
+	}
+
+	void World::OnDeserialize(SerializeAchive& Data)
+	{
+		Object::OnDeserialize(Data);
+
+		m_MainLevel->Deserialize(Data);
 	}
 
 	void World::OpenLevel(Level* level)
@@ -108,6 +122,15 @@ namespace CoreEngine
 		for (size_t i = 0; i < m_Levels.size(); i++)
 		{
 			m_Levels[i]->ActorInitialize();
+		}
+	}
+
+	void World::DestroyActor(Runtime::Actor* ActorDestr)
+	{
+		auto FindedElement = std::find(m_MainLevel->m_Actors.begin(),  m_MainLevel->m_Actors.end(), ActorDestr);
+		if (FindedElement != m_MainLevel->m_Actors.end())
+		{
+			m_MainLevel->m_Actors.erase(FindedElement);
 		}
 	}
 }

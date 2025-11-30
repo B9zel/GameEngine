@@ -137,7 +137,7 @@ namespace CoreEngine::Runtime
                }                                                           \
                PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
                PASTE_DETAILS(Field_, VarName)& operator=(const PASTE_DETAILS(Field_, VarName)& Other) = default; \
-               virtual CoreEngine::Reflection::BaseTypePropertyType* GetTypeProperty() override \
+               virtual CoreEngine::Reflection::BaseTypePropertyType* GetTypeProperty() const override \
                {                                                                                \
                    if (!TypeProperty)                                                           \
                    {                                                                             \
@@ -147,12 +147,16 @@ namespace CoreEngine::Runtime
                }                                                                                                            \
            };  
 
-#define GenetateRegistryClass(NameClass, Namespace) \
-    namespace {                             \
+#define GenetateHeaderRegistryClass(NameClass, Namespace) namespace PASTE_DETAILS(Register_namespace_,NameClass) {       \
         struct PASTE_DETAILS(RegistryGenerate_, NameClass) \
         {                                                               \
-            PASTE_DETAILS(RegistryGenerate_, NameClass)() {               \
-                                                                        \
+            PASTE_DETAILS(RegistryGenerate_, NameClass)();               \
+        };   static PASTE_DETAILS(RegistryGenerate_, NameClass) PASTE_DETAILS(_AutoRegistry_, NameClass);  \
+        } \
+
+#define GenetateSourceRegistryClass(NameClass, Namespace) namespace PASTE_DETAILS(Register_namespace_, NameClass) {\
+            PASTE_DETAILS(RegistryGenerate_, NameClass)::PASTE_DETAILS(RegistryGenerate_, NameClass)() \
+            {                                                                                           \
                 CoreEngine::Reflection::RegistryClass Class;                                    \
                 Class.CreateMetaClass = []()  -> CoreEngine::Reflection::ConstructionField*                          \
                 {                                                       \
@@ -163,7 +167,4 @@ namespace CoreEngine::Runtime
                         new(ConstructObj) Namespace::##NameClass(Initialize);                                                    \
                     }; \
                 CoreEngine::Reflection::MapRegistryClass::Instance().Register(#NameClass, std::move(Class)); \
-            }                                                                           \
-        };                                                                              \
-        static PASTE_DETAILS(RegistryGenerate_, NameClass) PASTE_DETAILS(_AutoRegistry_, NameClass);   \
-    }
+            } }

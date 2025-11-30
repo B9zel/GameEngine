@@ -49,9 +49,14 @@ namespace CoreEngine
 
 		template<class T>
 		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
+		template<class T>
+		T* SpawnActor(Reflection::ClassField* ClassSource, Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
 		
 		virtual void PreSerialize() override;
-		virtual void Serialize(SerializeAchive& Achive) override;
+		virtual void OnSerialize(SerializeAchive& Achive) override;
+
+		virtual void PreDeserialize() override;
+		virtual void OnDeserialize(SerializeAchive& Data) override;
 
 		void OpenLevel(Level* level);
 		void InitializePlayActors();
@@ -60,6 +65,8 @@ namespace CoreEngine
 		DArray<Runtime::Actor*> GetAllActorsPredicate(Predict Predication);
 		template<class Predict>
 		Runtime::Actor* GetActorPredicate(Predict Predication);
+
+		virtual void DestroyActor(Runtime::Actor* ActorDestr);
 
 	private:
 
@@ -101,6 +108,40 @@ namespace CoreEngine
 			}
 		}
 		T* NewActor = Runtime::CreateObject<T>(Owner);
+		NewActor->SetOwner(Owner);
+		NewActor->PostSpawnActor();
+		spawnToLevel->AddActor(NewActor);
+
+		return NewActor;
+	}
+
+	template<class T>
+	inline T* World::SpawnActor(Reflection::ClassField* ClassSource, Runtime::Actor* Owner, const SpawnParamConfiguration& Param)
+	{
+		Reflection::ClassField* ClassOfTargetType = T::GetStaticClass();
+
+		if (!ClassSource->IsChildClassOf(ClassOfTargetType))
+		{
+			EG_LOG(CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
+			return nullptr;
+		}
+
+		
+		Level* spawnToLevel = nullptr;
+		if (Param.SpawnLevel)
+		{
+			spawnToLevel = Param.SpawnLevel;
+		}
+		else
+		{
+			spawnToLevel = m_Levels.front();
+			if (!spawnToLevel)
+			{
+				EG_LOG(CORE, ELevelLog::ERROR, "There is no single level");
+				return nullptr;
+			}
+		}
+		T* NewActor = Runtime::CreateObject<T>(ClassSource, Owner);
 		NewActor->SetOwner(Owner);
 		NewActor->PostSpawnActor();
 		spawnToLevel->AddActor(NewActor);

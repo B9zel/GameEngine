@@ -1,4 +1,4 @@
-#include <Editor/includes/EditorViewport.h>
+#include <Editor/includes/EditorUI/EditorViewport.h>
 #include <Render/includes/Framebuffer.h>
 #include <Editor/includes/EditorEngine.h>
 #include <Editor/includes/EditorViewportClient.h>
@@ -33,11 +33,8 @@ namespace Editor
 	}
 	void EditorViewport::Draw()
 	{
-		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoMove);
+		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_Modal);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
-
-
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
 

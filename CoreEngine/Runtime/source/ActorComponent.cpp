@@ -18,6 +18,12 @@ namespace CoreEngine
 
 		}
 
+		void ActorComponent::DestroyComponent()
+		{
+			GetWorld()->GetUpdateManager()->RemoveFunction(&updateFunc);
+			MarkGarbage();
+		}
+
 		void ActorComponent::InitProperties()
 		{
 			Object::InitProperties();

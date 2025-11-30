@@ -40,6 +40,16 @@ namespace CoreEngine
 			return Transform.GetLocation();
 		}
 
+		FVector SceneComponent::GetReletiveLocation() const
+		{
+			if (parentAttach)
+			{
+				return parentAttach->GetComponentLocation() - GetComponentLocation();
+			}
+			return GetComponentLocation();
+		}
+
+
 		FVector SceneComponent::GetComponentScale() const
 		{
 			return Transform.GetScale();
@@ -63,6 +73,7 @@ namespace CoreEngine
 		void SceneComponent::SetComponentRotation(const FVector& newRotation)
 		{
 			//AddComponentRotation(newRotation - transform.GetRotationRef());
+
 			for (auto& Child : childrenAttach)
 			{
 				Child->SetComponentRotation(newRotation - Transform.GetRotation() + Child->GetComponentRotation());
@@ -74,7 +85,7 @@ namespace CoreEngine
 		{
 			for (auto& Child : childrenAttach)
 			{
-				Child->SetComponentLocation(newLocation - Transform.GetLocation() + Child->GetComponentLocation());
+				Child->SetComponentLocation(newLocation - Transform.GetLocationRef() + Child->GetComponentLocation());
 			}
 			Transform.SetLocation(newLocation);
 		}

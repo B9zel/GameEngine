@@ -72,8 +72,6 @@ namespace CoreEngine
 	void Engine::Update()
 	{
 		m_World->WorldUpdate();
-		m_World->GetSaveManager()->PreStartSerialized();
-		m_World->GetSaveManager()->StartSerialized();
 		m_TimerManager->Update(m_World->GetWorldDeltaTime());
 	}
 

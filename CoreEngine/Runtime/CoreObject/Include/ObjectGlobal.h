@@ -63,12 +63,12 @@ namespace CoreEngine
 			}
 
 			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
-			Runtime::Object* NewObject = memManager->AllocateMemoryForObject(Class->Size);
+			Runtime::Object* NewObject = memManager->AllocateMemory(Class->Size);
 
 			InitializeObject InitParam;
 			InitParam.Class = Class;
 			Class->ConstructInstanceObject(NewObject, InitParam);
-			memManager->GetGarbageCollector()->AddObject(newObject);
+			memManager->GetGarbageCollector()->AddObject(NewObject);
 
 			return dynamic_cast<T*>(NewObject);
 		}
