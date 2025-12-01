@@ -97,10 +97,10 @@ namespace CoreEngine
 
 						if (shader->GetHasAllMatrix())
 						{
-							FVector4 a = m_Projection * m_View * Proxy->GetTransform().ToMatrix() * FVector4(1, 1, 1, 1).vector;
+							FVector4 a = m_Projection * m_View * Proxy->GetTransformMatrix() * FVector4(1, 1, 1, 1).vector;
 							//FMatrix4x4 b = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
 
-							shader->SetUniformMatrix4x4("Model", Proxy->GetTransform().ToMatrix(), false);
+							shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
 
 							shader->SetUniformMatrix4x4("View", m_View, false);
 							shader->SetUniformMatrix4x4("Projection", m_Projection, false);
@@ -221,9 +221,9 @@ namespace CoreEngine
 
 					if (shader->GetHasAllMatrix())
 					{
-						FMatrix4x4 a = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
+						FMatrix4x4 a = m_Projection * m_View * Proxy->GetTransformMatrix();
 
-						shader->SetUniformMatrix4x4("Model", Proxy->GetTransform().ToMatrix(), false);
+						shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
 						shader->SetUniformMatrix4x4("View", m_View, false);
 						shader->SetUniformMatrix4x4("Projection", m_Projection, false);
 					}

@@ -11,6 +11,8 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <Editor/includes/EditorViewportClient.h>
 #include <Editor/includes/EditorUI/EditorMenuBar.h>
+#include <Editor/includes/EditorWorld.h>
+#include <Editor/includes/EditorUI/EditorToolbar.h>
 #include <ImGuizmo/ImGuizmo.h>
 
 namespace Editor
@@ -42,11 +44,14 @@ namespace Editor
 		MenuBar = MakeSharedPtr<EditorMenuBar>();
 		MenuBar->SetOwnerEditor(this);
 
+		Toolbar = MakeSharedPtr<EditorToolbar>();
+		Toolbar->SetOwnerEditor(this);
 
 		EditorWidgets.push_back(Viewport);
 		EditorWidgets.push_back(SceneHier);
 		EditorWidgets.push_back(DetailsPanel);
 		EditorWidgets.push_back(MenuBar);
+		EditorWidgets.push_back(Toolbar);
 		///
 		m_ViewportCamera = MakeUniquePtr<EditorViewportClient>();
 		m_ViewportCamera->EventActiveMove.AddBind(&EditorViewport::OnActiveMoveCamera, Viewport.get());
@@ -103,6 +108,16 @@ namespace Editor
 		return m_ViewportCamera.get();
 	}
 
+	EStateWorld EditorEngine::GetCurrentStateWorld() const
+	{
+		return CurretnStateWorld;
+	}
+
+	void EditorEngine::SetCurrentStateWorld(EStateWorld NewState)
+	{
+		CurretnStateWorld = NewState;
+	}
+
 	void EditorEngine::RenderEditor()
 	{
 		Viewport->SetFrameBuffer(FrameBuffer);
@@ -114,18 +129,7 @@ namespace Editor
 		}
 
 		ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
-		//if (ImGui::BeginMenuBar())
-		//{
-		//	if (ImGui::BeginMenu("File"))
-		//	{
-		//		if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-		//		if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-		//		if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
-		//		ImGui::EndMenu();
-		//	}
-		//	ImGui::EndMenuBar();
-		//}
-
+		
 		// Edit a color stored as 4 floats
 		ImGui::ColorEdit4("Color", my_color);
 
@@ -145,9 +149,10 @@ namespace Editor
 		ImGui::EndChild();
 	
 		ImGui::End();
-	}	
-	
-
-
+	}
+	CoreEngine::World* EditorEngine::CreateWorld() const
+	{
+		return Runtime::CreateObject<EditorWorld>();
+	}
 }
 

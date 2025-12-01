@@ -60,11 +60,17 @@ namespace CoreEngine
 		FVector2 GetScreenSize() const;
 
 		virtual void PostInitialize();
+		void ConstructInitialize();
 
 		void TakeInputEvent(Event& Input);
 
 	protected:
 
+		virtual World* CreateWorld() const;
+
+	protected:
+
+		World* m_World;
 
 	private:
 
@@ -74,7 +80,6 @@ namespace CoreEngine
 		
 		UniquePtr<TimerManager> m_TimerManager;
 
-		World* m_World;
 		UniquePtr<class Reflection::ReflectionManager> m_ReflectionManger;
 
 		static Engine* GEngine;

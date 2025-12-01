@@ -33,8 +33,7 @@ namespace CoreEngine
 		m_Input = MakeUniquePtr<InputDevice>();
 		m_Render = Render::Render::Create();
 		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
-		m_World = Runtime::CreateObject<World>();
-		m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
+		
 		
 	}
 
@@ -46,8 +45,13 @@ namespace CoreEngine
 
 	void Engine::PostInitialize()
 	{
-		
 		m_World->InitProperties();
+	}
+
+	void Engine::ConstructInitialize()
+	{
+		m_World = CreateWorld();
+		m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
 	}
 
 	void Engine::TakeInputEvent(Event& Input)
@@ -78,5 +82,10 @@ namespace CoreEngine
 	Engine* Engine::Get()
 	{
 		return GEngine;
+	}
+
+	World* Engine::CreateWorld() const
+	{
+		return Runtime::CreateObject<World>();
 	}
 }

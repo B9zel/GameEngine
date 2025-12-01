@@ -32,7 +32,7 @@ public:
 		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>("Primitive type");
 		LightCube->GetSceneProxy()->CountVertex = 108;
 		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
-		LightCube->GetSceneProxy()->SetTransform(GetActorTransform());
+		LightCube->GetSceneProxy()->SetTransformMatrix(GetActorTransform().ToMatrix());
 
 		/*LightObj = CreateSubObject<CoreEngine::Runtime::DirectionLightComponent>();
 		LightObj->SetIntencity(10);

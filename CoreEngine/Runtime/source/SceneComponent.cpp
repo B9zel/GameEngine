@@ -74,25 +74,24 @@ namespace CoreEngine
 		{
 			//AddComponentRotation(newRotation - transform.GetRotationRef());
 
-			for (auto& Child : childrenAttach)
+			/*for (auto& Child : childrenAttach)
 			{
 				Child->SetComponentRotation(newRotation - Transform.GetRotation() + Child->GetComponentRotation());
-			}
+			}*/
 			Transform.SetRotation(newRotation);
 		}
 
 		void SceneComponent::SetComponentLocation(const FVector& newLocation)
 		{
-			for (auto& Child : childrenAttach)
+			/*for (auto& Child : childrenAttach)
 			{
 				Child->SetComponentLocation(newLocation - Transform.GetLocationRef() + Child->GetComponentLocation());
-			}
+			}*/
 			Transform.SetLocation(newLocation);
 		}
 
 		void SceneComponent::SetComponentScale(const FVector& newScale)
 		{
-
 			for (auto& Child : childrenAttach)
 			{
 				Child->SetComponentScale((Child->GetComponentScale() / Child->parentAttach->GetComponentScale()) * newScale);
@@ -142,6 +141,11 @@ namespace CoreEngine
 		const DArray<SceneComponent*>& SceneComponent::GetChildrenAttaches() const
 		{
 			return childrenAttach;
+		}
+
+		SceneComponent* SceneComponent::GetParentAttach() const
+		{
+			return parentAttach;
 		}
 
 		static float NormalizeDeg(float a)
@@ -197,6 +201,23 @@ namespace CoreEngine
 		FVector SceneComponent::CalculateRightDirection() const
 		{
 			return FVector::UpVector.Cross(GetForwardVector()).SafeNormalize();
+		}
+
+		FMatrix4x4 SceneComponent::MakeMatrixMesh() const
+		{
+			
+			return MakeParentMatrix()*GetTransform().ToMatrix();
+		}
+		FMatrix4x4 SceneComponent::MakeParentMatrix() const
+		{
+			FMatrix4x4 ResultMat(1);
+			SceneComponent* Parent = GetParentAttach();
+			while (Parent)
+			{
+				ResultMat = Parent->GetTransform().ToMatrix() * ResultMat;
+				Parent = Parent->GetParentAttach();
+			}
+			return ResultMat;
 		}
 	}
 }

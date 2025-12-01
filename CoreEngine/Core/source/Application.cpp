@@ -51,7 +51,7 @@ namespace CoreEngine
 		window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
 
 		ConstructEngine();
-
+		InstanceEngine->ConstructInitialize();
 
 		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::ExitInput, this));
 	}

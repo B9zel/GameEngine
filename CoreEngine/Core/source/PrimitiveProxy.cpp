@@ -27,7 +27,7 @@ namespace CoreEngine
 		return Textures;
 	}
 
-	const FTransform& PrimitiveProxy::GetTransform() const
+	const FMatrix4x4& PrimitiveProxy::GetTransformMatrix() const
 	{
 		return transform;
 	}
@@ -52,7 +52,7 @@ namespace CoreEngine
 		return ViewLocation;
 	}
 
-	void PrimitiveProxy::SetTransform(const FTransform& Transform)
+	void PrimitiveProxy::SetTransformMatrix(const FMatrix4x4& Transform)
 	{
 		transform = Transform;
 	}

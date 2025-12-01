@@ -74,6 +74,8 @@ namespace CoreEngine
 			virtual void Bind(uint32 layout = 0) const = 0;
 			virtual void UnBind() const = 0;
 
+			virtual uint32 GetTextureID() const = 0;
+
 		};
 
 		class Texture2D : public Texture

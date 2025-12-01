@@ -60,9 +60,6 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
     preGenImplement = f'#include <{PathToOpenedFile}> \n\n'
 
 
-
-
-
     VariableGen = ""
     GenPropertyName = []
     Implement = ""

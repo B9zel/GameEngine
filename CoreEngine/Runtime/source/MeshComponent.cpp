@@ -66,7 +66,15 @@ namespace CoreEngine
 		PrimitiveProxy* MeshComponent::GetUpdateProxy() const
 		{
 			m_Proxy->ClearData();
-			m_Proxy->SetTransform(Transform);
+			/*if (parentAttach)
+			{
+				m_Proxy->SetTransformMatrix(parentAttach->GetTransform().ToMatrix() * Transform.ToMatrix());
+			}
+			else
+			{
+				m_Proxy->SetTransformMatrix(Transform.ToMatrix());
+			}*/
+			m_Proxy->SetTransformMatrix(MakeMatrixMesh());
 			
 			m_Proxy->SetUUID(&GetOwner()->GetUUID());
 			//m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
@@ -85,6 +93,8 @@ namespace CoreEngine
 			}
 			return m_Proxy.get();
 		}
+
+		
 
 		void MeshComponent::SetupNode(aiNode* Node, const aiScene* Scene)
 		{

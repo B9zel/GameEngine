@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/includes/Base.h>
 #include <Editor/includes/EditorUI/BaseEditorPanel.h>
+#include <Math/includes/Matrix.h>
 
 
 namespace CoreEngine::Runtime
@@ -33,6 +34,7 @@ namespace Editor
 	private:
 
 		CoreEngine::Runtime::SceneComponent* GetSceneComponentFromSelected() const;
+		FMatrix4x4 GetMatrixOfComponent(CoreEngine::Runtime::SceneComponent* Component) const;
 
 	private:
 

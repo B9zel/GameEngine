@@ -7,12 +7,23 @@
 #include <Editor/includes/EditorUI/EditorDetails.h>
 
 
-
+namespace CoreEngine
+{
+	class World;
+}
 
 namespace Editor
 {
 	class EditorViewportClient;
 	class EditorMenuBar;
+	class EditorToolbar;
+
+	enum class EStateWorld : uint8
+	{
+		Edit = 0,
+		Play
+	};
+
 
 	class EditorEngine : public CoreEngine::Engine
 	{
@@ -31,9 +42,13 @@ namespace Editor
 		CoreEngine::Runtime::Object* GetSelectedObject() const;
 		EditorViewportClient* GetViewpoertClient() const;
 
+		EStateWorld GetCurrentStateWorld() const;
+		void SetCurrentStateWorld(EStateWorld NewState);
+
 	protected:
 
 		void RenderEditor();
+		virtual CoreEngine::World* CreateWorld() const override;
 
 	private:
 
@@ -49,6 +64,9 @@ namespace Editor
 		SharedPtr<SceneHierarhy> SceneHier;
 		SharedPtr<EditorDetails> DetailsPanel;
 		SharedPtr<EditorMenuBar> MenuBar;
+		SharedPtr<EditorToolbar> Toolbar;
+
+		EStateWorld CurretnStateWorld {EStateWorld::Edit};
 
 		UniquePtr<EditorViewportClient> m_ViewportCamera;
 

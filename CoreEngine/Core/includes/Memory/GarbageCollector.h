@@ -47,6 +47,7 @@ namespace CoreEngine
 			void AddRootObject(Runtime::Object* object);
 			void AddReference(Runtime::Object* object);
 			void RemoveObject(Runtime::Object* object);
+			void RemoveRootObject(Runtime::Object* object);
 			void RemoveReference(Runtime::Object* object);
 
 			static GarbageCollector* GetGBInstance() { return m_GBInstance; }

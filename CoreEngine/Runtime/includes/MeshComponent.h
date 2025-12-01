@@ -38,6 +38,8 @@ namespace CoreEngine
 
 		private:
 
+
+
 			void SetupNode(aiNode* Node, const aiScene* Scene);
 			bool CheckCorrectNormals(aiNode* Node, const aiScene* Scene);
 			bool CheckMeshNormal(aiMesh* Node, const aiScene* Scene);

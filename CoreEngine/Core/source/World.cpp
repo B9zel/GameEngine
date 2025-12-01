@@ -35,12 +35,17 @@ namespace CoreEngine
 		m_DeltaTime = now - m_LastTime;
 		m_LastTime = now;
 
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::PRE_UPDATE);
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::UPDATE);
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::POST_UPDATE);
+		UpdateGroup();
 
 		m_Scene->CollectProxy();
 		m_Scene->StartRender();
+	}
+
+	void World::UpdateGroup()
+	{
+		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::PRE_UPDATE);
+		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::UPDATE);
+		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::POST_UPDATE);
 	}
 
 	UpdateManager* World::GetUpdateManager() const

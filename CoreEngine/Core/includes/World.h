@@ -68,6 +68,10 @@ namespace CoreEngine
 
 		virtual void DestroyActor(Runtime::Actor* ActorDestr);
 
+	protected:
+
+		virtual void UpdateGroup();
+
 	private:
 
 		UniquePtr<UpdateManager> m_UpdateManager;

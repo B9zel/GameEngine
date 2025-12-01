@@ -27,6 +27,9 @@ public:
 		mesh->LoadMesh("C:/Projects/3D_Models/Table.obj");
 		mesh->SetComponentScale(FVector(0.8));
 		mesh->AddComponentLocation(FVector(0, -1, 0));
+		mesh2 = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
+		mesh2->LoadMesh("C:/Projects/3D_Models/Table.obj");
+		mesh2->SetupToAttachment(mesh);
 		//mesh->SetComponentScale(FVector(2));
 		//mesh->AddComponentLocation(FVector(0, 0, -5));
 		//mesh->SetComponentScale(FVector(10));
@@ -63,6 +66,7 @@ public:
 		Pawn::Update(deltaTime);
 		//Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
 		// Shader.SetUniformVec3("ViewPos", GetOwner()->GetActorLocation());
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Play");
 	}
 
 protected:
@@ -104,6 +108,7 @@ private:
 
 	CoreEngine::Runtime::PrimitiveComponent* quad = nullptr;
 	CoreEngine::Runtime::MeshComponent* mesh = nullptr;
+	CoreEngine::Runtime::MeshComponent* mesh2 = nullptr;
 
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject VertexBuffer;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject VertexArray;

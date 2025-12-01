@@ -72,6 +72,16 @@ namespace CoreEngine
 			m_Objects.erase(object);
 		}
 
+		void GarbageCollector::RemoveRootObject(Runtime::Object* object)
+		{
+			auto It = m_RootObjects.find(object);
+			if (It != m_RootObjects.end())
+			{
+				m_RootObjects.erase(object);
+				//m_Objects.insert(object);
+			}
+		}
+
 		void GarbageCollector::RemoveReference(Runtime::Object* object)
 		{
 			if (m_ReferenceObjects.count(object))

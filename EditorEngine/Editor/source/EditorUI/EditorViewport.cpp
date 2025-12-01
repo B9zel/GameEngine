@@ -204,42 +204,30 @@ namespace Editor
 			}
 		}
 
-		
-
 
 		if (auto* WorldObject = GetSceneComponentFromSelected())
 		{
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
-			static FVector LastGuizmoRotate;
-
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
-			
-			FMatrix4x4 ObjectMatrix = WorldObject->GetTransform().ToMatrix();
+			//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
+
+			FMatrix4x4 ObjectMatrix = WorldObject->MakeMatrixMesh();  // GetMatrixOfComponent();
 			FMatrix4x4 ViewMatrix = (OwnerEditor->GetViewpoertClient()->GetViewMatrix());
 			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection();
-			//ImGuizmo::DrawGrid(Math::GetValuePtr((ViewMatrix)), Math::GetValuePtr(ProjectionMatrix), Math::GetValuePtr(ObjectMatrix), 10);
+		
 			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration), ImGuizmo::MODE::LOCAL, Math::GetValuePtr(ObjectMatrix));
 			if (ImGuizmo::IsUsing())
 			{
 				FVector Location, Rotation, Scale;
+				ObjectMatrix = WorldObject->GetParentAttach() ? (glm::inverse(WorldObject->MakeParentMatrix()) * ObjectMatrix) : ObjectMatrix;
 				ImGuizmo::DecomposeMatrixToComponents(Math::GetValuePtr(ObjectMatrix), Math::GetValuePtr(Location.vector), Math::GetValuePtr(Rotation.vector), Math::GetValuePtr(Scale.vector));
-
+					
 				WorldObject->SetComponentLocation(Location);
-
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1} {2}", Rotation.GetX(), Rotation.GetY(), Rotation.GetZ());
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Last {0} {1} {2}", LastGuizmoRotate.GetX(), LastGuizmoRotate.GetY(), LastGuizmoRotate.GetZ());
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Minus {0} {1} {2}", (Rotation - LastGuizmoRotate).GetX(), (Rotation - LastGuizmoRotate).GetY(), (Rotation - LastGuizmoRotate).GetZ());
-				WorldObject->SetComponentRotation(Rotation - LastGuizmoRotate + WorldObject->GetComponentRotation());
-				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Post change {0} {1} {2}\n", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
-
-				LastGuizmoRotate = WorldObject->GetComponentRotation();
-				
+				WorldObject->SetComponentRotation(Rotation);
 				WorldObject->SetComponentScale(Scale);
 			}
-		
 		}
 
 		FrameBuffer->UnBind();
@@ -321,5 +309,17 @@ namespace Editor
 		}
 		return dynamic_cast<CoreEngine::Runtime::SceneComponent*>(OwnerEditor->GetSelectedObject());
 	}
+
+	FMatrix4x4 EditorViewport::GetMatrixOfComponent(CoreEngine::Runtime::SceneComponent* Component) const
+	{
+		if (!Component) FMatrix4x4(1);
+
+		if (Component->GetParentAttach() != nullptr)
+		{
+			return Component->GetParentAttach()->GetTransform().ToMatrix() * Component->GetTransform().ToMatrix();
+		}
+		return Component->GetTransform().ToMatrix();
+	}
+
 
 }

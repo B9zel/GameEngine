@@ -44,6 +44,10 @@ namespace CoreEngine
 			virtual void SetupToAttachment(SceneComponent* attach);
 
 			virtual const DArray<SceneComponent*>& GetChildrenAttaches() const;
+			virtual SceneComponent* GetParentAttach() const;
+
+			virtual FMatrix4x4 MakeMatrixMesh() const;
+			virtual FMatrix4x4 MakeParentMatrix() const;
 
 		private:
 

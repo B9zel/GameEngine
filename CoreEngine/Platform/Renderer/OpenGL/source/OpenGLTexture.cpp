@@ -230,6 +230,11 @@ namespace CoreEngine
 				SetTexParameter(EParameterName::TEXTURE_MIN_FILTER, EValueOfParameter::LINEAR);
 				SetTexParameter(EParameterName::TEXTURE_MAG_FILTER, EValueOfParameter::LINEAR);
 			}
+
+			uint32 OpenGLTexture2D::GetTextureID() const
+			{
+				return m_textureID;
+			}
 		}
 	}
 }

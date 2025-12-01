@@ -55,6 +55,9 @@ namespace CoreEngine
 
 				bool ChangeTexture(const char* path, bool isGenaretMipmap = true);
 				void SetLevelMipmap(const char* path, uint8_t level = 1);
+
+				virtual uint32 GetTextureID() const override;
+
 			private:
 
 				void SetDefaultSettings();

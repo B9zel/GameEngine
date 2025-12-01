@@ -22,9 +22,9 @@ namespace CoreEngine
 		virtual const HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>& GetShaders() const;
 		virtual void AddShaderWithArrayObject(Render::Shader* shaderKey, Render::VertexArrayObject* arrayValue, Render::ElementBufferObject* elementValue);
 		virtual void AddTexture(Render::Texture* NewTexture);
-		virtual void SetTransform(const FTransform& transform);
+		virtual void SetTransformMatrix(const FMatrix4x4& transform);
 		const DArray<Render::Texture*>& GetTextures() const;
-		const FTransform& GetTransform() const;
+		const FMatrix4x4& GetTransformMatrix() const;
 		void SetViewLocation(const FVector& Location);
 		void AddLightLocation(const FVector& Location);
 		const DArray<FVector>& GetLocationLights() const;
@@ -39,7 +39,7 @@ namespace CoreEngine
 		DArray<Render::Texture*> Textures;
 		DArray<FVector> PositionLights;
 		FVector ViewLocation;
-		FTransform transform;
+		FMatrix4x4 transform;
 		UUID* m_UUID;
 
 
