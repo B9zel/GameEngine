@@ -3,6 +3,7 @@
 #include <Core/includes/StaticMeshProxy.h>
 #include <Core/includes/LightProxy.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRendere.h>
+#include <Render/includes/Framebuffer.h>
 
 
 namespace CoreEngine
@@ -45,7 +46,7 @@ namespace CoreEngine
 				// Return later !!!!!!!!!!!
 				if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
 				{
-					RenderStaticMeshProxy(StaticProxy, Lights);
+					//RenderStaticMeshProxy(StaticProxy, Lights, );
 				}
 				else
 				{

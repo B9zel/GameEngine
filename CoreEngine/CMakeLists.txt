@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.1...3.50)
 
 set(CORE_PROJECT_NAME CoreEngine)
 set(OutputPythonBuildPathName "OutputGenFiles")
@@ -114,6 +114,20 @@ target_link_libraries(${CORE_PROJECT_NAME} PUBLIC glm)
 
 add_subdirectory(../libraries/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 target_link_libraries(${CORE_PROJECT_NAME} PUBLIC assimp)
+
+
+FILE(GLOB_RECURSE A ${CMAKE_SOURCE_DIR}/libraries/Bullet/src/Bullet3Dynamics/**.h)
+message(${A})
+
+#message(${CMAKE_BINARY_DIR})
+#find_package(BULLET_DYN NAMES Bullet3Dynamics PATHS ${CMAKE_SOURCE_DIR}/libraries/Bullet/src/Bullet3Dynamics)
+#ind_library(BULLET_COLL NAMES BulletCollision PATHS ${CMAKE_SOURCE_DIR}/libraries/Bullet/src/Bullet3Collision)
+#find_library(LINERA_MATH NAMES LinearMath PATHS ${CMAKE_SOURCE_DIR}/libraries/Bullet/src/LinearMath)
+
+message(${BULLET_DYN})
+#add_subdirectory(../libraries/Bullet ${CMAKE_CURRENT_BINARY_DIR}/Bullet)
+#target_link_libraries(${CORE_PROJECT_NAME} PRIVATE ${BULLET_DYN} )
+#target_include_directories(${CORE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Bullet/src)
 
 
 #add_subdirectory(../libraries/json ${CMAKE_CURRENT_BINARY_DIR}/json)

@@ -45,7 +45,7 @@ namespace CoreEngine
 		SaveManager* GetSaveManager() const;
 		float GetWorldDeltaTime() const;
 		const DArray<Level*>& GetLevels() const;
-		FVector GetControllerLocation() const;
+		virtual FVector GetControllerLocation() const;
 
 		template<class T>
 		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
@@ -70,7 +70,7 @@ namespace CoreEngine
 
 	protected:
 
-		virtual void UpdateGroup();
+		virtual void UpdateWorld();
 
 	private:
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/includes/Base.h>
 #include <Math/includes/Vector.h>
+#include <Math/includes/Matrix.h>
 #include <Runtime/includes/Enums/TypeLight.h>
 
 namespace CoreEngine
@@ -15,19 +16,22 @@ namespace CoreEngine
 		float Quadratic;
 	};
 
-	struct alignas(16) SimplyDirectionLightProxy
+	struct alignas(8) SimplyDirectionLightProxy
 	{
 		FVector Color;
 		float Intencity;
 		FVector Direction;
+		uint64 ShdowTexHandle;
+		
 	};
 
-	struct SimpleSpotLightProxy
+	struct alignas(16) SimpleSpotLightProxy
 	{
 		FVector4 Color;
 		FVector4 Direction;
 		FVector Location;
-
+		uint64 ShdowTexHandle;
+	
 		float Intencity;
 		float CutOff;
 		float OuterCutOff;
@@ -42,18 +46,21 @@ namespace CoreEngine
 
 		virtual const FVector& GetColor();
 		virtual float GetIntencity() const;
+		virtual int GetID() const;
 
 		/*
 		* @param NewColor input x, y, z from 0 to 1
 		*/
 		void SetColor(const FVector& NewColor);
 		void SetIntencity(const float NewIntencity);
+		void SetID(const int NewId);
 		virtual const ETypeLight GetTypeLight() const = 0;
 
 	protected:
 
 		FVector Color;
 		float Intencity;
+		int IDLight;
 	};
 
 	class alignas(16) DirectionLightProxy : public LightProxy

@@ -49,9 +49,9 @@ namespace CoreEngine
 			virtual FMatrix4x4 MakeMatrixMesh() const;
 			virtual FMatrix4x4 MakeParentMatrix() const;
 
-		private:
+		protected:
 
-			FVector CalculateForwardDirection() const;
+			FVector CalculateForwardDirection(const FVector& VedDirect, const bool IsConvertToRadian = true) const;
 			FVector CalculateRightDirection() const;
 
 		protected:

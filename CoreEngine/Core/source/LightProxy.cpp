@@ -12,6 +12,10 @@ namespace CoreEngine
 	{
 		return Intencity;
 	}
+	int LightProxy::GetID() const
+	{
+		return IDLight;
+	}
 	void LightProxy::SetColor(const FVector& NewColor)
 	{
 		Color = NewColor;
@@ -20,7 +24,10 @@ namespace CoreEngine
 	{
 		Intencity = NewIntencity;
 	}
-
+	void LightProxy::SetID(const int NewID)
+	{
+		IDLight = NewID;
+	}
 }
 
 namespace CoreEngine

@@ -14,7 +14,9 @@ namespace CoreEngine
 		}
 		LightProxy* SpotLightComponent::GetLightProxy()
 		{
-			LightProxy->SetLocation(GetComponentLocation());
+			FVector Location, Rotation, Scale;
+			Math::DecomposeMatrix(MakeMatrixMesh(), Location, Rotation, Scale);
+			LightProxy->SetLocation(Location);
 			LightProxy->SetColor(GetColor());
 			LightProxy->SetIntencity(GetIntencity());
 			LightProxy->SetConstant(GetConstant());
@@ -22,7 +24,8 @@ namespace CoreEngine
 			LightProxy->SetQuadratic(GetQuadratic());
 			LightProxy->SetCutOff(cos(Math::ToRadian(GetCutOff())));
 			LightProxy->SetOuterCutOff(cos(Math::ToRadian(GetOuterCutOff())));
-			LightProxy->SetDirection(GetForwardVector());
+			LightProxy->SetDirection(CalculateForwardDirection(Rotation, false));
+			LightProxy->SetID(GetUUID().GetID());
 
 			return LightProxy.get();
 		}
@@ -40,11 +43,11 @@ namespace CoreEngine
 		}
 		void SpotLightComponent::SetOuterCutOff(const float NewOuterCutOff)
 		{
-			m_OuterCutOff = Math::Max(NewOuterCutOff, 0.0f);
+			OuterCutOff = Math::Max(NewOuterCutOff, 0.0f);
 		}
 		void SpotLightComponent::SetCutOff(float NewCutOff)
 		{
-			m_CutOff = Math::Max(NewCutOff, 0.0f);
+			CutOff = Math::Max(NewCutOff, 0.0f);
 		}
 		float SpotLightComponent::GetConstant() const
 		{
@@ -60,11 +63,11 @@ namespace CoreEngine
 		}
 		float SpotLightComponent::GetOuterCutOff() const
 		{
-			return m_OuterCutOff;
+			return OuterCutOff;
 		}
 		float SpotLightComponent::GetCutOff() const
 		{
-			return m_CutOff;
+			return CutOff;
 		}
 	}
 }

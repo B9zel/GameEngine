@@ -4,6 +4,7 @@
 #include <Editor/includes/EditorViewportClient.h>
 #include <Runtime/includes/SceneComponent.h>
 #include <Core/includes/InputDevice.h>
+#include <Render/includes/Render.h>
 #include <imgui/imgui.h>
 #include <glad/glad.h>
 #include <ImGuizmo/ImGuizmo.h>
@@ -38,6 +39,7 @@ namespace Editor
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
 
+		FrameBuffer = CoreEngine::Engine::Get()->GetRender()->GetRenderSceneBuffer();
 		uint32 Texture = FrameBuffer->GetColorAttachmentID(0);
 
 		ImVec2 avail = ImGui::GetContentRegionAvail();
@@ -79,7 +81,8 @@ namespace Editor
 		ImVec2 Space = avail;
 		if (Space.x != lastSize.x || Space.y != lastSize.y)
 		{
-			FrameBuffer->Resize(abs(Space.x), abs(Space.y));
+			//FrameBuffer->Resize(abs(Space.x), abs(Space.y));
+			EditorEngine::Get()->GetRender()->SetResolutionScale(FVector2(abs(Space.x), abs(Space.y)));
 			lastSize = Space;
 			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1}", abs(Space.x), (Space.y));
 		}
@@ -286,7 +289,7 @@ namespace Editor
 
 	void EditorViewport::SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer)
 	{
-		FrameBuffer = Buffer;
+		FrameBuffer = Buffer.get();
 	}
 
 	bool EditorViewport::GetIsFocused() const

@@ -23,14 +23,14 @@ namespace Editor
 	{
 		using namespace CoreEngine::Render;
 
-		CoreEngine::Render::FramebufferSpecification Spec;
+	/*	CoreEngine::Render::FramebufferSpecification Spec;
 		Spec.Height =  Application::Get()->GetWindow().GetHeight();
 		Spec.Width = Application::Get()->GetWindow().GetWidth();
 		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RGBA8));
 		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RED_INTEGER));
-		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8));
+		Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8, EFramebufferTextureFilterConfig::LINER));
 
-		FrameBuffer = CoreEngine::Render::Framebuffer::Create(Spec);
+		FrameBuffer = CoreEngine::Render::Framebuffer::Create(Spec);*/
 
 		// Create UI
 		Viewport = MakeSharedPtr<EditorViewport>();
@@ -61,12 +61,12 @@ namespace Editor
 		m_ViewportCamera->Update(GetWorld()->GetWorldDeltaTime(), Viewport->GetIsFocused());
 
 		// Start render scene
-		FrameBuffer->Bind(); // Enable write render in buffer 
+		//FrameBuffer->Bind(); // Enable write render in buffer 
 		
 		GetRender()->ClearBuffersScreen(); // Clear buffer
 		Engine::Update();
 
-		FrameBuffer->UnBind(); // Disable write render in buffer 
+		//FrameBuffer->UnBind(); // Disable write render in buffer 
 		// Finish render scene
 
 

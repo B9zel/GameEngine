@@ -3,6 +3,30 @@
 
 namespace Math
 {
+	bool DecomposeLocationMatrix(const FMatrix4x4& matrix, FVector& Location)
+	{
+		using namespace glm;
+		using T = float;
+
+		FMatrix4x4 LocalMatrix(matrix);
+
+		if (epsilonEqual(LocalMatrix[3][3], static_cast<T>(0), epsilon<T>()))
+			return false;
+
+		if (
+			epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) ||
+			epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) ||
+			epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
+		{
+
+			// Clear the perspective partition
+			LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
+			LocalMatrix[3][3] = static_cast<T>(1);
+		}
+
+		Location = FVector(LocalMatrix[3]);
+		return true;
+	}
 	bool Math::DecomposeMatrix(const FMatrix4x4& matrix, FVector& OutLocation, FVector& OutRotation, FVector& OutScale)
 	{
 		using namespace glm;

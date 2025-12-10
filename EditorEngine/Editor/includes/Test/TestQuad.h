@@ -9,6 +9,7 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 #include <Runtime/includes/InputComponent.h>
 #include <ReflectionSystem/Include/PropertyField.h>
+#include <Runtime/includes/DirectionLightComponent.h>
 #include <TestQuad.generated.h>
 
 
@@ -25,11 +26,13 @@ public:
 	{
 		mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
 		mesh->LoadMesh("C:/Projects/3D_Models/Table.obj");
+		mesh2 = CreateSubObject<CoreEngine::Runtime::MeshComponent>("MeshChair");
+		mesh2->LoadMesh("C:/Projects/3D_Models/chair.obj");
 		mesh->SetComponentScale(FVector(0.8));
 		mesh->AddComponentLocation(FVector(0, -1, 0));
-		mesh2 = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
-		mesh2->LoadMesh("C:/Projects/3D_Models/Table.obj");
-		mesh2->SetupToAttachment(mesh);
+		//mesh2->SetupToAttachment(mesh);
+
+		LightObj = CreateSubObject<CoreEngine::Runtime::DirectionLightComponent>("Direction light");
 		//mesh->SetComponentScale(FVector(2));
 		//mesh->AddComponentLocation(FVector(0, 0, -5));
 		//mesh->SetComponentScale(FVector(10));
@@ -106,6 +109,7 @@ protected:
 
 private:
 
+	CoreEngine::ObjectPtr<CoreEngine::Runtime::DirectionLightComponent> LightObj;
 	CoreEngine::Runtime::PrimitiveComponent* quad = nullptr;
 	CoreEngine::Runtime::MeshComponent* mesh = nullptr;
 	CoreEngine::Runtime::MeshComponent* mesh2 = nullptr;
@@ -129,6 +133,9 @@ private:
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture2;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture3;
 	CoreEngine::Render::OpenGL::OpenGLTexture2D texture4;
+
+	RPROPERTY(EditorVisible)
+	float A;
 
 	/*RPROPERTY(EditorVisible);
 	int8 Test8 = 0;

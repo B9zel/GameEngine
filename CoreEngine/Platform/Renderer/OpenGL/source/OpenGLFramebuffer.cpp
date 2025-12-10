@@ -10,44 +10,100 @@ namespace CoreEngine
 		{
 			static const uint32 MaxBufferSize = 8192;
 
-			static void AddColorAttach(const int32 IdOfColor, const GLint InternalFormat, const GLenum Format, const GLenum Type, const uint32 Width, const uint32 Height, const int32 Index = 0)
+
+			static GLint ConverFromEnumToGLFilter(const EFramebufferTextureFilterConfig& Filter)
+			{
+				switch (Filter)
+				{
+				case EFramebufferTextureFilterConfig::LINER:
+					return GL_LINEAR;
+				case EFramebufferTextureFilterConfig::NEAREST:
+					return GL_NEAREST;
+				default:
+					break;
+				}
+			}
+
+			static GLint ConverFromEnumToWrap(const EFramebufferTextureWrapConfig& Wrap)
+			{
+				switch (Wrap)
+				{
+				case EFramebufferTextureWrapConfig::CLAMP_TO_EDGE:
+					return GL_CLAMP_TO_EDGE;
+				case EFramebufferTextureWrapConfig::CLAMP_TO_BORDER:
+					return GL_CLAMP_TO_BORDER;
+				case EFramebufferTextureWrapConfig::REPEAT:
+					return GL_REPEAT;
+				default:
+					break;
+				}
+			}
+
+			static void AddColorAttach(const int32 IdOfColor, const GLint InternalFormat, const GLenum Format, const GLenum Type,const FramebufferTextureAttachment& TexConfig, const uint32 Width, const uint32 Height, const int32 Index = 0)
 			{
 				glBindTexture(GL_TEXTURE_2D, IdOfColor);
 
 				glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, Width, Height, 0, Format, Type, NULL);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);*/
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ConverFromEnumToGLFilter(TexConfig.Filter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ConverFromEnumToGLFilter(TexConfig.Filter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConverFromEnumToWrap(TexConfig.Wrap));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ConverFromEnumToWrap(TexConfig.Wrap));
+
+				if (TexConfig.Wrap == EFramebufferTextureWrapConfig::CLAMP_TO_BORDER)
+				{
+					float Color[4] = { TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW() };
+					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, Color);
+				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + Index, GL_TEXTURE_2D, IdOfColor, 0);
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 
-			static void AddDepthAttach(const int32 IdOfColor, const GLenum Attachment, const GLenum Type, const uint32 Width, const uint32 Height)
+			static void AddDepthAttach(const int32 IdOfColor, const GLenum Attachment, const GLenum Type, const FramebufferTextureAttachment& TexConfig, const uint32 Width, const uint32 Height)
 			{
 				glBindTexture(GL_TEXTURE_2D, IdOfColor);
 
-				//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, Width, Height, 0, GL_DEPTH_STENCIL, Type, NULL);
-				glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, Width, Height);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			
+
+				//glTexImage2D(GL_TEXTURE_2D, 0, Type, Width, Height, 0, Type, GL_FLOAT, NULL);
+				
+				glTexStorage2D(GL_TEXTURE_2D, 1, Type, Width, Height);
+				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);*/
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ConverFromEnumToGLFilter(TexConfig.Filter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ConverFromEnumToGLFilter(TexConfig.Filter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConverFromEnumToWrap(TexConfig.Wrap));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ConverFromEnumToWrap(TexConfig.Wrap));
+
+				if (TexConfig.Wrap == EFramebufferTextureWrapConfig::CLAMP_TO_BORDER)
+				{
+					float Color[4] = { TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW() };
+					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, Color);
+				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, Attachment, GL_TEXTURE_2D, IdOfColor, 0);
 
-				glBindTexture(GL_TEXTURE_2D, 0);
+				//glBindTexture(GL_TEXTURE_2D, 0);
 			}
+
+			
+
 
 			OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& Spec) : m_DepthAttachmentsSpec(EFramebufferTextureFormat::NONE)
 			{
 				Specific = Spec;
 				for (auto& Attach : Spec.AttachTextures.Textures)
 				{
-					if (Attach.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8)
+					if (Attach.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8 || Attach.Format == EFramebufferTextureFormat::DEPTH_COMPONENT)
 					{
-						CORE_UNASSERT(m_DepthAttachmentsSpec.Format != EFramebufferTextureFormat::NONE, "Framebuffer can't have more than one depth attachment");
+						CORE_UNASSERT(m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8 || 
+							m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH_COMPONENT, "Framebuffer can't have more than one depth attachment");
 						m_DepthAttachmentsSpec = Attach;
 					}
 					else
@@ -57,6 +113,12 @@ namespace CoreEngine
 				}
 				Reconstruct();
 			}
+
+			OpenGLFramebuffer::~OpenGLFramebuffer()
+			{
+				ClearBuffer();
+			}
+
 			void OpenGLFramebuffer::Reconstruct()
 			{
 				if (m_FramebufferID)
@@ -79,10 +141,10 @@ namespace CoreEngine
 						switch (Spec.Format)
 						{
 						case EFramebufferTextureFormat::RGBA8:
-							AddColorAttach(m_ColorAttachID[i], GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, Specific.Width, Specific.Height, i);
+							AddColorAttach(m_ColorAttachID[i], GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, Spec, Specific.Width, Specific.Height, i);
 							break;
 						case EFramebufferTextureFormat::RED_INTEGER:
-							AddColorAttach(m_ColorAttachID[i], GL_R32I, GL_RED_INTEGER, GL_UNSIGNED_INT, Specific.Width, Specific.Height, i);
+							AddColorAttach(m_ColorAttachID[i], GL_R32I, GL_RED_INTEGER, GL_UNSIGNED_INT, Spec, Specific.Width, Specific.Height, i);
 							break;
 						default:
 							break;
@@ -90,13 +152,19 @@ namespace CoreEngine
 					}
 				}
 
-				if (m_DepthAttachmentsSpec.Format != EFramebufferTextureFormat::NONE)
+				if (m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8)
 				{
 					glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachID);
-					AddDepthAttach(m_DepthAttachID, GL_DEPTH_STENCIL_ATTACHMENT, GL_UNSIGNED_INT_24_8, Specific.Width, Specific.Height);
+					AddDepthAttach(m_DepthAttachID, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8, m_DepthAttachmentsSpec,  Specific.Width, Specific.Height);
+				}
+				else if (m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH_COMPONENT)
+				{
+					//glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachID);
+					glGenTextures(1, &m_DepthAttachID);
+					AddDepthAttach(m_DepthAttachID, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT24, m_DepthAttachmentsSpec, Specific.Width, Specific.Height);
 				}
 
-				if (m_ColorAttachID.size() > 1)
+				if (m_ColorAttachID.size() >= 1)
 				{
 					static DArray<GLenum> Attaches;
 					Attaches.clear();
@@ -109,6 +177,7 @@ namespace CoreEngine
 				else
 				{
 					glDrawBuffer(GL_NONE);
+					glReadBuffer(GL_NONE);
 				}
 
 				/*glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Specific.Width, Specific.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -122,8 +191,11 @@ namespace CoreEngine
 				
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, Specific.Width, Specific.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachTex, 0);*/
-
-				CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer doesn't complete");
+				GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+				if (status != GL_FRAMEBUFFER_COMPLETE)
+				{
+					ASSERT("Framebuffer doesn't complete, status " + ToString(status));
+				}
 
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
@@ -172,6 +244,22 @@ namespace CoreEngine
 			{
 				const GLuint clearValue = 0;
 				glClearBufferuiv(GL_COLOR, index, &clearValue);
+			}
+
+			void OpenGLFramebuffer::ClearDepth()
+			{
+				float DepthValue = 1.0f;
+				glClearBufferfv(GL_DEPTH, 0, &DepthValue);
+			}
+
+			void OpenGLFramebuffer::ActivateDepthTexture()
+			{
+				glBindTexture(GL_TEXTURE_2D, m_DepthAttachID);
+			}
+
+			uint32 OpenGLFramebuffer::GetDepthAttachmentID() const
+			{
+				return m_DepthAttachID;
 			}
 
 			void OpenGLFramebuffer::Bind()

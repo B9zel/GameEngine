@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/includes/Base.h>
+#include <Math/includes/Vector.h>
 
 
 namespace CoreEngine
@@ -13,17 +14,58 @@ namespace CoreEngine
 
 			RGBA8,
 			DEPTH24_STENCIL8,
-			RED_INTEGER
+			DEPTH_COMPONENT,
+			RED_INTEGER,
+
+			DEPTH = DEPTH24_STENCIL8
+		};
+
+		
+		enum class EFramebufferTextureFilterConfig : uint8
+		{
+			LINER = 0,
+			NEAREST
+		};
+
+		enum class EFramebufferTextureWrapConfig : uint8
+		{
+			CLAMP_TO_EDGE = 0,
+			CLAMP_TO_BORDER,
+			REPEAT
 		};
 
 
 		struct FramebufferTextureAttachment
 		{
-			FramebufferTextureAttachment(const EFramebufferTextureFormat& TexFormat) : Format(TexFormat)
+			FramebufferTextureAttachment(const EFramebufferTextureFormat& TexFormat, EFramebufferTextureFilterConfig Filter = EFramebufferTextureFilterConfig::NEAREST, 
+				EFramebufferTextureWrapConfig Wrap = EFramebufferTextureWrapConfig::CLAMP_TO_EDGE) : Format(TexFormat), Filter(Filter), Wrap(Wrap)
 			{ }
+
+			FramebufferTextureAttachment(const FramebufferTextureAttachment& Other) 
+			{
+				Format = Other.Format;
+				Filter = Other.Filter;
+				Wrap = Other.Wrap;
+				Color = Other.Color;
+			}
+
+			FramebufferTextureAttachment& operator=(const FramebufferTextureAttachment& Other)
+			{
+				Format = Other.Format;
+				Filter = Other.Filter;
+				Wrap = Other.Wrap;
+				Color = Other.Color;
+
+				return *this;
+			}
 
 
 			EFramebufferTextureFormat Format;
+			EFramebufferTextureFilterConfig Filter = EFramebufferTextureFilterConfig::NEAREST;
+			
+			EFramebufferTextureWrapConfig Wrap = EFramebufferTextureWrapConfig::CLAMP_TO_EDGE;
+			FVector4 Color;
+
 		};
 
 		struct FramebuffetAttacmentTextures
@@ -43,6 +85,8 @@ namespace CoreEngine
 		{
 		public:
 
+			virtual ~Framebuffer() = default;
+
 			static SharedPtr<Framebuffer> Create(const FramebufferSpecification& Spec);
 
 			virtual void Reconstruct() = 0;
@@ -54,6 +98,10 @@ namespace CoreEngine
 			virtual const FramebufferSpecification& GetSpecifiction() const = 0;
 
 			virtual void ClearTexture(const uint32 index) = 0;
+			virtual void ClearDepth() = 0;
+
+			virtual void ActivateDepthTexture() = 0;
+			virtual uint32 GetDepthAttachmentID() const = 0;
 
 			virtual void Bind() = 0;
 			virtual void UnBind() = 0;

@@ -18,9 +18,13 @@ public:
 
 	EditorWorld(const CoreEngine::InitializeObject& Initializer);
 
+public:
+
+	virtual FVector GetControllerLocation() const override;
+
 protected:
 
-	virtual void UpdateGroup() override;
+	virtual void UpdateWorld() override;
 
 private:
 

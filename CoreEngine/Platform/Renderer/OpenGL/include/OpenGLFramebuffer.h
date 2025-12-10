@@ -16,6 +16,7 @@ namespace CoreEngine
 			public:
 
 				OpenGLFramebuffer(const FramebufferSpecification& Spec);
+				 ~OpenGLFramebuffer();
 
 			public:
 
@@ -25,16 +26,19 @@ namespace CoreEngine
 				virtual const FramebufferSpecification& GetSpecifiction() const override;
 				virtual int32 ReadPixel(const int32 IndexColorAttachment, const int32 X, const int32 Y) override;
 				virtual void ClearTexture(const uint32 index) override;
+				virtual void ClearDepth() override;
+
+				virtual void ActivateDepthTexture() override;
+				virtual uint32 GetDepthAttachmentID() const override;
 
 				virtual void Bind() override;
 				virtual void UnBind() override;
-				
 
-			private:
+			protected:
 
-				void ClearBuffer();
+				virtual void ClearBuffer();
 
-			private:
+			protected:
 
 				uint32 m_FramebufferID{ 0 };
 

@@ -85,5 +85,6 @@ namespace Math
 		return glm::inverse(matrix);
 	}
 
+	bool DecomposeLocationMatrix(const FMatrix4x4& matrix, FVector& Location);
 	bool DecomposeMatrix(const FMatrix4x4& matrix, FVector& OutLocation, FVector& OutRotation, FVector& OutScale);
 }

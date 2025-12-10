@@ -62,7 +62,7 @@ namespace CoreEngine
 
 		FVector SceneComponent::GetForwardVector() const
 		{
-			return CalculateForwardDirection();
+			return CalculateForwardDirection(Transform.GetRotation());
 		}
 
 		FVector SceneComponent::GetRightVector() const
@@ -92,10 +92,10 @@ namespace CoreEngine
 
 		void SceneComponent::SetComponentScale(const FVector& newScale)
 		{
-			for (auto& Child : childrenAttach)
+			/*for (auto& Child : childrenAttach)
 			{
 				Child->SetComponentScale((Child->GetComponentScale() / Child->parentAttach->GetComponentScale()) * newScale);
-			}
+			}*/
 			Transform.SetScale(newScale);
 		}
 
@@ -160,24 +160,14 @@ namespace CoreEngine
 		{
 			return FVector(NormalizeDeg(v.GetX()), NormalizeDeg(v.GetY()), NormalizeDeg(v.GetZ()));
 		}
-		FVector SceneComponent::CalculateForwardDirection() const
+		FVector SceneComponent::CalculateForwardDirection(const FVector& VedDirect, const bool IsConvertToRadian) const
 		{
-			const FVector& Rotation = (Transform.GetRotation());
 			FVector direction(0, 0, 0);
 
-			FVector RotInput = Rotation;
-				RotInput = Math::ToRadianVector(RotInput);
+			FVector RotInput = VedDirect;
+			RotInput = IsConvertToRadian ? Math::ToRadianVector(RotInput) : RotInput;
 			
 			FMatrix4x4 Mat;
-			if (!Math::LikelyRadians(Rotation))
-			{
-
-				//Mat = glm::toMat4( glm::normalize(glm::quat(RotInput.vector)));
-			}
-			else
-			{
-
-			}
 			Mat = glm::eulerAngleXYZ(RotInput.GetX(), RotInput.GetY(), RotInput.GetZ());
 
 			glm::quat q = glm::quat_cast(Mat);

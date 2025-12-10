@@ -40,8 +40,11 @@ namespace CoreEngine
 			float m_Constant{ 1.0f };
 			float m_Linear{ 0.1f };
 			float m_Quadratic{ 0.034f };
-			float m_CutOff{ 12.0f };
-			float m_OuterCutOff{ 17.5f };
+
+			RPROPERTY(EditorVisible)
+			float CutOff{ 12.0f };
+			RPROPERTY(EditorVisible)
+			float OuterCutOff{ 17.5f };
 		};
 	}
 }

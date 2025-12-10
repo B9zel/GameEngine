@@ -36,10 +36,11 @@ public:
 		arrObj.CreateVertexArray();
 		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, arrObj);
 		arrObj.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, vertObj);
+		arrObj.SetupIntorprit(1, 2, 8, CoreEngine::ETypeData::FLOAT, vertObj, 6);
 		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>("Light cube");
 		LightCube->GetSceneProxy()->CountVertex = 108;
 		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
-		LightCube->GetSceneProxy()->SetTransformMatrix(GetActorTransform().ToMatrix());
+		LightCube->GetSceneProxy()->SetTransformMatrix(LightCube->MakeMatrixMesh());
 
 	}
 

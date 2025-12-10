@@ -38,7 +38,7 @@ namespace Editor
 
 	private:
 
-		SharedPtr<CoreEngine::Render::Framebuffer> FrameBuffer;
+		CoreEngine::Render::Framebuffer* FrameBuffer;
 
 		int32 m_GuizmoOpiration;
 		bool m_CanChangeOpirations{true};

@@ -29,6 +29,7 @@ namespace CoreEngine
 				sceneProxy->SetTransform(GetTransform());
 
 			}*/
+			sceneProxy->SetTransformMatrix(MakeMatrixMesh());
 
 			return sceneProxy;
 		}
@@ -37,7 +38,7 @@ namespace CoreEngine
 		{
 			/*Transform ProxyTransform = GetTransform();
 			ProxyTransform.SetRotation(Math::ToDegreesVector(ProxyTransform.GetRotation()));*/
-			sceneProxy->SetTransformMatrix(GetTransform().ToMatrix());
+			sceneProxy->SetTransformMatrix(MakeMatrixMesh());
 			return sceneProxy;
 		}
 	}
