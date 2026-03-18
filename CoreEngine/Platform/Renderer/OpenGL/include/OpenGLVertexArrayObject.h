@@ -16,10 +16,12 @@ namespace CoreEngine
 		{
 			class OpenGLVertexArrayObject : public VertexArrayObject
 			{
-			public:
+			protected:
 
 				OpenGLVertexArrayObject();
 				~OpenGLVertexArrayObject();
+
+			public:
 
 				OpenGLVertexArrayObject(const OpenGLVertexArrayObject&) = delete;
 				OpenGLVertexArrayObject& operator=(const OpenGLVertexArrayObject&) = delete;
@@ -31,10 +33,13 @@ namespace CoreEngine
 
 				virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const uint32 beginStep = 0) override;
 				virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep = 0) override;
+				virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const uint32 beginStep = 0) override;
 				virtual void DeleteVertexObject() override;
 
 				virtual void Bind() const override;
 				virtual void UnBind() const override;
+
+				virtual uint32 GetID() const override;
 
 				void ResetLinkElementBuffer();
 

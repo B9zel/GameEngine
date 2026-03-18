@@ -6,10 +6,12 @@
 
 
 
-enum class EClassFieldParams : uint8
+enum EClassFieldParams : uint64
 {
-	NONE = 0
+	NONE = 0,
+	EditorComponent = FLAG_OFFSET(0)
 };
+
 namespace CoreEngine
 {
 	struct InitializeObject;
@@ -20,44 +22,17 @@ namespace CoreEngine
 
 		struct ClassField : public ConstructionField
 		{
-			EClassFieldParams Params;
 			ClassField* ParentClass = nullptr;
 
 		public:
 
-			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty) const override
-			{
-				for (PropertyField* Property : PropertyFileds)
-				{
-					if (Property->Name == NameProperty)
-					{
-						return Property;
-					}
-				}
-				if (ParentClass)
-				{
-					return ParentClass->GetPropertyFieldByName(InstanceClass, NameProperty);
-				}
-				return nullptr;
-			}
+			virtual PropertyField* GetPropertyFieldByName(void* InstanceClass, const String& NameProperty) const override;
 
-			bool IsChildClassOf(const ClassField* OtherClass)
-			{
-				if (!OtherClass) return false;
-
-				ClassField* CurrentClass = this;
-				while (CurrentClass)
-				{
-					if (*CurrentClass == *OtherClass)
-					{
-						return true;
-					}
-					CurrentClass = CurrentClass->ParentClass;
-				}
-				return false;
-			}
+			bool IsChildClassOf(const ClassField* OtherClass);
 
 			virtual void ConstructInstanceObject(Runtime::Object*, const CoreEngine::InitializeObject&) = 0;
+
+			virtual void ValidateMetaClass() override;
 
 		public:
 
@@ -73,7 +48,7 @@ namespace CoreEngine
 				ResEq = ConstructionField::operator==(Other);
 				if (!ResEq) return false;
 
-				ResEq = Params == Other.Params;
+				ResEq = ParamFlags == Other.ParamFlags;
 				
 				return ResEq;
 			}

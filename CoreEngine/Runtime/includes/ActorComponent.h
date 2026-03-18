@@ -66,6 +66,7 @@ namespace CoreEngine
 
 			virtual void InitProperties() override;
 			virtual void RegisteredComponent();
+			virtual void PreRegisterComponent();
 			virtual void UpdateComponent(float deltaTime);
 
 			virtual void DestroyComponent();
@@ -73,6 +74,7 @@ namespace CoreEngine
 			void SetOwner(Actor* Owner);
 			Actor* GetOwner() const;
 			bool GetIsActive() const;
+			bool GetIsCreatedNative() const;
 
 		protected:
 
@@ -82,6 +84,11 @@ namespace CoreEngine
 			bool isActivate = true;
 
 			Actor* Owner;
+
+		private:
+			
+			// if true created before initialize Actor, if false created runtime
+			bool IsCreatedNative{ false };
 		};
 	}
 }

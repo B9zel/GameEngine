@@ -35,15 +35,15 @@ namespace CoreEngine
 	}
 	namespace Render
 	{
-		static int32 GetDrawTypeAPIFromEnum(const ETypeDraw draw)
+		static int32 GetDrawTypeAPIFromEnum(const ETypeStorageDraw draw)
 		{
 			switch (draw)
 			{
-			case ETypeDraw::STATIC:
+			case ETypeStorageDraw::STATIC:
 				return GL_STATIC_DRAW;
-			case ETypeDraw::DYNAMIC:
+			case ETypeStorageDraw::DYNAMIC:
 				return GL_DYNAMIC_DRAW;
-			case ETypeDraw::STREAM:
+			case ETypeStorageDraw::STREAM:
 				return GL_STREAM_DRAW;
 			}
 			EG_LOG(CORE, ELevelLog::ERROR, "Not type draw");

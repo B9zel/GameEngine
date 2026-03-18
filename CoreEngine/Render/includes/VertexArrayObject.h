@@ -14,7 +14,14 @@ namespace CoreEngine
 
 		class VertexArrayObject
 		{
+		protected:
+
+			VertexArrayObject() = default;
+
 		public:
+
+			virtual ~VertexArrayObject() = default;
+
 
 			static UniquePtr<VertexArrayObject> CreateVertexObject();
 
@@ -22,11 +29,14 @@ namespace CoreEngine
 			virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const uint32 beginStep = 0) = 0;
 
 			virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep = 0) = 0;
+			virtual void SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const uint32 beginStep = 0) = 0;
 
 			virtual void DeleteVertexObject() = 0;
 
 			virtual void Bind() const = 0;
 			virtual void UnBind() const = 0;
+
+			virtual uint32 GetID() const = 0;
 		};
 	}
 }

@@ -7,15 +7,15 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLShaderStorageBufferObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLFramebufferArray.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
 	{
 		class Shader;
+		class RenderCommand;
 
 		namespace OpenGL
-		{	
+		{
 			struct LightShadowData
 			{
 				bool operator==(int ID) const
@@ -34,8 +34,6 @@ namespace CoreEngine
 				int IDLight;
 			};
 
-
-
 			class OpenGLRender : public Render
 			{
 			public:
@@ -52,7 +50,8 @@ namespace CoreEngine
 
 			protected:
 
-				virtual void RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights, const DArray<FMatrix4x4>& LightDirecion) override;
+				virtual void RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights,
+												   const DArray<FMatrix4x4>& LightDirecion) override;
 				virtual void RenderProxy(const PrimitiveProxy* Proxy) override;
 
 			private:
@@ -63,6 +62,10 @@ namespace CoreEngine
 
 				SharedPtr<Framebuffer> CreateShadowBuffer();
 				LightShadowData* FindLightShadowData(const ETypeLight TypeLight, const int ID) const;
+
+				void BuildStaticMeshCommandList(RenderDevice* Device, const StaticMeshProxy* Primitives,
+												const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
+												const DArray<SimpleSpotLightProxy>& SpotLights, DArray<UniquePtr<RenderCommand>>& OutCommands);
 
 			private:
 
@@ -81,7 +84,10 @@ namespace CoreEngine
 				SharedPtr<Framebuffer> m_ResultScene;
 				UniquePtr<Shader> m_ShaderShadow;
 				FVector2 CurrentRes;
+
+				/////////////////////////////////////
+				DArray<UniquePtr<RenderCommand>> m_ListCommand;
 			};
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

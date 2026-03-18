@@ -65,6 +65,8 @@ namespace CoreEngine
 			virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const = 0;
 			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const = 0;
 
+			virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data, bool isGenaretMipmap = true) = 0;
+
 			virtual const char* GetPath() const = 0;
 			virtual uint32 GetWidth() const = 0;
 			virtual uint32 GetHeight() const = 0;
@@ -80,9 +82,14 @@ namespace CoreEngine
 
 		class Texture2D : public Texture
 		{
+		protected:
+
+			Texture2D() = default;
+
 		public:
 
-			static SharedPtr<Texture2D> Create(const char* path);
+			static UniquePtr<Texture2D> Create(const char* path);
+			static UniquePtr<Texture2D> Create();
 		};
 	}
 }

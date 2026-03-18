@@ -31,18 +31,23 @@ namespace CoreEngine
 				OpenGLTexture2D(const OpenGLTexture2D&) = delete;
 				OpenGLTexture2D& operator=(const OpenGLTexture2D&) = delete;
 
+			private:
+
 				OpenGLTexture2D();
 				~OpenGLTexture2D();
 
+			public:
+
 				OpenGLTexture2D(const char* path);
 				OpenGLTexture2D(OpenGLTexture2D&& other) noexcept;
-
 				OpenGLTexture2D& operator=(OpenGLTexture2D&& other) noexcept;
 
 			public:
 
 				virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const override;
 				virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const override;
+
+				virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data, bool isGenaretMipmap = true) override;
 
 				virtual const char* GetPath() const override { return m_path.c_str(); }
 				virtual uint32 GetWidth() const override { return m_width; }
@@ -54,7 +59,7 @@ namespace CoreEngine
 				virtual void UnBind() const override;
 
 				bool ChangeTexture(const char* path, bool isGenaretMipmap = true);
-				void SetLevelMipmap(const char* path, uint8_t level = 1);
+				void SetLevelMipmap(const char* path, uint8 level = 1);
 
 				virtual uint32 GetTextureID() const override;
 

@@ -9,7 +9,7 @@ namespace CoreEngine
 {
 	namespace Runtime
 	{
-		RCLASS();
+		RCLASS(EditorComponent);
 		class SceneComponent : public ActorComponent
 		{
 			GENERATED_BODY()
@@ -22,6 +22,7 @@ namespace CoreEngine
 		public:
 
 			virtual void UpdateComponent(float deltaTime) override {}
+			virtual void DestroyComponent() override;
 
 			const FTransform& GetTransform() const;
 			void SetTransform(const FTransform& newTransform);

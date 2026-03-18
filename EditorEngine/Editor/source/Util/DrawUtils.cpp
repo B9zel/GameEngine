@@ -1,6 +1,9 @@
 #include "Editor/includes/Util/DrawUtils.h"
 #include "Math/includes/Matrix.h"
 #include "imgui_internal.h"
+#include "Editor/includes/EditorEngine.h"
+#include "Runtime/includes/ActorComponent.h"
+#include "Runtime/includes/Actor.h"
 //#include <imgui.h>
 
 
@@ -308,4 +311,33 @@ namespace Editor
 		ImGui::PopID();
 	}
 	
+	bool DrawComponentContextDraw(Editor::EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject)
+	{
+		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::ActorComponent::GetStaticClass()))
+		{
+			auto* Component = dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject);
+			if (Component && !Component->GetIsCreatedNative())
+			{
+				if (ImGui::BeginPopupContextItem(nullptr))
+				{
+					bool HasDelete = false;
+					if (ImGui::MenuItem("Delete component"))
+					{
+						if (auto* Actor = dynamic_cast<CoreEngine::Runtime::Actor*>(SelectedObject->GetOuter()))
+						{
+							Actor->RemoveComponent(dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject));
+							Engine->SetSelectedObject(nullptr);
+
+							HasDelete = true;
+						}
+					}
+					ImGui::EndPopup();
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+
 }

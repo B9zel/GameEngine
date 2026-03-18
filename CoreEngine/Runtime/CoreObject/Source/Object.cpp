@@ -121,9 +121,19 @@ namespace CoreEngine
 			Data.PopPrefix();
 		}
 
+		void Object::SetOuter(Object* Outer)
+		{
+			m_Outer = Outer;
+		}
+
+		Object* Object::GetOuter() const
+		{
+			return m_Outer.Get();
+		}
+
 		void Object::MarkGarbage()
 		{
-			SetFlag(static_cast<uint32>(StateObjectFlagGC), static_cast<uint32>(ObjectGCFlags::Garbage));
+			SetFlag(static_cast<uint64>(StateObjectFlagGC), static_cast<uint64>(ObjectGCFlags::Garbage));
 		}
 
 		void Object::OnDeserialize(SerializeAchive& Data)

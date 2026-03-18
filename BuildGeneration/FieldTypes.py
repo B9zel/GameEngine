@@ -24,6 +24,7 @@ class ClassField:
         self.Namespace = ""
         self.IsPointer = False
         self.LineGenBody = MacrosData()
+        self.ParamsClass = MacrosData()
         self.Parent = ""
         self.Variable:VariableField = []
     def __str__(self):

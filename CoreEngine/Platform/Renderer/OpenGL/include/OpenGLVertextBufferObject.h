@@ -7,7 +7,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
@@ -29,16 +28,21 @@ namespace CoreEngine
 
 			public:
 
-				virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray) override;
+				virtual void CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+										  const VertexArrayObject& vertexArray, const bool IsAutoUnBind = true) override;
+				virtual void CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+										  const bool IsAutoUnBind = true) override;
 
 				virtual void DeleteBuffer() override;
 
 				virtual bool SetData(const int32 beginFillData, const uint32 sizeOfData, const void* data, const bool isBind = true) override;
 
-				//virtual bool SetData(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw) override;
+				// virtual bool SetData(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw) override;
 
 				virtual void Bind() const override;
 				virtual void UnBind() const override;
+
+				virtual uint32 GetBufferID() const override;
 
 				bool IsCreate();
 
@@ -48,7 +52,7 @@ namespace CoreEngine
 				ETypeData m_typeStorageData;
 				bool m_IsCreate;
 			};
-		}
-	}
+		} // namespace OpenGL
+	} // namespace Render
 
-}
+} // namespace CoreEngine

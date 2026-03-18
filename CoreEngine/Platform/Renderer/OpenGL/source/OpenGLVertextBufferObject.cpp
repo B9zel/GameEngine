@@ -1,6 +1,5 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
@@ -39,7 +38,8 @@ namespace CoreEngine
 				return *this;
 			}
 
-			void OpenGLVertexBufferObject::CreaterBuffer(const void* vertexArr, const uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray)
+			void OpenGLVertexBufferObject::CreateBuffer(const void* vertexArr, const uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+														const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
 			{
 				if (m_IsCreate) return;
 
@@ -48,8 +48,29 @@ namespace CoreEngine
 
 				Bind();
 				glBufferData(GL_ARRAY_BUFFER, GetSizeOfFromEnum(typeArr) * sizeArr, vertexArr, GetDrawTypeAPIFromEnum(typeDraw));
-				vertexArray.UnBind();
-				UnBind();
+				if (IsAutoUnBind)
+				{
+					vertexArray.UnBind();
+					UnBind();
+				}
+
+				m_typeStorageData = typeArr;
+				m_IsCreate = true;
+			}
+
+			void OpenGLVertexBufferObject::CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+														const bool IsAutoUnBind)
+			{
+				if (m_IsCreate) return;
+
+				glGenBuffers(1, &m_VBO);
+
+				Bind();
+				glBufferData(GL_ARRAY_BUFFER, GetSizeOfFromEnum(typeArr) * sizeArr, vertexArr, GetDrawTypeAPIFromEnum(typeDraw));
+				if (IsAutoUnBind)
+				{
+					UnBind();
+				}
 
 				m_typeStorageData = typeArr;
 				m_IsCreate = true;
@@ -84,17 +105,17 @@ namespace CoreEngine
 				if (isBind)
 				{
 					Bind();
-					glBufferSubData(GL_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
+					glBufferSubData(GL_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData),
+									data);
 					UnBind();
 				}
 				else
 				{
-					glBufferSubData(GL_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
+					glBufferSubData(GL_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData),
+									data);
 				}
 				return true;
 			}
-
-
 
 			void OpenGLVertexBufferObject::Bind() const
 			{
@@ -106,10 +127,15 @@ namespace CoreEngine
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 
+			uint32 OpenGLVertexBufferObject::GetBufferID() const
+			{
+				return m_VBO;
+			}
+
 			bool OpenGLVertexBufferObject::IsCreate()
 			{
 				return m_IsCreate;
 			}
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

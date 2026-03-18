@@ -54,6 +54,7 @@ def FindedClassMacros(pr:cindex.TranslationUnit):
                 NewMacros = MacrosData()
                 NewMacros.Name = token.spelling
                 NewMacros.Location = token.location.line
+                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)), SearchClassCheck)
                 res.append(NewMacros)
         except UnicodeDecodeError:
             continue
@@ -67,7 +68,7 @@ def GarbagePropertyFields(pr, cursor):
                 NewMacros = MacrosData()
                 NewMacros.Name = token.spelling
                 NewMacros.Location = token.location.line
-                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)))
+                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)), SearchVariableCheck)
                 garbageMacrosProperty.append(NewMacros)
         except UnicodeDecodeError:
             continue
@@ -116,16 +117,18 @@ def GetDeclarationFromType(type):
             return declaration
     return None
 
-def CollectPropertyConfig(tu, token:list):
+def SearchVariableCheck(j):
+    return j[1].spelling == "RPROPERTY"
+
+def SearchClassCheck(j):
+    return j[1].spelling == "RCLASS"
+
+def CollectPropertyConfig(tu, token:list, SearchPredicate):
     if not token:
         return []
     ResCollect = []
 
-    def SearchCheck(j):
-        return j[1].spelling == "RPROPERTY"
-
-
-    FindPos = list(filter(SearchCheck, enumerate(token)))
+    FindPos = list(filter(SearchPredicate, enumerate(token)))
     begin = False
     end = False
 
@@ -251,6 +254,7 @@ def ParseFile(pr, FindedMacrosClass:list) -> list:
             NewClass.Name = node.spelling
             NewClass.Namespace = GetNamespaceWithClass(node)
             NewClass.LineGenBody = GarbageGeneratedBody(pr, node)
+            NewClass.ParamsClass = FindedMacros[0]
             NewClass.Parent = GetParentWithNamepsace(NewClass.Namespace, GetParent(pr, node))
             if not NewClass.IsValidGeneretedBody():
                 continue

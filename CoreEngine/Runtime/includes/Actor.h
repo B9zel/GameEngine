@@ -6,6 +6,7 @@
 #include <Core/includes/UpdateManager.h>
 #include <Math/includes/Transform.h>
 #include <Runtime/includes/ActorComponent.h>
+#include <Runtime/includes/SceneComponent.h>
 #include <Actor.generated.h>
 
 
@@ -77,7 +78,7 @@ namespace CoreEngine
 			virtual void DispatchBeginPlay();
 			virtual void InitComponents();
 			virtual void PostSpawnActor();
-
+		
 
 			void Registered();
 			template<class ReturnType>
@@ -85,6 +86,8 @@ namespace CoreEngine
 
 			template<class ReturnType>
 			ReturnType* CreateRuntimeSubObject();
+			template<class ReturnType = ActorComponent>
+			ReturnType* CreateSubObject(Reflection::ClassField* Class, const String& Name);
 
 			SceneComponent* GetRootComponent() const;
 			void SetRootComponent(SceneComponent* root);
@@ -96,6 +99,7 @@ namespace CoreEngine
 			FVector GetActorForwardVector() const;
 			FVector GetActorRightVector() const;
 			Actor* GetOwner() const;
+			bool GetIsRegister() const;
 
 			void SetActorLocation(const FVector& newLocation);
 			void SetActorScale(const FVector& newScale);
@@ -106,10 +110,13 @@ namespace CoreEngine
 			void AddActorLocation(const FVector& AddValue);
 			void AddActorRotation(const FVector& AddValue);
 
+			bool RemoveComponent(ActorComponent* Component);
+
 			template<class TClass>
 			TClass* FindComponentByClass();
 			template<class TClass>
 			DArray<TClass*> FindComponentsByClass();
+			DArray<ActorComponent*> FindComponentsByClass(Reflection::ClassField* Class);
 
 			const DArray<ActorComponent*>& GetComponents() const;
 
@@ -127,6 +134,8 @@ namespace CoreEngine
 			virtual void OnSerialize(SerializeAchive& Achive) override;
 			virtual void OnDeserialize(SerializeAchive& Achive) override;
 			virtual void OnDestroy();
+			virtual void PreRegistered();
+			virtual void PreRegisterAll();
 
 		private:
 
@@ -152,13 +161,29 @@ namespace CoreEngine
 		template<class ReturnType>
 		inline ReturnType* Actor::CreateSubObject(const String& Name)
 		{
-			ReturnType* obj = CreateObject<ReturnType>(this);
+			return CreateSubObject<ReturnType>(ReturnType::GetStaticClass(), Name);
+		}
+		template<class ReturnType>
+		inline ReturnType* Actor::CreateRuntimeSubObject()
+		{
+			ReturnType* newComponent = CreateSubObject<ReturnType>();
+			newComponent->RegistredComponent();
+
+			return newComponent;
+		}
+		template<class ReturnType>
+		inline ReturnType* Actor::CreateSubObject(Reflection::ClassField* Class, const String& Name)
+		{
+			ReturnType* obj = CreateObject<ReturnType>(Class);
 			if (obj)
 			{
 				obj->SetOwner(this);
+				obj->SetOuter(this);
 			}
-			if (auto* newClass = dynamic_cast<SceneComponent*>(obj))
-			{
+			
+			if (Class->IsChildClassOf(SceneComponent::GetStaticClass()))
+			{	
+				auto* newClass = reinterpret_cast<SceneComponent*>(obj);
 				if (RootComponent)
 				{
 					newClass->SetupToAttachment(RootComponent);
@@ -170,15 +195,6 @@ namespace CoreEngine
 			Components.emplace_back(obj);
 			//ComponentsGC.emplace_back(obj);
 			return obj;
-
-		}
-		template<class ReturnType>
-		inline ReturnType* Actor::CreateRuntimeSubObject()
-		{
-			ReturnType* newComponent = CreateSubObject<ReturnType>();
-			newComponent->RegistredComponent();
-
-			return newComponent;
 		}
 		template<class TClass>
 		inline TClass* Actor::FindComponentByClass()
@@ -186,9 +202,10 @@ namespace CoreEngine
 			if (!IsParentClass<ActorComponent, TClass>()) return nullptr;
 			for (ActorComponent* i : Components)
 			{
-				if (auto* res = dynamic_cast<TClass*>(i))
+				//auto* res = dynamic_cast<TClass*>(i)
+				if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
 				{
-					return res;
+					return dynamic_cast<TClass*>(i);
 				}
 			}
 			return nullptr;
@@ -200,9 +217,10 @@ namespace CoreEngine
 			DArray<TClass*> Res;
 			for (ActorComponent* i : Components)
 			{
-				if (auto* res = dynamic_cast<TClass*>(i))
+				// auto* res = dynamic_cast<TClass*>(i)
+				if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
 				{
-					Res.emplace_back(res);
+					Res.emplace_back(dynamic_cast<TClass*>(i));
 				}
 			}
 			return Res;

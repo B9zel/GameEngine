@@ -23,7 +23,7 @@ namespace CoreEngine
 				m_IsCreated = true;
 			}
 
-			void OpenGLShaderStorageBufferObject::CreaterBuffer(const void* DataArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeDraw& typeDraw)
+			void OpenGLShaderStorageBufferObject::CreaterBuffer(const void* DataArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeStorageDraw& typeDraw)
 			{
 				if (m_IsCreated)
 				{

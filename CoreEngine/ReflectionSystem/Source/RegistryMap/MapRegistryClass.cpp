@@ -33,9 +33,11 @@ namespace CoreEngine
 		{
 			m_RegistryClasses.emplace(Name, NewField);
 		}
-		HashTableMap<String, RegistryClass>& MapRegistryClass::GetData()
+		const HashTableMap<String, RegistryClass>& MapRegistryClass::GetData() const
 		{
 			return m_RegistryClasses;
 		}
+
+
 	}
 }

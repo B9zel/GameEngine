@@ -4,6 +4,7 @@
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <Runtime/includes/Actor.h>
 //#include <glm/gtc/quaternion.hpp>
 
 namespace CoreEngine
@@ -19,6 +20,29 @@ namespace CoreEngine
 			Front = FVector(0, 0, -1);
 
 			parentAttach = nullptr;
+		}
+
+		void SceneComponent::DestroyComponent()
+		{
+			if (parentAttach)
+			{
+				for (uint64 i = 0; i < childrenAttach.size(); i++)
+				{
+					childrenAttach[i]->SetupToAttachment(parentAttach);
+				}
+				auto& arrChildren = parentAttach->childrenAttach;
+				arrChildren.erase(std::find(arrChildren.begin(), arrChildren.end(), this));
+				return;
+			}
+			SceneComponent* NextRoot = childrenAttach.empty() ? nullptr : childrenAttach.front();
+			if (NextRoot)
+			{
+				for (uint64 i = 0; i < childrenAttach.size(); i++)
+				{
+					childrenAttach[i]->SetupToAttachment(NextRoot);
+				}
+				GetOwner()->SetRootComponent(NextRoot);
+			}
 		}
 
 		const FTransform& SceneComponent::GetTransform() const
@@ -128,6 +152,8 @@ namespace CoreEngine
 
 		void SceneComponent::SetupToAttachment(SceneComponent* attach)
 		{
+			if (!attach) return;
+
 			if (parentAttach)
 			{
 				auto& arrChildren = parentAttach->childrenAttach;

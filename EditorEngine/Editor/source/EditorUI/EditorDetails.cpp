@@ -6,6 +6,9 @@
 #include <Math/includes/Transform.h>
 #include <Runtime/includes/SceneComponent.h>
 #include <Editor/includes/Util/DrawUtils.h>
+#include <Runtime/includes/Actor.h>
+#include <Runtime/includes/ActorComponent.h>
+#include <Editor/includes/EditorEngine.h>
 
 
 namespace CoreEngine::Reflection
@@ -31,6 +34,50 @@ namespace Editor
 			ImGui::End();
 			return;
 		}
+
+		const uint32 MaxSizeName = 128;
+		StaticArray<char, MaxSizeName> NewName;
+		std::fill(NewName.data(), NewName.data() + NewName.size(), '\0');
+		static const String& Name = SelectedObject->GetName();
+		std::copy(Name.data(), Name.data() + Name.size(), NewName.data());
+
+		if (ImGui::InputText("##NameObject", NewName.data(), MaxSizeName, ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			if (NewName.front() != '\0')
+			{
+				SelectedObject->SetName(NewName.data());
+			}
+
+		}
+
+		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::Actor::GetStaticClass()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Add component"))
+			{
+				ImGui::OpenPopup("Add component");
+			}
+			if (ImGui::BeginPopup("Add component"))
+			{
+				auto& Data = CoreEngine::Reflection::MapRegistryClass::Instance().GetData();
+				for (auto& El : Data)
+				{
+					auto* MetaClass = El.second.CreateMetaClass.Invoke();
+					if (MetaClass && !HasFlag(MetaClass->ParamFlags, EClassFieldParams::EditorComponent) || MetaClass->Name.empty()) continue;
+
+					if (ImGui::MenuItem(MetaClass->Name.c_str()))
+					{
+						auto* ClassData = dynamic_cast<CoreEngine::Reflection::ClassField*>(MetaClass);
+						auto* SelectedActor = dynamic_cast<CoreEngine::Runtime::Actor*>(SelectedObject);
+						DArray<CoreEngine::Runtime::ActorComponent*>& Components = SelectedActor->FindComponentsByClass(ClassData);
+						SelectedActor->CreateSubObject(ClassData, MetaClass->Name + std::to_string(Components.size()));
+					}
+					
+				}
+				ImGui::EndPopup();
+			}
+		}
+
 		if (ImGui::TreeNodeEx(SelectedObject->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DrawLinesFull))
 		{
 			DrawDetailsRecursive(SelectedObject, nullptr, true);
@@ -45,7 +92,6 @@ namespace Editor
 	void EditorDetails::DrawDetailsRecursive(CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Runtime::Object* SourceClass, bool IsDrawTree)
 	{
 
-
 		auto* ClassInfo = SelectedObject->GetClass();
 		auto* MainClass = ClassInfo;
 		if (!HasAnyPropertyDeep(ClassInfo)) return;
@@ -54,6 +100,8 @@ namespace Editor
 		{
 			IsOpen = ImGui::TreeNodeEx(SourceClass->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed);
 		}
+		
+		DrawComponentContextDraw(OwnerEditor, SelectedObject);
 
 		if (!IsOpen) return;
 		

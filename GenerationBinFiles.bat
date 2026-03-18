@@ -1,1 +1,2 @@
-cmake -S . -B ./Bin
+cmake -G "Visual Studio 17 2022" -S . -B ./Bin
+pause

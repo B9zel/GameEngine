@@ -49,7 +49,9 @@ namespace CoreEngine
 				return i->event.get();
 			}
 		}
-		return nullptr;
+		UniquePtr<EventCell> newCells = MakeUniquePtr<EventCell>();
+		newCells->event = CreateEventByType(eventType);
+		return m_PoolEvents[eventType].emplace_back(std::move(newCells))->event.get();
 	}
 
 	void CoreEngine::EventPool::GiveEventClass(Event* event)

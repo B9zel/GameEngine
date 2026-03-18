@@ -9,7 +9,9 @@ namespace CoreEngine
 	{
 		ActorComponent::ActorComponent(const InitializeObject& InitParam) : Object(InitParam)
 		{
+			
 		}
+
 		void ActorComponent::BeginPlay()
 		{
 		}
@@ -37,6 +39,13 @@ namespace CoreEngine
 			GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
 			isRegistered = true;
 		}
+		void ActorComponent::PreRegisterComponent()
+		{
+			if (!GetOwner()->GetIsRegister())
+			{
+				IsCreatedNative = true;
+			}
+		}
 		void ActorComponent::SetOwner(Actor* Owner)
 		{
 			this->Owner = Owner;
@@ -49,6 +58,10 @@ namespace CoreEngine
 		bool ActorComponent::GetIsActive() const
 		{
 			return isActivate;
+		}
+		bool ActorComponent::GetIsCreatedNative() const
+		{
+			return IsCreatedNative;
 		}
 	}
 }

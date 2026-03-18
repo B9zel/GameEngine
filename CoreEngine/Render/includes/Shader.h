@@ -2,7 +2,6 @@
 #include <Core/includes/Base.h>
 #include <Math/includes/Matrix.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
@@ -12,13 +11,14 @@ namespace CoreEngine
 		public:
 
 			/*
-			* @return First string store the vertex shader
-			* Second string store the fragment shader
-			*/
+			 * @return First string store the vertex shader
+			 * Second string store the fragment shader
+			 */
 			static Pair<String, String> LoadShader(const char* pathToShader);
 			static UniquePtr<Shader> CreateShader();
 
 			virtual bool CompileShader(const String& vertexShader, const String& fragmentShader) = 0;
+			virtual bool CompileShader(const StringView vertexShader, const StringView fragmentShader) = 0;
 
 			virtual bool GetIsCompile() = 0;
 			virtual bool GetHasAllMatrix() = 0;
@@ -36,5 +36,5 @@ namespace CoreEngine
 			virtual const DArray<String>& GetNamesOfTexture() const = 0;
 		};
 
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

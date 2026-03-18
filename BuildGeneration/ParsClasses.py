@@ -1,5 +1,7 @@
 import os.path
 import pathlib as pl
+from idlelib.filelist import FileList
+
 from GeneralFile import GetNameFilesWithoutExtenshion
 from FieldTypes import *
 
@@ -103,7 +105,13 @@ def GenerateSource(ClassNameLine, NameOpenFile, PathToOpenedFile, DirectoryOuput
         #                "\tDArray<UniquePtr<CoreEngine::Reflection::PropertyField>> Vec;\n"
 
         Parent = f"{Field.Parent}::GetStaticClass()" if Field.Parent else "nullptr"
-        Implement += f"ImplementNewClass({Field.Name}Generated, {Field.Name},{Field.Namespace}, EClassFieldParams::NONE,sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
+        Params = ""
+        for index, el in enumerate(Field.ParamsClass.Params):
+            if index != 0:
+                Params += "|"
+            Params += el
+
+        Implement += f"ImplementNewClass({Field.Name}Generated, {Field.Name},{Field.Namespace}, {Params if Params else "EClassFieldParams::NONE"},sizeof({Field.Namespace}::{Field.Name}), Construct_{Field.Name}_Statics::GetPropertyFieldArray(), {Parent})\n" \
                     f"ImplementStaticClass({Field.Namespace}::{Field.Name}, {ClassNameLine}Generated,\"{Field.Name}\")\n"
         Implement += f"GenetateSourceRegistryClass({Field.Name}, {Field.Namespace})"
 

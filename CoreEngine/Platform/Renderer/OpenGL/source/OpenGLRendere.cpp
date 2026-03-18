@@ -5,7 +5,8 @@
 #include <Core/includes/LightProxy.h>
 #include <Core/includes/Engine.h>
 #include <Core/includes/World.h>
-#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
+#include <Render/includes/RenderCommand.h>
 #include <Core/includes/Window.h>
 #include <Render/includes/Framebuffer.h>
 #include <Render/includes/Shader.h>
@@ -19,14 +20,13 @@ namespace CoreEngine
 		{
 			OpenGLRender::OpenGLRender()
 			{
-				m_SSBODirectionLight.CreaterBuffer(nullptr, 0, sizeof(SimplyDirectionLightProxy), ETypeDraw::STREAM);
-				m_SSBOPointLight.CreaterBuffer(nullptr, 0, sizeof(SimplyPointLightProxy), ETypeDraw::STREAM);
-				m_SSBOSpotLight.CreaterBuffer(nullptr, 0, sizeof(SimpleSpotLightProxy), ETypeDraw::STREAM);
-				m_SSBOLightSpace.CreaterBuffer(nullptr, 0, sizeof(FMatrix4x4), ETypeDraw::STREAM);
+				m_SSBODirectionLight.CreaterBuffer(nullptr, 0, sizeof(SimplyDirectionLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOPointLight.CreaterBuffer(nullptr, 0, sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOSpotLight.CreaterBuffer(nullptr, 0, sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOLightSpace.CreaterBuffer(nullptr, 0, sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
 
 				CurrentRes.x = Application::Get()->GetWindow().GetWidth();
 				CurrentRes.y = Application::Get()->GetWindow().GetHeight();
-
 
 				FramebufferArraySpecification SpecShadow;
 				SpecShadow.Height = Application::Get()->GetWindow().GetHeight();
@@ -40,13 +40,13 @@ namespace CoreEngine
 				SpecShadow.LayerCount = 64;
 				ShadowDepth = MakeSharedPtr<OpenGL::OpenGLFramebufferArray>(SpecShadow);
 
-
 				CoreEngine::Render::FramebufferSpecification Spec;
 				Spec.Height = Application::Get()->GetWindow().GetHeight();
 				Spec.Width = Application::Get()->GetWindow().GetWidth();
 				Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RGBA8));
 				Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RED_INTEGER));
-				Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8, EFramebufferTextureFilterConfig::LINER));
+				Spec.AttachTextures.Textures.push_back(
+					CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8, EFramebufferTextureFilterConfig::LINER));
 
 				m_ResultScene = Framebuffer::Create(Spec);
 
@@ -55,66 +55,65 @@ namespace CoreEngine
 				m_ShaderShadow->CompileShader(Loaded.first, Loaded.second);
 			}
 
-			void OpenGLRender::RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights,const DArray<FMatrix4x4>& LightDirecion)
+			void OpenGLRender::RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights, const DArray<FMatrix4x4>& LightDirecion)
 			{
 				DArray<SimplyDirectionLightProxy> DirectionLights;
 				DArray<SimplyPointLightProxy> PointLights;
 				DArray<SimpleSpotLightProxy> SpotLights;
 				DArray<FMatrix4x4> LightSpaces;
-			
+
 				for (int64 i = 0; i < Lights.size(); i++)
 				{
 					DArray<GLuint64> Handles;
 					auto* ShadowData = FindLightShadowData(Lights[i]->GetTypeLight(), Lights[i]->GetID());
 
-					
 					switch (Lights[i]->GetTypeLight())
 					{
 					case ETypeLight::DIRECTION_LIGHT:
 					{
 						DirectionLightProxy* Proxy = dynamic_cast<DirectionLightProxy*>(Lights[i]);
-						SimplyDirectionLightProxy SimplePointLight = { Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetDirection(), ShadowData->Layer};
+						SimplyDirectionLightProxy SimplePointLight = {Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetDirection(), ShadowData->Layer};
 						DirectionLights.emplace_back(SimplePointLight);
 						break;
 					}
 					case ETypeLight::POINT_LIGHT:
 					{
 						PointLightProxy* Proxy = dynamic_cast<PointLightProxy*>(Lights[i]);
-						SimplyPointLightProxy SimplePointLight = { Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetLocation(), Proxy->GetConstant(),
-																	Proxy->GetLinear(), Proxy->GetQuadratic() };
+						SimplyPointLightProxy SimplePointLight = {Proxy->GetColor(),	Proxy->GetIntencity(), Proxy->GetLocation(),
+																  Proxy->GetConstant(), Proxy->GetLinear(),	   Proxy->GetQuadratic()};
 						PointLights.emplace_back(SimplePointLight);
 						break;
 					}
 					case ETypeLight::SPOTLIGHT:
 					{
 						SpotLightProxy* Proxy = dynamic_cast<SpotLightProxy*>(Lights[i]);
-						SimpleSpotLightProxy SimpleSpotLight = { Proxy->GetColor(),  Proxy->GetDirection(), Proxy->GetLocation(), ShadowData ? ShadowData->Layer : 0,  Proxy->GetIntencity(),Proxy->GetCutOff(), Proxy->GetOuterCutOff(), Proxy->GetConstant(),
-																	Proxy->GetLinear(), Proxy->GetQuadratic() };
+						SimpleSpotLightProxy SimpleSpotLight = {
+							Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : 0,
+							Proxy->GetIntencity(), Proxy->GetCutOff(),	  Proxy->GetOuterCutOff(), Proxy->GetConstant(),
+							Proxy->GetLinear(),	   Proxy->GetQuadratic()};
 						SpotLights.emplace_back(SimpleSpotLight);
 						break;
 					}
 					default:
 						break;
 					}
-					//LightSpaces.push_back(LightsMatrix[DirectionLights.size()]);
+					// LightSpaces.push_back(LightsMatrix[DirectionLights.size()]);
 				}
 
+				m_SSBODirectionLight.CreaterBuffer(DirectionLights.data(), DirectionLights.size(), sizeof(SimplyDirectionLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOPointLight.CreaterBuffer(PointLights.data(), PointLights.size(), sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
+				// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
+				// glDisable(GL_BLEND);
 
-
-				m_SSBODirectionLight.CreaterBuffer(DirectionLights.data(), DirectionLights.size(), sizeof(SimplyDirectionLightProxy), ETypeDraw::STREAM);
-				m_SSBOPointLight.CreaterBuffer(PointLights.data(), PointLights.size(), sizeof(SimplyPointLightProxy), ETypeDraw::STREAM);
-				m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeDraw::STREAM);
-				m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeDraw::STREAM);
-				//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
-				//glDisable(GL_BLEND);
-			
 				int test = 0;
 				for (size_t i = 0; i < Proxy->GetIndeces().size(); i++)
 				{
 					for (auto& el : Proxy->GetShaders())
 					{
 
-						//if (test++ == 0) continue;
+						// if (test++ == 0) continue;
 						auto* shader = el.first;
 						auto* vertexArray = Proxy->GetArrayObject()[i];
 
@@ -136,11 +135,10 @@ namespace CoreEngine
 							}
 						}
 
-
 						if (shader->GetHasAllMatrix())
 						{
 							FVector4 a = m_Projection * m_View * Proxy->GetTransformMatrix() * FVector4(1, 1, 1, 1).vector;
-							//FMatrix4x4 b = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
+							// FMatrix4x4 b = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
 
 							shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
 
@@ -154,12 +152,11 @@ namespace CoreEngine
 						shader->SetUniformVec3("ViewPos", Engine::Get()->GetWorld()->GetControllerLocation(), false);
 						shader->SetUniform1i("CountPointLight", PointLights.size(), false);
 						shader->SetUniform1i("CountDirectionLight", DirectionLights.size(), false);
-						shader->SetUniform1i("CountSpotLight",SpotLights.size(), false);
-						//shader->SetUniform1i("CountDirectionLight", ¬шку, false);
+						shader->SetUniform1i("CountSpotLight", SpotLights.size(), false);
+						// shader->SetUniform1i("CountDirectionLight", ¬шку, false);
 
-						
-						//shader->SetUniformVec2("ScreenSize", FVector2(Application::Get()->GetWindow().GetWidth(), Application::Get()->GetWindow().GetHeight()));
-						//shader->SetUniform1i("ShadowMap", 1);
+						// shader->SetUniformVec2("ScreenSize", FVector2(Application::Get()->GetWindow().GetWidth(),
+						// Application::Get()->GetWindow().GetHeight())); shader->SetUniform1i("ShadowMap", 1);
 
 						/*if (Proxy->GetUUID()->IsValid())
 						{
@@ -175,14 +172,13 @@ namespace CoreEngine
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, 3);*/
 
-						//int b;
-						//glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
-						//EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
+						// int b;
+						// glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
+						// EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
 						if (!Proxy->GetLocationLights().empty())
 						{
 							shader->SetUniformVec3("PosLight", Proxy->GetLocationLights()[0], false);
 						}
-
 
 						int ebo;
 						m_SSBODirectionLight.Bind(0);
@@ -190,17 +186,17 @@ namespace CoreEngine
 						m_SSBOSpotLight.Bind(2);
 						m_SSBOLightSpace.Bind(3);
 						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
-						//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-						//float* dat = nullptr;
-						//dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
+						// glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+						// float* dat = nullptr;
+						// dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
 
-						//if (dat)
+						// if (dat)
 						//{
 						//	for (int i = 0; i < 60 / sizeof(float); i += 3)
 						//	{
 						//		EG_LOG(CORE, ELevelLog::INFO, "{0}, {1}, {2}", dat[i], dat[i + 1], dat[i + 2]);
 						//	}
-						//}
+						// }
 
 						/*unsigned int a;
 						int locat = glGetUniformLocation(3, "ID");
@@ -208,9 +204,9 @@ namespace CoreEngine
 						EG_LOG(CORE, ELevelLog::INFO, a);*/
 						//	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
 						//	glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
-						//EG_LOG(CORE, ELevelLog::INFO, ebo);
-						//void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-						//if (d != nullptr)
+						// EG_LOG(CORE, ELevelLog::INFO, ebo);
+						// void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+						// if (d != nullptr)
 						//{
 						//	PointLightProxy* l = reinterpret_cast<PointLightProxy*>(d);
 						//	for (size_t i = 0; i < 32; i++)
@@ -229,9 +225,8 @@ namespace CoreEngine
 					}
 					test = 0;
 				}
-				//glEnable(GL_BLEND);
+				// glEnable(GL_BLEND);
 			}
-
 
 			void OpenGLRender::ClearBuffersScreen()
 			{
@@ -247,7 +242,7 @@ namespace CoreEngine
 			void OpenGLRender::RenderPipelineProxy(const DArray<PrimitiveProxy*>& Primitives, const DArray<LightProxy*>& Lights)
 			{
 				DrawDepthShadowBuffer(Lights, Primitives);
-				
+
 				m_ResultScene->Bind();
 				ClearBuffersScreen();
 				for (auto* Primitive : Primitives)
@@ -260,7 +255,6 @@ namespace CoreEngine
 					{
 						RenderProxy(Primitive);
 					}
-
 				}
 				m_ResultScene->UnBind();
 			}
@@ -278,7 +272,7 @@ namespace CoreEngine
 					m_LightsFramebuffer.clear();
 				}
 				LightsMatrix.clear();
-				
+
 				uint32 LayerIndex = 0;
 				m_ShaderShadow->Bind();
 				ShadowDepth->Bind();
@@ -287,8 +281,7 @@ namespace CoreEngine
 				{
 					if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT) continue;
 					auto* CreateBuffer = FindLightShadowData(Light->GetTypeLight(), Light->GetID());
-			
-						
+
 					if (!CreateBuffer)
 					{
 						LightShadowData LightData;
@@ -311,11 +304,11 @@ namespace CoreEngine
 					}
 
 					LayerIndex++;
-					//CreateBuffer->ShadowDepth->UnBind();
+					// CreateBuffer->ShadowDepth->UnBind();
 				}
-			
+
 				glCullFace(GL_BACK);
-				//m_ShadowBuffer->UnBind();
+				// m_ShadowBuffer->UnBind();
 				m_ShaderShadow->UnBind();
 			}
 
@@ -344,7 +337,6 @@ namespace CoreEngine
 							m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
 							m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
 
-
 							glDrawElements(GL_TRIANGLES, StaticProxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 						}
 					}
@@ -358,10 +350,12 @@ namespace CoreEngine
 				FMatrix4x4 LightSpace(1);
 				if (!SpotLight) return LightSpace;
 
-				FMatrix4x4 ProjectionLight = Math::CreatePerspectiveMatrix((SpotLight->GetOuterCutOff() * 8), ShadowDepth->GetSpecifiction().Width, ShadowDepth->GetSpecifiction().Height, 0.1, 10001);
+				FMatrix4x4 ProjectionLight = Math::CreatePerspectiveMatrix((SpotLight->GetOuterCutOff() * 8), ShadowDepth->GetSpecifiction().Width,
+																		   ShadowDepth->GetSpecifiction().Height, 0.1, 10001);
 				FVector DirectionLight = (SpotLight->GetDirection());
 
-				FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(SpotLight->GetLocation(), SpotLight->GetLocation() + SpotLight->GetDirection() * 100, FVector::UpVector);
+				FMatrix4x4 ViewLight =
+					Math::CreateMatrixLookAt(SpotLight->GetLocation(), SpotLight->GetLocation() + SpotLight->GetDirection() * 100, FVector::UpVector);
 				LightSpace = ProjectionLight * ViewLight;
 
 				for (auto* Proxy : Primitives)
@@ -376,7 +370,6 @@ namespace CoreEngine
 
 							m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
 							m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
-
 
 							glDrawElements(GL_TRIANGLES, StaticProxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 						}
@@ -405,16 +398,12 @@ namespace CoreEngine
 				if (!m_LightsFramebuffer.count(TypeLight)) return nullptr;
 
 				DArray<LightShadowData>& ArrOfFramebuffer = const_cast<DArray<LightShadowData>&>((*m_LightsFramebuffer.find(TypeLight)).second);
-				auto FindedElement = std::find_if(ArrOfFramebuffer.begin(), ArrOfFramebuffer.end(), [&](const LightShadowData& LightData) -> bool
-					{
-						return (LightData) == ID;
-					});
+				auto FindedElement =
+					std::find_if(ArrOfFramebuffer.begin(), ArrOfFramebuffer.end(), [&](const LightShadowData& LightData) -> bool { return (LightData) == ID; });
 				if (FindedElement == ArrOfFramebuffer.end()) return nullptr;
 
 				return &(*FindedElement);
 			}
-
-			
 
 			Framebuffer* OpenGLRender::GetRenderSceneBuffer() const
 			{
@@ -424,7 +413,7 @@ namespace CoreEngine
 			void OpenGLRender::SetResolutionScale(const FVector2 Resolition)
 			{
 				CurrentRes = Resolition;
-				//m_ShadowBuffer->Resize(Resolition.x * 6, Resolition.y * 6);
+				// m_ShadowBuffer->Resize(Resolition.x * 6, Resolition.y * 6);
 				ShadowDepth->Resize(Resolition.x * 4, Resolition.y * 4);
 				m_ResultScene->Resize(Resolition.x, Resolition.y);
 			}
@@ -438,7 +427,6 @@ namespace CoreEngine
 
 					shader->Bind();
 					vertexArray->Bind();
-
 
 					auto& Textures = Proxy->GetTextures();
 
@@ -455,7 +443,6 @@ namespace CoreEngine
 						}
 					}
 
-
 					if (shader->GetHasAllMatrix())
 					{
 						FMatrix4x4 a = m_Projection * m_View * Proxy->GetTransformMatrix();
@@ -469,9 +456,7 @@ namespace CoreEngine
 					ShadowDepth->ActivateDepthTexture();
 					shader->SetUniform1i("ourTexture1", 0, false);
 
-
 					glDrawArrays(GL_TRIANGLES, 0, Proxy->CountVertex / 3);
-
 
 					glDrawElements(GL_TRIANGLES, Proxy->CountIndeces, GL_UNSIGNED_INT, 0);
 					el.first->UnBind();
@@ -481,6 +466,12 @@ namespace CoreEngine
 				}
 			}
 
-		}
-	}
-}
+			void OpenGLRender::BuildCommandList(RenderDevice* Device, const DArray<PrimitiveProxy*>& Primitives,
+												const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
+												const DArray<SimpleSpotLightProxy>& SpotLights)
+			{
+			}
+
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

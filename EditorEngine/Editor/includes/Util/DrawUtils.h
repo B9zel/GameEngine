@@ -2,8 +2,15 @@
 #include <imgui.h>
 #include <Math/includes/Vector.h>
 
+namespace CoreEngine::Runtime
+{
+	class Object;
+}
+
 namespace Editor
 {
+	class EditorEngine;
+
 	void DrawInt8(const String& Id, const String& Name, int8& Scalar, int8 Max, int8 Min, const float ColumnWidht=50);
 	void DrawInt16(const String& Id, const String& Name, int16& Scalar, int16 Max, int16 Min, const float ColumnWidht=50);
 	void DrawInt32(const String& Id, const String& Name, int32& Scalar, int32 Max, int32 Min, const float ColumnWidht=50);
@@ -19,4 +26,6 @@ namespace Editor
 	void DrawTransform(const String& Id, const String& NameOfTransform, FVector& Location, FVector& Rotation, FVector& Scale, const float ColumnWidth = 100);
 	void DrawString(const String& Id, const String& NameString, String& SourceStr,const uint32 MaxBufferSize, const float ColumnWidth = 100);
 	void DrawBool(const String& Id, const String& NameString, bool& Value, const float ColumnWidth = 100);
+
+	bool DrawComponentContextDraw(Editor::EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject);
 }

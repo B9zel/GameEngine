@@ -10,7 +10,7 @@ namespace CoreEngine
 	{
 
 
-		RCLASS()
+		RCLASS(EditorComponent)
 			class CameraComponent : public SceneComponent
 		{
 			GENERATED_BODY()

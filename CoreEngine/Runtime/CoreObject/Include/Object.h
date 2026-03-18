@@ -26,7 +26,7 @@ namespace CoreEngine
 
 #define PROPERTY(type, name) CoreEngine::ObjectPtr<type> name
 
-enum class ObjectGCFlags : uint8
+enum class ObjectGCFlags : uint64
 {
 	None = 0,
 	RootObject = FLAG_OFFSET(0),
@@ -91,6 +91,8 @@ namespace CoreEngine
 			virtual void PreDeserialize();
 			void Deserialize(SerializeAchive& Data);
 
+			void SetOuter(Object* Outer);
+			Object* GetOuter() const;
 
 			virtual void MarkGarbage();
 
@@ -109,7 +111,7 @@ namespace CoreEngine
 			String Name;
 
 			// GC
-			uint32 StateObjectFlagGC{ 0 };
+			uint64 StateObjectFlagGC{ 0 };
 			//
 
 			// Serialize

@@ -18,7 +18,7 @@ namespace CoreEngine
 			public:
 
 				virtual void GenerationBuffer() override;
-				virtual void CreaterBuffer(const void* vertexArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeDraw& typeDraw) override;
+				virtual void CreaterBuffer(const void* vertexArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeStorageDraw& typeDraw) override;
 
 				virtual void DeleteBuffer() override;
 

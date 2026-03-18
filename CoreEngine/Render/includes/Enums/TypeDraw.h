@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum class ETypeDraw : int
+enum class ETypeStorageDraw : int
 {
 	STATIC = 0,
 	DYNAMIC,

@@ -17,6 +17,7 @@ namespace CoreEngine
 		struct ConstructionField : public BaseField
 		{
 			uint32 Size;
+			uint64 ParamFlags = 0;
 			DArray<PropertyField*> PropertyFileds;
 			ETypeConstructionFiled TypeConstruction;
 
@@ -38,6 +39,8 @@ namespace CoreEngine
 			{
 				PropertyFileds.emplace_back(NewProperty);
 			}
+
+			virtual void ValidateMetaClass() = 0;
 
 		public:
 

@@ -29,7 +29,7 @@ public:
 		LightObjh = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>("Spot light2");
 
 		arrObj.CreateVertexArray();
-		vertObj.CreaterBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, arrObj);
+		vertObj.CreateBuffer(arr, 288, CoreEngine::ETypeData::FLOAT, ETypeStorageDraw::STATIC, arrObj);
 		arrObj.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, vertObj);
 		arrObj.SetupIntorprit(1, 2, 8, CoreEngine::ETypeData::FLOAT, vertObj, 7);
 

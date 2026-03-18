@@ -2,6 +2,7 @@
 #include <Runtime/includes/SceneComponent.h>
 #include <Math/includes/Vector.h>
 #include <Runtime/includes/Controller.h>
+#include <Runtime/includes/ActorComponent.h>
 
 
 
@@ -86,8 +87,24 @@ namespace CoreEngine
 
 		void Actor::PostSpawnActor()
 		{
+			PreRegistered();
+			PreRegisterAll();
+
 			Registered();
 			RegisterAll();
+		}
+
+		void Actor::PreRegistered()
+		{
+
+		}
+
+		void Actor::PreRegisterAll()
+		{
+			for (auto* Component : Components)
+			{
+				Component->PreRegisterComponent();
+			}
 		}
 
 		void Actor::OnRegistered()
@@ -143,6 +160,11 @@ namespace CoreEngine
 			return Owner;
 		}
 
+		bool Actor::GetIsRegister() const
+		{
+			return isRegister;
+		}
+
 		void Actor::SetActorLocation(const FVector& newLocation)
 		{
 			RootComponent->SetComponentLocation(newLocation);
@@ -177,6 +199,47 @@ namespace CoreEngine
 		{
 			Owner = newOwner;
 		}
+
+		bool Actor::RemoveComponent(ActorComponent* Component)
+		{
+			SceneComponent* NewRoot = nullptr;
+			if (RootComponent->GetChildrenAttaches().empty() && RootComponent->GetClass() != SceneComponent::GetStaticClass())
+			{
+				NewRoot = CreateSubObject<SceneComponent>("Scene root");
+				NewRoot->SetTransform(RootComponent->GetTransform());
+			}
+
+			for (auto It = Components.begin(); It != Components.end(); It++)
+			{
+				if (*It == Component && !(*It)->GetIsCreatedNative())
+				{
+					(*It)->DestroyComponent();
+					Components.erase(It);
+					return true;
+				}
+			}
+
+			if (NewRoot)
+			{
+				RootComponent = NewRoot;
+			}
+
+			return false;
+		}
+
+		DArray<ActorComponent*> Actor::FindComponentsByClass(Reflection::ClassField* Class)
+		{
+			DArray<ActorComponent*> Res;
+			for (ActorComponent* i : Components)
+			{
+				if (i->GetClass()->IsChildClassOf(Class))
+				{
+					Res.emplace_back(i);
+				}
+			}
+			return Res;
+		}
+
 		const DArray<ActorComponent*>& Actor::GetComponents() const
 		{
 			return Components;

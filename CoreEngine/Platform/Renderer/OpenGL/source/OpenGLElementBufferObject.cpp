@@ -29,7 +29,8 @@ namespace CoreEngine
 				Other.m_typeStorageData = ETypeData::NONE;
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj)
+			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+														 const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj, const bool IsAutoUnBind)
 			{
 				if (IsCreate())
 				{
@@ -41,15 +42,19 @@ namespace CoreEngine
 				glGenBuffers(1, &m_EBO);
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
-				vertexArray.UnBind();
-				buffObj.UnBind();
-				UnBind();
+				if (IsAutoUnBind)
+				{
+					vertexArray.UnBind();
+					buffObj.UnBind();
+					UnBind();
+				}
 
 				m_typeStorageData = typeData;
 				m_isCreate = true;
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray)
+			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+														 const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
 			{
 				if (IsCreate())
 				{
@@ -60,9 +65,32 @@ namespace CoreEngine
 				glGenBuffers(1, &m_EBO);
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
-				vertexArray.UnBind();
-				UnBind();
-			
+				if (IsAutoUnBind)
+				{
+					vertexArray.UnBind();
+					UnBind();
+				}
+
+				m_typeStorageData = typeData;
+				m_isCreate = true;
+			}
+
+			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+														 const bool IsAutoUnBind)
+			{
+				if (IsCreate())
+				{
+					DeleteBuffer();
+				}
+
+				glGenBuffers(1, &m_EBO);
+				Bind();
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
+				if (IsAutoUnBind)
+				{
+					UnBind();
+				}
+
 				m_typeStorageData = typeData;
 				m_isCreate = true;
 			}
@@ -96,24 +124,33 @@ namespace CoreEngine
 				if (isBind)
 				{
 					Bind();
-					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
+					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData),
+									sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
 					UnBind();
 				}
 				else
 				{
-					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
+					glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData),
+									sizeData * GetSizeOfFromEnum(m_typeStorageData), data);
 				}
 
 				return false;
 			}
+
 			void OpenGLElementBufferObject::Bind() const
 			{
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 			}
+
 			void OpenGLElementBufferObject::UnBind() const
 			{
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			}
-		}
-	}
-}
+
+			uint32 OpenGLElementBufferObject::GetBufferID() const
+			{
+				return m_EBO;
+			}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

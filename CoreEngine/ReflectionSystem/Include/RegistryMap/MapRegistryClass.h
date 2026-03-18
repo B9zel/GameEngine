@@ -40,7 +40,7 @@ namespace CoreEngine
 			ClassField* GetClassField(const String& NameClass) const;
 			void Register(const String& Name, RegistryClass&& NewField);
 
-			HashTableMap<String, RegistryClass>& GetData();
+			const HashTableMap<String, RegistryClass>& GetData() const;
 
 		private:
 

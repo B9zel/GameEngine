@@ -48,18 +48,19 @@ namespace CoreEngine::Runtime
         };
 
 #define ImplementNewClass(NameNewClass, NameClass, Namespace, ClassFieldParams, SizeOfClass, FieldsOfClass, Parent) \
-        NameNewClass::NameNewClass() \
-        {																	\
-                Name = #NameClass;												\
-                Params = ClassFieldParams;									\
-                TypeConstruction = CoreEngine::Reflection::ETypeConstructionFiled::CLASS;  \
-                Size = SizeOfClass;											            \
-                ParentClass = Parent;                                                   \
-                for (int64 i = 0; i < FieldsOfClass.size(); ++i)     \
-                {                                                                          \
-                    PropertyFileds.emplace_back(FieldsOfClass[i].get());                         \
-                }                                                                           \
-        }	                                                                                            \
+        NameNewClass::NameNewClass()                                                                                \
+        {																	                                        \
+                Name = #NameClass;												                                    \
+                ParamFlags = ClassFieldParams;									                                    \
+                TypeConstruction = CoreEngine::Reflection::ETypeConstructionFiled::CLASS;                            \
+                Size = SizeOfClass;											                                          \
+                ParentClass = Parent;                                                                                  \
+                for (int64 i = 0; i < FieldsOfClass.size(); ++i)                                                        \
+                {                                                                                                      \
+                    PropertyFileds.emplace_back(FieldsOfClass[i].get());                                                \
+                }                                                                                                        \
+                ValidateMetaClass();                                                                                       \
+        }	                                                                                                               \
         void NameNewClass::ConstructInstanceObject(CoreEngine::Runtime::Object* Instance, const CoreEngine::InitializeObject& Initilizer)  \
         {                                                                                                           \
             new(Instance) Namespace::NameClass(Initilizer);                                                                     \

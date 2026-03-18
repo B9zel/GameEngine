@@ -1,7 +1,6 @@
 #pragma once
-#include <Render/includes/ElementBufferObject.h> 
+#include <Render/includes/ElementBufferObject.h>
 #include <glad/glad.h>
-
 
 namespace CoreEngine
 {
@@ -21,8 +20,12 @@ namespace CoreEngine
 
 			public:
 
-				virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj) override;
-				virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray) override;
+				virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+										  const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj, const bool IsAutoUnBind = true) override;
+				virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+										  const VertexArrayObject& vertexArray, const bool IsAutoUnBind = true) override;
+				virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+										  const bool IsAutoUnBind = true) override;
 				virtual void DeleteBuffer() override;
 
 				virtual bool SetData(const int32 beginFillData, const uint32 sizeData, const void* data, const bool isBind = true) override;
@@ -30,7 +33,12 @@ namespace CoreEngine
 				virtual void Bind() const override;
 				virtual void UnBind() const override;
 
-				bool IsCreate() const { return m_isCreate; }
+				virtual uint32 GetBufferID() const override;
+
+				bool IsCreate() const
+				{
+					return m_isCreate;
+				}
 
 			private:
 
@@ -39,6 +47,6 @@ namespace CoreEngine
 				bool m_isCreate;
 			};
 
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

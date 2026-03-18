@@ -43,8 +43,8 @@ public:
 		//ShaderID.CompileShader(shad.first, shad.second);
 		//Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
 		VertexArray.CreateVertexArray();
-		VertexBuffer.CreaterBuffer(arri, 192, CoreEngine::ETypeData::FLOAT, ETypeDraw::STATIC, VertexArray);
-		ElementBuffer.CreateBuffer(Index, 36, CoreEngine::ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, VertexArray);
+		VertexBuffer.CreateBuffer(arri, 192, CoreEngine::ETypeData::FLOAT, ETypeStorageDraw::STATIC, VertexArray);
+		ElementBuffer.CreateBuffer(Index, 36, CoreEngine::ETypeData::UNSIGNED_INT, ETypeStorageDraw::STATIC, VertexArray);
 		VertexArray.SetupIntorprit(0, 3, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer);
 		VertexArray.SetupIntorprit(1, 3, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer, 3);
 		VertexArray.SetupIntorprit(2, 2, 8, CoreEngine::ETypeData::FLOAT, VertexBuffer, 6);

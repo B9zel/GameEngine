@@ -4,7 +4,6 @@
 #include <Core/includes/Platform.h>
 #include <Core/includes/Base.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
@@ -15,9 +14,15 @@ namespace CoreEngine
 		{
 		public:
 
+			VertexBufferObject(VertexBufferObject&&) = default;
+			virtual ~VertexBufferObject() = default;
+
 			static UniquePtr<VertexBufferObject> CreateVertexBufferObject();
 
-			virtual void CreaterBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeDraw& typeDraw, const VertexArrayObject& vertexArray) = 0;
+			virtual void CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+									  const VertexArrayObject& vertexArray, const bool IsAutoUnBind = true) = 0;
+			virtual void CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
+									  const bool IsAutoUnBind = true) = 0;
 
 			virtual void DeleteBuffer() = 0;
 
@@ -25,7 +30,9 @@ namespace CoreEngine
 
 			virtual void Bind() const = 0;
 			virtual void UnBind() const = 0;
-		};
-	}
 
-}
+			virtual uint32 GetBufferID() const = 0;
+		};
+	} // namespace Render
+
+} // namespace CoreEngine

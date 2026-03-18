@@ -133,8 +133,8 @@ namespace CoreEngine
 			const int32 CountFloat = sizeof(m_Vertices[0]) /  sizeof(float); // 3 pos, 3 normal, 2 texcoord
 
 			m_VAO->CreateVertexArray();
-			m_VBO->CreaterBuffer(m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT, ETypeDraw::STATIC, *m_VAO.get());
-			m_EBO->CreateBuffer(m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeDraw::STATIC, *m_VAO.get());
+			m_VBO->CreateBuffer(m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT, ETypeStorageDraw::STATIC, *m_VAO.get());
+			m_EBO->CreateBuffer(m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeStorageDraw::STATIC, *m_VAO.get());
 			std::cout << offsetof(Vertex, Vertex::TexCoord) << std::endl;
 			m_VAO->SetupIntorprit(0, 3, 9, ETypeData::FLOAT, *m_VBO.get());
 			m_VAO->SetupIntorprit(1, 3, 9, ETypeData::FLOAT, *m_VBO.get(), 3);

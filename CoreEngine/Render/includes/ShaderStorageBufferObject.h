@@ -13,7 +13,7 @@ namespace CoreEngine
 			static UniquePtr<ShaderStorageBufferObject> CreateShaderStorageBufferObject();
 
 			virtual void GenerationBuffer() = 0;
-			virtual void CreaterBuffer(const void* vertexArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeDraw& typeDraw) = 0;
+			virtual void CreaterBuffer(const void* vertexArr, const uint32 sizeArr, const uint32 BytesOfData, const ETypeStorageDraw& typeDraw) = 0;
 
 			virtual void DeleteBuffer() = 0;
 

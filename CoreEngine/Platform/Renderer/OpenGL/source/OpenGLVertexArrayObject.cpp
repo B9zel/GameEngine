@@ -1,7 +1,6 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLConvertData.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
@@ -43,7 +42,7 @@ namespace CoreEngine
 				}
 			}
 			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
-				const VertexBufferObject& bufferObject, const uint32 beginStep)
+														 const VertexBufferObject& bufferObject, const uint32 beginStep)
 			{
 				if (typeData == ETypeData::NONE)
 				{
@@ -59,12 +58,13 @@ namespace CoreEngine
 				bufferObject.Bind();
 				if (typeData == ETypeData::INT || typeData == ETypeData::UNSIGNED_INT)
 				{
-					glVertexAttribIPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+					glVertexAttribIPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), step * GetSizeOfFromEnum(typeData),
+										   (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 				}
 				else
 				{
-					glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
-
+					glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
+										  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 				}
 				glEnableVertexAttribArray(location);
 				UnBind();
@@ -72,7 +72,8 @@ namespace CoreEngine
 			}
 
 			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
-				const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject, const uint32 beginStep)
+														 const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject,
+														 const uint32 beginStep)
 			{
 				if (typeData == ETypeData::NONE)
 				{
@@ -87,7 +88,8 @@ namespace CoreEngine
 				Bind();
 				bufferObject.Bind();
 				elementObject.Bind();
-				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData), (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
+									  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 				glEnableVertexAttribArray(location);
 				elementObject.UnBind();
 				bufferObject.UnBind();
@@ -95,6 +97,27 @@ namespace CoreEngine
 
 				m_elementBuffer = &elementObject;
 			}
+
+			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const uint32 beginStep)
+			{
+				if (typeData == ETypeData::NONE)
+				{
+					EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int32>(typeData));
+					return;
+				}
+				if (!m_isCreate)
+				{
+					glGenVertexArrays(1, &m_VAO);
+					m_isCreate = true;
+				}
+
+				Bind();
+				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
+									  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+				glEnableVertexAttribArray(location);
+				UnBind();
+			}
+
 			void OpenGLVertexArrayObject::DeleteVertexObject()
 			{
 				if (m_isCreate)
@@ -119,10 +142,14 @@ namespace CoreEngine
 				}*/
 				glBindVertexArray(0);
 			}
+			uint32 OpenGLVertexArrayObject::GetID() const
+			{
+				return m_VAO;
+			}
 			void OpenGLVertexArrayObject::ResetLinkElementBuffer()
 			{
 				m_elementBuffer = nullptr;
 			}
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

@@ -5,6 +5,7 @@
 namespace CoreEngine::Runtime
 {
 	class Object;
+	class Actor;
 }
 namespace CoreEngine::Reflection
 {

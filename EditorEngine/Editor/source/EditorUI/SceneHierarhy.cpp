@@ -7,6 +7,7 @@
 #include <Core/includes/Level.h>
 #include <Editor/includes/EditorEngine.h>
 #include <Runtime/includes/SceneComponent.h>
+#include <Editor/includes/Util/DrawUtils.h>
 
 
 namespace Editor
@@ -60,6 +61,36 @@ namespace Editor
 					ImGui::TreePop();
 				}
 				
+				CoreEngine::Runtime::Object* SelectedObject = OwnerEditor->GetSelectedObject();
+
+
+				DrawComponentContextDraw(OwnerEditor, SelectedObject);
+				/*if (SelectedObject)
+				{
+					auto* Component = dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject);
+					if (Component && !Component->GetIsCreatedNative())
+					{
+						if (ImGui::BeginPopupContextItem())
+						{
+							bool HasDelete = false;
+							if (ImGui::MenuItem("Delete component"))
+							{
+								if (auto* Actor = dynamic_cast<CoreEngine::Runtime::Actor*>(SelectedObject->GetOuter()))
+								{
+									Actor->RemoveComponent(dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject));
+									OwnerEditor->SetSelectedObject(nullptr);
+
+									HasDelete = true;
+								}
+							}
+
+							ImGui::EndPopup();
+						}
+					}
+				}*/
+
+
+				
 				/*if (ImGui::Selectable(Actor->GetClass()->Name.c_str(), Actor == OwnerEditor->GetSelectedObject()))
 				{
 					OwnerEditor->SetSelectedObject(Actor);
@@ -96,7 +127,7 @@ namespace Editor
 				ImGui::PopStyleColor(3);
 			}
 
-			if (ImGui::IsItemClicked())
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			{
 				OwnerEditor->SetSelectedObject(SceneComponent);
 			}

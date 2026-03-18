@@ -8,6 +8,17 @@ namespace CoreEngine
 	{
 		namespace OpenGL
 		{
+			int32 GetInternalFormatFromEnum(const ETypeChannel& channel)
+			{
+				switch (channel)
+				{
+				case ETypeChannel::RGB: return GL_RGB8;
+				case ETypeChannel::RGBA: return GL_RGBA8;
+				default:
+					throw std::exception("Unable to define ETypeChannel enum");
+				}
+			}
+
 			int32 OpenGLTexture2D::GetFromEnumParameterName(const EParameterName& paramName)
 			{
 				switch (paramName)
@@ -21,6 +32,7 @@ namespace CoreEngine
 					throw std::exception("Unable to define EParameterName enum");
 				}
 			}
+
 
 			int32 OpenGLTexture2D::GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue)
 			{
@@ -132,6 +144,23 @@ namespace CoreEngine
 			void OpenGLTexture2D::SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const
 			{
 				glTexParameterfv(GL_TEXTURE_2D, GetFromEnumParameterOfCustomValues(parameter), value);
+			}
+
+			void OpenGLTexture2D::RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data, bool isGenaretMipmap)
+			{
+				glDeleteTextures(1, &m_textureID);
+
+				m_internalFormat = GetInternalFormatFromEnum(m_channel);
+
+				glGenTextures(1, &m_textureID);
+
+				Bind();
+				glTexImage2D(GL_TEXTURE_2D, 0, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE, Data);
+				if (isGenaretMipmap)
+				{
+					glGenerateMipmap(GL_TEXTURE_2D);
+				}
+				UnBind();
 			}
 
 			void OpenGLTexture2D::Bind(uint32 layer) const

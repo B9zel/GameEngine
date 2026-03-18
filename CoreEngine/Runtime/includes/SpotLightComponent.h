@@ -8,7 +8,7 @@ namespace CoreEngine
 	class SpotLightProxy;
 	namespace Runtime
 	{
-		RCLASS()
+		RCLASS(EditorComponent)
 		class SpotLightComponent : public BaseLightComponent
 		{
 			GENERATED_BODY()

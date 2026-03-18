@@ -12,6 +12,7 @@
 #include <deque>
 #include <stack>
 #include <algorithm>
+#include <tuple>
 
 
 
@@ -72,6 +73,9 @@ class Function;
 using String = typename std::string;
 
 using StringView = typename std::string_view;
+
+template<class... Types>
+using Turple = typename std::tuple<Types...>;
 
 template<class T>
 using SharedPtr = std::shared_ptr<T>;
@@ -136,16 +140,16 @@ T FromString(const String& str)
 unsigned int AligneSizeofBy2(const unsigned int Bytes);
 
 
-inline bool HasFlag(const uint32 FlagVar, const uint32 FindedFlag)
+inline bool HasFlag(const uint64 FlagVar, const uint64 FindedFlag)
 {
 	return (FlagVar & FindedFlag) != 0;
 }
 
-inline void SetFlag(uint32& FlagVar, const uint32 AddFlag)
+inline void SetFlag(uint64& FlagVar, const uint64 AddFlag)
 {
 	FlagVar |= AddFlag;
 }
-inline void RemoveFlag(uint32& FlagVar, const uint32 RemFlag)
+inline void RemoveFlag(uint64& FlagVar, const uint64 RemFlag)
 {
 	FlagVar &= ~RemFlag;
 }
