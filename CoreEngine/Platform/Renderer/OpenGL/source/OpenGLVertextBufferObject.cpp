@@ -1,4 +1,5 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
+#include <Render/includes/RenderDevice.h>
 
 namespace CoreEngine
 {
@@ -38,13 +39,16 @@ namespace CoreEngine
 				return *this;
 			}
 
-			void OpenGLVertexBufferObject::CreateBuffer(const void* vertexArr, const uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
-														const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
+			void OpenGLVertexBufferObject::CreateBuffer(RenderDevice* Device, const void* vertexArr, const uint32 sizeArr, const ETypeData& typeArr,
+														const ETypeStorageDraw& typeDraw, const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
 			{
-				if (m_IsCreate) return;
+				if (m_IsCreate)
+				{
+					Device->DeleteVBO(m_Handle);
+				}
 
-				vertexArray.Bind();
-				glGenBuffers(1, &m_VBO);
+				vertexArray.Bind(Device);
+			/*	glGenBuffers(1, &m_VBO);
 
 				Bind();
 				glBufferData(GL_ARRAY_BUFFER, GetSizeOfFromEnum(typeArr) * sizeArr, vertexArr, GetDrawTypeAPIFromEnum(typeDraw));
@@ -52,28 +56,35 @@ namespace CoreEngine
 				{
 					vertexArray.UnBind();
 					UnBind();
-				}
+				}*/
+				m_Handle = Device->CreateBuffer(EBufferTargetType::VERTEX_BUFFER, vertexArr, sizeArr, typeArr, typeDraw);
 
 				m_typeStorageData = typeArr;
 				m_IsCreate = true;
 			}
 
-			void OpenGLVertexBufferObject::CreateBuffer(const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr, const ETypeStorageDraw& typeDraw,
-														const bool IsAutoUnBind)
+			void OpenGLVertexBufferObject::CreateBuffer(RenderDevice* Device, const void* vertexArr, uint32 sizeArr, const ETypeData& typeArr,
+														const ETypeStorageDraw& typeDraw, const bool IsAutoUnBind)
 			{
-				if (m_IsCreate) return;
+				if (m_IsCreate)
+				{
+					Device->DeleteVBO(m_Handle);
+				}
 
-				glGenBuffers(1, &m_VBO);
+				/*glGenBuffers(1, &m_VBO);
 
 				Bind();
 				glBufferData(GL_ARRAY_BUFFER, GetSizeOfFromEnum(typeArr) * sizeArr, vertexArr, GetDrawTypeAPIFromEnum(typeDraw));
 				if (IsAutoUnBind)
 				{
 					UnBind();
-				}
+				}*/
 
+				m_Handle = Device->CreateBuffer(EBufferTargetType::VERTEX_BUFFER, vertexArr, sizeArr, typeArr, typeDraw);
 				m_typeStorageData = typeArr;
 				m_IsCreate = true;
+
+
 			}
 
 			void OpenGLVertexBufferObject::DeleteBuffer()
@@ -85,13 +96,13 @@ namespace CoreEngine
 				}
 			}
 
-			bool OpenGLVertexBufferObject::SetData(const int32 beginFillData, const uint32 sizeData, const void* data, const bool isBind)
+			bool OpenGLVertexBufferObject::SetData(RenderDevice* Device, const int32 beginFillData, const uint32 sizeData, const void* data, const bool isBind)
 			{
 				if (!IsCreate() || m_typeStorageData == ETypeData::NONE) return false;
 #ifdef ENGINE_DEBUG
 
 				int bufferSize;
-				Bind();
+				Bind(Device);
 				glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
 				UnBind();
 				if ((beginFillData + sizeData * GetSizeOfFromEnum(m_typeStorageData)) >= static_cast<uint32>(bufferSize))
@@ -104,7 +115,7 @@ namespace CoreEngine
 
 				if (isBind)
 				{
-					Bind();
+					Bind(Device);
 					glBufferSubData(GL_ARRAY_BUFFER, beginFillData * GetSizeOfFromEnum(m_typeStorageData), sizeData * GetSizeOfFromEnum(m_typeStorageData),
 									data);
 					UnBind();
@@ -117,9 +128,10 @@ namespace CoreEngine
 				return true;
 			}
 
-			void OpenGLVertexBufferObject::Bind() const
+			void OpenGLVertexBufferObject::Bind(RenderDevice* Device) const
 			{
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+				//glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+				Device->BindVBO(m_Handle);
 			}
 
 			void OpenGLVertexBufferObject::UnBind() const
@@ -127,9 +139,9 @@ namespace CoreEngine
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
 
-			uint32 OpenGLVertexBufferObject::GetBufferID() const
+			RHI::BufferHandle OpenGLVertexBufferObject::GetHandle() const
 			{
-				return m_VBO;
+				return m_Handle;
 			}
 
 			bool OpenGLVertexBufferObject::IsCreate()

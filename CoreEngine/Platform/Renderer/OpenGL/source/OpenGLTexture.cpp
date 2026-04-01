@@ -1,6 +1,5 @@
-#include "../include/OpenGLTexture.h"
-
-
+#include "Platform/Renderer/OpenGL/include/OpenGLTexture.h"
+#include <Render/includes/RenderDevice.h>
 
 namespace CoreEngine
 {
@@ -8,37 +7,63 @@ namespace CoreEngine
 	{
 		namespace OpenGL
 		{
-			int32 GetInternalFormatFromEnum(const ETypeChannel& channel)
+			int32 OpenGLTexture2D::GetInternalFormatFromEnum(const ETypeChannel& channel)
 			{
 				switch (channel)
 				{
-				case ETypeChannel::RGB: return GL_RGB8;
-				case ETypeChannel::RGBA: return GL_RGBA8;
+				case ETypeChannel::RGB:
+					return GL_RGB8;
+				case ETypeChannel::RGBA:
+					return GL_RGBA8;
 				default:
 					throw std::exception("Unable to define ETypeChannel enum");
 				}
 			}
 
-			int32 OpenGLTexture2D::GetFromEnumParameterName(const EParameterName& paramName)
+			int32 OpenGLTexture2D::GetWrapFromEnum(const ETextureWrap& paramName)
 			{
 				switch (paramName)
 				{
-				case EParameterName::TEXTURE_MAG_FILTER:	return GL_TEXTURE_MAG_FILTER;
-				case EParameterName::TEXTURE_MIN_FILTER:	return GL_TEXTURE_MIN_FILTER;
-				case EParameterName::TEXTURE_WRAP_R:		return GL_TEXTURE_WRAP_R;
-				case EParameterName::TEXTURE_WRAP_S:		return GL_TEXTURE_WRAP_S;
-				case EParameterName::TEXTURE_WRAP_T:		return GL_TEXTURE_WRAP_T;
+				case ETextureWrap::REPEAT:
+					return GL_REPEAT;
+				case ETextureWrap::MIRRORED_REPEAT:
+					return GL_MIRRORED_REPEAT;
+				case ETextureWrap::CLAMP_TO_EDGE:
+					return GL_CLAMP_TO_EDGE;
+				default:
+					throw std::exception("Unable to define ETextureWrap enum");
+				}
+				/*switch (paramName)
+				{
+				case ETextureWrap::TEXTURE_MAG_FILTER:	return GL_TEXTURE_MAG_FILTER;
+				case ETextureWrap::TEXTURE_MIN_FILTER:	return GL_TEXTURE_MIN_FILTER;
+				case ETextureWrap::TEXTURE_WRAP_R:		return GL_TEXTURE_WRAP_R;
+				case ETextureWrap::TEXTURE_WRAP_S:		return GL_TEXTURE_WRAP_S;
+				case ETextureWrap::TEXTURE_WRAP_T:		return GL_TEXTURE_WRAP_T;
 				default:
 					throw std::exception("Unable to define EParameterName enum");
-				}
+				}*/
 			}
 
+			int32 OpenGLTexture2D::GetFilterFromEnum(const ETextureFilter& Filter)
+			{
+				switch (Filter)
+				{
+				case ETextureFilter::LINEAR:
+					return GL_LINEAR;
+				case ETextureFilter::NEAREST:
+					return GL_NEAREST;
+				default:
+					throw std::exception("Unable to define ETextureFilter enum");
+				}
+			}
 
 			int32 OpenGLTexture2D::GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue)
 			{
 				switch (paramCustomValue)
 				{
-				case EParamaterOfCustomValues::TEXTURE_BORDER_COLOR: return GL_TEXTURE_BORDER_COLOR;
+				case EParamaterOfCustomValues::TEXTURE_BORDER_COLOR:
+					return GL_TEXTURE_BORDER_COLOR;
 				default:
 					throw std::exception("Unable to define EParamaterOfCustomValues enum");
 				}
@@ -48,29 +73,28 @@ namespace CoreEngine
 			{
 				switch (valueOfParam)
 				{
-				case EValueOfParameter::NEAREST:					return GL_NEAREST;
-				case EValueOfParameter::LINEAR:						return GL_LINEAR;
-				case EValueOfParameter::REPEAT:						return GL_REPEAT;
-				case EValueOfParameter::MIRRORED_REPEAT:			return GL_MIRRORED_REPEAT;
-				case EValueOfParameter::CLAMP_TO_BORDER:			return GL_CLAMP_TO_BORDER;
-				case EValueOfParameter::CLAMP_TO_EDGE:				return GL_CLAMP_TO_EDGE;
-				case EValueOfParameter::LINEAR_MIPMAP_LINEAR:		return GL_LINEAR_MIPMAP_LINEAR;
-				case EValueOfParameter::LINEAR_MIPMAP_NEAREST:		return GL_LINEAR_MIPMAP_NEAREST;
-				case EValueOfParameter::NEAREST_MIPMAP_NEAREST:		return GL_NEAREST_MIPMAP_NEAREST;
-				case EValueOfParameter::NEAREST_MIPMAP_LINEAR:		return GL_NEAREST_MIPMAP_LINEAR;
+				case EValueOfParameter::NEAREST:
+					return GL_NEAREST;
+				case EValueOfParameter::LINEAR:
+					return GL_LINEAR;
+				case EValueOfParameter::REPEAT:
+					return GL_REPEAT;
+				case EValueOfParameter::MIRRORED_REPEAT:
+					return GL_MIRRORED_REPEAT;
+				case EValueOfParameter::CLAMP_TO_BORDER:
+					return GL_CLAMP_TO_BORDER;
+				case EValueOfParameter::CLAMP_TO_EDGE:
+					return GL_CLAMP_TO_EDGE;
+				case EValueOfParameter::LINEAR_MIPMAP_LINEAR:
+					return GL_LINEAR_MIPMAP_LINEAR;
+				case EValueOfParameter::LINEAR_MIPMAP_NEAREST:
+					return GL_LINEAR_MIPMAP_NEAREST;
+				case EValueOfParameter::NEAREST_MIPMAP_NEAREST:
+					return GL_NEAREST_MIPMAP_NEAREST;
+				case EValueOfParameter::NEAREST_MIPMAP_LINEAR:
+					return GL_NEAREST_MIPMAP_LINEAR;
 				default:
 					throw std::exception("Unable to define EValueOfParameter enum");
-				}
-			}
-
-			int32 OpenGLTexture2D::GetFromEnumChannel(const ETypeChannel& channel)
-			{
-				switch (channel)
-				{
-				case ETypeChannel::RGB: return GL_RGB;
-				case ETypeChannel::RGBA: return GL_RGBA;
-				default:
-					throw std::exception("Unable to define ETypeChannel enum");
 				}
 			}
 
@@ -78,18 +102,19 @@ namespace CoreEngine
 			{
 				switch (channel)
 				{
-				case GL_RGB: return ETypeChannel::RGB;
-				case GL_RGBA: return ETypeChannel::RGBA;
+				case GL_RGB:
+					return ETypeChannel::RGB;
+				case GL_RGBA:
+					return ETypeChannel::RGBA;
 				default:
 					throw std::exception("Unable to define type of channe");
 				}
 			}
 
-
-			OpenGLTexture2D::OpenGLTexture2D(const char* path) : m_textureID{ 0 }, m_width{ 0 }, m_height{ 0 }, m_isLoad{ false },
-				m_path(""), m_internalFormat(0), m_channel(ETypeChannel::NONE)
+			OpenGLTexture2D::OpenGLTexture2D(RenderDevice* Device, const String& path)
+				: m_textureID{0}, m_width{0}, m_height{0}, m_isLoad{false}, m_path(""), m_internalFormat(0), m_channel(ETypeChannel::NONE)
 			{
-				ChangeTexture(path);
+				LoadTexture(Device, path);
 			}
 
 			OpenGLTexture2D::OpenGLTexture2D(OpenGLTexture2D&& other) noexcept
@@ -97,21 +122,15 @@ namespace CoreEngine
 				this->operator=(std::move(other));
 			}
 
-			OpenGLTexture2D::OpenGLTexture2D()
+			/*OpenGLTexture2D::OpenGLTexture2D()
 			{
 				m_channel = ETypeChannel::NONE;
 				m_width = 0;
 				m_height = 0;
-				m_channel = ETypeChannel::NONE;
 				m_internalFormat = 0;
 				m_isLoad = false;
 				m_textureID = 0;
-			}
-
-			OpenGLTexture2D::~OpenGLTexture2D()
-			{
-				glDeleteTextures(1, &m_textureID);
-			}
+			}*/
 
 			OpenGLTexture2D& OpenGLTexture2D::operator=(OpenGLTexture2D&& other) noexcept
 			{
@@ -136,9 +155,9 @@ namespace CoreEngine
 				return *this;
 			}
 
-			void OpenGLTexture2D::SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const
+			void OpenGLTexture2D::SetTexParameter(const ETextureWrap parameter, const EValueOfParameter value) const
 			{
-				glTexParameteri(GL_TEXTURE_2D, GetFromEnumParameterName(parameter), GetFromEnumValueOfParameter(value));
+				glTexParameteri(GL_TEXTURE_2D, GetWrapFromEnum(parameter), GetFromEnumValueOfParameter(value));
 			}
 
 			void OpenGLTexture2D::SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const
@@ -154,8 +173,9 @@ namespace CoreEngine
 
 				glGenTextures(1, &m_textureID);
 
-				Bind();
-				glTexImage2D(GL_TEXTURE_2D, 0, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE, Data);
+				// Bind();
+				// glTexImage2D(GL_TEXTURE_2D, 0, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE,
+				// Data);
 				if (isGenaretMipmap)
 				{
 					glGenerateMipmap(GL_TEXTURE_2D);
@@ -163,10 +183,11 @@ namespace CoreEngine
 				UnBind();
 			}
 
-			void OpenGLTexture2D::Bind(uint32 layer) const
+			void OpenGLTexture2D::Bind(RenderDevice* Device, uint32 layout) const
 			{
-				glActiveTexture(GL_TEXTURE0 + layer);
-				glBindTexture(GL_TEXTURE_2D, m_textureID);
+				Device->BindTexture(Handle, layout);
+				/*glActiveTexture(GL_TEXTURE0 + layout);
+				glBindTexture(GL_TEXTURE_2D, m_textureID);*/
 			}
 
 			void OpenGLTexture2D::UnBind() const
@@ -174,22 +195,26 @@ namespace CoreEngine
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 
-			bool OpenGLTexture2D::ChangeTexture(const char* path, bool isGenaretMipmap)
+			bool OpenGLTexture2D::LoadTexture(RenderDevice* Device, const StringView Path, const bool GenerateMips)
 			{
-				glDeleteTextures(1, &m_textureID);
+				Device->DeleteTexture2D(Handle);
+
 				stbi_set_flip_vertically_on_load(1);
 
 				int32 width, height, channel;
-				stbi_uc* data = stbi_load(path, &width, &height, &channel, 0);
+				stbi_uc* data = stbi_load(Path.data(), &width, &height, &channel, 0);
 
 				if (data)
 				{
-					m_height = height;
-					m_width = width;
-					m_path = path;
+					Desc.Height = height;
+					Desc.Width = width;
+					Desc.Data = data;
+					Desc.GenerateMips = GenerateMips;
+					m_path = Path;
 
 					if (channel == 3)
 					{
+						Desc.Channels = channel;
 						m_channel = ETypeChannel::RGB;
 						m_internalFormat = GL_RGB8;
 					}
@@ -199,7 +224,9 @@ namespace CoreEngine
 						m_internalFormat = GL_RGBA8;
 					}
 
-					glGenTextures(1, &m_textureID);
+					Handle = Device->CreateTexture2D(Desc);
+
+					/*glGenTextures(1, &m_textureID);
 
 					Bind();
 					if (!IsLoad())
@@ -208,19 +235,19 @@ namespace CoreEngine
 						m_isLoad = true;
 					}
 
-					glTexImage2D(GL_TEXTURE_2D, 0, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE, data);
-					if (isGenaretMipmap)
+					glTexImage2D(GL_TEXTURE_2D, 0, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE,
+					data); if (GenerateMipmap)
 					{
 						glGenerateMipmap(GL_TEXTURE_2D);
 					}
 
 
 					stbi_image_free(data);
-					UnBind();
+					UnBind();*/
 
 					return true;
 				}
-				EG_LOG(CORE, ELevelLog::WARNING, "Can't load image {0}", path);
+				EG_LOG(CORE, ELevelLog::WARNING, "Can't load image {0}", Path);
 				return false;
 			}
 			void OpenGLTexture2D::SetLevelMipmap(const char* path, uint8 level)
@@ -244,9 +271,10 @@ namespace CoreEngine
 						CORE_UNASSERT(m_channel != ETypeChannel::RGBA, "RGBA texture cannot have RGB mipmap");
 					}
 
-					Bind();
-					glTexImage2D(GL_TEXTURE_2D, level, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel), GL_UNSIGNED_BYTE, data);
-					UnBind();
+					// Bind();
+					// glTexImage2D(GL_TEXTURE_2D, level, GetFromEnumChannel(m_channel), GetWidth(), GetHeight(), 0, GetFromEnumChannel(m_channel),
+					// GL_UNSIGNED_BYTE, data);
+					// UnBind();
 
 					stbi_image_free(data);
 				}
@@ -254,16 +282,20 @@ namespace CoreEngine
 
 			void OpenGLTexture2D::SetDefaultSettings()
 			{
-				SetTexParameter(EParameterName::TEXTURE_WRAP_S, EValueOfParameter::REPEAT);
-				SetTexParameter(EParameterName::TEXTURE_WRAP_T, EValueOfParameter::REPEAT);
-				SetTexParameter(EParameterName::TEXTURE_MIN_FILTER, EValueOfParameter::LINEAR);
-				SetTexParameter(EParameterName::TEXTURE_MAG_FILTER, EValueOfParameter::LINEAR);
+				/*SetTexParameter(ETextureWrap::TEXTURE_WRAP_S, EValueOfParameter::REPEAT);
+				SetTexParameter(ETextureWrap::TEXTURE_WRAP_T, EValueOfParameter::REPEAT);
+				SetTexParameter(ETextureWrap::TEXTURE_MIN_FILTER, EValueOfParameter::LINEAR);
+				SetTexParameter(ETextureWrap::TEXTURE_MAG_FILTER, EValueOfParameter::LINEAR);*/
 			}
 
-			uint32 OpenGLTexture2D::GetTextureID() const
+			RHI::TextureHandle& OpenGLTexture2D::GetTextureHandle()
 			{
-				return m_textureID;
+				return Handle;
 			}
-		}
-	}
-}
+			const RHI::TextureHandle& OpenGLTexture2D::GetConstTextureHandle() const
+			{
+				return Handle;
+			}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

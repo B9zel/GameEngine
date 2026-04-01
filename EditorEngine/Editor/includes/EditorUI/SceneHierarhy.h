@@ -6,7 +6,7 @@ namespace CoreEngine::Runtime
 {
 	class SceneComponent;
 	class Actor;
-}
+} // namespace CoreEngine::Runtime
 
 namespace Editor
 {
@@ -17,6 +17,7 @@ namespace Editor
 		SceneHierarhy() = default;
 
 		virtual void Draw() override;
+		virtual void OnConstruct() override;
 
 	private:
 
@@ -27,4 +28,4 @@ namespace Editor
 		void DrawAndWalkComponents(const DArray<CoreEngine::Runtime::SceneComponent*>& Components);
 		bool IsChildComponent(CoreEngine::Runtime::Actor* Actor);
 	};
-}
+} // namespace Editor

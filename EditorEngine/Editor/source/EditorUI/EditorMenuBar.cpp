@@ -32,4 +32,7 @@ namespace Editor
 			ImGui::EndMainMenuBar();
 		}
 	}
+	void EditorMenuBar::OnConstruct()
+	{
+	}
 }

@@ -8,7 +8,6 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <GLFW/glfw3.h>
 
-
 namespace CoreEngine
 {
 	World::World(const InitializeObject& Initilize) : Object(Initilize)
@@ -24,9 +23,6 @@ namespace CoreEngine
 	void World::InitProperties()
 	{
 		m_Scene->SetWorld(this);
-		m_MainLevel->SetWorld(this);
-		m_MainLevel->ActorInitialize();
-		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
 	}
 
 	void World::WorldUpdate()
@@ -120,6 +116,10 @@ namespace CoreEngine
 		level->InitProperties();
 		m_Levels.push_back(level);
 		m_MainLevel = level;
+
+		m_MainLevel->SetWorld(this);
+		m_MainLevel->ActorInitialize();
+		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
 	}
 
 	void World::InitializePlayActors()
@@ -132,10 +132,10 @@ namespace CoreEngine
 
 	void World::DestroyActor(Runtime::Actor* ActorDestr)
 	{
-		auto FindedElement = std::find(m_MainLevel->m_Actors.begin(),  m_MainLevel->m_Actors.end(), ActorDestr);
+		auto FindedElement = std::find(m_MainLevel->m_Actors.begin(), m_MainLevel->m_Actors.end(), ActorDestr);
 		if (FindedElement != m_MainLevel->m_Actors.end())
 		{
 			m_MainLevel->m_Actors.erase(FindedElement);
 		}
 	}
-}
+} // namespace CoreEngine

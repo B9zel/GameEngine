@@ -1,6 +1,5 @@
 #include <Core/includes/StaticMeshProxy.h>
 
-
 namespace CoreEngine
 {
 	void StaticMeshProxy::AddIndeces(const DArray<uint32>& Indeces)
@@ -11,11 +10,11 @@ namespace CoreEngine
 	{
 		return m_CountIndeces;
 	}
-	void StaticMeshProxy::AddArrayObject(const Render::VertexArrayObject* VertexArray)
+	void StaticMeshProxy::AddArrayObject(const Render::RHI::HandleVAO& VertexArray)
 	{
 		m_ArrayObject.push_back(VertexArray);
 	}
-	const DArray<const Render::VertexArrayObject*>& StaticMeshProxy::GetArrayObject() const
+	const DArray<Render::RHI::HandleVAO>& StaticMeshProxy::GetArrayObject() const
 	{
 		return m_ArrayObject;
 	}
@@ -24,8 +23,6 @@ namespace CoreEngine
 		m_CountIndeces.clear();
 		PositionLights.clear();
 		m_ArrayObject.clear();
-
 	}
-	
-}
 
+} // namespace CoreEngine

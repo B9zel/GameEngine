@@ -9,5 +9,6 @@ namespace Editor
 	public:
 
 		virtual void Draw() override;
+		virtual void OnConstruct() override;
 	};
 }

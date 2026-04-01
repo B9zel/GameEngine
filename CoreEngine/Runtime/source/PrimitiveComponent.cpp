@@ -1,9 +1,8 @@
 #include <Runtime/includes/PrimitiveComponent.h>
-#include <Core/includes/PrimitiveProxy.h>
+ #include <Core/includes/PrimitiveProxy.h>
 #include <Runtime/includes/Actor.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT);
-
 
 namespace CoreEngine
 {
@@ -41,6 +40,5 @@ namespace CoreEngine
 			sceneProxy->SetTransformMatrix(MakeMatrixMesh());
 			return sceneProxy;
 		}
-	}
-}
-
+	} // namespace Runtime
+} // namespace CoreEngine

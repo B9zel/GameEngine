@@ -1,7 +1,10 @@
-#include <Render/includes/Model.h>	
+#include <Render/includes/Model.h>
 #include <Render/includes/VertexArrayObject.h>
 #include <Render/includes/VertextBufferObject.h>
 #include <Render/includes/ElementBufferObject.h>
+#include <Core/includes/Engine.h>
+#include <Render/includes/Render.h>
+#include <Render/includes/RenderDevice.h>
 #include <Render/includes/Texture.h>
 #include <glad/glad.h>
 #include <assimp/DefaultLogger.hpp>
@@ -46,8 +49,11 @@ namespace CoreEngine
 			m_Vertices.clear();
 			m_Textures.clear();
 
-			m_VAO->DeleteVertexObject();
-			m_VBO->DeleteBuffer();
+			auto& Device = Engine::Get()->GetRenderDevice();
+			Device->DeleteVAO(m_VAO->GetHandle());
+			Device->DeleteVBO(m_VBO->GetHandle());
+			// m_VAO->DeleteVertexObject();
+			// m_VBO->DeleteBuffer();
 		}
 
 		void Model::SetupModel(aiMesh* Mesh, const aiScene* Scene, const SpecificationVertexData& Data)
@@ -69,9 +75,8 @@ namespace CoreEngine
 				vertex.Normal.SetX(Normals.y);
 				vertex.Normal.SetX(Normals.z);*/
 
-
-				//EG_LOG(CORE, ELevelLog::INFO, "Vertex {0}, {1}, {2} Normal {3}, {4}, {5}", vertex.Position.GetX(), vertex.Position.GetY(), vertex.Position.GetZ(), vertex.Normal.GetX(), vertex.Normal.GetY(), vertex.Normal.GetZ());
-
+				// EG_LOG(CORE, ELevelLog::INFO, "Vertex {0}, {1}, {2} Normal {3}, {4}, {5}", vertex.Position.GetX(), vertex.Position.GetY(),
+				// vertex.Position.GetZ(), vertex.Normal.GetX(), vertex.Normal.GetY(), vertex.Normal.GetZ());
 
 				if (Mesh->mTextureCoords[0])
 				{
@@ -114,7 +119,6 @@ namespace CoreEngine
 				m_Vertices[First].Normal += normal;
 				m_Vertices[Second].Normal += normal;
 				m_Vertices[Third].Normal += normal;
-
 			}
 
 			for (int64 i = 0; i < m_Vertices.size(); i++)
@@ -128,19 +132,36 @@ namespace CoreEngine
 					m_Vertices[i].Normal = FVector(0, 1, 0);
 				}
 			}
-			
-			// Better way to everyone element has 4 bytes or equal count of bytes
-			const int32 CountFloat = sizeof(m_Vertices[0]) /  sizeof(float); // 3 pos, 3 normal, 2 texcoord
 
-			m_VAO->CreateVertexArray();
+			// Better way to everyone element has 4 bytes or equal count of bytes
+			const int32 CountFloat = sizeof(m_Vertices[0]) / sizeof(float); // 3 pos, 3 normal, 2 texcoord
+
+			auto& Device = Engine::Get()->GetRender()->GetRenderDevice();
+
+			m_HandleVBO = Device->CreateBuffer(EBufferTargetType::VERTEX_BUFFER, m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT,
+											   ETypeStorageDraw::STATIC);
+			m_HandleEBO =
+				Device->CreateBuffer(EBufferTargetType::ELEMENT_BUFFER, m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeStorageDraw::STATIC);
+
+			// clang-format off
+			static DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>> Attributs = {
+				{0, 3, sizeof(Vertex), ETypeData::FLOAT, 0}, 
+				{1, 3, sizeof(Vertex), ETypeData::FLOAT, 12}, 
+				{2, 2, sizeof(Vertex), ETypeData::FLOAT, 24}, 
+				{3, 1, sizeof(Vertex), ETypeData::INT, 32}};
+			// clang-format on
+
+			m_HandleVAO = Device->CreateVAO(m_HandleVBO, m_HandleEBO, Attributs);
+
+			/*m_VAO->CreateVertexArray();
 			m_VBO->CreateBuffer(m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT, ETypeStorageDraw::STATIC, *m_VAO.get());
-			m_EBO->CreateBuffer(m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeStorageDraw::STATIC, *m_VAO.get());
+			m_EBO->CreateBuffer(m_Indeces.data(), m_Indeces.size(), ETypeData::UNSIGNED_INT, ETypeStorageDraw::STATIC, *m_VAO.get());*/
 			std::cout << offsetof(Vertex, Vertex::TexCoord) << std::endl;
-			m_VAO->SetupIntorprit(0, 3, 9, ETypeData::FLOAT, *m_VBO.get());
+
+			/*m_VAO->SetupIntorprit(0, 3, 9, ETypeData::FLOAT, *m_VBO.get());
 			m_VAO->SetupIntorprit(1, 3, 9, ETypeData::FLOAT, *m_VBO.get(), 3);
 			m_VAO->SetupIntorprit(2, 2, 9, ETypeData::FLOAT, *m_VBO.get(), 6);
-			m_VAO->SetupIntorprit(3, 1, 9, ETypeData::INT, *m_VBO.get(), 8);
-
+			m_VAO->SetupIntorprit(3, 1, 9, ETypeData::INT, *m_VBO.get(), 8);*/
 		}
 
 		const DArray<uint32>& Model::GetIndeces() const
@@ -148,10 +169,10 @@ namespace CoreEngine
 			return m_Indeces;
 		}
 
-		const UniquePtr<VertexArrayObject>& Model::GetVertexArrayObject() const
+		const const RHI::HandleVAO& Model::GetVertexArrayObject() const
 		{
-			return m_VAO;
+			return m_HandleVAO;
 		}
 
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

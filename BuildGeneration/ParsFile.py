@@ -60,7 +60,7 @@ def FindedClassMacros(pr:cindex.TranslationUnit):
             continue
     return res
 
-def GarbagePropertyFields(pr, cursor):
+def CollectPropertyFields(pr, cursor):
     garbageMacrosProperty = []
     for token in pr.get_tokens(extent=cursor.extent):
         try:
@@ -173,7 +173,13 @@ def CollectFullTypeName(tu, cursor) -> (str, ETypePrimitive, str):
         namespaces = CollectNamespaceOfProperty(declar)
         Type = declar.type.spelling
         return f"{namespaces}::{Type}", ETypePrimitive.PRIMITIVE, ""
+    spell = ""
+    for token in tu.get_tokens(extent=cursor.extent):
+        spell += token.spelling
+    if "*" in spell:
+        return spell[:spell.find("*")], ETypePrimitive.PRIMITIVE, ""
     spell = cursor.type.spelling
+
     if "::" in spell:
         last = spell.rfind("::")
         likelyNs = spell[:last]
@@ -208,7 +214,7 @@ def ExtractTemplateInnder(Type:str, SearchTemplate:str) -> (bool, str):
         i += 1
     return (True, Type[start + 1:end])
 
-def GarbageGeneratedBody(pr, cursor):
+def CollectGeneratedBody(pr, cursor):
     for token in pr.get_tokens(extent=cursor.extent):
         if token.spelling == "GENERATED_BODY":
             FindGenBody = MacrosData()
@@ -253,12 +259,12 @@ def ParseFile(pr, FindedMacrosClass:list) -> list:
             NewClass = ClassField()
             NewClass.Name = node.spelling
             NewClass.Namespace = GetNamespaceWithClass(node)
-            NewClass.LineGenBody = GarbageGeneratedBody(pr, node)
+            NewClass.LineGenBody = CollectGeneratedBody(pr, node)
             NewClass.ParamsClass = FindedMacros[0]
             NewClass.Parent = GetParentWithNamepsace(NewClass.Namespace, GetParent(pr, node))
             if not NewClass.IsValidGeneretedBody():
                 continue
-            NewClass.Variable = GarbagePropertyFields(pr,node)
+            NewClass.Variable = CollectPropertyFields(pr, node)
             classesRes.append(NewClass)
             print(node.displayname)
         if node.kind == cindex.CursorKind.CXX_BASE_SPECIFIER:

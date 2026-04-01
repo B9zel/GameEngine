@@ -1,5 +1,7 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLConvertData.h>
+#include <Core/includes/Engine.h>
+#include <Render/includes/RenderCommand.h>
 
 namespace CoreEngine
 {
@@ -13,17 +15,19 @@ namespace CoreEngine
 				m_isCreate = false;
 				m_elementBuffer = nullptr;
 			}
+
 			OpenGLVertexArrayObject::~OpenGLVertexArrayObject()
 			{
-				DeleteVertexObject();
+				DeleteVertexObject(Engine::Get()->GetRenderDevice().get());
 			}
+
 			OpenGLVertexArrayObject::OpenGLVertexArrayObject(OpenGLVertexArrayObject&& other) noexcept
 			{
 				this->operator=(std::move(other));
 			}
 			OpenGLVertexArrayObject& OpenGLVertexArrayObject::operator=(OpenGLVertexArrayObject&& other) noexcept
 			{
-				DeleteVertexObject();
+				DeleteVertexObject(Engine::Get()->GetRenderDevice().get());
 
 				m_VAO = other.m_VAO;
 				m_isCreate = other.m_isCreate;
@@ -41,9 +45,10 @@ namespace CoreEngine
 					m_isCreate = true;
 				}
 			}
-			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
+			void OpenGLVertexArrayObject::SetupIntorprit(RenderDevice* Device, uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
 														 const VertexBufferObject& bufferObject, const uint32 beginStep)
 			{
+				ASSERT("");
 				if (typeData == ETypeData::NONE)
 				{
 					EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int32>(typeData));
@@ -54,8 +59,8 @@ namespace CoreEngine
 					glGenVertexArrays(1, &m_VAO);
 					m_isCreate = true;
 				}
-				Bind();
-				bufferObject.Bind();
+				Bind(Device);
+				bufferObject.Bind(Device);
 				if (typeData == ETypeData::INT || typeData == ETypeData::UNSIGNED_INT)
 				{
 					glVertexAttribIPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), step * GetSizeOfFromEnum(typeData),
@@ -71,7 +76,7 @@ namespace CoreEngine
 				bufferObject.UnBind();
 			}
 
-			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
+			void OpenGLVertexArrayObject::SetupIntorprit(RenderDevice* Device, uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
 														 const VertexBufferObject& bufferObject, const ElementBufferObject& elementObject,
 														 const uint32 beginStep)
 			{
@@ -80,26 +85,32 @@ namespace CoreEngine
 					EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int32>(typeData));
 					return;
 				}
-				if (!m_isCreate)
-				{
-					glGenVertexArrays(1, &m_VAO);
-					m_isCreate = true;
-				}
-				Bind();
-				bufferObject.Bind();
-				elementObject.Bind();
-				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
-									  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
-				glEnableVertexAttribArray(location);
-				elementObject.UnBind();
-				bufferObject.UnBind();
-				UnBind();
+				/*	if (!m_isCreate)
+					{
+						glGenVertexArrays(1, &m_VAO);
+						m_isCreate = true;
+					}*/
+				Device->DeleteVAO(Handle);
+				DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>> Attrib = {{location, sizeArgument, step, typeData, beginStep}};
+				Handle = Device->CreateVAO(bufferObject.GetHandle(), elementObject.GetHandle(), Attrib);
+
+				/*	Bind(Device);
+					bufferObject.Bind(Device);
+					elementObject.Bind();
+					glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
+										  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+					glEnableVertexAttribArray(location);
+					elementObject.UnBind();
+					bufferObject.UnBind();
+					UnBind();*/
 
 				m_elementBuffer = &elementObject;
 			}
 
-			void OpenGLVertexArrayObject::SetupIntorprit(uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData, const uint32 beginStep)
+			void OpenGLVertexArrayObject::SetupIntorprit(RenderDevice* Device, uint32 location, uint32 sizeArgument, uint32 step, const ETypeData& typeData,
+														 const uint32 beginStep)
 			{
+				ASSERT("");
 				if (typeData == ETypeData::NONE)
 				{
 					EG_LOG(CORE, ELevelLog::WARNING, "Undefined type {0}", static_cast<int32>(typeData));
@@ -110,29 +121,33 @@ namespace CoreEngine
 					glGenVertexArrays(1, &m_VAO);
 					m_isCreate = true;
 				}
+				// Device->CreateVAO()
 
-				Bind();
+				// Bind(Device);
 				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
 									  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
 				glEnableVertexAttribArray(location);
 				UnBind();
 			}
 
-			void OpenGLVertexArrayObject::DeleteVertexObject()
+			void OpenGLVertexArrayObject::DeleteVertexObject(RenderDevice* Device)
 			{
-				if (m_isCreate)
+				Device->DeleteVAO(Handle);
+
+				/*if (m_isCreate)
 				{
 					glDeleteVertexArrays(1, &m_VAO);
 					m_isCreate = false;
-				}
+				}*/
 			}
-			void OpenGLVertexArrayObject::Bind() const
+			void OpenGLVertexArrayObject::Bind(RenderDevice* Device) const
 			{
 				/*if (m_elementBuffer)
 				{
 					m_elementBuffer->Bind();
 				}*/
-				glBindVertexArray(m_VAO);
+				// glBindVertexArray(m_VAO);
+				Device->BindVAO(Handle);
 			}
 			void OpenGLVertexArrayObject::UnBind() const
 			{
@@ -142,10 +157,11 @@ namespace CoreEngine
 				}*/
 				glBindVertexArray(0);
 			}
-			uint32 OpenGLVertexArrayObject::GetID() const
+			RHI::HandleVAO OpenGLVertexArrayObject::GetHandle() const
 			{
-				return m_VAO;
+				return Handle;
 			}
+
 			void OpenGLVertexArrayObject::ResetLinkElementBuffer()
 			{
 				m_elementBuffer = nullptr;

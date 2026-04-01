@@ -3,10 +3,9 @@
 #include <Editor/includes/EditorApplication.h>
 #include <Editor/includes/EditorViewportClient.h>
 
-
 EditorWorld::EditorWorld(const CoreEngine::InitializeObject& Initializer) : CoreEngine::World(Initializer)
 {
-	EditEngine = dynamic_cast<Editor::EditorEngine*>(Editor::EditorEngine::Get());
+	EditEngine = dynamic_cast<EditorEngine*>(EditorEngine::Get());
 }
 
 FVector EditorWorld::GetControllerLocation() const
@@ -16,9 +15,8 @@ FVector EditorWorld::GetControllerLocation() const
 
 void EditorWorld::UpdateWorld()
 {
-	if (EditEngine->GetCurrentStateWorld() == Editor::EStateWorld::Play)
+	if (EditEngine->GetCurrentStateWorld() == EStateWorld::Play)
 	{
 		CoreEngine::World::UpdateWorld();
 	}
 }
-

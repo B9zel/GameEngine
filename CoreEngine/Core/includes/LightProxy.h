@@ -21,8 +21,9 @@ namespace CoreEngine
 		FVector Color;
 		float Intencity;
 		FVector Direction;
+		// int32 pading;
 		uint64 ShdowTexHandle;
-		
+		uint64 Padding;
 	};
 
 	struct alignas(16) SimpleSpotLightProxy
@@ -31,7 +32,7 @@ namespace CoreEngine
 		FVector4 Direction;
 		FVector Location;
 		uint64 ShdowTexHandle;
-	
+
 		float Intencity;
 		float CutOff;
 		float OuterCutOff;
@@ -49,8 +50,8 @@ namespace CoreEngine
 		virtual int GetID() const;
 
 		/*
-		* @param NewColor input x, y, z from 0 to 1
-		*/
+		 * @param NewColor input x, y, z from 0 to 1
+		 */
 		void SetColor(const FVector& NewColor);
 		void SetIntencity(const float NewIntencity);
 		void SetID(const int NewId);
@@ -77,7 +78,6 @@ namespace CoreEngine
 		FVector m_Direction;
 	};
 
-
 	class alignas(16) PointLightProxy : public LightProxy
 	{
 	public:
@@ -98,11 +98,11 @@ namespace CoreEngine
 
 		FVector m_Location;
 		/*
-		*  Use for formulas
-		*							1
-		* -----------------------------------------------------
-		* Constant + Linear * Distance + Quadratic * Distance^2
-		*/
+		 *  Use for formulas
+		 *							1
+		 * -----------------------------------------------------
+		 * Constant + Linear * Distance + Quadratic * Distance^2
+		 */
 		float m_Constant;
 		float m_Linear;
 		float m_Quadratic;
@@ -138,14 +138,14 @@ namespace CoreEngine
 		float m_CutOff;
 		float m_OuterCutOff;
 		/*
-		*  Use for formulas
-		*							1
-		* -----------------------------------------------------
-		* Constant + Linear * Distance + Quadratic * Distance^2
-		*/
+		 *  Use for formulas
+		 *							1
+		 * -----------------------------------------------------
+		 * Constant + Linear * Distance + Quadratic * Distance^2
+		 */
 		float m_Constant;
 		float m_Linear;
 		float m_Quadratic;
 	};
 
-}
+} // namespace CoreEngine

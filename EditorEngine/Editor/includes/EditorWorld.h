@@ -3,11 +3,7 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <EditorWorld.generated.h>
 
-namespace Editor
-{
-	class EditorEngine;
-}
-
+class EditorEngine;
 
 RCLASS()
 class EditorWorld : public CoreEngine::World
@@ -28,5 +24,5 @@ protected:
 
 private:
 
-	Editor::EditorEngine* EditEngine;
+	EditorEngine* EditEngine;
 };

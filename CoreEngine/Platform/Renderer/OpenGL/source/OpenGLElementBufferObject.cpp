@@ -1,5 +1,7 @@
+
 #include <Platform/Renderer/OpenGL/include/OpenGLElementBufferObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLConvertData.h>
+#include <Render/includes/RenderDevice.h>
 
 namespace CoreEngine
 {
@@ -15,7 +17,7 @@ namespace CoreEngine
 			}
 			OpenGLElementBufferObject::~OpenGLElementBufferObject()
 			{
-				DeleteBuffer();
+				//DeleteBuffer();
 			}
 
 			OpenGLElementBufferObject::OpenGLElementBufferObject(OpenGLElementBufferObject&& Other) noexcept
@@ -29,16 +31,17 @@ namespace CoreEngine
 				Other.m_typeStorageData = ETypeData::NONE;
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
-														 const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj, const bool IsAutoUnBind)
+			void OpenGLElementBufferObject::CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData,
+														 const ETypeStorageDraw& typeDraw, const VertexArrayObject& vertexArray,
+														 const VertexBufferObject& buffObj, const bool IsAutoUnBind)
 			{
 				if (IsCreate())
 				{
 					DeleteBuffer();
 				}
 
-				vertexArray.Bind();
-				buffObj.Bind();
+				// vertexArray.Bind();
+				buffObj.Bind(Device);
 				glGenBuffers(1, &m_EBO);
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
@@ -53,15 +56,15 @@ namespace CoreEngine
 				m_isCreate = true;
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
-														 const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
+			void OpenGLElementBufferObject::CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData,
+														 const ETypeStorageDraw& typeDraw, const VertexArrayObject& vertexArray, const bool IsAutoUnBind)
 			{
 				if (IsCreate())
 				{
 					DeleteBuffer();
 				}
 
-				vertexArray.Bind();
+				// vertexArray.Bind();
 				glGenBuffers(1, &m_EBO);
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
@@ -75,21 +78,23 @@ namespace CoreEngine
 				m_isCreate = true;
 			}
 
-			void OpenGLElementBufferObject::CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
-														 const bool IsAutoUnBind)
+			void OpenGLElementBufferObject::CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData,
+														 const ETypeStorageDraw& typeDraw, const bool IsAutoUnBind)
 			{
 				if (IsCreate())
 				{
-					DeleteBuffer();
+					Device->DeleteEBO(m_Handle);
 				}
 
-				glGenBuffers(1, &m_EBO);
+				/*glGenBuffers(1, &m_EBO);
 				Bind();
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, GetSizeOfFromEnum(typeData) * sizeArr, dataArr, GetDrawTypeAPIFromEnum(typeDraw));
 				if (IsAutoUnBind)
 				{
 					UnBind();
-				}
+				}*/
+
+
 
 				m_typeStorageData = typeData;
 				m_isCreate = true;
@@ -147,9 +152,9 @@ namespace CoreEngine
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			}
 
-			uint32 OpenGLElementBufferObject::GetBufferID() const
+			RHI::BufferHandle OpenGLElementBufferObject::GetHandle() const
 			{
-				return m_EBO;
+				return m_Handle;
 			}
 		} // namespace OpenGL
 	} // namespace Render

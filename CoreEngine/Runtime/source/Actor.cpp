@@ -4,8 +4,6 @@
 #include <Runtime/includes/Controller.h>
 #include <Runtime/includes/ActorComponent.h>
 
-
-
 namespace CoreEngine
 {
 	namespace Runtime
@@ -20,6 +18,7 @@ namespace CoreEngine
 
 		void Actor::InitProperties()
 		{
+			Object::InitProperties();
 		}
 
 		void Actor::RegisterAll()
@@ -96,7 +95,7 @@ namespace CoreEngine
 
 		void Actor::PreRegistered()
 		{
-
+			InitProperties();
 		}
 
 		void Actor::PreRegisterAll()
@@ -292,7 +291,6 @@ namespace CoreEngine
 		void Actor::OnDeserialize(SerializeAchive& Achive)
 		{
 			Object::OnDeserialize(Achive);
-
 		}
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

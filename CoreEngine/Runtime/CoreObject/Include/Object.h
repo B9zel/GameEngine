@@ -1,30 +1,24 @@
 #pragma once
 
 #include <Core/includes/Base.h>
-#include <Core/includes/ObjectPtr.h>
-#include <Runtime/CoreObject/Include/ObjectGlobal.h>
+// #include <Core/includes/ObjectPtr.h>
+//  #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/UUID.h>
-#include <ReflectionSystem/Include/MetaClass.h>
+// #include <ReflectionSystem/Include/MetaClass.h>
 #include <ReflectionSystem/Include/ReflectionMacros.h>
-#include <ReflectionSystem/Include/RegistryMap/MapRegistryClass.h>
+// #include <ReflectionSystem/Include/RegistryMap/MapRegistryClass.h>
 #include <Object.generated.h>
-
-
 
 namespace CoreEngine
 {
 	class Layer;
 	class Engine;
-	template<class T>
-	class ObjectPtr;
+	template <class T> class ObjectPtr;
 	namespace GB
 	{
 		class GarbageCollector;
 	}
-}
-
-
-#define PROPERTY(type, name) CoreEngine::ObjectPtr<type> name
+} // namespace CoreEngine
 
 enum class ObjectGCFlags : uint64
 {
@@ -35,15 +29,11 @@ enum class ObjectGCFlags : uint64
 	Garbage = FLAG_OFFSET(3)
 };
 
-
-
-
 namespace CoreEngine
 {
 	class World;
 	class SerializeAchive;
-	template<typename T>
-	class ObjectPtr;
+	template <typename T> class ObjectPtr;
 
 	struct InitializeObject
 	{
@@ -61,15 +51,17 @@ namespace CoreEngine
 		public:
 
 			Object(const InitializeObject& Initilize);
-			virtual ~Object() { EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Destroy object"); }
+			virtual ~Object()
+			{
+				EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Destroy object");
+			}
 
 		public:
 
 			virtual void InitProperties();
 			virtual Reflection::ClassField* GetClass() const;
 
-			template<class ReturnType>
-			ReturnType* CreateSubObject(const String& Name);
+			template <class ReturnType> ReturnType* CreateSubObject(const String& Name);
 
 			void SetWorld(World* newWorld);
 			World* GetWorld();
@@ -83,9 +75,13 @@ namespace CoreEngine
 			bool GetHasSerialized() const;
 			bool GetHasDeserialized() const;
 
-			virtual void StartDestroy() {}
-			virtual void FinishDestroy() {}
-			
+			virtual void StartDestroy()
+			{
+			}
+			virtual void FinishDestroy()
+			{
+			}
+
 			virtual void PreSerialize();
 			void Serialize(SerializeAchive& Archive);
 			virtual void PreDeserialize();
@@ -103,7 +99,9 @@ namespace CoreEngine
 
 		private:
 
-			ObjectPtr<Object> m_Outer;
+			RPROPERTY();
+			Object* m_Outer;
+
 			World* m_World;
 
 			UUID ObjectID;
@@ -111,25 +109,23 @@ namespace CoreEngine
 			String Name;
 
 			// GC
-			uint64 StateObjectFlagGC{ 0 };
+			uint64 StateObjectFlagGC{0};
 			//
 
 			// Serialize
-			bool HasSerialize{ false };
+			bool HasSerialize{false};
 			// Deserialize
-			bool HasDeserialize{ false };
+			bool HasDeserialize{false};
 
 			friend GB::GarbageCollector;
 		};
 
-		template<class ReturnType>
-		inline ReturnType* Object::CreateSubObject(const String& Name)
+		template <class ReturnType> inline ReturnType* Object::CreateSubObject(const String& Name)
 		{
 			ReturnType* obj = CreateObject<ReturnType>(this);
 			obj->Name = Name;
 			return obj;
 		}
 
-
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

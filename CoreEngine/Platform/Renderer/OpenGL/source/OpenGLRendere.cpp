@@ -6,10 +6,12 @@
 #include <Core/includes/Engine.h>
 #include <Core/includes/World.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
-#include <Render/includes/RenderCommand.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLRenderCommand.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Core/includes/Window.h>
 #include <Render/includes/Framebuffer.h>
 #include <Render/includes/Shader.h>
+#include <Core/includes/AssetManager.h>
 #include "glad/glad.h"
 
 namespace CoreEngine
@@ -46,186 +48,188 @@ namespace CoreEngine
 				Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RGBA8));
 				Spec.AttachTextures.Textures.push_back(CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::RED_INTEGER));
 				Spec.AttachTextures.Textures.push_back(
-					CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8, EFramebufferTextureFilterConfig::LINER));
+					CoreEngine::Render::FramebufferTextureAttachment(EFramebufferTextureFormat::DEPTH24_STENCIL8, EFramebufferTextureFilterConfig::NEAREST));
 
 				m_ResultScene = Framebuffer::Create(Spec);
-
-				m_ShaderShadow = Shader::CreateShader();
-				auto Loaded = m_ShaderShadow->LoadShader("../../Shaders/ShadowDepthShader.glsl");
-				m_ShaderShadow->CompileShader(Loaded.first, Loaded.second);
 			}
 
 			void OpenGLRender::RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights, const DArray<FMatrix4x4>& LightDirecion)
 			{
-				DArray<SimplyDirectionLightProxy> DirectionLights;
-				DArray<SimplyPointLightProxy> PointLights;
-				DArray<SimpleSpotLightProxy> SpotLights;
-				DArray<FMatrix4x4> LightSpaces;
+				// DArray<SimplyDirectionLightProxy> DirectionLights;
+				// DArray<SimplyPointLightProxy> PointLights;
+				// DArray<SimpleSpotLightProxy> SpotLights;
+				// DArray<FMatrix4x4> LightSpaces;
 
-				for (int64 i = 0; i < Lights.size(); i++)
-				{
-					DArray<GLuint64> Handles;
-					auto* ShadowData = FindLightShadowData(Lights[i]->GetTypeLight(), Lights[i]->GetID());
+				// for (int64 i = 0; i < Lights.size(); i++)
+				//{
+				//	DArray<GLuint64> Handles;
+				//	auto* ShadowData = FindLightShadowData(Lights[i]->GetTypeLight(), Lights[i]->GetID());
 
-					switch (Lights[i]->GetTypeLight())
-					{
-					case ETypeLight::DIRECTION_LIGHT:
-					{
-						DirectionLightProxy* Proxy = dynamic_cast<DirectionLightProxy*>(Lights[i]);
-						SimplyDirectionLightProxy SimplePointLight = {Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetDirection(), ShadowData->Layer};
-						DirectionLights.emplace_back(SimplePointLight);
-						break;
-					}
-					case ETypeLight::POINT_LIGHT:
-					{
-						PointLightProxy* Proxy = dynamic_cast<PointLightProxy*>(Lights[i]);
-						SimplyPointLightProxy SimplePointLight = {Proxy->GetColor(),	Proxy->GetIntencity(), Proxy->GetLocation(),
-																  Proxy->GetConstant(), Proxy->GetLinear(),	   Proxy->GetQuadratic()};
-						PointLights.emplace_back(SimplePointLight);
-						break;
-					}
-					case ETypeLight::SPOTLIGHT:
-					{
-						SpotLightProxy* Proxy = dynamic_cast<SpotLightProxy*>(Lights[i]);
-						SimpleSpotLightProxy SimpleSpotLight = {
-							Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : 0,
-							Proxy->GetIntencity(), Proxy->GetCutOff(),	  Proxy->GetOuterCutOff(), Proxy->GetConstant(),
-							Proxy->GetLinear(),	   Proxy->GetQuadratic()};
-						SpotLights.emplace_back(SimpleSpotLight);
-						break;
-					}
-					default:
-						break;
-					}
-					// LightSpaces.push_back(LightsMatrix[DirectionLights.size()]);
-				}
+				//	switch (Lights[i]->GetTypeLight())
+				//	{
+				//	case ETypeLight::DIRECTION_LIGHT:
+				//	{
+				//		DirectionLightProxy* Proxy = dynamic_cast<DirectionLightProxy*>(Lights[i]);
+				//		SimplyDirectionLightProxy SimplePointLight = {Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetDirection(), ShadowData->Layer};
+				//		DirectionLights.emplace_back(SimplePointLight);
+				//		break;
+				//	}
+				//	case ETypeLight::POINT_LIGHT:
+				//	{
+				//		PointLightProxy* Proxy = dynamic_cast<PointLightProxy*>(Lights[i]);
+				//		SimplyPointLightProxy SimplePointLight = {Proxy->GetColor(),	Proxy->GetIntencity(), Proxy->GetLocation(),
+				//												  Proxy->GetConstant(), Proxy->GetLinear(),	   Proxy->GetQuadratic()};
+				//		PointLights.emplace_back(SimplePointLight);
+				//		break;
+				//	}
+				//	case ETypeLight::SPOTLIGHT:
+				//	{
+				//		SpotLightProxy* Proxy = dynamic_cast<SpotLightProxy*>(Lights[i]);
+				//		SimpleSpotLightProxy SimpleSpotLight = {
+				//			Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : 0,
+				//			Proxy->GetIntencity(), Proxy->GetCutOff(),	  Proxy->GetOuterCutOff(), Proxy->GetConstant(),
+				//			Proxy->GetLinear(),	   Proxy->GetQuadratic()};
+				//		SpotLights.emplace_back(SimpleSpotLight);
+				//		break;
+				//	}
+				//	default:
+				//		break;
+				//	}
+				//	// LightSpaces.push_back(LightsMatrix[DirectionLights.size()]);
+				//}
 
-				m_SSBODirectionLight.CreaterBuffer(DirectionLights.data(), DirectionLights.size(), sizeof(SimplyDirectionLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOPointLight.CreaterBuffer(PointLights.data(), PointLights.size(), sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
-				// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
-				// glDisable(GL_BLEND);
+				// m_SSBODirectionLight.CreaterBuffer(DirectionLights.data(), DirectionLights.size(), sizeof(SimplyDirectionLightProxy),
+				// ETypeStorageDraw::STREAM); m_SSBOPointLight.CreaterBuffer(PointLights.data(), PointLights.size(), sizeof(SimplyPointLightProxy),
+				// ETypeStorageDraw::STREAM); m_SSBOSpotLight.CreaterBuffer(SpotLights.data(), SpotLights.size(), sizeof(SimpleSpotLightProxy),
+				// ETypeStorageDraw::STREAM); m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4),
+				// ETypeStorageDraw::STREAM);
+				//  EG_LOG(CoreEngine::CORE, ELevelLog::INFO, alignof(PointLightProxy));
+				//  glDisable(GL_BLEND);
 
-				int test = 0;
-				for (size_t i = 0; i < Proxy->GetIndeces().size(); i++)
-				{
-					for (auto& el : Proxy->GetShaders())
-					{
+				// int test = 0;
+				// for (size_t i = 0; i < Proxy->GetIndeces().size(); i++)
+				//{
+				//	for (auto& el : Proxy->GetShaders())
+				//	{
 
-						// if (test++ == 0) continue;
-						auto* shader = el.first;
-						auto* vertexArray = Proxy->GetArrayObject()[i];
+				//		// if (test++ == 0) continue;
+				//		auto* shader = el.first;
+				//		auto* vertexArray = Proxy->GetArrayObject()[i];
 
-						vertexArray->Bind();
-						shader->Bind();
+				//		vertexArray->Bind();
+				//		shader->Bind();
 
-						auto& Textures = Proxy->GetTextures();
+				//		auto& Textures = Proxy->GetTextures();
 
-						for (uint32 j = 0; j < Textures.size(); j++)
-						{
-							Textures[j]->Bind(j);
+				//		for (uint32 j = 0; j < Textures.size(); j++)
+				//		{
+				//			Textures[j]->Bind(j);
 
-							const DArray<String>& NamesTexture = shader->GetNamesOfTexture();
-							if (!NamesTexture.empty())
-							{
-								if (j >= NamesTexture.size()) continue;
+				//			const DArray<String>& NamesTexture = shader->GetNamesOfTexture();
+				//			if (!NamesTexture.empty())
+				//			{
+				//				if (j >= NamesTexture.size()) continue;
 
-								shader->SetUniform1i(NamesTexture[j], j, false);
-							}
-						}
+				//				shader->SetUniform1i(NamesTexture[j], j, false);
+				//			}
+				//		}
 
-						if (shader->GetHasAllMatrix())
-						{
-							FVector4 a = m_Projection * m_View * Proxy->GetTransformMatrix() * FVector4(1, 1, 1, 1).vector;
-							// FMatrix4x4 b = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
+				//		if (shader->GetHasAllMatrix())
+				//		{
+				//			FVector4 a = m_Projection * m_View * Proxy->GetTransformMatrix() * FVector4(1, 1, 1, 1).vector;
+				//			// FMatrix4x4 b = m_Projection * m_View * Proxy->GetTransform().ToMatrix();
 
-							shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
+				//			shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
 
-							shader->SetUniformMatrix4x4("View", m_View, false);
-							shader->SetUniformMatrix4x4("Projection", m_Projection, false);
-						}
+				//			shader->SetUniformMatrix4x4("View", m_View, false);
+				//			shader->SetUniformMatrix4x4("Projection", m_Projection, false);
+				//		}
 
-						glActiveTexture(GL_TEXTURE0);
-						ShadowDepth->ActivateDepthTexture();
-						shader->SetUniform1i("DirectionShadowMap", 0, false);
-						shader->SetUniformVec3("ViewPos", Engine::Get()->GetWorld()->GetControllerLocation(), false);
-						shader->SetUniform1i("CountPointLight", PointLights.size(), false);
-						shader->SetUniform1i("CountDirectionLight", DirectionLights.size(), false);
-						shader->SetUniform1i("CountSpotLight", SpotLights.size(), false);
-						// shader->SetUniform1i("CountDirectionLight", ¬шку, false);
+				//		glActiveTexture(GL_TEXTURE0);
+				//		ShadowDepth->ActivateDepthTexture();
+				//		shader->SetUniform1i("DirectionShadowMap", 0, false);
+				//		shader->SetUniformVec3("ViewPos", Engine::Get()->GetWorld()->GetControllerLocation(), false);
+				//		shader->SetUniform1i("CountPointLight", PointLights.size(), false);
+				//		shader->SetUniform1i("CountDirectionLight", DirectionLights.size(), false);
+				//		shader->SetUniform1i("CountSpotLight", SpotLights.size(), false);
+				//		// shader->SetUniform1i("CountDirectionLight", ¬шку, false);
 
-						// shader->SetUniformVec2("ScreenSize", FVector2(Application::Get()->GetWindow().GetWidth(),
-						// Application::Get()->GetWindow().GetHeight())); shader->SetUniform1i("ShadowMap", 1);
+				//		// shader->SetUniformVec2("ScreenSize", FVector2(Application::Get()->GetWindow().GetWidth(),
+				//		// Application::Get()->GetWindow().GetHeight())); shader->SetUniform1i("ShadowMap", 1);
 
-						/*if (Proxy->GetUUID()->IsValid())
-						{
-							shader->SetUniform1i("id", Proxy->GetUUID()->GetID(), false);
+				//		/*if (Proxy->GetUUID()->IsValid())
+				//		{
+				//			shader->SetUniform1i("id", Proxy->GetUUID()->GetID(), false);
 
-						}
-						else
-						{
+				//		}
+				//		else
+				//		{
 
-							shader->SetUniform1i("id", 0, false);
-						}*/
-						/*shader->SetUniform1i("texture", 0, false);
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, 3);*/
+				//			shader->SetUniform1i("id", 0, false);
+				//		}*/
+				//		/*shader->SetUniform1i("texture", 0, false);
+				//		glActiveTexture(GL_TEXTURE0);
+				//		glBindTexture(GL_TEXTURE_2D, 3);*/
 
-						// int b;
-						// glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
-						// EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
-						if (!Proxy->GetLocationLights().empty())
-						{
-							shader->SetUniformVec3("PosLight", Proxy->GetLocationLights()[0], false);
-						}
+				//		// int b;
+				//		// glGetUniformiv(3, glGetUniformLocation(3, "CountSpotLight"), &b);
+				//		// EG_LOG(CORE, ELevelLog::INFO, "{0}", b);
+				//		if (!Proxy->GetLocationLights().empty())
+				//		{
+				//			shader->SetUniformVec3("PosLight", Proxy->GetLocationLights()[0], false);
+				//		}
 
-						int ebo;
-						m_SSBODirectionLight.Bind(0);
-						m_SSBOPointLight.Bind(1);
-						m_SSBOSpotLight.Bind(2);
-						m_SSBOLightSpace.Bind(3);
-						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
-						// glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-						// float* dat = nullptr;
-						// dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
+				//		int ebo;
+				//		m_SSBODirectionLight.Bind(0);
+				//		m_SSBOPointLight.Bind(1);
+				//		m_SSBOSpotLight.Bind(2);
+				//		m_SSBOLightSpace.Bind(3);
+				//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
+				//		// glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+				//		// float* dat = nullptr;
+				//		// dat = (float*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 60, GL_MAP_READ_BIT);
 
-						// if (dat)
-						//{
-						//	for (int i = 0; i < 60 / sizeof(float); i += 3)
-						//	{
-						//		EG_LOG(CORE, ELevelLog::INFO, "{0}, {1}, {2}", dat[i], dat[i + 1], dat[i + 2]);
-						//	}
-						// }
+				//		// if (dat)
+				//		//{
+				//		//	for (int i = 0; i < 60 / sizeof(float); i += 3)
+				//		//	{
+				//		//		EG_LOG(CORE, ELevelLog::INFO, "{0}, {1}, {2}", dat[i], dat[i + 1], dat[i + 2]);
+				//		//	}
+				//		// }
 
-						/*unsigned int a;
-						int locat = glGetUniformLocation(3, "ID");
-						glGetUniformuiv(3, locat, &a);
-						EG_LOG(CORE, ELevelLog::INFO, a);*/
-						//	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
-						//	glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
-						// EG_LOG(CORE, ELevelLog::INFO, ebo);
-						// void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-						// if (d != nullptr)
-						//{
-						//	PointLightProxy* l = reinterpret_cast<PointLightProxy*>(d);
-						//	for (size_t i = 0; i < 32; i++)
-						//	{
+				//		/*unsigned int a;
+				//		int locat = glGetUniformLocation(3, "ID");
+				//		glGetUniformuiv(3, locat, &a);
+				//		EG_LOG(CORE, ELevelLog::INFO, a);*/
+				//		//	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
+				//		//	glGetIntegerv(GL_SHADER_STORAGE_BUFFER, &ebo);
+				//		// EG_LOG(CORE, ELevelLog::INFO, ebo);
+				//		// void* d = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+				//		// if (d != nullptr)
+				//		//{
+				//		//	PointLightProxy* l = reinterpret_cast<PointLightProxy*>(d);
+				//		//	for (size_t i = 0; i < 32; i++)
+				//		//	{
 
-						//		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, *((double*)l + i * sizeof(double)));
-						//	}
+				//		//		//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, *((double*)l + i * sizeof(double)));
+				//		//	}
 
-						//}
-						glDrawElements(GL_TRIANGLES, Proxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
+				//		//}
+				//		glDrawElements(GL_TRIANGLES, Proxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 
-						shader->UnBind();
-						vertexArray->UnBind();
+				//		shader->UnBind();
+				//		vertexArray->UnBind();
 
-						glBindTexture(GL_TEXTURE_2D, 0);
-					}
-					test = 0;
-				}
+				//		glBindTexture(GL_TEXTURE_2D, 0);
+				//	}
+				//	test = 0;
+				//}
 				// glEnable(GL_BLEND);
+			}
+
+			void OpenGLRender::Construct()
+			{
+				m_ShaderShadow = AssetManager::Get().LoadShader("../../Shaders/ShadowDepthShader.glsl");
 			}
 
 			void OpenGLRender::ClearBuffersScreen()
@@ -241,9 +245,19 @@ namespace CoreEngine
 
 			void OpenGLRender::RenderPipelineProxy(const DArray<PrimitiveProxy*>& Primitives, const DArray<LightProxy*>& Lights)
 			{
-				DrawDepthShadowBuffer(Lights, Primitives);
+				// DrawDepthShadowBuffer(Lights, Primitives);
+				DArray<SimplyDirectionLightProxy> DirectionLights;
+				DArray<SimplyPointLightProxy> PointLights;
+				DArray<SimpleSpotLightProxy> SpotLights;
+				DArray<FMatrix4x4> LightSpaces;
+				m_ListCommand.clear();
 
-				m_ResultScene->Bind();
+				CollectDataFromProxy(Lights, DirectionLights, PointLights, SpotLights);
+
+				BuidCommandList(GetRenderDevice().get(), Primitives, DirectionLights, PointLights, SpotLights, m_ListCommand);
+				ExecuteCommandList(GetRenderDevice().get(), m_ListCommand);
+
+				/*m_ResultScene->Bind();
 				ClearBuffersScreen();
 				for (auto* Primitive : Primitives)
 				{
@@ -256,7 +270,7 @@ namespace CoreEngine
 						RenderProxy(Primitive);
 					}
 				}
-				m_ResultScene->UnBind();
+				m_ResultScene->UnBind();*/
 			}
 
 			void OpenGLRender::DrawDepthShadowBuffer(const DArray<LightProxy*>& Lights, const DArray<CoreEngine::PrimitiveProxy*>& Primitives)
@@ -274,7 +288,7 @@ namespace CoreEngine
 				LightsMatrix.clear();
 
 				uint32 LayerIndex = 0;
-				m_ShaderShadow->Bind();
+				// m_ShaderShadow->Bind();
 				ShadowDepth->Bind();
 				glCullFace(GL_FRONT);
 				for (auto* Light : Lights)
@@ -309,7 +323,7 @@ namespace CoreEngine
 
 				glCullFace(GL_BACK);
 				// m_ShadowBuffer->UnBind();
-				m_ShaderShadow->UnBind();
+				// m_ShaderShadow->UnBind();
 			}
 
 			FMatrix4x4 OpenGLRender::DrawDirectionLightShadowBuffer(CoreEngine::LightProxy* Light, const DArray<CoreEngine::PrimitiveProxy*>& Primitives)
@@ -330,12 +344,12 @@ namespace CoreEngine
 					{
 						for (size_t i = 0; i < StaticProxy->GetIndeces().size(); i++)
 						{
-							StaticProxy->GetArrayObject()[i]->Bind();
+							// StaticProxy->GetArrayObject()[i]->Bind();
 
 							using namespace CoreEngine::Render;
 
-							m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
-							m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
+							// m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
+							// m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
 
 							glDrawElements(GL_TRIANGLES, StaticProxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 						}
@@ -364,12 +378,12 @@ namespace CoreEngine
 					{
 						for (size_t i = 0; i < StaticProxy->GetIndeces().size(); i++)
 						{
-							StaticProxy->GetArrayObject()[i]->Bind();
+							// StaticProxy->GetArrayObject()[i]->Bind();
 
 							using namespace CoreEngine::Render;
 
-							m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
-							m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
+							// m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
+							// m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
 
 							glDrawElements(GL_TRIANGLES, StaticProxy->GetIndeces()[i]->size(), GL_UNSIGNED_INT, 0);
 						}
@@ -414,7 +428,7 @@ namespace CoreEngine
 			{
 				CurrentRes = Resolition;
 				// m_ShadowBuffer->Resize(Resolition.x * 6, Resolition.y * 6);
-				ShadowDepth->Resize(Resolition.x * 4, Resolition.y * 4);
+				ShadowDepth->Resize(Resolition.x, Resolition.y);
 				m_ResultScene->Resize(Resolition.x, Resolition.y);
 			}
 
@@ -422,54 +436,164 @@ namespace CoreEngine
 			{
 				for (auto& el : Proxy->GetShaders())
 				{
-					auto* shader = el.first;
-					auto* vertexArray = el.second.first;
+					// auto* shader = el.first;
+					// auto* vertexArray = el.second.first;
 
-					shader->Bind();
-					vertexArray->Bind();
+					//// shader->Bind();
+					//// vertexArray->Bind();
 
-					auto& Textures = Proxy->GetTextures();
+					// auto& Textures = Proxy->GetTextures();
 
-					for (uint32 i = 0; i < Textures.size(); i++)
-					{
-						Textures[i]->Bind(i);
+					// for (uint32 i = 0; i < Textures.size(); i++)
+					//{
+					//	// Textures[i]->Bind(i);
 
-						const DArray<String>& NamesTexture = shader->GetNamesOfTexture();
-						if (!NamesTexture.empty())
-						{
-							if (i >= NamesTexture.size()) continue;
+					//	const DArray<String>& NamesTexture = shader->GetNamesOfTexture();
+					//	if (!NamesTexture.empty())
+					//	{
+					//		if (i >= NamesTexture.size()) continue;
 
-							shader->SetUniform1i(NamesTexture[i], i, false);
-						}
-					}
+					//		// shader->SetUniform1i(NamesTexture[i], i, false);
+					//	}
+					//}
 
-					if (shader->GetHasAllMatrix())
-					{
-						FMatrix4x4 a = m_Projection * m_View * Proxy->GetTransformMatrix();
+					// if (shader->GetHasAllMatrix())
+					//{
+					//	FMatrix4x4 a = m_Projection * m_View * Proxy->GetTransformMatrix();
 
-						shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
-						shader->SetUniformMatrix4x4("View", m_View, false);
-						shader->SetUniformMatrix4x4("Projection", m_Projection, false);
-					}
+					//	// shader->SetUniformMatrix4x4("Model", Proxy->GetTransformMatrix(), false);
+					//	// shader->SetUniformMatrix4x4("View", m_View, false);
+					//	// shader->SetUniformMatrix4x4("Projection", m_Projection, false);
+					//}
 
-					glActiveTexture(GL_TEXTURE0);
-					ShadowDepth->ActivateDepthTexture();
-					shader->SetUniform1i("ourTexture1", 0, false);
+					// glActiveTexture(GL_TEXTURE0);
+					// ShadowDepth->ActivateDepthTexture();
+					//// shader->SetUniform1i("ourTexture1", 0, false);
 
-					glDrawArrays(GL_TRIANGLES, 0, Proxy->CountVertex / 3);
+					// glDrawArrays(GL_TRIANGLES, 0, Proxy->CountVertex / 3);
 
-					glDrawElements(GL_TRIANGLES, Proxy->CountIndeces, GL_UNSIGNED_INT, 0);
-					el.first->UnBind();
-					vertexArray->UnBind();
+					// glDrawElements(GL_TRIANGLES, Proxy->CountIndeces, GL_UNSIGNED_INT, 0);
+					//// el.first->UnBind();
+					//// vertexArray->UnBind();
 
-					glBindTexture(GL_TEXTURE_2D, 0);
+					// glBindTexture(GL_TEXTURE_2D, 0);
 				}
 			}
 
-			void OpenGLRender::BuildCommandList(RenderDevice* Device, const DArray<PrimitiveProxy*>& Primitives,
-												const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
-												const DArray<SimpleSpotLightProxy>& SpotLights)
+			void OpenGLRender::BuidCommandList(RenderDevice* Device, const DArray<PrimitiveProxy*> Primitives,
+											   const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
+											   const DArray<SimpleSpotLightProxy>& SpotLights, DArray<UniquePtr<RenderCommand>>& OutCommands)
 			{
+				for (auto* Primitive : Primitives)
+				{
+					if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
+					{
+						BuildStaticMeshCommandList(Device, StaticProxy, DirectionLights, PointLights, SpotLights, OutCommands);
+					}
+				}
+			}
+
+			void OpenGLRender::BuildStaticMeshCommandList(RenderDevice* Device, const StaticMeshProxy* Primitive,
+														  const DArray<SimplyDirectionLightProxy>& DirectionLights,
+														  const DArray<SimplyPointLightProxy>& PointLights, const DArray<SimpleSpotLightProxy>& SpotLights,
+														  DArray<UniquePtr<RenderCommand>>& OutCommands)
+			{
+
+				for (size_t i = 0; i < Primitive->GetIndeces().size(); i++)
+				{
+					for (auto& el : Primitive->GetShaders())
+					{
+						OutCommands.push_back(MakeUniquePtr<CmdBindShaderProgram>(el.shader, []() {}));
+
+						auto SetTextures = MakeUniquePtr<ActivateTextureSet>();
+						const auto& Textures = Primitive->GetTextures();
+						for (uint32 i = 0; i < Textures.size(); i++)
+						{
+							SetTextures->Textures.emplace(i, Pair<RHI::TextureHandle, String>(Textures[i], el.TextureNames[i]));
+						}
+						OutCommands.push_back(MakeUniquePtr<CmdActivationTexture>(std::move(SetTextures), []() {}));
+
+						if (el.HasAllMatrix)
+						{
+							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "Model", Primitive->GetTransformMatrix()));
+							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "View", m_View));
+							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "Projection", m_Projection));
+						}
+
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "DirectionShadowMap", 0));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformVector3>(el.shader, "ViewPos", Engine::Get()->GetWorld()->GetControllerLocation()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountPointLight", PointLights.size()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountDirectionLight", DirectionLights.size()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountSpotLight", SpotLights.size()));
+
+						m_SSBODirectionLight.Bind(0);
+						m_SSBOPointLight.Bind(1);
+						m_SSBOSpotLight.Bind(2);
+						m_SSBOLightSpace.Bind(3);
+						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
+
+						OutCommands.push_back(MakeUniquePtr<GLCmdDrawIndex>(Primitive->GetArrayObject()[i], Primitive->GetIndeces()[i]->size(), []() {}));
+					}
+				}
+			}
+
+			void OpenGLRender::ExecuteCommandList(RenderDevice* Device, const DArray<UniquePtr<RenderCommand>>& Commands)
+			{
+				m_ResultScene->Bind();
+				ClearBuffersScreen();
+				for (auto& Command : Commands)
+				{
+					Command->Execute(Device);
+				}
+				m_ResultScene->UnBind();
+			}
+
+			void OpenGLRender::CollectDataFromProxy(const DArray<LightProxy*>& Lights, DArray<SimplyDirectionLightProxy>& OutDirectionLights,
+													DArray<SimplyPointLightProxy>& OutPointLights, DArray<SimpleSpotLightProxy>& OutSpotLights)
+			{
+				for (int64 i = 0; i < Lights.size(); i++)
+				{
+					DArray<GLuint64> Handles;
+					auto* ShadowData = FindLightShadowData(Lights[i]->GetTypeLight(), Lights[i]->GetID());
+
+					switch (Lights[i]->GetTypeLight())
+					{
+					case ETypeLight::DIRECTION_LIGHT:
+					{
+						DirectionLightProxy* Proxy = dynamic_cast<DirectionLightProxy*>(Lights[i]);
+						SimplyDirectionLightProxy SimplePointLight = {Proxy->GetColor(), Proxy->GetIntencity(), Proxy->GetDirection(),
+																	  ShadowData ? ShadowData->Layer : 0, 0};
+						OutDirectionLights.emplace_back(SimplePointLight);
+						break;
+					}
+					case ETypeLight::POINT_LIGHT:
+					{
+						PointLightProxy* Proxy = dynamic_cast<PointLightProxy*>(Lights[i]);
+						SimplyPointLightProxy SimplePointLight = {Proxy->GetColor(),	Proxy->GetIntencity(), Proxy->GetLocation(),
+																  Proxy->GetConstant(), Proxy->GetLinear(),	   Proxy->GetQuadratic()};
+						OutPointLights.emplace_back(SimplePointLight);
+						break;
+					}
+					case ETypeLight::SPOTLIGHT:
+					{
+						SpotLightProxy* Proxy = dynamic_cast<SpotLightProxy*>(Lights[i]);
+						SimpleSpotLightProxy SimpleSpotLight = {
+							Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : 0,
+							Proxy->GetIntencity(), Proxy->GetCutOff(),	  Proxy->GetOuterCutOff(), Proxy->GetConstant(),
+							Proxy->GetLinear(),	   Proxy->GetQuadratic()};
+						OutSpotLights.emplace_back(SimpleSpotLight);
+						break;
+					}
+					default:
+						break;
+					}
+				}
+
+				m_SSBODirectionLight.CreaterBuffer(OutDirectionLights.data(), OutDirectionLights.size(), sizeof(SimplyDirectionLightProxy),
+												   ETypeStorageDraw::STREAM);
+				m_SSBOPointLight.CreaterBuffer(OutPointLights.data(), OutPointLights.size(), sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOSpotLight.CreaterBuffer(OutSpotLights.data(), OutSpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
+				// m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
 			}
 
 		} // namespace OpenGL

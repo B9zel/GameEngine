@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
 #include <Runtime/includes/PrimitiveComponent.h>
 #include <Render/includes/Model.h>
 #include <MeshComponent.generated.h>
@@ -60,7 +60,7 @@ namespace CoreEngine
 			String m_PathToMesh;
 
 			//Test
-			DArray<UniquePtr<Render::Shader>> m_Shader;
+			DArray<Render::Shader*>m_Shader;
 		};
 	}
 }

@@ -1,9 +1,12 @@
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Render/includes/Render.h>
 #include <Core/includes/PrimitiveProxy.h>
+#include <Render/includes/RenderDevice.h>
 #include <Core/includes/StaticMeshProxy.h>
 #include <Core/includes/LightProxy.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRendere.h>
-#include <Render/includes/Framebuffer.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLRenderDevice.h>
+// #include <Render/includes/Framebuffer.h>
 
 
 namespace CoreEngine
@@ -28,6 +31,7 @@ namespace CoreEngine
 			{
 				render = MakeUniquePtr<OpenGL::OpenGLRender>();
 				render->m_renderAPI = RendererAPI::CreateAPI();
+				render->m_RenderDevice = MakeUniquePtr<OpenGL::OpenGLRenderDevice>();
 
 				break;
 			}
@@ -46,7 +50,7 @@ namespace CoreEngine
 				// Return later !!!!!!!!!!!
 				if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
 				{
-					//RenderStaticMeshProxy(StaticProxy, Lights, );
+					// RenderStaticMeshProxy(StaticProxy, Lights, );
 				}
 				else
 				{
@@ -55,8 +59,10 @@ namespace CoreEngine
 			}
 		}
 
+		const UniquePtr<RenderDevice>& Render::GetRenderDevice() const
+		{
+			return m_RenderDevice;
+		}
 
-
-
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

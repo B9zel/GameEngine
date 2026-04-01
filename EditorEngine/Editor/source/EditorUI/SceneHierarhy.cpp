@@ -102,6 +102,10 @@ namespace Editor
 		ImGui::End();
 	}
 
+	void SceneHierarhy::OnConstruct()
+	{
+	}
+
 
 	void SceneHierarhy::DrawAndWalkComponents(const DArray<CoreEngine::Runtime::SceneComponent*>& Components)
 	{

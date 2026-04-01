@@ -1,7 +1,7 @@
 #include "Editor/includes/EditorUI/EditorDetails.h"
 
 #include <imgui/imgui.h>
-#include <Runtime/CoreObject/Include/Object.h> 
+#include <Runtime/CoreObject/Include/Object.h>
 #include <ReflectionSystem/Include/PropertyField.h>
 #include <Math/includes/Transform.h>
 #include <Runtime/includes/SceneComponent.h>
@@ -9,7 +9,6 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/ActorComponent.h>
 #include <Editor/includes/EditorEngine.h>
-
 
 namespace CoreEngine::Reflection
 {
@@ -47,7 +46,6 @@ namespace Editor
 			{
 				SelectedObject->SetName(NewName.data());
 			}
-
 		}
 
 		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::Actor::GetStaticClass()))
@@ -72,7 +70,6 @@ namespace Editor
 						DArray<CoreEngine::Runtime::ActorComponent*>& Components = SelectedActor->FindComponentsByClass(ClassData);
 						SelectedActor->CreateSubObject(ClassData, MetaClass->Name + std::to_string(Components.size()));
 					}
-					
 				}
 				ImGui::EndPopup();
 			}
@@ -85,8 +82,11 @@ namespace Editor
 			ImGui::TreePop();
 		}
 
-
 		ImGui::End();
+	}
+
+	void EditorDetails::OnConstruct()
+	{
 	}
 
 	void EditorDetails::DrawDetailsRecursive(CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Runtime::Object* SourceClass, bool IsDrawTree)
@@ -100,15 +100,14 @@ namespace Editor
 		{
 			IsOpen = ImGui::TreeNodeEx(SourceClass->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed);
 		}
-		
+
 		DrawComponentContextDraw(OwnerEditor, SelectedObject);
 
 		if (!IsOpen) return;
-		
-		
+
 		while (ClassInfo != nullptr)
 		{
-			
+
 			if (HasAnyProperty(ClassInfo))
 			{
 				for (const auto& Property : ClassInfo->PropertyFileds)
@@ -118,19 +117,18 @@ namespace Editor
 					DrawProperty(Property, SelectedObject, MainClass, SourceClass);
 				}
 			}
-				
+
 			ClassInfo = ClassInfo->ParentClass;
 		}
-		
+
 		if (IsDrawTree && SourceClass)
 		{
 			ImGui::TreePop();
 		}
-		
-
 	}
 
-	void EditorDetails::DrawProperty(CoreEngine::Reflection::PropertyField* Property, CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Reflection::ClassField* MainClass, CoreEngine::Runtime::Object* SourceClass)
+	void EditorDetails::DrawProperty(CoreEngine::Reflection::PropertyField* Property, CoreEngine::Runtime::Object* SelectedObject,
+									 CoreEngine::Reflection::ClassField* MainClass, CoreEngine::Runtime::Object* SourceClass)
 	{
 		static float WidthColumn = 150;
 
@@ -159,10 +157,10 @@ namespace Editor
 			}
 			return;
 		}
-		
+
 		if (Property->GetTypeProperty()->GetTypeOfPropertyType() == CoreEngine::Reflection::ETypeOfPropertyType::SIMPLE)
 		{
-			//ImGui::BeginChild(("#sidebar" + ClassInfo->Name).c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_AutoResizeX);
+			// ImGui::BeginChild(("#sidebar" + ClassInfo->Name).c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_AutoResizeX);
 			if (auto* SimpleType = dynamic_cast<CoreEngine::Reflection::SimplePropertyTypeField*>(Property->GetTypeProperty()))
 			{
 				ImGui::PushID((Property->Name + Utils::ConvertToString(SelectedObject->GetUUID().GetID())).c_str());
@@ -177,7 +175,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawInt8(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<int8>(SelectedObject, Value);
 					break;
 				}
@@ -190,7 +188,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawInt16(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<int16>(SelectedObject, Value);
 					break;
 				}
@@ -198,14 +196,12 @@ namespace Editor
 				{
 					int32 Value = *Property->GetSourcePropertyByName<int32>(SelectedObject);
 
-
-					//ImGui::InputScalar(Property->Name.c_str(), ImGuiDataType_S32, &Valur);
+					// ImGui::InputScalar(Property->Name.c_str(), ImGuiDataType_S32, &Valur);
 					static const int32 min = std::numeric_limits<int32>::min();
 					static const int32 max = std::numeric_limits<int32>::max();
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawInt32(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
 
 					Property->SetSourceProperty<int32>(SelectedObject, Value);
 					break;
@@ -218,7 +214,7 @@ namespace Editor
 					static const int64 max = std::numeric_limits<int64>::max();
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 					DrawInt64(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<int64>(SelectedObject, Value);
 					break;
 				}
@@ -231,7 +227,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawUInt8(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<uint8>(SelectedObject, Value);
 					break;
 				}
@@ -244,7 +240,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawUInt16(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<uint16>(SelectedObject, Value);
 					break;
 				}
@@ -257,7 +253,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawUInt32(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<uint32>(SelectedObject, Value);
 					break;
 				}
@@ -270,7 +266,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawUInt64(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<uint64>(SelectedObject, Value);
 					break;
 				}
@@ -283,7 +279,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawFloat(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<float>(SelectedObject, Value);
 					break;
 				}
@@ -296,7 +292,7 @@ namespace Editor
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
 
 					DrawDouble(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, max, min, WidthColumn);
-					
+
 					Property->SetSourceProperty<double>(SelectedObject, Value);
 					break;
 				}
@@ -304,9 +300,9 @@ namespace Editor
 				{
 					String& Value = *Property->GetSourcePropertyByName<String>(SelectedObject);
 					auto* Object = SourceClass ? SourceClass : SelectedObject;
-		
+
 					DrawString(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, 256, WidthColumn);
-				
+
 					break;
 				}
 				case CoreEngine::Reflection::EPrimitiveTypes::BOOL:
@@ -340,7 +336,8 @@ namespace Editor
 				{
 					FTransform Value = *Property->GetSourcePropertyByName<FTransform>(SelectedObject);
 
-					DrawTransform(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value.GetLocationRef(), Value.GetRotationRef(), Value.GetScaleRef(), WidthColumn);
+					DrawTransform(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value.GetLocationRef(), Value.GetRotationRef(),
+								  Value.GetScaleRef(), WidthColumn);
 
 					if (auto* SceneComponent = dynamic_cast<CoreEngine::Runtime::SceneComponent*>(SelectedObject))
 					{
@@ -380,4 +377,4 @@ namespace Editor
 	{
 		SelectedObject = Object;
 	}
-}
+} // namespace Editor

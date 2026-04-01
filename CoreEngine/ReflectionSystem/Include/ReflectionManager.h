@@ -13,10 +13,12 @@ namespace CoreEngine
 		public:
 
 			static UniquePtr<ReflectionManager> CreateReflectionManager();
-			void RegisterNewClass(const String& NameClass,const SharedPtr<ClassField>& NewClass);
+			void RegisterNewClass(const String& NameClass, const SharedPtr<ClassField>& NewClass);
 			ClassField* FindMetaClass(const String& NameClass);
 			const DArray<WeakPtr<ClassField>>& GetAllClasses() const;
 			bool HasPropertyField(const String& NameProperty) const;
+
+			static ReflectionManager* Get();
 
 		private:
 
@@ -27,5 +29,5 @@ namespace CoreEngine
 			HashTableMap<String, SharedPtr<ClassField>> FieldsClass;
 			static ReflectionManager* Instance;
 		};
-	}
-}
+	} // namespace Reflection
+} // namespace CoreEngine

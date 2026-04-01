@@ -1,28 +1,45 @@
 #include <Core/includes/PrimitiveProxy.h>
+#include <Render/includes/ElementBufferObject.h>
+#include <Render/includes/Texture.h>
 #include <Core/includes/UUID.h>
+#include <Render/includes/Shader.h>
+#include <Render/includes/VertexArrayObject.h>
 
+DECLARE_LOG_CATEGORY_EXTERN(PrimitiveProxyLog)
 
 namespace CoreEngine
 {
-	const HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>& PrimitiveProxy::GetShaders() const
+	/*const HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>& PrimitiveProxy::GetShaders() const
+	{
+		return Shaders;
+	}*/
+
+	const HashTableSet<ParamOfShaderDesc, ShaderDescHasher>& PrimitiveProxy::GetShaders() const
 	{
 		return Shaders;
 	}
 
-	void PrimitiveProxy::AddShaderWithArrayObject(Render::Shader* shaderKey, Render::VertexArrayObject* arrayValue, Render::ElementBufferObject* elementValue)
+	void PrimitiveProxy::AddShader(const ParamOfShaderDesc& Desc)
 	{
-		if (shaderKey && arrayValue)
+		if (!Desc.shader.IsValid())
 		{
-			Shaders.insert(Pair<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>(shaderKey, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>(arrayValue, elementValue)));
+			EG_LOG(PrimitiveProxyLog, ELevelLog::WARNING, "elements of shader don't valid");
+			return;
 		}
+		Shaders.insert(Desc);
 	}
 
-	void PrimitiveProxy::AddTexture(Render::Texture* NewTexture)
-	{
-		Textures.push_back(NewTexture);
-	}
+	// void PrimitiveProxy::AddTexture(Render::Texture* NewTexture)
+	//{
+	//	Textures.push_back(NewTexture);
+	// }
 
-	const DArray<Render::Texture*>& PrimitiveProxy::GetTextures() const
+	// const DArray<Render::Texture*>& PrimitiveProxy::GetTextures() const
+	//{
+	//	return Textures;
+	// }
+
+	const DArray<Render::RHI::TextureHandle>& PrimitiveProxy::GetTextures() const
 	{
 		return Textures;
 	}
@@ -52,6 +69,11 @@ namespace CoreEngine
 		return ViewLocation;
 	}
 
+	void PrimitiveProxy::AddTexture(const Render::RHI::TextureHandle& NewTexture)
+	{
+		Textures.push_back(NewTexture);
+	}
+
 	void PrimitiveProxy::SetTransformMatrix(const FMatrix4x4& Transform)
 	{
 		transform = Transform;
@@ -65,4 +87,20 @@ namespace CoreEngine
 	{
 		return m_UUID;
 	}
+} // namespace CoreEngine
+
+size_t ShaderDescHasher::operator()(const CoreEngine::ParamOfShaderDesc& Desc) const
+{
+	size_t hash = 0;
+	std::hash<uint64> uint64Hasher;
+	std::hash<String> stringHasher;
+
+	hash ^= uint64Hasher(Desc.shader.GetId()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	hash ^= uint64Hasher(Desc.ArrayObject.GetId()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	// hash ^= uint64Hasher(Desc.ElementObject.GetId()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	for (const auto& TextureName : Desc.TextureNames)
+	{
+		hash ^= stringHasher(TextureName) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	}
+	return hash;
 }

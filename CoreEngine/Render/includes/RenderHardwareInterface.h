@@ -1,4 +1,5 @@
 #pragma once
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Core/includes/Platform.h>
 #include <Core/includes/Log.h>
 
@@ -14,8 +15,14 @@ namespace CoreEngine::Render::RHI
 
 	public:
 
-		bool IsValid() const { return IdHandle != 0; }
-		DataTypeID GetId() const { return IdHandle; }
+		bool IsValid() const
+		{
+			return IdHandle != 0;
+		}
+		DataTypeID GetId() const
+		{
+			return IdHandle;
+		}
 		void SetId(const DataTypeID NewId)
 		{
 			if (IsValid())
@@ -26,17 +33,25 @@ namespace CoreEngine::Render::RHI
 			IdHandle = NewId;
 		}
 
-		void Invalide() { IdHandle = 0; }
+		void Invalide()
+		{
+			IdHandle = 0;
+		}
+
+	public:
+
+		bool operator==(const Handle& Other) const noexcept
+		{
+			return IdHandle == Other.IdHandle;
+		}
 
 	public:
 
 		DataTypeID IdHandle = 0;
 	};
 
-
 	struct BufferHandle : public Handle
 	{
-	
 	};
 
 	struct TextureHandle : public Handle
@@ -51,4 +66,4 @@ namespace CoreEngine::Render::RHI
 	{
 	};
 
-}
+} // namespace CoreEngine::Render::RHI

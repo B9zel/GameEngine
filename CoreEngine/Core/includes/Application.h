@@ -7,8 +7,6 @@
 #include <Events/include/Event.h>
 #include <Core/includes/Base.h>
 
-
-
 namespace CoreEngine
 {
 	class Engine;
@@ -18,8 +16,10 @@ namespace CoreEngine
 
 	struct ApplicationOptions
 	{
-		ApplicationOptions() : applicationName{ "" }, pathToApp{ "" }, EngineInstance{ nullptr } {}
-		ApplicationOptions(const String appName, const String path, Engine* engine) : applicationName{ appName }, pathToApp{ path }, EngineInstance{ engine }
+		ApplicationOptions() : applicationName{""}, pathToApp{""}, EngineInstance{nullptr}
+		{
+		}
+		ApplicationOptions(const String appName, const String path, Engine* engine) : applicationName{appName}, pathToApp{path}, EngineInstance{engine}
 		{
 			const String projectDirectName = "GameEngine";
 			size_t pos = path.find(projectDirectName);
@@ -50,19 +50,35 @@ namespace CoreEngine
 
 	public:
 
-		static Application* Get() { return m_Instance; }
+		static Application* Get()
+		{
+			return m_Instance;
+		}
 
-		const ApplicationOptions& GetAppOptions() const { return appOptions; }
+		const ApplicationOptions& GetAppOptions() const
+		{
+			return appOptions;
+		}
 
-		Window& GetWindow() const { return *window; }
-		const UniquePtr<Engine>& GetEngine() const { return InstanceEngine; }
+		Window& GetWindow() const
+		{
+			return *window;
+		}
+		const UniquePtr<Engine>& GetEngine() const
+		{
+			return InstanceEngine;
+		}
+		UniquePtr<Reflection::ReflectionManager>& GetReflectionManager() const
+		{
+			return m_ReflectionManger;
+		}
 		virtual void Start();
 		virtual void OnEvent(Event& event);
 		virtual void CreateApp();
 
 		virtual void Exit();
 
-		//void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
+		// void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
 
 	protected:
 
@@ -74,8 +90,9 @@ namespace CoreEngine
 		ApplicationOptions appOptions;
 		UniquePtr<Window> window;
 		UniquePtr<Engine> InstanceEngine;
+		mutable UniquePtr<Reflection::ReflectionManager> m_ReflectionManger;
 
-		//LayerStack m_stack;
+		// LayerStack m_stack;
 		ShaderLibrary shaderLibrary;
 		EventDispatch EventDispatcher;
 
@@ -84,6 +101,6 @@ namespace CoreEngine
 
 	private:
 
-		//friend int ::main(int argc, char** argv);
+		// friend int ::main(int argc, char** argv);
 	};
-}
+} // namespace CoreEngine

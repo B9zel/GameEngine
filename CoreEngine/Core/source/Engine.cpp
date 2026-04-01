@@ -10,13 +10,14 @@
 #include <Core/includes/TimerManager.h>
 #include <Core/includes/InputDevice.h>
 
+#include <Render/includes/RenderDevice.h>
 #include <Render/includes/Render.h>
 #include <Core/includes/Window.h>
 #include <ReflectionSystem/Include/ReflectionManager.h>
 #include <Events/include/Event.h>
 #include <Core/includes/Memory/SaveManager.h>
-
-
+#include <Core/includes/AssetManager.h>
+#include <Runtime/CoreObject/Include/ObjectGlobal.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEngine);
 
@@ -24,17 +25,24 @@ namespace CoreEngine
 {
 	Engine* Engine::GEngine = nullptr;
 
-	Engine::Engine()
+	Engine::Engine(const InitializeObject& Initilize) : Runtime::Object(Initilize)
 	{
 		GEngine = this;
 
 		m_TimerManager = MakeUniquePtr<TimerManager>();
 		m_MemoryManager = MemoryManager::Create();
+		m_MemoryManager->GetGarbageCollector()->AddRootObject(this);
 		m_Input = MakeUniquePtr<InputDevice>();
+	}
+
+	void Engine::Init()
+	{
+		if (!m_AssetManager)
+		{
+			m_AssetManager = Runtime::CreateObject<AssetManager>(this);
+		}
 		m_Render = Render::Render::Create();
-		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
-		
-		
+		m_Render->Construct();
 	}
 
 	FVector2 Engine::GetScreenSize() const
@@ -59,18 +67,18 @@ namespace CoreEngine
 		m_Input->InviteEvent(Input);
 	}
 
-	UniquePtr<Engine> Engine::Create()
+	Engine* Engine::Create()
 	{
 		if (GEngine)
 		{
 			EG_LOG(LogEngine, ELevelLog::ERROR, "Engine already exists");
-			return UniquePtr<Engine>(GEngine);
+			return GEngine;
 		}
 
-		GEngine = new ThisClass();
+		GEngine = Runtime::CreateObject<ThisClass>();
 		CHECK(GEngine);
 
-		return UniquePtr<Engine>(GEngine);
+		return GEngine;
 	}
 
 	void Engine::Update()
@@ -88,4 +96,39 @@ namespace CoreEngine
 	{
 		return Runtime::CreateObject<World>();
 	}
-}
+
+	AssetManager* Engine::GetAssetManager() const
+	{
+		return m_AssetManager;
+	}
+
+	UniquePtr<InputDevice>& Engine::GetInputDevice() const
+	{
+		return m_Input;
+	}
+	UniquePtr<TimerManager>& Engine::GetTimerManager() const
+	{
+		return m_TimerManager;
+	}
+	UniquePtr<MemoryManager>& Engine::GetMemoryManager() const
+	{
+		return m_MemoryManager;
+	}
+	UniquePtr<Render::Render>& Engine::GetRender() const
+	{
+		return m_Render;
+	}
+	const UniquePtr<Render::RenderDevice>& Engine::GetRenderDevice() const
+	{
+		return GetRender()->GetRenderDevice();
+	}
+	World* Engine::GetWorld() const
+	{
+		return m_World;
+	}
+	UniquePtr<Reflection::ReflectionManager>& Engine::GetReflectionManger() const
+	{
+		return Application::Get()->GetReflectionManager();
+	}
+
+} // namespace CoreEngine

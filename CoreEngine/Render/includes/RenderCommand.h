@@ -22,7 +22,10 @@ namespace CoreEngine::Render
 			CREATE_SHADER_PROGRAM,
 			BIND_SHADER_PROGRAM,
 			ACTIVATION_TEXTURE,
-			DRAW_INDEX
+			DRAW_INDEX,
+			UNIFORM_1I,
+			UNIFORM_MATRIX_4X4,
+			UNIFORM_VECTOR3
 		};
 
 	public:
@@ -37,7 +40,13 @@ namespace CoreEngine::Render
 		DArray<float> Data;
 		RHI::BufferHandle OutHandle;
 
-		CmdCreateVertexBuffer(const DArray<float>& VertexData) : Data(VertexData)
+		using PredParams = void (*)(const RHI::BufferHandle&);
+		// Call after Execute
+		FunctionPtr<void(const RHI::BufferHandle&)> Predicate;
+
+	public:
+
+		CmdCreateVertexBuffer(const DArray<float>& VertexData, PredParams Pred) : Data(VertexData), Predicate(Pred)
 		{
 		}
 
@@ -57,7 +66,13 @@ namespace CoreEngine::Render
 		DArray<uint32> Data;
 		RHI::BufferHandle OutHandle;
 
-		CmdCreateIndexBuffer(const DArray<uint32>& IndexData) : Data(IndexData)
+		using PredParams = void (*)(const RHI::BufferHandle&);
+		// Call after Execute
+		FunctionPtr<void(const RHI::BufferHandle&)> Predicate;
+
+	public:
+
+		CmdCreateIndexBuffer(const DArray<uint32>& IndexData, PredParams Pred) : Data(IndexData), Predicate(Pred)
 		{
 		}
 
@@ -79,11 +94,15 @@ namespace CoreEngine::Render
 		RHI::BufferHandle IBO;
 		DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>> Attributes;
 
+		using PredParams = void (*)(const RHI::HandleVAO&);
+		// Call after Execute
+		FunctionPtr<void(const RHI::HandleVAO&)> Predicate;
+
 	public:
 
 		CmdCreateVertexArrayObject(const RHI::BufferHandle& VBO, const RHI::BufferHandle& IBO,
-								   const DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>>& Attribs)
-			: VBO(VBO), IBO(IBO), Attributes(Attribs)
+								   const DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>>& Attribs, PredParams Pred)
+			: VBO(VBO), IBO(IBO), Attributes(Attribs), Predicate(Pred)
 		{
 		}
 
@@ -107,27 +126,34 @@ namespace CoreEngine::Render
 
 		StringView Path;
 		//
+		// Out
 		RHI::TextureHandle OutHandle;
+		//
+
+		using PredParams = void (*)(const RHI::TextureHandle&);
+		// Call after Execute
+		FunctionPtr<void(const RHI::TextureHandle&)> Predicate;
 
 	public:
 
-		CmdCreateTexture2D(const uint32 width, const uint32 height, const ETypeChannel channel, const DArray<uint32>& Indexes)
-			: Width(width), Height(height), Channel(channel), Data(Indexes)
+		CmdCreateTexture2D(const uint32 width, const uint32 height, const ETypeChannel channel, const DArray<uint32>& Indexes, PredParams Pred)
+			: Width(width), Height(height), Channel(channel), Data(Indexes), Predicate(Pred)
 		{
 		}
 
-		CmdCreateTexture2D(const StringView& Path) : Path(Path)
+		CmdCreateTexture2D(const StringView& Path, PredParams Pred) : Path(Path), Predicate(Pred)
 		{
 		}
 
 		virtual void Execute(RenderDevice* Devise) override
 		{
-			if (!Path.empty())
+
+			/*if (!Path.empty())
 			{
 				OutHandle = Devise->CreateTexture2D(Path.data());
 				return;
 			}
-			OutHandle = Devise->CreateTexture2D(Width, Height, Channel, Data.data());
+			OutHandle = Devise->CreateTexture2D(Width, Height, Channel, Data.data());*/
 		}
 	};
 
@@ -136,9 +162,14 @@ namespace CoreEngine::Render
 		String VertexShader, FragmentShader;
 		RHI::ShaderHandle OutHandle;
 
+		using PredParams = void (*)(const RHI::ShaderHandle&);
+		// Call after Execute
+		FunctionPtr<void(const RHI::ShaderHandle&)> Predicate;
+
 	public:
 
-		CmdCreateShaderProgram(const StringView VertexShad, const StringView FragmendShad) : VertexShader(VertexShad), FragmentShader(FragmendShad)
+		CmdCreateShaderProgram(const StringView VertexShad, const StringView FragmendShad, PredParams Pred)
+			: VertexShader(VertexShad), FragmentShader(FragmendShad), Predicate(Pred)
 		{
 		}
 
@@ -157,9 +188,13 @@ namespace CoreEngine::Render
 	{
 		RHI::ShaderHandle Handle;
 
+		using PredParams = void (*)();
+		// Call after Execute
+		FunctionPtr<void()> Predicate;
+
 	public:
 
-		CmdBindShaderProgram(const RHI::ShaderHandle& ShadHandle) : Handle(ShadHandle)
+		CmdBindShaderProgram(const RHI::ShaderHandle& ShadHandle, PredParams Pred) : Handle(ShadHandle), Predicate(Pred)
 		{
 		}
 
@@ -173,25 +208,32 @@ namespace CoreEngine::Render
 
 	struct ActivateTextureSet
 	{
-		HashTableMap<uint32, RHI::TextureHandle> Textures;
+		// Key: layout, Value: Id in render device and name of texture in shader
+		HashTableMap<uint32, Pair<RHI::TextureHandle, String>> Textures;
+		RHI::ShaderHandle ShaderHandle;
 	};
 
 	struct CmdActivationTexture : public RenderCommand
 	{
 		UniquePtr<ActivateTextureSet> ActivationSet;
 
+		using PredParams = void (*)();
+		// Call after Execute
+		FunctionPtr<void()> Predicate;
+
 	public:
 
-		CmdActivationTexture(UniquePtr<ActivateTextureSet> Activations) : ActivationSet(std::move(Activations))
+		CmdActivationTexture(UniquePtr<ActivateTextureSet> Activations, PredParams Pred) : ActivationSet(std::move(Activations)), Predicate(Pred)
 		{
 		}
 
 		virtual void Execute(RenderDevice* Devise) override
 		{
+			int32 i = 0;
 			for (auto& DataActivate : ActivationSet->Textures)
 			{
-				const Render::Texture2D* Texture = Devise->GetTextureID(DataActivate.second);
-				Texture->Bind(DataActivate.first);
+				Devise->BindTexture(DataActivate.second.first, DataActivate.first);
+				Devise->SetUniform1i(ActivationSet->ShaderHandle, DataActivate.second.second, i++);
 			}
 		}
 

@@ -5,10 +5,6 @@
 #include <Core/includes/World.h>
 #include <Core/includes/Dispatcher.h>
 
-
-
-
-
 namespace CoreEngine
 {
 	Application* Application::m_Instance = nullptr;
@@ -19,9 +15,7 @@ namespace CoreEngine
 		appOptions.applicationName = options.applicationName;
 		appOptions.pathToApp = options.pathToApp;
 		appOptions.pathToProject = options.pathToProject;
-		//m_Engine = move(options.EngineInstance);
-
-
+		// m_Engine = move(options.EngineInstance);
 	}
 
 	void Application::Start()
@@ -50,7 +44,10 @@ namespace CoreEngine
 		window = Window::CreateWindow(CoreEngine::WindowOptions(appOptions.applicationName, 800, 400));
 		window->SetEventBind(Function<void(Event&)>(&Application::OnEvent, this));
 
+		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
+
 		ConstructEngine();
+		InstanceEngine->Init();
 		InstanceEngine->ConstructInitialize();
 
 		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::ExitInput, this));
@@ -70,7 +67,10 @@ namespace CoreEngine
 	void Application::ConstructEngine()
 	{
 		if (InstanceEngine) return;
-		InstanceEngine = MakeUniquePtr<Engine>();
+		InitializeObject InitParam;
+		InitParam.Class = Engine::GetStaticClass();
+
+		InstanceEngine = MakeUniquePtr<Engine>(InitParam);
 	}
 
-}
+} // namespace CoreEngine

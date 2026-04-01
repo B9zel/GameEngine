@@ -4,8 +4,7 @@
 #include "Editor/includes/EditorEngine.h"
 #include "Runtime/includes/ActorComponent.h"
 #include "Runtime/includes/Actor.h"
-//#include <imgui.h>
-
+// #include <imgui.h>
 
 namespace Editor
 {
@@ -41,11 +40,7 @@ namespace Editor
 		}
 	}
 
-
-
-
-	template<class T>
-	static void DrawScalar(const String& Id, ImGuiDataType Type, const String& Name, T& Scalar, T Max, T Min, const float ColumnWidth)
+	template <class T> static void DrawScalar(const String& Id, ImGuiDataType Type, const String& Name, T& Scalar, T Max, T Min, const float ColumnWidth)
 	{
 		ImGui::PushID(Id.c_str());
 
@@ -53,7 +48,7 @@ namespace Editor
 		ImGui::SetColumnWidth(0, ColumnWidth);
 
 		float ColWidth = ImGui::GetColumnWidth(0);
-		
+
 		ImVec2 TextSize = ImGui::CalcTextSize(Name.c_str());
 		uint64 Size = CalculateSizeOfPropertyName(Name, ColWidth);
 		if (Size == Name.size())
@@ -98,15 +93,13 @@ namespace Editor
 			}
 		}*/
 
-
 		ImGui::NextColumn();
 		ImGui::AlignTextToFramePadding();
 
 		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
-		//ImGui::SameLine();
+		// ImGui::SameLine();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 		ImGui::PushItemWidth(-FLT_MIN);
-
 
 		ImGui::DragScalar(("##" + Name).c_str(), Type, &Scalar, 1.0f, &Min, &Max);
 		ImGui::PopStyleVar();
@@ -115,9 +108,6 @@ namespace Editor
 
 		ImGui::PopID();
 	}
-
-
-
 
 	void DrawInt8(const String& Id, const String& Name, int8& Scalar, int8 Max, int8 Min, const float ColumnWidht)
 	{
@@ -177,24 +167,21 @@ namespace Editor
 		ImGui::PushID(NameOfVec.c_str());
 
 		ImGui::Columns(2);
-		ImGui::SetColumnWidth(0,  ColumnWidht);
+		ImGui::SetColumnWidth(0, ColumnWidht);
 		ImGui::Text(NameOfVec.c_str());
 		ImGui::NextColumn();
 		ImGui::AlignTextToFramePadding();
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing | ImGuiStyleVar_WindowBorderSize, ImVec2(10, 0));
-		
+
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 0, 0, 1));
 		ImGui::Text("X");
 		ImGui::PopStyleColor(2);
-		
 
 		ImGui::SameLine();
 		ImGui::DragFloat(("##X" + NameOfVec).c_str(), &Vector.vector.x, 0.01f, 0, 0, "%.0003f");
 		ImGui::PopItemWidth();
-		
-
 
 		ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
@@ -223,9 +210,9 @@ namespace Editor
 		ImGui::PushID(Id.c_str());
 
 		if (ImGui::TreeNodeEx(NameOfTransform.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
-		{	
+		{
 			DrawVector3(Id, "Location", Location, ColumnWidth);
-			DrawVector3(Id, "Rotation", Rotation,  ColumnWidth);
+			DrawVector3(Id, "Rotation", Rotation, ColumnWidth);
 			DrawVector3(Id, "Scale", Scale, ColumnWidth);
 
 			ImGui::TreePop();
@@ -233,7 +220,7 @@ namespace Editor
 
 		ImGui::PopID();
 	}
-	void DrawString(const String& Id, const String& NameString, String& SourceStr,const uint32 MaxBufferSize, const float ColumnWidth)
+	void DrawString(const String& Id, const String& NameString, String& SourceStr, const uint32 MaxBufferSize, const float ColumnWidth)
 	{
 		ImGui::PushID(Id.c_str());
 
@@ -256,15 +243,15 @@ namespace Editor
 				ImGui::SetTooltip("%s", NameString.c_str());
 			}
 		}
-		
+
 		ImGui::NextColumn();
 		ImGui::PushItemWidth(-FLT_MIN);
 		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
-		//ImGui::SameLine();
+		// ImGui::SameLine();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
 		SourceStr.reserve(MaxBufferSize);
-		
+
 		ImGui::InputText(("##" + NameString).c_str(), SourceStr.data(), MaxBufferSize);
 		ImGui::PopStyleVar();
 		ImGui::PopItemWidth();
@@ -299,10 +286,8 @@ namespace Editor
 		ImGui::NextColumn();
 		ImGui::PushItemWidth(-FLT_MIN);
 		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
-		//ImGui::SameLine();
+		// ImGui::SameLine();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-		
 
 		ImGui::Checkbox(("##" + NameString).c_str(), &Value);
 		ImGui::PopStyleVar();
@@ -310,8 +295,8 @@ namespace Editor
 		ImGui::Columns(1);
 		ImGui::PopID();
 	}
-	
-	bool DrawComponentContextDraw(Editor::EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject)
+
+	bool DrawComponentContextDraw(EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject)
 	{
 		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::ActorComponent::GetStaticClass()))
 		{
@@ -339,5 +324,4 @@ namespace Editor
 		return false;
 	}
 
-
-}
+} // namespace Editor

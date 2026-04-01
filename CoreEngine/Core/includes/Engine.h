@@ -1,9 +1,10 @@
 #pragma once
+#include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Base.h>
 #include <Math/includes/Vector.h>
-
-
+#include <Core/includes/AssetManager.h>
+#include <Engine.generated.h>
 
 namespace CoreEngine
 {
@@ -14,6 +15,11 @@ namespace CoreEngine
 	namespace Render
 	{
 		class Render;
+		class RenderDevice;
+	} // namespace Render
+	namespace Runtime
+	{
+		class Object;
 	}
 	class SaveManager;
 	class InputDevice;
@@ -23,10 +29,15 @@ namespace CoreEngine
 	class Engine;
 	class World;
 	class Event;
+	class AssetManager;
 
 	// Main class, that manage all Managers and subsystems
-	class Engine
+	RCLASS()
+	class Engine : public CoreEngine::Runtime::Object
 	{
+
+		GENERATED_BODY()
+
 	public:
 
 		using ThisClass = Engine;
@@ -34,32 +45,35 @@ namespace CoreEngine
 	public:
 
 		/*
-		* Update all classes
-		*/
+		 * Update all classes
+		 */
 		virtual void Update();
-		Engine();
+		Engine(const InitializeObject& Initilize);
 		virtual ~Engine() = default;
 
 	public:
 
 		/*
-		*  Create singleton class Engine
-		*  @return Instance of Engine class
-		*/
-		static UniquePtr<ThisClass> Create();
+		 *  Create singleton class Engine
+		 *  @return Instance of Engine class
+		 */
+		static Engine* Create();
 
 		static Engine* Get();
 
-		UniquePtr<InputDevice>& GetInputDevice() { return m_Input; }
-		UniquePtr<TimerManager>& GetTimerManager() { return m_TimerManager; }
-		UniquePtr<MemoryManager>& GetMemoryManager() { return m_MemoryManager; }
-		UniquePtr<Render::Render>& GetRender() { return m_Render; }
-		World* GetWorld() { return m_World; }
-		UniquePtr<Reflection::ReflectionManager>& GetReflectionManger() { return m_ReflectionManger; }
+		UniquePtr<InputDevice>& GetInputDevice() const;
+		UniquePtr<TimerManager>& GetTimerManager() const;
+		UniquePtr<MemoryManager>& GetMemoryManager() const;
+		UniquePtr<Render::Render>& GetRender() const;
+		const UniquePtr<Render::RenderDevice>& GetRenderDevice() const;
+		World* GetWorld() const;
+		UniquePtr<Reflection::ReflectionManager>& GetReflectionManger() const;
+		AssetManager* GetAssetManager() const;
 
 		FVector2 GetScreenSize() const;
 
 		virtual void PostInitialize();
+		virtual void Init();
 		void ConstructInitialize();
 
 		void TakeInputEvent(Event& Input);
@@ -70,18 +84,21 @@ namespace CoreEngine
 
 	protected:
 
-		World* m_World;
+		mutable World* m_World;
 
 	private:
 
-		UniquePtr<InputDevice> m_Input;
-		UniquePtr<MemoryManager> m_MemoryManager;
-		UniquePtr<Render::Render> m_Render;
-		
-		UniquePtr<TimerManager> m_TimerManager;
+		mutable UniquePtr<InputDevice> m_Input;
+		mutable UniquePtr<MemoryManager> m_MemoryManager;
+		mutable UniquePtr<Render::Render> m_Render;
 
-		UniquePtr<class Reflection::ReflectionManager> m_ReflectionManger;
+		mutable UniquePtr<TimerManager> m_TimerManager;
+
+		
+
+		RPROPERTY();
+		AssetManager* m_AssetManager{nullptr};
 
 		static Engine* GEngine;
 	};
-}
+} // namespace CoreEngine

@@ -2,25 +2,23 @@
 #include <Core/includes/Base.h>
 #include <Math/includes/Math.h>
 #include <Render/includes/Texture.h>
+#include <Render/includes/RenderHardwareInterface.h>
 #include <glad/glad.h>
 #include <gl/GL.h>
 #include <stb_image.h>
 
-//#define STB_IMAGE_IMPLEMENTATION
-
-
-
+// #define STB_IMAGE_IMPLEMENTATION
 
 namespace CoreEngine
 {
 	namespace Render
 	{
+		class RenderDevice;
 		class Texture;
 		class Texture2D;
-		enum class EParameterName : uint8;
+		enum class ETextureWrap : uint8;
 		enum class EValueOfParameter : uint8;
 		enum class EParamaterOfCustomValues : uint8;
-
 
 		namespace OpenGL
 		{
@@ -33,47 +31,64 @@ namespace CoreEngine
 
 			private:
 
-				OpenGLTexture2D();
-				~OpenGLTexture2D();
+				// OpenGLTexture2D();
+				//~OpenGLTexture2D();
 
 			public:
 
-				OpenGLTexture2D(const char* path);
+				OpenGLTexture2D() = delete;
+
+				OpenGLTexture2D(RenderDevice* Device, const String& path);
 				OpenGLTexture2D(OpenGLTexture2D&& other) noexcept;
 				OpenGLTexture2D& operator=(OpenGLTexture2D&& other) noexcept;
 
 			public:
 
-				virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const override;
+				virtual void SetTexParameter(const ETextureWrap parameter, const EValueOfParameter value) const override;
 				virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const override;
 
-				virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data, bool isGenaretMipmap = true) override;
+				virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data,
+											 bool isGenaretMipmap = true) override;
 
-				virtual const char* GetPath() const override { return m_path.c_str(); }
-				virtual uint32 GetWidth() const override { return m_width; }
-				virtual uint32 GetHeight() const override { return m_height; }
+				virtual const char* GetPath() const override
+				{
+					return m_path.c_str();
+				}
+				virtual uint32 GetWidth() const override
+				{
+					return m_width;
+				}
+				virtual uint32 GetHeight() const override
+				{
+					return m_height;
+				}
 
-				virtual bool IsLoad() const override { return m_isLoad; }
+				virtual bool IsLoad() const override
+				{
+					return m_isLoad;
+				}
 
-				virtual void Bind(uint32 layout = 0) const override;
+				virtual void Bind(RenderDevice* Device, uint32 layout = 0) const override;
 				virtual void UnBind() const override;
 
-				bool ChangeTexture(const char* path, bool isGenaretMipmap = true);
+				virtual bool LoadTexture(RenderDevice* Device, const StringView Path, const bool GenerateMips = true);
 				void SetLevelMipmap(const char* path, uint8 level = 1);
 
-				virtual uint32 GetTextureID() const override;
+				virtual RHI::TextureHandle& GetTextureHandle() override;
+				virtual const RHI::TextureHandle& GetConstTextureHandle() const override;
+
+			public:
+
+				static int32 GetInternalFormatFromEnum(const ETypeChannel& channel);
+				static int32 GetWrapFromEnum(const ETextureWrap& paramName);
+				static int32 GetFilterFromEnum(const ETextureFilter& Filter);
+				static int32 GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue);
+				static int32 GetFromEnumValueOfParameter(const EValueOfParameter& valueOfParam);
+				static ETypeChannel GetEnumFromChannel(GLenum channel);
 
 			private:
 
 				void SetDefaultSettings();
-
-			private:
-
-				static int32 GetFromEnumParameterName(const EParameterName& paramName);
-				static int32 GetFromEnumParameterOfCustomValues(const EParamaterOfCustomValues& paramCustomValue);
-				static int32 GetFromEnumValueOfParameter(const EValueOfParameter& valueOfParam);
-				static int32 GetFromEnumChannel(const ETypeChannel& channel);
-				static ETypeChannel GetEnumFromChannel(GLenum channel);
 
 			private:
 
@@ -84,7 +99,10 @@ namespace CoreEngine
 				String m_path;
 				GLenum m_internalFormat;
 				ETypeChannel m_channel;
+
+				RHI::TextureHandle Handle;
+				TextureDesc Desc;
 			};
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

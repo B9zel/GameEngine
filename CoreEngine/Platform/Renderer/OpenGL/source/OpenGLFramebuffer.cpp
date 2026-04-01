@@ -8,8 +8,7 @@ namespace CoreEngine
 	{
 		namespace OpenGL
 		{
-			static const uint32 MaxBufferSize = 8192;
-
+			static const uint32 MaxBufferSize = 8192; //  GL_MAX_TEXTURE_SIZE;
 
 			static GLint ConverFromEnumToGLFilter(const EFramebufferTextureFilterConfig& Filter)
 			{
@@ -39,7 +38,8 @@ namespace CoreEngine
 				}
 			}
 
-			static void AddColorAttach(const int32 IdOfColor, const GLint InternalFormat, const GLenum Format, const GLenum Type,const FramebufferTextureAttachment& TexConfig, const uint32 Width, const uint32 Height, const int32 Index = 0)
+			static void AddColorAttach(const int32 IdOfColor, const GLint InternalFormat, const GLenum Format, const GLenum Type,
+									   const FramebufferTextureAttachment& TexConfig, const uint32 Width, const uint32 Height, const int32 Index = 0)
 			{
 				glBindTexture(GL_TEXTURE_2D, IdOfColor);
 
@@ -55,7 +55,7 @@ namespace CoreEngine
 
 				if (TexConfig.Wrap == EFramebufferTextureWrapConfig::CLAMP_TO_BORDER)
 				{
-					float Color[4] = { TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW() };
+					float Color[4] = {TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW()};
 					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, Color);
 				}
 
@@ -63,15 +63,14 @@ namespace CoreEngine
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 
-			static void AddDepthAttach(const int32 IdOfColor, const GLenum Attachment, const GLenum Type, const FramebufferTextureAttachment& TexConfig, const uint32 Width, const uint32 Height)
+			static void AddDepthAttach(const int32 IdOfColor, const GLenum Attachment, const GLenum Type, const FramebufferTextureAttachment& TexConfig,
+									   const uint32 Width, const uint32 Height)
 			{
 				glBindTexture(GL_TEXTURE_2D, IdOfColor);
 
-			
+				glTexImage2D(GL_TEXTURE_2D, 0, Type, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
-				//glTexImage2D(GL_TEXTURE_2D, 0, Type, Width, Height, 0, Type, GL_FLOAT, NULL);
-				
-				glTexStorage2D(GL_TEXTURE_2D, 1, Type, Width, Height);
+				// glTexStorage2D(GL_TEXTURE_2D, 1, Type, Width, Height);
 				/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -83,17 +82,14 @@ namespace CoreEngine
 
 				if (TexConfig.Wrap == EFramebufferTextureWrapConfig::CLAMP_TO_BORDER)
 				{
-					float Color[4] = { TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW() };
+					float Color[4] = {TexConfig.Color.GetX(), TexConfig.Color.GetY(), TexConfig.Color.GetZ(), TexConfig.Color.GetW()};
 					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, Color);
 				}
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, Attachment, GL_TEXTURE_2D, IdOfColor, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, IdOfColor, 0);
 
-				//glBindTexture(GL_TEXTURE_2D, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
-
-			
-
 
 			OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& Spec) : m_DepthAttachmentsSpec(EFramebufferTextureFormat::NONE)
 			{
@@ -102,8 +98,9 @@ namespace CoreEngine
 				{
 					if (Attach.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8 || Attach.Format == EFramebufferTextureFormat::DEPTH_COMPONENT)
 					{
-						CORE_UNASSERT(m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8 || 
-							m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH_COMPONENT, "Framebuffer can't have more than one depth attachment");
+						CORE_UNASSERT(m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8 ||
+										  m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH_COMPONENT,
+									  "Framebuffer can't have more than one depth attachment");
 						m_DepthAttachmentsSpec = Attach;
 					}
 					else
@@ -132,7 +129,7 @@ namespace CoreEngine
 				if (!m_ColorAttachmentsSpec.empty())
 				{
 					m_ColorAttachID.resize(m_ColorAttachmentsSpec.size());
-					
+
 					glCreateTextures(GL_TEXTURE_2D, m_ColorAttachmentsSpec.size(), m_ColorAttachID.data());
 					for (int32 i = 0; i < m_ColorAttachmentsSpec.size(); ++i)
 					{
@@ -155,11 +152,11 @@ namespace CoreEngine
 				if (m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH24_STENCIL8)
 				{
 					glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachID);
-					AddDepthAttach(m_DepthAttachID, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8, m_DepthAttachmentsSpec,  Specific.Width, Specific.Height);
+					AddDepthAttach(m_DepthAttachID, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8, m_DepthAttachmentsSpec, Specific.Width, Specific.Height);
 				}
 				else if (m_DepthAttachmentsSpec.Format == EFramebufferTextureFormat::DEPTH_COMPONENT)
 				{
-					//glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachID);
+					// glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachID);
 					glGenTextures(1, &m_DepthAttachID);
 					AddDepthAttach(m_DepthAttachID, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT24, m_DepthAttachmentsSpec, Specific.Width, Specific.Height);
 				}
@@ -188,7 +185,7 @@ namespace CoreEngine
 
 				glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachTex);
 				glBindTexture(GL_TEXTURE_2D, m_DepthAttachTex);
-				
+
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, Specific.Width, Specific.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachTex, 0);*/
 				GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -213,29 +210,28 @@ namespace CoreEngine
 
 			void OpenGLFramebuffer::Resize(const uint32 Width, const uint32 Height)
 			{
-				if (0 < Width &&  Width <= MaxBufferSize && 0 < Height && Height <= MaxBufferSize)
+				if (0 < Width && Width <= MaxBufferSize && 0 < Height && Height <= MaxBufferSize)
 				{
 					Specific.Width = Width;
 					Specific.Height = Height;
 					Reconstruct();
 				}
-
 			}
 
 			const FramebufferSpecification& OpenGLFramebuffer::GetSpecifiction() const
 			{
-				return Specific;	
+				return Specific;
 			}
 
 			int32 OpenGLFramebuffer::ReadPixel(const int32 IndexColorAttachment, const int32 X, const int32 Y)
 			{
-				//Bind();
+				// Bind();
 
 				glReadBuffer(GL_COLOR_ATTACHMENT0 + IndexColorAttachment);
 				int32 PixelData = 0;
 				glReadPixels(X, Y, 1, 1, GL_RED_INTEGER, GL_INT, &PixelData);
 
-				//UnBind();
+				// UnBind();
 
 				return PixelData;
 			}
@@ -282,6 +278,6 @@ namespace CoreEngine
 				m_ColorAttachID.clear();
 				m_DepthAttachID = 0;
 			}
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

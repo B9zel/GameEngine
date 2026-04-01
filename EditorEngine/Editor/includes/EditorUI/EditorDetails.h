@@ -22,6 +22,7 @@ namespace Editor
 		EditorDetails() = default;
 
 		virtual void Draw() override;
+		virtual void OnConstruct() override;
 
 		void SetSelectableObject(CoreEngine::Runtime::Object* Object);
 

@@ -2,17 +2,16 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/SpotLightComponent.h>
 #include <Runtime/includes/PrimitiveComponent.h>
-#include <Platform/Renderer/OpenGL/include/OpengGLShader.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Core/includes/PrimitiveProxy.h>
 #include <TestLightActor.generated.h>
 
-
 RCLASS()
 class LightActor : public CoreEngine::Runtime::Actor
 {
-	
+
 	GENERATED_BODY()
 
 public:
@@ -28,9 +27,8 @@ public:
 		LightObj->SetCutOff(50);
 		LightObj->SetOuterCutOff(60);
 
-
 		String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
-		auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
+		/*auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
 		shade.CompileShader(shadPair.first, shadPair.second);
 
 		arrObj.CreateVertexArray();
@@ -40,68 +38,49 @@ public:
 		LightCube = CreateSubObject<CoreEngine::Runtime::PrimitiveComponent>("Light cube");
 		LightCube->GetSceneProxy()->CountVertex = 108;
 		LightCube->GetSceneProxy()->AddShaderWithArrayObject(&shade, &arrObj, nullptr);
-		LightCube->GetSceneProxy()->SetTransformMatrix(LightCube->MakeMatrixMesh());
-
+		LightCube->GetSceneProxy()->SetTransformMatrix(LightCube->MakeMatrixMesh());*/
 	}
 
 	virtual void Update(float delta) override
 	{
 		Actor::Update(delta);
 
-		//LightCube->GetSceneProxy()->
+		// LightCube->GetSceneProxy()->
 	}
 
 private:
 
-	CoreEngine::ObjectPtr<CoreEngine::Runtime::SpotLightComponent> LightObj;
+	RPROPERTY();
+	CoreEngine::Runtime::SpotLightComponent* LightObj;
+
 	CoreEngine::Runtime::PrimitiveComponent* LightCube;
 	CoreEngine::Render::OpenGL::OpenGLShader shade;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
 
-
 	float arr[288] = {
-		   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-			0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-			0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-			0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		   -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-		   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f,	0.0f,  -1.0f, 0.0f, 0.0f, 0.5f,	 -0.5f, -0.5f, 0.0f,  0.0f,	 -1.0f, 1.0f, 0.0f,
+		0.5f,  0.5f,  -0.5f, 0.0f,	0.0f,  -1.0f, 1.0f, 1.0f, 0.5f,	 0.5f,	-0.5f, 0.0f,  0.0f,	 -1.0f, 1.0f, 1.0f,
+		-0.5f, 0.5f,  -0.5f, 0.0f,	0.0f,  -1.0f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,	 -1.0f, 0.0f, 0.0f,
 
-		   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-			0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
-			0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-			0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-		   -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
-		   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f,	 0.0f,	0.0f,  1.0f,  0.0f, 0.0f, 0.5f,	 -0.5f, 0.5f,  0.0f,  0.0f,	 1.0f,	1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,	 0.0f,	0.0f,  1.0f,  1.0f, 1.0f, 0.5f,	 0.5f,	0.5f,  0.0f,  0.0f,	 1.0f,	1.0f, 1.0f,
+		-0.5f, 0.5f,  0.5f,	 0.0f,	0.0f,  1.0f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,	 1.0f,	0.0f, 0.0f,
 
-		   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		   -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		   -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f, 0.5f,  0.5f,	 -1.0f, 0.0f,  0.0f,  1.0f, 0.0f, -0.5f, 0.5f,	-0.5f, -1.0f, 0.0f,	 0.0f,	1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,  0.0f, 1.0f, -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,	 0.0f,	0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f,	 -1.0f, 0.0f,  0.0f,  0.0f, 0.0f, -0.5f, 0.5f,	0.5f,  -1.0f, 0.0f,	 0.0f,	1.0f, 0.0f,
 
-			0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-			0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-			0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-			0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,	 1.0f,	0.0f,  0.0f,  1.0f, 0.0f, 0.5f,	 0.5f,	-0.5f, 1.0f,  0.0f,	 0.0f,	1.0f, 1.0f,
+		0.5f,  -0.5f, -0.5f, 1.0f,	0.0f,  0.0f,  0.0f, 1.0f, 0.5f,	 -0.5f, -0.5f, 1.0f,  0.0f,	 0.0f,	0.0f, 1.0f,
+		0.5f,  -0.5f, 0.5f,	 1.0f,	0.0f,  0.0f,  0.0f, 0.0f, 0.5f,	 0.5f,	0.5f,  1.0f,  0.0f,	 0.0f,	1.0f, 0.0f,
 
-		   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-			0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-			0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-			0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		   -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f,	-1.0f, 0.0f,  0.0f, 1.0f, 0.5f,	 -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,	1.0f, 1.0f,
+		0.5f,  -0.5f, 0.5f,	 0.0f,	-1.0f, 0.0f,  1.0f, 0.0f, 0.5f,	 -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,	1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f,	 0.0f,	-1.0f, 0.0f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,	0.0f, 1.0f,
 
-		   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-			0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-			0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-			0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		   -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, 0.5f,  -0.5f, 0.0f,	1.0f,  0.0f,  0.0f, 1.0f, 0.5f,	 0.5f,	-0.5f, 0.0f,  1.0f,	 0.0f,	1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,	 0.0f,	1.0f,  0.0f,  1.0f, 0.0f, 0.5f,	 0.5f,	0.5f,  0.0f,  1.0f,	 0.0f,	1.0f, 0.0f,
+		-0.5f, 0.5f,  0.5f,	 0.0f,	1.0f,  0.0f,  0.0f, 0.0f, -0.5f, 0.5f,	-0.5f, 0.0f,  1.0f,	 0.0f,	0.0f, 1.0f,
 	};
-
 };

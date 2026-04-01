@@ -10,7 +10,7 @@ namespace CoreEngine
 
 
 
-	template<class... Args>
+	template <class... Args>
 	class Dispatcher
 	{
 	public: 

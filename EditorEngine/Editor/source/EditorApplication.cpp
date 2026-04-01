@@ -8,26 +8,19 @@
 #include <Core/includes/World.h>
 #include <Core/includes/Memory/SaveManager.h>
 
-
 namespace Editor
 {
 	EditorApplication::EditorApplication(CoreEngine::ApplicationOptions& option) : CoreEngine::Application(option)
 	{
-		//ConstructEngine();
+		// ConstructEngine();
 
-
-
-
-		//PushLayer(new EditorLayer());
+		// PushLayer(new EditorLayer());
 	}
-
 
 	EditorApplication::~EditorApplication()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
-
 	}
-
 
 	void EditorApplication::CreateApp()
 	{
@@ -37,11 +30,11 @@ namespace Editor
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		ImGui::StyleColorsDark();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-	
+
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init();
 	}
@@ -53,17 +46,16 @@ namespace Editor
 
 	void EditorApplication::ConstructEngine()
 	{
-		/*if (InstanceEngine)
-		{
-			return move(InstanceEngine);
-		}*/
-		InstanceEngine = MakeUniquePtr<EditorEngine>();
+		if (InstanceEngine) return;
+		CoreEngine::InitializeObject InitParam;
+		InitParam.Class = CoreEngine::Engine::GetStaticClass();
+
+		InstanceEngine = MakeUniquePtr<EditorEngine>(InitParam);
 	}
 
-	//UniquePtr<Engine> EditorApplication::ConstructEngine()
+	// UniquePtr<Engine> EditorApplication::ConstructEngine()
 	//{
 	//	return new EditorEngine();
-	//}
+	// }
 
-
-}
+} // namespace Editor

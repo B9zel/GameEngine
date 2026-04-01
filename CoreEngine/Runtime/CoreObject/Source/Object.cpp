@@ -1,9 +1,8 @@
 #include <Runtime/CoreObject/Include/Object.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/Memory/SerializeArchive.h>
-#include <Core/includes/World.h>
+// #include <Core/includes/World.h>
 #include <Core/includes/Memory/SaveManager.h>
-
 
 namespace CoreEngine
 {
@@ -20,7 +19,7 @@ namespace CoreEngine
 			ObjectID.GenerateID();
 			Name = PrivateClass->Name;
 
-			InitProperties();
+			
 		}
 		void Object::InitProperties()
 		{
@@ -87,7 +86,7 @@ namespace CoreEngine
 
 				Class = Class->ParentClass;
 			}
-			OnSerialize(Archive);  
+			OnSerialize(Archive);
 
 			Archive.PopPrefix();
 		}
@@ -128,7 +127,7 @@ namespace CoreEngine
 
 		Object* Object::GetOuter() const
 		{
-			return m_Outer.Get();
+			return m_Outer;
 		}
 
 		void Object::MarkGarbage()
@@ -148,5 +147,5 @@ namespace CoreEngine
 		{
 			return Name;
 		}
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

@@ -1,11 +1,10 @@
 #pragma once
 #include <Core/includes/Base.h>
+#include <Render/includes/RenderHardwareInterface.h>
 #include <Math/includes/Vector.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
-
 
 namespace CoreEngine
 {
@@ -54,11 +53,17 @@ namespace CoreEngine
 			void SetupModel(aiMesh* Mesh, const aiScene* Scene, const SpecificationVertexData& Data);
 
 			const DArray<uint32>& GetIndeces() const;
-			const UniquePtr<VertexArrayObject>& GetVertexArrayObject() const;
+			const RHI::HandleVAO& GetVertexArrayObject() const;
 
-			//Test
-			const UniquePtr<ElementBufferObject>& GetEBO() { return m_EBO; }
-			const UniquePtr<VertexBufferObject>& GetVBO() { return m_VBO; }
+			// Test
+			const RHI::BufferHandle& GetEBO()
+			{
+				return m_HandleEBO;
+			}
+			const RHI::BufferHandle& GetVBO()
+			{
+				return m_HandleVBO;
+			}
 
 		private:
 
@@ -70,9 +75,12 @@ namespace CoreEngine
 			UniquePtr<ElementBufferObject> m_EBO;
 			bool m_HasLoadModel;
 
+			RHI::BufferHandle m_HandleVBO;
+			RHI::BufferHandle m_HandleEBO;
+			RHI::HandleVAO m_HandleVAO;
+
 			friend Runtime::MeshComponent;
 		};
-	}
+	} // namespace Render
 
-
-}
+} // namespace CoreEngine

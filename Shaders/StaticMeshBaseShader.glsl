@@ -35,6 +35,7 @@ struct DirectionLight
     vec3 Color;
 	float Intencity;
     vec3 Direction;
+
     uint64_t LayerShadow;
 };
 
@@ -52,11 +53,11 @@ struct SpotLight
 	float Quadratic;
 };
 
-layout(std430, binding = 0) buffer DirectionLightLayout
+layout(std140, binding = 0) buffer DirectionLightLayout
 {
     DirectionLight DirectionLights[];
 };
-layout(std430, binding = 2) buffer SpotLightLayout
+layout(std140, binding = 2) buffer SpotLightLayout
 {
     SpotLight SpotLights[];
 };
@@ -111,6 +112,7 @@ struct DirectionLight
     vec3 Color;
 	float Intencity;
     vec3 Direction;
+  //  int padding2;
     uint64_t LayerShadow;
 };
 
@@ -138,17 +140,17 @@ struct SpotLight
 	float Quadratic;
 };
 
-layout(std430, binding = 0) buffer DirectionLightLayout
+layout(std140, binding = 0) buffer DirectionLightLayout
 {
     DirectionLight DirectionLights[];
 };
 
-layout(std430, binding = 1) buffer PointLightLayout
+layout(std140, binding = 1) buffer PointLightLayout
 {
     PointLight PointLights[];
 };
 
-layout(std430, binding = 2) buffer SpotLightLayout
+layout(std140, binding = 2) buffer SpotLightLayout
 {
     SpotLight SpotLights[];
 };
@@ -234,7 +236,7 @@ float ShadowSpotlightCalculation(vec4 FragPosLightSpace, vec3 normal, vec3 Light
 vec3 CalculateDirectionLight()
 {
     vec3 resColor = {0.0f, 0.0f, 0.0f};
-
+  
     for (int i = 0; i < CountDirectionLight; i++)
     {
         // Diffuse 
@@ -265,7 +267,8 @@ vec3 CalculateDirectionLight()
             return vec3(0, 1, 0);
         }
         //resColor = vec3(FragPosLightSpaces[2]);
-        resColor += (1.0 - Shadow) * (diffuse + specular) * DirectionLights[i].Intencity;
+        //resColor += (1.0 - Shadow) * (diffuse + specular) * DirectionLights[i].Intencity;
+        resColor += (diffuse + specular) * DirectionLights[i].Intencity;
       
     }
 
@@ -413,7 +416,7 @@ void main()
     ObjectID = OutID;
     //result = vec3(1,1,1);
     color = vec4(result, 1.0f);  //* texture(ourTexture1, TexCoord); 
-   
+    //color = vec4(1,1,1,1);
 
     //float depthValue = texture(ShadowMap, TexCoord).r;
     //color = vec4(vec3(depthValue,depthValue,depthValue), 1.0);

@@ -1,8 +1,6 @@
 #include <ReflectionSystem/Include/ReflectionManager.h>
 #include <ReflectionSystem/Include/ClassField.h>
-
-
-
+#include <Core/includes/Engine.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(ReflectionManagerLog)
 
@@ -13,7 +11,9 @@ namespace CoreEngine
 		ReflectionManager* ReflectionManager::Instance = nullptr;
 		UniquePtr<ReflectionManager> ReflectionManager::CreateReflectionManager()
 		{
-			class WrapperReflectionManger : public ReflectionManager {};
+			class WrapperReflectionManger : public ReflectionManager
+			{
+			};
 
 			if (!Instance)
 			{
@@ -34,9 +34,8 @@ namespace CoreEngine
 			}
 			for (auto& Field : NewClass->PropertyFileds)
 			{
-				//Field
+				// Field
 			}
-
 
 			FieldsClass.emplace(NameClass, NewClass);
 		}
@@ -55,7 +54,7 @@ namespace CoreEngine
 			static DArray<WeakPtr<ClassField>> Classes;
 			Classes.clear();
 			Classes.reserve(FieldsClass.size());
-			
+
 			for (auto& Pair : FieldsClass)
 			{
 				Classes.emplace_back(Pair.second);
@@ -78,5 +77,10 @@ namespace CoreEngine
 			}
 			return false;
 		}
-	}
-}
+
+		ReflectionManager* ReflectionManager::Get()
+		{
+			return Engine::Get()->GetReflectionManger().get();
+		}
+	} // namespace Reflection
+} // namespace CoreEngine

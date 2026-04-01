@@ -1,4 +1,5 @@
 #pragma once
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Render/includes/Enums/TypeDraw.h>
 #include <Render/includes/Enums/TypeData.h>
 #include <Render/includes/VertextBufferObject.h>
@@ -16,11 +17,11 @@ namespace CoreEngine
 
 			virtual ~ElementBufferObject() = default;
 
-			virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+			virtual void CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
 									  const VertexArrayObject& vertexArray, const VertexBufferObject& buffObj, const bool IsAutoUnBind = true) = 0;
-			virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+			virtual void CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
 									  const VertexArrayObject& vertexArray, const bool IsAutoUnBind = true) = 0;
-			virtual void CreateBuffer(const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
+			virtual void CreateBuffer(RenderDevice* Device, const void* dataArr, uint32 sizeArr, const ETypeData& typeData, const ETypeStorageDraw& typeDraw,
 									  const bool IsAutoUnBind = true) = 0;
 			virtual void DeleteBuffer() = 0;
 
@@ -29,7 +30,7 @@ namespace CoreEngine
 			virtual void Bind() const = 0;
 			virtual void UnBind() const = 0;
 
-			virtual uint32 GetBufferID() const = 0;
+			virtual RHI::BufferHandle GetHandle() const = 0;
 		};
 	} // namespace Render
 } // namespace CoreEngine

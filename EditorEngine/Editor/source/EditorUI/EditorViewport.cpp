@@ -25,7 +25,6 @@ namespace Editor
 		return FVector(NormalizeDeg(v.GetX()), NormalizeDeg(v.GetY()), NormalizeDeg(v.GetZ()));
 	}
 
-
 	static bool IsDraw = false;
 	static int CrentDraw = 0;
 	EditorViewport::EditorViewport()
@@ -40,64 +39,61 @@ namespace Editor
 		static ImVec2 lastSize = ImGui::GetWindowSize();
 
 		FrameBuffer = CoreEngine::Engine::Get()->GetRender()->GetRenderSceneBuffer();
+		// FrameBuffer->Bind();
 		uint32 Texture = FrameBuffer->GetColorAttachmentID(0);
 
 		ImVec2 avail = ImGui::GetContentRegionAvail();
 		ImGuiIO& io = ImGui::GetIO();
 
-		
 		ImVec2 texLogicalSize = ImVec2((float)FrameBuffer->GetSpecifiction().Width / io.DisplayFramebufferScale.x,
-			(float)FrameBuffer->GetSpecifiction().Height / io.DisplayFramebufferScale.y);
-		
-		
+									   (float)FrameBuffer->GetSpecifiction().Height / io.DisplayFramebufferScale.y);
+
 		bool fitPreserveAspect = true;
 
-		
 		ImVec2 displaySize = texLogicalSize;
-		if (fitPreserveAspect) {
-			if (displaySize.x > avail.x || displaySize.y > avail.y) {
+		if (fitPreserveAspect)
+		{
+			if (displaySize.x > avail.x || displaySize.y > avail.y)
+			{
 				float scale = std::min(avail.x / displaySize.x, avail.y / displaySize.y);
 				displaySize.x *= scale;
 				displaySize.y *= scale;
 			}
 		}
-		else {
-		
+		else
+		{
+
 			displaySize = avail;
 		}
-		
 
 		// ѕоложим Image в child (чтобы не по€вл€лс€ scroll)
 		ImGui::BeginChild("ViewportChild", displaySize, false,
-			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground);
+						  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground);
 		// optionally выровн€ть по центру
 		ImVec2 cur = ImGui::GetCursorPos();
 		float padX = (ImGui::GetContentRegionAvail().x - displaySize.x) * 0.5f;
 		if (padX > 0.0f) ImGui::SetCursorPosX(cur.x + padX);
 
-		ImGui::Image((void*)Texture, displaySize, ImVec2(0, 1), ImVec2(1, 0)); //, ImVec2(0, 1), ImVec2(1, 0)
+		ImGui::Image((void*)(intptr_t)Texture, displaySize, ImVec2(0, 1), ImVec2(1, 0)); //, ImVec2(0, 1), ImVec2(1, 0)
 		m_IsFocusedViewport = ImGui::IsItemHovered();
 
 		ImVec2 Space = avail;
 		if (Space.x != lastSize.x || Space.y != lastSize.y)
 		{
-			//FrameBuffer->Resize(abs(Space.x), abs(Space.y));
+			// FrameBuffer->Resize(abs(Space.x), abs(Space.y));
 			EditorEngine::Get()->GetRender()->SetResolutionScale(FVector2(abs(Space.x), abs(Space.y)));
 			lastSize = Space;
 			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0} {1}", abs(Space.x), (Space.y));
 		}
 
-
-
-
-		//glBindFramebuffer(GL_READ_FRAMEBUFFER, 1);
-		//glReadBuffer(GL_COLOR_ATTACHMENT0);
-		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-		//glBlitFramebuffer(0, 0, FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height,
+		// glBindFramebuffer(GL_READ_FRAMEBUFFER, 1);
+		// glReadBuffer(GL_COLOR_ATTACHMENT0);
+		// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+		// glBlitFramebuffer(0, 0, FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height,
 		//	0, 0, FrameBuffer->GetSpecifiction().Width, FrameBuffer->GetSpecifiction().Height,
 		//	GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//FrameBuffer->Bind();
+		// glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// FrameBuffer->Bind();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 		ImVec2 mouse = ImGui::GetMousePos();
 		float localX = mouse.x - pos.x;
@@ -105,25 +101,22 @@ namespace Editor
 
 		static int NumDraw = 2;
 
-
 		ImVec2 p0 = ImGui::GetItemRectMin();
 		ImVec2 p1 = ImGui::GetItemRectMax();
-		//ImVec2 size = ImVec2(p1.x - p0.x, p1.y - p0.y);
+		// ImVec2 size = ImVec2(p1.x - p0.x, p1.y - p0.y);
 		const int Width = FrameBuffer->GetSpecifiction().Width;
 		const int Height = FrameBuffer->GetSpecifiction().Height;
 
-		//if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
+		// if (ImGui::IsKeyPressed(ImGuiKey_MouseLeft) && ImGui::IsKeyDown(ImGuiKey_1))
 		if (false)
 		{
-			//localY = FrameBuffer->GetSpecifiction().Height - (localY);
-			//localX -=  ImGui::GetScrollX();
-			//localY -=  ImGui::GetScrollY();
+			// localY = FrameBuffer->GetSpecifiction().Height - (localY);
+			// localX -=  ImGui::GetScrollX();
+			// localY -=  ImGui::GetScrollY();
 			FrameBuffer->Bind();
 			EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1}, {2}", FrameBuffer->ReadPixel(1, localX, localY), localX, localY);
 
-
 			IsDraw = true;
-
 		}
 		if (IsDraw)
 		{
@@ -134,11 +127,10 @@ namespace Editor
 				for (int j = 0; j < Height; j++)
 				{
 					// верхний левый угол картинки
-					ImVec2 size = ImGui::GetItemRectSize();   // размер картинки
+					ImVec2 size = ImGui::GetItemRectSize(); // размер картинки
 
-
-					//relY = Height - relY;
-					//  оординаты мыши относительно картинки
+					// relY = Height - relY;
+					//   оординаты мыши относительно картинки
 					int a = FrameBuffer->ReadPixel(1, i, Height - j);
 					if (a != 0)
 					{
@@ -149,7 +141,6 @@ namespace Editor
 
 						EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{0}, {1} : {2}", relX, relY, a);
 					}
-
 				}
 			}
 			if (CrentDraw > NumDraw)
@@ -171,20 +162,15 @@ namespace Editor
 				float localX = mouse.x - pos.x;
 				float localY = abs(mouse.y - pos.y);
 
-
 				int32 IdActor = FrameBuffer->ReadPixel(1, localX, localY);
 
-				auto* FindedActor = OwnerEditor->GetWorld()->GetActorPredicate([&](CoreEngine::Runtime::Actor* Actor)
-					{
-						return Actor->GetUUID().GetID() == IdActor;
-					});
+				auto* FindedActor =
+					OwnerEditor->GetWorld()->GetActorPredicate([&](CoreEngine::Runtime::Actor* Actor) { return Actor->GetUUID().GetID() == IdActor; });
 				if (FindedActor)
 				{
 					OwnerEditor->SetSelectedObject(FindedActor);
 				}
 			}
-
-
 
 			if (m_CanChangeOpirations)
 			{
@@ -207,26 +193,28 @@ namespace Editor
 			}
 		}
 
-
 		if (auto* WorldObject = GetSceneComponentFromSelected())
 		{
-			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetOrthographic(true);
 			ImGuizmo::SetDrawlist();
 
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-			//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(), WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
+			// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(),
+			// WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
 
-			FMatrix4x4 ObjectMatrix = WorldObject->MakeMatrixMesh();  // GetMatrixOfComponent();
+			FMatrix4x4 ObjectMatrix = WorldObject->MakeMatrixMesh(); // GetMatrixOfComponent();
 			FMatrix4x4 ViewMatrix = (OwnerEditor->GetViewpoertClient()->GetViewMatrix());
 			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection();
-		
-			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration), ImGuizmo::MODE::LOCAL, Math::GetValuePtr(ObjectMatrix));
+
+			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration),
+								 ImGuizmo::MODE::LOCAL, Math::GetValuePtr(ObjectMatrix));
 			if (ImGuizmo::IsUsing())
 			{
 				FVector Location, Rotation, Scale;
 				ObjectMatrix = WorldObject->GetParentAttach() ? (glm::inverse(WorldObject->MakeParentMatrix()) * ObjectMatrix) : ObjectMatrix;
-				ImGuizmo::DecomposeMatrixToComponents(Math::GetValuePtr(ObjectMatrix), Math::GetValuePtr(Location.vector), Math::GetValuePtr(Rotation.vector), Math::GetValuePtr(Scale.vector));
-					
+				ImGuizmo::DecomposeMatrixToComponents(Math::GetValuePtr(ObjectMatrix), Math::GetValuePtr(Location.vector), Math::GetValuePtr(Rotation.vector),
+													  Math::GetValuePtr(Scale.vector));
+
 				WorldObject->SetComponentLocation(Location);
 				WorldObject->SetComponentRotation(Rotation);
 				WorldObject->SetComponentScale(Scale);
@@ -234,24 +222,24 @@ namespace Editor
 		}
 
 		FrameBuffer->UnBind();
-		
+
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 		ImGui::End();
-		//ImGui::Begin("Drag and Drop Example");
+		// ImGui::Begin("Drag and Drop Example");
 
 		/*static int sourceValue = 42;
 		static int targetValue = 0;*/
 		//////
 		// »сточник
-		//static const char* items[] = { "Cube", "Sphere", "Light" };
-		//static const char* selected = nullptr;
+		// static const char* items[] = { "Cube", "Sphere", "Light" };
+		// static const char* selected = nullptr;
 
-		//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
-		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
-		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
-		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+		// ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+		// ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
+		// ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		// ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+		// ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
 		//	if (ImGui::Selectable("Drag"))
 		//	{
 		//		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Drag Started");
@@ -259,7 +247,7 @@ namespace Editor
 		//	}
 		//	ImGui::PopStyleColor(3);
 		//	ImGui::PopStyleVar(2);
-		//for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+		// for (int i = 0; i < IM_ARRAYSIZE(items); i++)
 		//{
 		//	ImGui::Selectable(items[i]);
 		//	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
@@ -271,7 +259,7 @@ namespace Editor
 
 		//	if (ImGui::BeginDragDropTarget())
 		//	{
-		//		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OBJECT_NAME"))	
+		//		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OBJECT_NAME"))
 		//		{
 		//			const char* dropped = (const char*)payload->Data;
 		//			selected = dropped;
@@ -280,11 +268,15 @@ namespace Editor
 		//	}
 		//}
 
-		//if (selected)
+		// if (selected)
 		//	ImGui::Text("Selected object: %s", selected);
 		/////////
 
-		//ImGui::End();
+		// ImGui::End();
+	}
+
+	void EditorViewport::OnConstruct()
+	{
 	}
 
 	void EditorViewport::SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer)
@@ -324,5 +316,4 @@ namespace Editor
 		return Component->GetTransform().ToMatrix();
 	}
 
-
-}
+} // namespace Editor

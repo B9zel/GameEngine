@@ -2,12 +2,11 @@
 #include <Render/includes/RendererAPI.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 
-
 namespace CoreEngine
 {
 	namespace Render
 	{
-		UniquePtr<Texture2D> Texture2D::Create(const char* path)
+		UniquePtr<Texture2D> Texture2D::Create(RenderDevice* Device, const String path)
 		{
 			switch (RendererAPI::GetAPI())
 			{
@@ -15,14 +14,14 @@ namespace CoreEngine
 				EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return MakeUniquePtr<OpenGL::OpenGLTexture2D>(path);
+				return MakeUniquePtr<OpenGL::OpenGLTexture2D>(Device, path);
 			default:
 				break;
 			}
 			EG_LOG(CORE, ELevelLog::CRITICAL, "No implament API to create");
 		}
 
-		UniquePtr<Texture2D> Texture2D::Create()
+		/*UniquePtr<Texture2D> Texture2D::Create()
 		{
 			switch (RendererAPI::GetAPI())
 			{
@@ -35,7 +34,7 @@ namespace CoreEngine
 				break;
 			}
 			EG_LOG(CORE, ELevelLog::CRITICAL, "No implament API to create");
-		}
+		}*/
 
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

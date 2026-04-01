@@ -1,7 +1,7 @@
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <Render/includes/VertextBufferObject.h>
 #include <Render/includes/RendererAPI.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
-
 
 namespace CoreEngine
 {
@@ -19,7 +19,7 @@ namespace CoreEngine
 			default:
 				break;
 			}
-			EG_LOG(CORE, ELevelLog::CRITICAL, "No implament API to create");
+			ASSERT("No implament API to create");
 		}
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

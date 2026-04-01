@@ -2,9 +2,11 @@
 
 #include <Core/includes/StaticMeshProxy.h>
 #include <Runtime/includes/Actor.h>
-//#include <Core/includes/World.h>
+#include <Core/includes/AssetManager.h>
+#include <Render/includes/VertexArrayObject.h>
+#include <Render/includes/ElementBufferObject.h>
+// #include <Core/includes/World.h>
 #include <glad/glad.h>
-
 
 namespace CoreEngine
 {
@@ -14,16 +16,17 @@ namespace CoreEngine
 
 		MeshComponent::MeshComponent(const InitializeObject& Object) : PrimitiveComponent(Object)
 		{
-			m_Shader.push_back(Render::Shader::CreateShader());
-			//m_Shader.push_back(Render::Shader::CreateShader());
+			auto* AssetManager = Engine::Get()->GetAssetManager();
+			m_Shader.push_back(AssetManager->LoadShader(Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl"));
+			// m_Shader.push_back(Render::Shader::CreateShader());
+			// m_Shader.push_back(Render::Shader::CreateShader());
 			m_Proxy = MakeUniquePtr<StaticMeshProxy>();
 
-			auto& Shaders = m_Shader[0]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
-			m_Shader[0]->CompileShader(Shaders.first, Shaders.second);
-			//Shaders = m_Shader[1]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/IdVisualShader.glsl").c_str());
-			//m_Shader[1]->CompileShader(Shaders.first, Shaders.second);
+			// auto& Shaders = m_Shader[0]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
+			// m_Shader[0]->CompileShader(Shaders.first, Shaders.second);
+			// Shaders = m_Shader[1]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/IdVisualShader.glsl").c_str());
+			// m_Shader[1]->CompileShader(Shaders.first, Shaders.second);
 		}
-
 
 		bool MeshComponent::LoadMesh(const StringView Path)
 		{
@@ -32,10 +35,8 @@ namespace CoreEngine
 				RemoveMesh();
 			}
 			Assimp::Importer importer;
-			const aiScene* Scene = importer.ReadFile(Path.data(), aiProcess_FlipUVs | aiProcess_Triangulate |
-				aiProcess_GenNormals |
-				aiProcess_ValidateDataStructure |
-				aiProcess_ImproveCacheLocality);
+			const aiScene* Scene = importer.ReadFile(Path.data(), aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_GenNormals |
+																	  aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality);
 
 			if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
 			{
@@ -75,26 +76,43 @@ namespace CoreEngine
 				m_Proxy->SetTransformMatrix(Transform.ToMatrix());
 			}*/
 			m_Proxy->SetTransformMatrix(MakeMatrixMesh());
-			
+
 			m_Proxy->SetUUID(&GetOwner()->GetUUID());
-			//m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
-			//m_Proxy->AddLightLocation(FVector(3, 2, -7));
+			// m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
+			// m_Proxy->AddLightLocation(FVector(3, 2, -7));
 			if (!m_Models.empty())
 			{
 				for (uint64 i = 0; i < m_Shader.size(); i++)
 				{
-					m_Proxy->AddShaderWithArrayObject(m_Shader[i].get(), m_Models[0]->GetVertexArrayObject().get(), m_Models[0]->GetEBO().get());
+					ParamOfShaderDesc Desc;
+					Desc.shader = m_Shader[i]->GetHandle();
+
+					// Desc.ElementObject = m_Models[i]->GetEBO();
+					Desc.TextureNames = m_Shader[i]->GetNamesOfTexture();
+					Desc.HasAllMatrix = m_Shader[i]->GetHasAllMatrix();
+
+					m_Proxy->AddShader(Desc);
 				}
+				// for (uint64 i = 0; i < m_Shader.size(); i++)
+				//{
+				//	ParamOfShaderDesc Desc;
+				//	Desc.shader = m_Shader[i]->GetHandle();
+				//	Desc.ArrayObject = m_Models[0]->GetVertexArrayObject();
+				//	Desc.ElementObject = m_Models[0]->GetEBO();
+				//	Desc.TextureNames = m_Shader[i]->GetNamesOfTexture();
+				//	Desc.HasAllMatrix = m_Shader[i]->GetHasAllMatrix();
+
+				//	m_Proxy->AddShader(Desc);
+				//	// m_Proxy->AddShader(m_Shader[i]->GetHandle(), m_Models[0]->GetVertexArrayObject()->GetHandle(), m_Models[0]->GetEBO()->GetHandle());
+				//}
 			}
 			for (uint64 i = 0; i < m_Models.size(); i++)
 			{
 				m_Proxy->AddIndeces(m_Models[i]->GetIndeces());
-				m_Proxy->AddArrayObject(m_Models[i]->GetVertexArrayObject().get());
+				m_Proxy->AddArrayObject(m_Models[i]->GetVertexArrayObject());
 			}
 			return m_Proxy.get();
 		}
-
-		
 
 		void MeshComponent::SetupNode(aiNode* Node, const aiScene* Scene)
 		{
@@ -145,5 +163,5 @@ namespace CoreEngine
 			//	*Scene = Importer.ApplyPostProcessing(aiProcess_RemoveComponent | aiProcess_GenSmoothNormals);
 		}
 
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

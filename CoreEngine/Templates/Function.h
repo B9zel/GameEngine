@@ -3,10 +3,9 @@
 #include <iostream>
 #include <Core/includes/Base.h>
 
-
-
-template<class TReturn, class... Args>
-class Function {};
+template <class TReturn, class... Args> class Function
+{
+};
 
 /*template<class TClass>
 struct Bind
@@ -16,10 +15,8 @@ struct Bind
 
 	void* method;
 	TClass* instance;
-		
-};*/
-	
 
+};*/
 
 enum class ETypeFunction : uint8_t
 {
@@ -27,37 +24,43 @@ enum class ETypeFunction : uint8_t
 	METHOD
 };
 
-template<class TReturn, class... TArgs>
-struct BaseFnPtr {};
-
-template<class TReturn,class... TArgs>
-struct BaseFnPtr<TReturn(TArgs...)>
+template <class TReturn, class... TArgs> struct BaseFnPtr
 {
-public:
-	using FnPtr = TReturn(*)(TArgs...);
-public:
-	
-	virtual ~BaseFnPtr() = default;
-	
-	virtual TReturn Invoke(TArgs&&... param) const = 0;
-	virtual bool operator==(const BaseFnPtr<TReturn(TArgs...)>& other) const = 0;
-	
-	virtual ETypeFunction GetType() const = 0;
-	
 };
 
-
-template<class TReturn, class... Args>
-struct FunctionPtr {};
-
-template<class TReturn, class... Args>
-struct FunctionPtr<TReturn(Args...)> : public BaseFnPtr<TReturn(Args...)>
+template <class TReturn, class... TArgs> struct BaseFnPtr<TReturn(TArgs...)>
 {
 public:
-	using FnPtr = TReturn(*)(Args...);
+
+	using FnPtr = TReturn (*)(TArgs...);
+
 public:
 
-	FunctionPtr(FnPtr function) : pFn {function} {}
+	virtual ~BaseFnPtr() = default;
+
+	virtual TReturn Invoke(TArgs&&... param) const = 0;
+	virtual bool operator==(const BaseFnPtr<TReturn(TArgs...)>& other) const = 0;
+
+	virtual ETypeFunction GetType() const = 0;
+};
+
+template <class TReturn, class... Args> struct FunctionPtr
+{
+};
+
+template <class TReturn, class... Args> struct FunctionPtr<TReturn(Args...)> : public BaseFnPtr<TReturn(Args...)>
+{
+public:
+
+	using FnPtr = TReturn (*)(Args...);
+
+public:
+
+	FunctionPtr() = default;
+
+	FunctionPtr(FnPtr function) : pFn{function}
+	{
+	}
 
 	FunctionPtr(const FunctionPtr& Other)
 	{
@@ -83,7 +86,7 @@ public:
 
 		return *this;
 	}
-	
+
 public:
 
 	virtual TReturn Invoke(Args&&... param) const override
@@ -94,12 +97,10 @@ public:
 			return (pFn(std::forward<Args>(param)...));
 	}
 
-	
 	virtual ETypeFunction GetType() const override
 	{
 		return typeFn;
 	}
-
 
 	bool operator==(const BaseFnPtr<TReturn(Args...)>& other) const override
 	{
@@ -118,27 +119,26 @@ public:
 	}
 
 public:
-		
+
 	FnPtr pFn;
 	const ETypeFunction typeFn = ETypeFunction::FUNCTION;
 };
 
+template <class TClass, class TReturn, class... Args> struct MethodPtr
+{
+};
 
-
-
-template<class TClass, class TReturn, class... Args>
-struct MethodPtr {};
-
-template<class TClass,class TReturn, class... Args>
-struct MethodPtr<TClass, TReturn(Args...)> : public BaseFnPtr<TReturn(Args...)>
+template <class TClass, class TReturn, class... Args> struct MethodPtr<TClass, TReturn(Args...)> : public BaseFnPtr<TReturn(Args...)>
 {
 private:
 
-	using FnPtr = TReturn(TClass::*)(Args...);
+	using FnPtr = TReturn (TClass::*)(Args...);
 
 public:
 
-	MethodPtr(TClass* classOfMethod, FnPtr method) : pFn{ method }, pClass{ classOfMethod } {}
+	MethodPtr(TClass* classOfMethod, FnPtr method) : pFn{method}, pClass{classOfMethod}
+	{
+	}
 
 	virtual TReturn Invoke(Args&&... param) const override
 	{
@@ -146,10 +146,10 @@ public:
 		{
 			return TReturn();
 		}
-		
+
 		return (pClass->*pFn)(std::forward<Args>(param)...);
 	}
-	
+
 	void Assign(TClass* classOfMethod, FnPtr method)
 	{
 		pClass = classOfMethod;
@@ -163,11 +163,14 @@ public:
 
 	bool operator==(const BaseFnPtr<TReturn(Args...)>& other) const override
 	{
-		if (this->GetType() != other.GetType()) { return false; }
+		if (this->GetType() != other.GetType())
+		{
+			return false;
+		}
 
 		const MethodPtr& pMethod = dynamic_cast<const MethodPtr&>(other);
 		if (pFn != pMethod.pFn || pClass != pMethod.pClass) return false;
-			
+
 		return true;
 	}
 
@@ -186,29 +189,23 @@ public:
 	const ETypeFunction typeFn = ETypeFunction::METHOD;
 };
 
-
-
-
-template<class TReturn, class... Args>
-class Function<TReturn(Args...)>
+template <class TReturn, class... Args> class Function<TReturn(Args...)>
 {
 public:
 
 	using BaseFunctionPtr = BaseFnPtr<TReturn(Args...)>;
 	using SharedBaseFunctionPtr = SharedPtr<BaseFunctionPtr>;
-	using FnPtr = TReturn(*)(Args...);
-		
+	using FnPtr = TReturn (*)(Args...);
+
 public:
 
 	Function() = default;
 
-		
 	Function(FnPtr function)
 	{
 		Assign(function);
 	}
-	template<class TClass>
-	Function(TReturn(TClass::*method)(Args...), TClass* instanceClass)
+	template <class TClass> Function(TReturn (TClass::*method)(Args...), TClass* instanceClass)
 	{
 		Assign<TClass>(method, instanceClass);
 	}
@@ -223,38 +220,33 @@ public:
 		m_Fn = std::move(other.m_Fn);
 	}
 
-
-	
 public:
-
 
 	void Assign(FnPtr function)
 	{
 		if (m_Fn)
-		{	
+		{
 			if (m_Fn->GetType() == ETypeFunction::FUNCTION)
 			{
-				::new(m_Fn.get()) FunctionPtr<TReturn(Args...)>(function);
+				::new (m_Fn.get()) FunctionPtr<TReturn(Args...)>(function);
 				return;
 			}
 		}
 		m_Fn = MakeSharedPtr<FunctionPtr<TReturn(Args...)>>(function);
 	}
 
-	template<class TClass>
-	void Assign(TReturn(TClass::*method)(Args...), TClass* instanceClass)
+	template <class TClass> void Assign(TReturn (TClass::*method)(Args...), TClass* instanceClass)
 	{
 		if (m_Fn)
 		{
 			if (m_Fn->GetType() == ETypeFunction::METHOD)
 			{
-				::new(m_Fn.get()) MethodPtr<TClass,TReturn(Args...)>(instanceClass, method);
+				::new (m_Fn.get()) MethodPtr<TClass, TReturn(Args...)>(instanceClass, method);
 				return;
 			}
 		}
 		m_Fn = MakeSharedPtr<MethodPtr<TClass, TReturn(Args...)>>(instanceClass, method);
 	}
-
 
 	Function& operator=(const Function& other)
 	{
@@ -274,7 +266,6 @@ public:
 	{
 		return m_Fn.operator bool();
 	}
-		
 
 	bool IsEmpty() const
 	{
@@ -307,10 +298,8 @@ public:
 	}
 
 private:
-		
-	SharedBaseFunctionPtr m_Fn;
 
-		
+	SharedBaseFunctionPtr m_Fn;
 };
-//template<class Class, class TRet, class... TArgs>
-//using PtrMethod = typename Function<TRet(TArgs)>::Method<Class> ;
+// template<class Class, class TRet, class... TArgs>
+// using PtrMethod = typename Function<TRet(TArgs)>::Method<Class> ;

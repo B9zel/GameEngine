@@ -1,41 +1,57 @@
 #pragma once
 #include <Core/includes/Base.h>
+#include <Render/includes/RenderHardwareInterface.h>
+// #include <Core/includes/AssetManager.h>
 
 namespace CoreEngine
 {
+	class AssetManager;
+
 	namespace Render
 	{
-		enum class ETypeChannel : uint8_t
+		class RenderDevice;
+
+		enum class ETypeChannel : uint8
 		{
 			NONE = 0,
 			RGB,
 			RGBA
 		};
 
-		enum class EParameterName : uint8_t
+		enum class ETextureWrap : uint8
 		{
-			// Takes on the values : REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER
-			TEXTURE_WRAP_S = 0,
-			TEXTURE_WRAP_T,
-			// Use for 3D texture
-			TEXTURE_WRAP_R,
+			//// Takes on the values : REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER
+			// TEXTURE_WRAP_S = 0,
+			// TEXTURE_WRAP_T,
+			//// Use for 3D texture
+			// TEXTURE_WRAP_R,
 
-			TEXTURE_MIN_FILTER,
-			TEXTURE_MAG_FILTER
+			// TEXTURE_MIN_FILTER,
+			// TEXTURE_MAG_FILTER
+
+			REPEAT = 0,
+			MIRRORED_REPEAT,
+			CLAMP_TO_EDGE
 		};
 
-		enum class EParamaterOfCustomValues : uint8_t
+		enum class ETextureFilter : uint8
+		{
+			NEAREST = 0,
+			LINEAR
+		};
+
+		enum class EParamaterOfCustomValues : uint8
 		{
 			// Takes on the value: RGBA color array(float*)
 			// Use if TEXTURE_WRAP_* used CLAMP_TO_BORDER
 			TEXTURE_BORDER_COLOR,
 		};
 
-		enum class EValueOfParameter : uint8_t
+		enum class EValueOfParameter : uint8
 		{
 			// Repeat texure
 			REPEAT = 0,
-			//Repeat texture mirrored
+			// Repeat texture mirrored
 			MIRRORED_REPEAT,
 			// Takes color of border pixel and fill the free space
 			CLAMP_TO_EDGE,
@@ -55,6 +71,19 @@ namespace CoreEngine
 			LINEAR_MIPMAP_LINEAR
 		};
 
+		struct TextureDesc
+		{
+			int32 Width, Height, Channels;
+			uint8* Data;
+
+			ETextureFilter MinFilter = ETextureFilter::LINEAR;
+			ETextureFilter MaxFilter = ETextureFilter::LINEAR;
+
+			ETextureWrap WrapS = ETextureWrap::REPEAT;
+			ETextureWrap WrapT = ETextureWrap::REPEAT;
+
+			bool GenerateMips = true;
+		};
 
 		class Texture
 		{
@@ -62,10 +91,13 @@ namespace CoreEngine
 
 			virtual ~Texture() = default;
 
-			virtual void SetTexParameter(const EParameterName parameter, const EValueOfParameter value) const = 0;
+			virtual void SetTexParameter(const ETextureWrap parameter, const EValueOfParameter value) const = 0;
 			virtual void SetTexParameter(const EParamaterOfCustomValues parameter, const float* value) const = 0;
 
-			virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data, bool isGenaretMipmap = true) = 0;
+			virtual void RecreateTexture(const uint32 Width, const uint32 Height, const ETypeChannel Channel, const void* Data,
+										 bool isGenaretMipmap = true) = 0;
+
+			virtual bool LoadTexture(RenderDevice* Device, const StringView Path, const bool GenerateMips = true) = 0;
 
 			virtual const char* GetPath() const = 0;
 			virtual uint32 GetWidth() const = 0;
@@ -73,23 +105,27 @@ namespace CoreEngine
 
 			virtual bool IsLoad() const = 0;
 
-			virtual void Bind(uint32 layout = 0) const = 0;
+			virtual void Bind(RenderDevice* Device, uint32 layout = 0) const = 0;
 			virtual void UnBind() const = 0;
 
-			virtual uint32 GetTextureID() const = 0;
-
+			virtual RHI::TextureHandle& GetTextureHandle() = 0;
+			virtual const RHI::TextureHandle& GetConstTextureHandle() const = 0;
 		};
 
 		class Texture2D : public Texture
 		{
+		public:
+
+			friend CoreEngine::AssetManager;
+
 		protected:
 
 			Texture2D() = default;
 
-		public:
+		private:
 
-			static UniquePtr<Texture2D> Create(const char* path);
-			static UniquePtr<Texture2D> Create();
+			static UniquePtr<Texture2D> Create(RenderDevice* Device, const String path);
+			//static UniquePtr<Texture2D> Create();
 		};
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine
