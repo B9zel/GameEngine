@@ -1,0 +1,244 @@
+{
+    "EditorWorld": {
+        "NameClass": "EditorWorld",
+        "m_MainLevel": {
+            "FirstLevel": {
+                "NameClass": "FirstLevel",
+                "m_Actors": {
+                    "Light": {
+                        "Components": {
+                            "Scene component": {
+                                "NameClass": "SceneComponent",
+                                "Transform": {
+                                    "Transform": {
+                                        "Location": [
+                                            -3.0218310356140137,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Rotation": [
+                                            0.0,
+                                            -0.0,
+                                            0.0
+                                        ],
+                                        "Scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                        ]
+                                    }
+                                },
+                                "childrenAttach": {
+                                    "Mesh": {
+                                        "NameClass": "MeshComponent",
+                                        "Transform": {
+                                            "Transform": {
+                                                "Location": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Rotation": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Scale": [
+                                                    1.0,
+                                                    1.0,
+                                                    1.0
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "NameClass": "Light"
+                    },
+                    "LightActor": {
+                        "Components": {
+                            "Scene component": {
+                                "NameClass": "SceneComponent",
+                                "Transform": {
+                                    "Transform": {
+                                        "Location": [
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Rotation": [
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "LightObj": {
+                            "Spot light": {
+                                "Color": {
+                                    "Color": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ]
+                                },
+                                "CutOff": {
+                                    "CutOff": 50.0
+                                },
+                                "Intencity": {
+                                    "Intencity": 10.0
+                                },
+                                "IsVisible": {
+                                    "IsVisible": true
+                                },
+                                "NameClass": "SpotLightComponent",
+                                "OuterCutOff": {
+                                    "OuterCutOff": 60.0
+                                },
+                                "Transform": {
+                                    "Transform": {
+                                        "Location": [
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Rotation": [
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "NameClass": "LightActor"
+                    },
+                    "Quad": {
+                        "A": {
+                            "A": -431602080.0
+                        },
+                        "Components": {
+                            "Scene component": {
+                                "NameClass": "SceneComponent",
+                                "Transform": {
+                                    "Transform": {
+                                        "Location": [
+                                            0.0,
+                                            0.0,
+                                            -5.0
+                                        ],
+                                        "Rotation": [
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "Scale": [
+                                            1.0,
+                                            1.0,
+                                            1.0
+                                        ]
+                                    }
+                                },
+                                "childrenAttach": {
+                                    "Direction light": {
+                                        "Color": {
+                                            "Color": [
+                                                1.0,
+                                                1.0,
+                                                1.0
+                                            ]
+                                        },
+                                        "Intencity": {
+                                            "Intencity": 1.0
+                                        },
+                                        "IsVisible": {
+                                            "IsVisible": true
+                                        },
+                                        "NameClass": "DirectionLightComponent",
+                                        "Transform": {
+                                            "Transform": {
+                                                "Location": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Rotation": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Scale": [
+                                                    1.0,
+                                                    1.0,
+                                                    1.0
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "Mesh": {
+                                        "NameClass": "MeshComponent",
+                                        "Transform": {
+                                            "Transform": {
+                                                "Location": [
+                                                    0.0,
+                                                    -1.0,
+                                                    0.0
+                                                ],
+                                                "Rotation": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Scale": [
+                                                    0.800000011920929,
+                                                    0.800000011920929,
+                                                    0.800000011920929
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "MeshChair": {
+                                        "NameClass": "MeshComponent",
+                                        "Transform": {
+                                            "Transform": {
+                                                "Location": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Rotation": [
+                                                    0.0,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                                "Scale": [
+                                                    1.0,
+                                                    1.0,
+                                                    1.0
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "NameClass": "Quad"
+                    }
+                }
+            }
+        }
+    }
+}
