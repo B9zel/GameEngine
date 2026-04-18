@@ -1,40 +1,40 @@
 #pragma once
 #include <Runtime/includes/BaseLightComponent.h>
-
-
+#include <PointLightComponent.generated.h>
 
 namespace CoreEngine
 {
 	class LightProxy;
 	class PointLightProxy;
 
-	namespace Runtime
-	{
-		class PoinLightComponent : public BaseLightComponent
-		{
-		public:
+} // namespace CoreEngine
 
-			PoinLightComponent(const InitializeObject& Object);
+RCLASS(EditorComponent)
+class PoinLightComponent : public BaseLightComponent
+{
+	GENERATED_BODY()
 
-		public:
+public:
 
-			virtual LightProxy* GetLightProxy() override;
+	PoinLightComponent(const CoreEngine::InitializeObject& Object);
 
-			void SetConstant(const float NewConstant);
-			void SetLinear(const float NewLinear);
-			void SetQuadratic(const float NewQuadratic);
+public:
 
-			float GetConstant() const;
-			float GetLinear() const;
-			float GetQuadratic() const;
+	virtual CoreEngine::LightProxy* GetLightProxy() override;
 
-		private:
+	void SetConstant(const float NewConstant);
+	void SetLinear(const float NewLinear);
+	void SetQuadratic(const float NewQuadratic);
 
-			UniquePtr<PointLightProxy> LightProxy;
+	float GetConstant() const;
+	float GetLinear() const;
+	float GetQuadratic() const;
 
-			float m_Constant{ 1.0f };
-			float m_Linear{ 0.1f };
-			float m_Quadratic{ 0.034f };
-		};
-	}
-}
+private:
+
+	UniquePtr<CoreEngine::PointLightProxy> LightProxy;
+
+	float m_Constant{1.0f};
+	float m_Linear{0.1f};
+	float m_Quadratic{0.034f};
+};

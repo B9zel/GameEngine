@@ -17,7 +17,7 @@ namespace Editor
 	{
 		ImGui::Begin("Scene hierarchy");
 
-		for (auto* Level : CoreEngine::Engine::Get()->GetWorld()->GetLevels())
+		for (auto* Level : Engine::Get()->GetWorld()->GetLevels())
 		{
 			for (auto* Actor : Level->GetActors())
 			{
@@ -61,7 +61,7 @@ namespace Editor
 					ImGui::TreePop();
 				}
 				
-				CoreEngine::Runtime::Object* SelectedObject = OwnerEditor->GetSelectedObject();
+				Object* SelectedObject = OwnerEditor->GetSelectedObject();
 
 
 				DrawComponentContextDraw(OwnerEditor, SelectedObject);
@@ -107,7 +107,7 @@ namespace Editor
 	}
 
 
-	void SceneHierarhy::DrawAndWalkComponents(const DArray<CoreEngine::Runtime::SceneComponent*>& Components)
+	void SceneHierarhy::DrawAndWalkComponents(const DArray<SceneComponent*>& Components)
 	{
 		if (Components.empty()) return;
 
@@ -148,7 +148,7 @@ namespace Editor
 		
 		
 	}
-	bool SceneHierarhy::IsChildComponent(CoreEngine::Runtime::Actor* Actor)
+	bool SceneHierarhy::IsChildComponent(Actor* Actor)
 	{
 		for (auto* Component : Actor->GetComponents())
 		{
@@ -160,11 +160,6 @@ namespace Editor
 		return false;
 	}
 
-	void SceneHierarhy::PushColorTree()
-	{
-		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.32f, 0.55f, 0.95f, 1.f));
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
-	}
+
 
 }

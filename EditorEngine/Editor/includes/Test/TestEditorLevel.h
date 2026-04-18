@@ -18,7 +18,7 @@ class LightActor;
 
 
 RCLASS()
-class FirstLevel : public CoreEngine::Level
+class FirstLevel : public Level
 {
 	GENERATED_BODY()
 

@@ -3,17 +3,12 @@
 #include <Editor/includes/EditorUI/BaseEditorPanel.h>
 #include <Math/includes/Matrix.h>
 
-
-namespace CoreEngine::Runtime
-{
-	class SceneComponent;
-}
+class SceneComponent;
 
 namespace CoreEngine::Render
 {
 	class Framebuffer;
 }
-
 
 namespace Editor
 {
@@ -32,10 +27,11 @@ namespace Editor
 		bool GetIsFocused() const;
 
 		void OnActiveMoveCamera(bool IsActive);
+
 	private:
 
-		CoreEngine::Runtime::SceneComponent* GetSceneComponentFromSelected() const;
-		FMatrix4x4 GetMatrixOfComponent(CoreEngine::Runtime::SceneComponent* Component) const;
+		SceneComponent* GetSceneComponentFromSelected() const;
+		FMatrix4x4 GetMatrixOfComponent(SceneComponent* Component) const;
 
 	private:
 
@@ -47,4 +43,4 @@ namespace Editor
 		bool m_IsFocusedViewport;
 		uint32 Width{0}, Height{0};
 	};
-}
+} // namespace Editor

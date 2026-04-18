@@ -3,6 +3,8 @@
 #include <Core/includes/UpdateFunction.h>
 #include <ActorComponent.generated.h>
 
+class ActorComponent;
+class Object;
 
 namespace CoreEngine
 {
@@ -10,9 +12,6 @@ namespace CoreEngine
 
 	namespace Runtime
 	{
-		class ActorComponent;
-		class Object;
-
 
 		class UpdateActorComponentFunction : public UpdateFunction
 		{
@@ -40,55 +39,55 @@ namespace CoreEngine
 				}
 			}
 
-			void SetUpdateMethod(void(ActorComponent::* method)(float), ActorComponent* obj)
+			void SetUpdateMethod(void (ActorComponent::*method)(float), ActorComponent* obj)
 			{
-				UpdateDelegate = MethodPtr<Runtime::ActorComponent, void(float)>(obj, method);
+				UpdateDelegate = MethodPtr<ActorComponent, void(float)>(obj, method);
 			}
 
-
 		private:
 
-			MethodPtr<Runtime::ActorComponent, void(float)> UpdateDelegate;
+			MethodPtr<ActorComponent, void(float)> UpdateDelegate;
 		};
 
-		RCLASS();
-		class ActorComponent : public CoreEngine::Runtime::Object
-		{
-			GENERATED_BODY()
+	} // namespace Runtime
+} // namespace CoreEngine
 
-		public:
+RCLASS();
+class ActorComponent : public Object
+{
+	GENERATED_BODY()
 
-			ActorComponent(const InitializeObject& InitParam);
+public:
 
-		public:
+	ActorComponent(const CoreEngine::InitializeObject& InitParam);
 
-			virtual void BeginPlay();
+public:
 
-			virtual void InitProperties() override;
-			virtual void RegisteredComponent();
-			virtual void PreRegisterComponent();
-			virtual void UpdateComponent(float deltaTime);
+	virtual void BeginPlay();
 
-			virtual void DestroyComponent();
+	virtual void InitProperties() override;
+	virtual void RegisteredComponent();
+	virtual void PreRegisterComponent();
+	virtual void UpdateComponent(float deltaTime);
 
-			void SetOwner(Actor* Owner);
-			Actor* GetOwner() const;
-			bool GetIsActive() const;
-			bool GetIsCreatedNative() const;
+	virtual void DestroyComponent();
 
-		protected:
+	void SetOwner(Actor* Owner);
+	Actor* GetOwner() const;
+	bool GetIsActive() const;
+	bool GetIsCreatedNative() const;
 
-			UpdateActorComponentFunction updateFunc;
+protected:
 
-			bool isRegistered = false;
-			bool isActivate = true;
+	CoreEngine::Runtime::UpdateActorComponentFunction updateFunc;
 
-			Actor* Owner;
+	bool isRegistered = false;
+	bool isActivate = true;
 
-		private:
-			
-			// if true created before initialize Actor, if false created runtime
-			bool IsCreatedNative{ false };
-		};
-	}
-}
+	Actor* Owner;
+
+private:
+
+	// if true created before initialize Actor, if false created runtime
+	bool IsCreatedNative{false};
+};

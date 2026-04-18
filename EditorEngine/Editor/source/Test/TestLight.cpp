@@ -2,20 +2,25 @@
 #include <Core/includes/AssetManager.h>
 #include <Render/includes/RenderDevice.h>
 #include <Render/includes/VertexArrayObject.h>
+#include <Core/includes/Application.h>
 #include <Core/includes/Engine.h>
 
-Light::Light(const CoreEngine::InitializeObject& Object) : CoreEngine::Runtime::Actor(Object)
+Light::Light(const CoreEngine::InitializeObject& Object) : Actor(Object)
 {
-	mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
+	mesh = CreateSubObject<MeshComponent>("Mesh");
 	mesh->LoadMesh("C:/Projects/3D_Models/Cube.obj");
 
-	auto* AssetManager = CoreEngine::Engine::Get()->GetAssetManager();
-	auto& Device = CoreEngine::Engine::Get()->GetRenderDevice();
+	auto* AssetManager = Engine::Get()->GetAssetManager();
+	auto& Device = Engine::Get()->GetRenderDevice();
 
 	// Device->CreateVAO()
 	String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
 	shade = AssetManager->LoadShader(Path + "/Shaders/LightShader.glsl");
 
+	TestTexture = AssetManager->LoadTexture("C:/Projects/C++/GameEngine/Shaders/container.jpg");
+	mesh->GetSceneProxy()->AddTexture(TestTexture->GetTextureHandle());
+	auto* shader = AssetManager->LoadShader("C:/Projects/C++/GameEngine/Shaders/LightShader.glsl");
+	mesh->m_Shader.push_back(shader);
 	/*auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
 shade.CompileShader(shadPair.first, shadPair.second);*/
 	// LightObjh = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>("Spot light2");
@@ -40,4 +45,9 @@ shade.CompileShader(shadPair.first, shadPair.second);*/
 	LightObj->SetIntencity(10);
 	LightObj->SetComponentRotation(FVector(0, 0, 0));
 	LightObj->SetComponentLocation(FVector(3, 2, -7));*/
+}
+
+void Light::BeginPlay()
+{
+	Actor::BeginPlay();
 }

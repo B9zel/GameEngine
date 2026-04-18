@@ -1,11 +1,10 @@
 #pragma once
+#define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include <imgui.h>
 #include <Math/includes/Vector.h>
+#include <Render/includes/Types/Color.h>
 
-namespace CoreEngine::Runtime
-{
-	class Object;
-}
+class Object;
 class EditorEngine;
 
 namespace Editor
@@ -26,6 +25,8 @@ namespace Editor
 	void DrawTransform(const String& Id, const String& NameOfTransform, FVector& Location, FVector& Rotation, FVector& Scale, const float ColumnWidth = 100);
 	void DrawString(const String& Id, const String& NameString, String& SourceStr, const uint32 MaxBufferSize, const float ColumnWidth = 100);
 	void DrawBool(const String& Id, const String& NameString, bool& Value, const float ColumnWidth = 100);
+	void DrawColor(const String& Id, const String& NameString, LinearColor& Value, const float ColumnWidth = 100);
 
-	bool DrawComponentContextDraw(EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject);
+	bool DrawComponentContextDraw(EditorEngine* Engine, Object* SelectedObject);
+	void PushColorTree();
 } // namespace Editor

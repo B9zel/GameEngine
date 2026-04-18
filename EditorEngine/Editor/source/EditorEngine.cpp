@@ -16,8 +16,10 @@
 // #include <Core/includes/Memory/SaveManager.h>
 #include <Editor/includes/EditorViewportClient.h>
 #include <Editor/includes/EditorUI/EditorMenuBar.h>
-#include <Editor/includes/EditorWorld.h>
 #include <Editor/includes/EditorUI/EditorToolbar.h>
+#include <Editor/includes/EditorUI/ContentBrowser.h>
+#include <Editor/includes/EditorWorld.h>
+#include <Platform/Renderer/OpenGL/include/OpenGLRendere.h>
 #include <ImGuizmo/ImGuizmo.h>
 
 using namespace CoreEngine;
@@ -52,11 +54,15 @@ EditorEngine::EditorEngine(const InitializeObject& Initilize) : Engine(Initilize
 	Toolbar = MakeSharedPtr<Editor::EditorToolbar>();
 	Toolbar->SetOwnerEditor(this);
 
+	ContentBrowser = MakeSharedPtr<Editor::ContentBrowser>();
+	ContentBrowser->SetOwnerEditor(this);
+
 	EditorWidgets.push_back(Viewport);
 	EditorWidgets.push_back(SceneHier);
 	EditorWidgets.push_back(DetailsPanel);
 	EditorWidgets.push_back(MenuBar);
 	EditorWidgets.push_back(Toolbar);
+	EditorWidgets.push_back(ContentBrowser);
 	///
 	m_ViewportCamera = MakeUniquePtr<EditorViewportClient>();
 	m_ViewportCamera->EventActiveMove.AddBind(&EditorViewport::OnActiveMoveCamera, Viewport.get());
@@ -97,12 +103,12 @@ void EditorEngine::Update()
 	// GetWorld()->GetSaveManager()->SaveSceneSerializedData();
 }
 
-void EditorEngine::SetSelectedObject(Runtime::Object* NewSelected)
+void EditorEngine::SetSelectedObject(Object* NewSelected)
 {
 	SelectedObject = NewSelected;
 }
 
-Runtime::Object* EditorEngine::GetSelectedObject() const
+Object* EditorEngine::GetSelectedObject() const
 {
 	return SelectedObject;
 }
@@ -142,6 +148,14 @@ void EditorEngine::RenderEditor()
 		Widget->Draw();
 	}
 
+	ImGui::Begin("Test");
+
+	auto* a = dynamic_cast<Render::OpenGL::OpenGLRender*>(Engine::Get()->GetRender().get());
+
+	ImGui::Image((ImTextureRef)a->ShadowDepth->GetDepthAttachmentID(), ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()));
+
+	ImGui::End();
+
 	ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
 
 	// Edit a color stored as 4 floats
@@ -163,7 +177,7 @@ void EditorEngine::RenderEditor()
 
 	ImGui::End();
 }
-CoreEngine::World* EditorEngine::CreateWorld() const
+World* EditorEngine::CreateWorld() const
 {
-	return Runtime::CreateObject<EditorWorld>();
+	return CreateObject<EditorWorld>();
 }

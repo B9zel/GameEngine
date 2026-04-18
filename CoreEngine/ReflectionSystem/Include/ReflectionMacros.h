@@ -34,7 +34,7 @@ namespace CoreEngine::Runtime
 	public:                                                                                                                                                    \
                                                                                                                                                                \
 		static DArray<UniquePtr<CoreEngine::Reflection::PropertyField>> PASTE_DETAILS(NameNewClass, _Fields);                                                  \
-		virtual void ConstructInstanceObject(CoreEngine::Runtime::Object* Instance, const CoreEngine::InitializeObject& Initilizer) override;                  \
+		virtual void ConstructInstanceObject(Object* Instance, const CoreEngine::InitializeObject& Initilizer) override;                                       \
 		void Construct();                                                                                                                                      \
                                                                                                                                                                \
 	public:                                                                                                                                                    \
@@ -53,7 +53,7 @@ namespace CoreEngine::Runtime
                                                                                                                                                                \
 		ValidateMetaClass();                                                                                                                                   \
 	}                                                                                                                                                          \
-	void NameNewClass::ConstructInstanceObject(CoreEngine::Runtime::Object* Instance, const CoreEngine::InitializeObject& Initilizer)                          \
+	void NameNewClass::ConstructInstanceObject(Object* Instance, const CoreEngine::InitializeObject& Initilizer)                                               \
 	{                                                                                                                                                          \
 		new (Instance) Namespace::NameClass(Initilizer);                                                                                                       \
 	}                                                                                                                                                          \

@@ -4,34 +4,26 @@
 #include <Runtime/includes/Enums/ViewUtil.h>
 #include <CameraComponent.generated.h>
 
-namespace CoreEngine
+RCLASS(EditorComponent)
+class CameraComponent : public SceneComponent
 {
-	namespace Runtime
-	{
+	GENERATED_BODY()
 
+public:
 
-		RCLASS(EditorComponent)
-			class CameraComponent : public SceneComponent
-		{
-			GENERATED_BODY()
+	CameraComponent(const CoreEngine::InitializeObject& Object);
 
-		public:
+public:
 
-			CameraComponent(const InitializeObject& Object);
+	virtual void InitProperties() override;
+	virtual void SetComponentRotation(const FVector& Rotate) override;
 
-		public:
+	FMatrix4x4 GetViewMatrix();
+	const ETypeView& GetTypeView() const;
 
-			virtual void InitProperties() override;
-			virtual void SetComponentRotation(const FVector& Rotate) override;
+protected:
 
-			FMatrix4x4 GetViewMatrix();
-			const ETypeView& GetTypeView() const;
-
-		protected:
-
-			FMatrix4x4 viewMatrix;
-			FVector direction;
-			ETypeView typeProjection;
-		};
-	}
-}
+	FMatrix4x4 viewMatrix;
+	FVector direction;
+	ETypeView typeProjection;
+};

@@ -13,7 +13,7 @@
 #include <TestQuad.generated.h>
 
 RCLASS()
-class Quad : public CoreEngine::Runtime::Pawn
+class Quad : public Pawn
 {
 	GENERATED_BODY()
 
@@ -21,15 +21,15 @@ public:
 
 	Quad(const CoreEngine::InitializeObject& Object) : Pawn(Object)
 	{
-		mesh = CreateSubObject<CoreEngine::Runtime::MeshComponent>("Mesh");
+		mesh = CreateSubObject<MeshComponent>("Mesh");
 		mesh->LoadMesh("C:/Projects/3D_Models/Table.obj");
-		mesh2 = CreateSubObject<CoreEngine::Runtime::MeshComponent>("MeshChair");
+		mesh2 = CreateSubObject<MeshComponent>("MeshChair");
 		mesh2->LoadMesh("C:/Projects/3D_Models/chair.obj");
 		mesh->SetComponentScale(FVector(0.8));
 		mesh->AddComponentLocation(FVector(0, -1, 0));
 		// mesh2->SetupToAttachment(mesh);
 
-		LightObj = CreateSubObject<CoreEngine::Runtime::DirectionLightComponent>("Direction light");
+		LightObj = CreateSubObject<DirectionLightComponent>("Direction light");
 		// mesh->SetComponentScale(FVector(2));
 		// mesh->AddComponentLocation(FVector(0, 0, -5));
 		// mesh->SetComponentScale(FVector(10));
@@ -70,7 +70,7 @@ public:
 
 protected:
 
-	virtual void SetupInputPlayerController(CoreEngine::Runtime::InputComponent* Input) override
+	virtual void SetupInputPlayerController(InputComponent* Input) override
 	{
 		Pawn::SetupInputPlayerController(Input);
 
@@ -106,16 +106,16 @@ protected:
 private:
 
 	RPROPERTY()
-	CoreEngine::Runtime::DirectionLightComponent* LightObj;
-	CoreEngine::Runtime::PrimitiveComponent* quad = nullptr;
-	CoreEngine::Runtime::MeshComponent* mesh = nullptr;
-	CoreEngine::Runtime::MeshComponent* mesh2 = nullptr;
+	DirectionLightComponent* LightObj;
+	PrimitiveComponent* quad = nullptr;
+	MeshComponent* mesh = nullptr;
+	MeshComponent* mesh2 = nullptr;
 
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject VertexBuffer;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject VertexArray;
 	CoreEngine::Render::OpenGL::OpenGLElementBufferObject ElementBuffer;
-	CoreEngine::Render::OpenGL::OpenGLShader Shader;
-	CoreEngine::Render::OpenGL::OpenGLShader ShaderID;
+	// CoreEngine::Render::OpenGL::OpenGLShader Shader;
+	// CoreEngine::Render::OpenGL::OpenGLShader ShaderID;
 
 	float Arr2[24] = {0.5,	-0.5, 1.0, 0.0, -0.5, -0.5, 0.0, 0.0,  0.5, 0.5, 1, 1, -0.5,
 					  -0.5, 0.0,  0.0, 0.5, 0.5,  1,	1,	 -0.5, 0.5, 1,	 0

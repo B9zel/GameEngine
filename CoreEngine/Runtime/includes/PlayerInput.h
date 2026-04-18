@@ -3,14 +3,12 @@
 #include <Events/include/Event.h>
 #include <Events/include/EventPool.h>
 
+class PlayerController;
 
 namespace CoreEngine
 {
 	namespace Runtime
 	{
-		class PlayerController;
-
-
 		struct EventBuffer
 		{
 			EventBuffer() = default;
@@ -29,7 +27,6 @@ namespace CoreEngine
 				EventKeyboardPressed eventKeyPressed;
 				EventKeyboardReleased eventKeyReleased;
 				EventKeyboardRepeat eventKeyRepeat;
-
 
 			} storeEvent;
 
@@ -56,7 +53,6 @@ namespace CoreEngine
 			uint32 Back;
 		};*/
 
-
 		class PlayerInput
 		{
 		public:
@@ -66,23 +62,23 @@ namespace CoreEngine
 
 		public:
 
-			Queue<Event*>* GetReverseQueueEvents();
+			Queue<CoreEngine::Event*>* GetReverseQueueEvents();
 
 			void ResetQueueEvents();
 
 		private:
 
 			void Register();
-			void TakeEvent(Event& event);
+			void TakeEvent(CoreEngine::Event& event);
 
-			void OnRemoveElement(Event** event);
+			void OnRemoveElement(CoreEngine::Event** event);
 
 		private:
 
-			Queue<Event*> m_Events;
+			Queue<CoreEngine::Event*> m_Events;
 			EventPool m_eventPool;
 
 			friend PlayerController;
 		};
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

@@ -47,7 +47,7 @@ namespace CoreEngine::Reflection
 				return;
 			}
 
-			if (!IsChildClassOf(CoreEngine::Runtime::ActorComponent::GetStaticClass()))
+			if (!IsChildClassOf(ActorComponent::GetStaticClass()))
 			{
 				RemoveFlag(ParamFlags, static_cast<uint64>(EClassFieldParams::EditorComponent));
 			}

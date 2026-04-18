@@ -9,15 +9,21 @@ namespace CoreEngine
 {
 	struct ParamOfShaderDesc;
 }
+namespace CoreEngine::Render
+{
+	struct MaterialHandle;
+}
 
 struct ShaderDescHasher
 {
 	size_t operator()(const CoreEngine::ParamOfShaderDesc& Desc) const;
 };
 
+class RMaterial;
 namespace CoreEngine
 {
 	class UUID;
+	
 
 	struct ParamOfShaderDesc
 	{
@@ -46,6 +52,12 @@ namespace CoreEngine
 
 	public:
 
+		virtual ~PrimitiveProxy() = default;
+
+		virtual void AddMaterial(const CoreEngine::Render::MaterialHandle& NewMaterial);
+		const DArray<CoreEngine::Render::MaterialHandle>& GetMaterials() const;
+
+
 		virtual const HashTableSet<ParamOfShaderDesc, ShaderDescHasher>& GetShaders() const;
 		virtual void AddShader(const ParamOfShaderDesc& Desc);
 		// virtual void AddTexture(Render::Texture* NewTexture);
@@ -71,6 +83,7 @@ namespace CoreEngine
 		FVector ViewLocation;
 		FMatrix4x4 transform;
 		UUID* m_UUID;
+		DArray<CoreEngine::Render::MaterialHandle> m_Materials;
 
 		// Test
 	public:

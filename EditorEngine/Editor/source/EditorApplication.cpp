@@ -48,7 +48,7 @@ namespace Editor
 	{
 		if (InstanceEngine) return;
 		CoreEngine::InitializeObject InitParam;
-		InitParam.Class = CoreEngine::Engine::GetStaticClass();
+		InitParam.Class = Engine::GetStaticClass();
 
 		InstanceEngine = MakeUniquePtr<EditorEngine>(InitParam);
 	}

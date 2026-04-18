@@ -10,11 +10,11 @@ namespace CoreEngine
 	{
 		return m_CountIndeces;
 	}
-	void StaticMeshProxy::AddArrayObject(const Render::RHI::HandleVAO& VertexArray)
+	void StaticMeshProxy::AddArrayObject(const CoreEngine::Render::RHI::HandleVAO& VertexArray)
 	{
 		m_ArrayObject.push_back(VertexArray);
 	}
-	const DArray<Render::RHI::HandleVAO>& StaticMeshProxy::GetArrayObject() const
+	const DArray<CoreEngine::Render::RHI::HandleVAO>& StaticMeshProxy::GetArrayObject() const
 	{
 		return m_ArrayObject;
 	}
@@ -23,6 +23,7 @@ namespace CoreEngine
 		m_CountIndeces.clear();
 		PositionLights.clear();
 		m_ArrayObject.clear();
+		m_Materials.clear();
 	}
 
 } // namespace CoreEngine

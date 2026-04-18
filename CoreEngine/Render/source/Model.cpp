@@ -162,6 +162,7 @@ namespace CoreEngine
 			m_VAO->SetupIntorprit(1, 3, 9, ETypeData::FLOAT, *m_VBO.get(), 3);
 			m_VAO->SetupIntorprit(2, 2, 9, ETypeData::FLOAT, *m_VBO.get(), 6);
 			m_VAO->SetupIntorprit(3, 1, 9, ETypeData::INT, *m_VBO.get(), 8);*/
+		
 		}
 
 		const DArray<uint32>& Model::GetIndeces() const

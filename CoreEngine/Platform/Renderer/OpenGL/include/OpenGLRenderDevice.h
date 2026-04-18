@@ -43,6 +43,8 @@ namespace CoreEngine::Render::OpenGL
 		virtual const uint32 GetShaderID(const RHI::ShaderHandle& Handle) const override;
 		virtual const uint32 GetVAOID(const RHI::HandleVAO& Handle) const override;
 
+		virtual int32 GetLocationUniform(const RHI::ShaderHandle& Shader, const String& NameUniform) const override;
+
 		virtual bool SetUniformMatrix4x4(const RHI::ShaderHandle& Handle, const String& nameParam, const FMatrix4x4& matrix) override;
 		virtual bool SetUniform1i(const RHI::ShaderHandle& Handle, const String& nameParam, const int32 value) override;
 		virtual bool SetUniform1ui(const RHI::ShaderHandle& Handle, const String& nameParam, const uint32 value) override;

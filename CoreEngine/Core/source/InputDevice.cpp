@@ -1,9 +1,9 @@
 #include <Core/includes/InputDevice.h>
+#include <Core/includes/Engine.h>
 #include <Core/includes/Application.h>
 #include <Core/includes/Window.h>
 #include <Core/includes/Log.h>
 #include <GLFW/glfw3.h>
-
 
 namespace CoreEngine
 {
@@ -40,10 +40,9 @@ namespace CoreEngine
 		return DVector2(x, y);
 	}
 
-
 	void InputDevice::InviteEvent(Event& event)
 	{
 
 		m_dispatch.Call(event);
 	}
-}
+} // namespace CoreEngine

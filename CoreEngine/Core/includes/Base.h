@@ -13,6 +13,7 @@
 #include <stack>
 #include <algorithm>
 #include <tuple>
+#include <typeindex>
 
 
 
@@ -45,9 +46,9 @@ class Function;
 #define ENGINE_DEBUGBREAK 
 #endif // _WIN64 || _WIN32
 
-#define CORE_UNASSERT(is, log) { if (is) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-#define CORE_ASSERT(is, log) { if (!(is)) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-#define ASSERT(log) { EG_LOG(CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }
+#define CORE_UNASSERT(is, log) { if (is) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+#define CORE_ASSERT(is, log) { if (!(is)) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
+#define ASSERT(log) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }
 #define CHECK(is) { CORE_UNASSERT(!is, "Fail check"); }
 
 #define FUNCTION_NAME __FUNCTION__
@@ -101,6 +102,7 @@ using Deque = std::deque<T>;
 template<class T, class Conteiner = Deque<T>>
 using Stack = std::stack<T, Conteiner>;
 
+using TypeIndex = std::type_index;
 
 template<class Key, class Value, class Hasher = std::hash<Key>>
 using HashTableMap = std::unordered_map<Key, Value, Hasher>;

@@ -146,6 +146,7 @@ def CollectPropertyConfig(tu, token:list, SearchPredicate):
 
 
 def CollectNamespaceOfProperty(cursor):
+    return ""
     parts = []
     parent = cursor.semantic_parent
     while parent and parent.kind != cindex.CursorKind.TRANSLATION_UNIT:
@@ -165,7 +166,7 @@ def CollectFullTypeName(tu, cursor) -> (str, ETypePrimitive, str):
     templateType = ExtractTemplateInnder("".join(i.spelling for i in tokens), "DArray")
     if templateType[0]:
         return f"DArray<{GetNamespace(cursor)}::{templateType[1]}>", ETypePrimitive.ARRAY, f"{GetNamespace(cursor)}::{templateType[1]}"
-    if tokens[0].spelling in ("FVector", "FTransform", "String", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"):
+    if tokens[0].spelling in ("FVector", "FTransform", "String", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64", "LinearColor"):
         return tokens[0].spelling, ETypePrimitive.CUSTOM_PRIMITIVE, ""
 
     declar = GetDeclarationFromType(cursor.type)
@@ -258,7 +259,7 @@ def ParseFile(pr, FindedMacrosClass:list) -> list:
                 continue
             NewClass = ClassField()
             NewClass.Name = node.spelling
-            NewClass.Namespace = GetNamespaceWithClass(node)
+            #NewClass.Namespace = GetNamespaceWithClass(node)
             NewClass.LineGenBody = CollectGeneratedBody(pr, node)
             NewClass.ParamsClass = FindedMacros[0]
             NewClass.Parent = GetParentWithNamepsace(NewClass.Namespace, GetParent(pr, node))

@@ -9,6 +9,8 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLFramebufferArray.h>
 #include <Render/includes/RenderCommand.h>
 
+class RMaterial;
+
 namespace CoreEngine
 {
 	struct SimplyDirectionLightProxy;
@@ -18,6 +20,7 @@ namespace CoreEngine
 	namespace Render
 	{
 		class Shader;
+		class MaterialManager;
 		struct RenderCommand;
 
 		namespace OpenGL
@@ -37,7 +40,58 @@ namespace CoreEngine
 			public:
 
 				int32 Layer;
-				int IDLight;
+				int32 IDLight;
+			};
+
+			struct RenderCommandPool
+			{
+			public:
+
+				struct CeilPool
+				{
+					CeilPool() = default;
+
+				public:
+
+					bool IsUsed = false;
+					UniquePtr<RenderCommand> Command;
+					TypeIndex Type = typeid(nullptr);
+				};
+
+			public:
+
+				template <class T, class... Args> T* RequestCommand(Args&&... args)
+				{
+					if (!m_CommandPool.count(typeid(T)))
+					{
+						m_CommandPool.emplace(typeid(T), DArray<CeilPool>());
+					}
+					DArray<CeilPool>& ArrCeil = m_CommandPool[typeid(T)];
+					for (auto& Ceil : ArrCeil)
+					{
+						if (!Ceil.IsUsed && Ceil.Type == typeid(T))
+						{
+							Ceil.IsUsed = true;
+							Allocator::Destruct(Ceil.Command.get());
+							auto* CorrentCommand = static_cast<T*>(Ceil.Command.get());
+							Allocator::Construct(CorrentCommand, std::forward<Args>(args)...);
+							return CorrentCommand;
+						}
+					}
+					CeilPool NewCeil;
+					NewCeil.IsUsed = true;
+					NewCeil.Type = typeid(T);
+					NewCeil.Command = MakeUniquePtr<T>(std::forward<Args>(args)...);
+					ArrCeil.push_back(std::move(NewCeil));
+					return static_cast<T*>(ArrCeil.back().Command.get());
+				}
+
+				void ReturnCommand(RenderCommand* Command);
+				void ClearCommand();
+
+			private:
+
+				HashTableMap<TypeIndex, DArray<CeilPool>> m_CommandPool;
 			};
 
 			class OpenGLRender : public Render
@@ -72,16 +126,27 @@ namespace CoreEngine
 
 				void BuidCommandList(RenderDevice* Device, const DArray<PrimitiveProxy*> Primitives, const DArray<SimplyDirectionLightProxy>& DirectionLights,
 									 const DArray<SimplyPointLightProxy>& PointLights, const DArray<SimpleSpotLightProxy>& SpotLights,
-									 DArray<UniquePtr<RenderCommand>>& OutCommands);
+									 DArray<RenderCommand*>& OutCommands);
 
 				void BuildStaticMeshCommandList(RenderDevice* Device, const StaticMeshProxy* Primitive,
 												const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
-												const DArray<SimpleSpotLightProxy>& SpotLights, DArray<UniquePtr<RenderCommand>>& OutCommands);
+												const DArray<SimpleSpotLightProxy>& SpotLights, DArray<RenderCommand*>& OutCommands);
 
-				void ExecuteCommandList(RenderDevice* Device, const DArray<UniquePtr<RenderCommand>>& Commands);
+				void ExecuteCommandList(RenderDevice* Device, const DArray<RenderCommand*>& Commands);
 
 				void CollectDataFromProxy(const DArray<LightProxy*>& Lights, DArray<SimplyDirectionLightProxy>& OutDirectionLights,
 										  DArray<SimplyPointLightProxy>& OutPointLights, DArray<SimpleSpotLightProxy>& OutSpotLights);
+
+				// Shadow
+				void BuildShadowDepthCommandList(RenderDevice* Device, const DArray<LightProxy*>& Lights, const DArray<CoreEngine::PrimitiveProxy*>& Primitives,
+												 DArray<RenderCommand*>& OutCommands);
+				void BuildDirectionLightShadowDepthCommandList(RenderDevice* Device, LightProxy* Lights, const DArray<CoreEngine::PrimitiveProxy*>& Primitives,
+															   DArray<FMatrix4x4>& LightSpace, DArray<RenderCommand*>& OutCommands);
+				void BuildSpotLightShadowDepthCommandList(RenderDevice* Device, LightProxy* Lights, const DArray<CoreEngine::PrimitiveProxy*>& Primitives,
+														  DArray<FMatrix4x4>& LightSpace, DArray<RenderCommand*>& OutCommands);
+				void ExecuteShadowDepthCommand(RenderDevice* Device, const DArray<LightProxy*>& Lights, const DArray<RenderCommand*>& Commands);
+
+			
 
 			private:
 
@@ -92,17 +157,24 @@ namespace CoreEngine
 				OpenGLShaderStorageBufferObject m_SSBOPointLight;
 				OpenGLShaderStorageBufferObject m_SSBOSpotLight;
 				HashTableMap<ETypeLight, DArray<LightShadowData>> m_LightsFramebuffer;
-				SharedPtr<OpenGL::OpenGLFramebufferArray> ShadowDepth;
+				Shader* m_ShaderShadow;
 
 				DArray<FMatrix4x4> LightsMatrix;
 
 				SharedPtr<Framebuffer> m_ShadowBuffer;
 				SharedPtr<Framebuffer> m_ResultScene;
-				Shader* m_ShaderShadow;
 				FVector2 CurrentRes;
 
 				/////////////////////////////////////
-				DArray<UniquePtr<RenderCommand>> m_ListCommand;
+				DArray<RenderCommand*> m_ListCommand;
+				DArray<RenderCommand*> m_ShadowDepthListCommand;
+
+				uint32 m_CurrentShadowFramebufferLayer = 0;
+				RenderCommandPool CommandPool;
+
+			public:
+
+				SharedPtr<OpenGL::OpenGLFramebufferArray> ShadowDepth;
 			};
 		} // namespace OpenGL
 	} // namespace Render

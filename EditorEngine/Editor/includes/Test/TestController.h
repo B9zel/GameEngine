@@ -4,15 +4,13 @@
 #include <Core/includes/InputDevice.h>
 #include <Math/includes/Math.h>
 #include <Runtime/includes/InputComponent.h>
+//#include <GLFW/glfw3.h>
 #include <TestController.generated.h>
 
-
-
 RCLASS()
-class MyController : public CoreEngine::Runtime::PlayerController
+class MyController : public PlayerController
 {
 	GENERATED_BODY()
-
 
 public:
 
@@ -24,12 +22,11 @@ public:
 
 protected:
 
-
 	virtual void SetupInputComponent() override
 	{
 		PlayerController::SetupInputComponent();
 
-		inputComponent->BindAxis(GLFW_KEY_W, 1, &MyController::MoveForward, this);
+		/*inputComponent->BindAxis(GLFW_KEY_W, 1, &MyController::MoveForward, this);
 		inputComponent->BindAxis(GLFW_KEY_S, -1, &MyController::MoveForward, this);
 		inputComponent->BindAxis(GLFW_KEY_A, 1, &MyController::MoveLeft, this);
 		inputComponent->BindAxis(GLFW_KEY_D, -1, &MyController::MoveLeft, this);
@@ -37,12 +34,12 @@ protected:
 		inputComponent->BindAxis(GLFW_KEY_Q, -1, &MyController::MoveUp, this);
 		inputComponent->BindAction(GLFW_MOUSE_BUTTON_RIGHT, CoreEngine::EActionType::PRESSED, &MyController::RightPress, this);
 		inputComponent->BindAction(GLFW_MOUSE_BUTTON_RIGHT, CoreEngine::EActionType::RELEASED, &MyController::RightRelease, this);
-		inputComponent->BindMouseMotionAxis(&MyController::MoveRight, this);
+		inputComponent->BindMouseMotionAxis(&MyController::MoveRight, this);*/
 	}
 
 	void RightPress()
 	{
-		CurrentMouseLoc = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
+		CurrentMouseLoc = Engine::Get()->GetInputDevice()->GetMousePos();
 		IsLooking = true;
 	}
 
@@ -57,10 +54,10 @@ protected:
 		if (!IsLooking) return;
 		if (LastMousePos.x == 0.0f && LastMousePos.y == 0.0f)
 		{
-			LastMousePos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
+			LastMousePos = Engine::Get()->GetInputDevice()->GetMousePos();
 			return;
 		}
-		DVector2 NowPos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
+		DVector2 NowPos = Engine::Get()->GetInputDevice()->GetMousePos();
 		double DeltaX = Math::Clamp(LastMousePos.x - NowPos.x, -360, 360);
 		double DeltaY = Math::Clamp(LastMousePos.y - NowPos.y, -360, 360);
 
@@ -74,9 +71,8 @@ protected:
 
 			SetActorRotation(GetActorRotation() + FVector((DeltaY * 0.1), 0.0f, 0.0f));
 		}
-		LastMousePos = CoreEngine::Engine::Get()->GetInputDevice()->GetMousePos();
-		CoreEngine::Engine::Get()->GetInputDevice()->SetMousePos(LastMousePos);
-
+		LastMousePos = Engine::Get()->GetInputDevice()->GetMousePos();
+		Engine::Get()->GetInputDevice()->SetMousePos(LastMousePos);
 	}
 
 	void MoveLeft(float axis)
@@ -109,19 +105,16 @@ protected:
 
 	virtual void Update(float DeltaTime) override
 	{
-		CoreEngine::Runtime::PlayerController::Update(DeltaTime);
+		PlayerController::Update(DeltaTime);
 
 		if (IsLooking)
 		{
-
 		}
-
 	}
-
 
 private:
 
-	bool IsLooking{ false };
+	bool IsLooking{false};
 	DVector2 LastMousePos;
 	DVector2 CurrentMouseLoc;
 };

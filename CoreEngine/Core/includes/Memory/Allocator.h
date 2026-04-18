@@ -31,6 +31,9 @@ public:
 	template<class T>
 	static void Deallocate(T* mem);
 
+	template<class T> 
+	static void Destruct(T* mem);
+
 	template<class T, class ...Args>
 	static void Construct(T* mem, Args&& ...args);
 };
@@ -72,6 +75,11 @@ inline void Allocator::Deallocate(T* mem)
 {
 	mem->~T();
 	std::free(mem);
+}
+
+template <class T> inline void Allocator::Destruct(T* mem)
+{
+	mem->~T();
 }
 
 template<class T,class ...Args>

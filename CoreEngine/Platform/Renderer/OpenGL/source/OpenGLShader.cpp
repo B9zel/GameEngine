@@ -1,5 +1,6 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRenderDevice.h>
+#include <Core/includes/Engine.h>
 
 namespace CoreEngine
 {
@@ -7,6 +8,17 @@ namespace CoreEngine
 	{
 		namespace OpenGL
 		{
+
+			DArray<String> OpenGLShader::m_SearchElements = {"uniform"};
+			// clang-format off
+			const HashTableMap<String, EUniformType> OpenGLShader::m_UniformTypStr = { 
+				{"float", EUniformType::FLOAT},
+				{"int", EUniformType::INT},
+				{"uint", EUniformType::UINT},
+				{"mat4", EUniformType::MAT4},
+				{"vec3", EUniformType::VEC3}
+			};
+			// clang-format on
 
 			/* #define SHADER_LOCATION_PARAM(KeyString, outLocation) \
 				if (!GetCachedLocationParam(KeyString, outLocation)) \
@@ -63,12 +75,15 @@ namespace CoreEngine
 			bool OpenGLShader::CompileShader(RenderDevice* Device, const String& vertexShader, const String& fragmentShader)
 			{
 				Handle = Device->CreateShader(vertexShader, fragmentShader);
-				
+
 				if (Handle.IsValid())
 				{
 					m_IsCompile = true;
 					AnalysisTextureShader(vertexShader, fragmentShader);
 					AnalysisMatrix4(vertexShader);
+					ParseShader(vertexShader + fragmentShader, m_Uniforms);
+					Fragment = fragmentShader;
+					Vertex = vertexShader;
 				}
 
 				return Handle.IsValid();
@@ -119,6 +134,16 @@ namespace CoreEngine
 			int32 OpenGLShader::GetUniformLocation(const char* nameParam)
 			{
 				return glGetUniformLocation(m_ID, nameParam);
+			}
+
+			const String& OpenGLShader::GetVertexShader() const
+			{
+				return Vertex;
+			}
+
+			const String& OpenGLShader::GetFragmentShader() const
+			{
+				return Fragment;
 			}
 
 			bool OpenGLShader::SetUniformMatrix4x4(RenderDevice* Device, const String& nameParam, const FMatrix4x4& matrix, bool isBindShader)
@@ -253,6 +278,11 @@ namespace CoreEngine
 				return Device->SetUniformVec3(Handle, nameParam, vec);
 			}
 
+			const HashTableMap<String, UniformInfo>& OpenGLShader::GetAllUniforms() const
+			{
+				return m_Uniforms;
+			}
+
 			bool OpenGLShader::GetCachedLocationParam(const String& Key, int32& outLocation)
 			{
 				auto& it = cachedParameters.find(Key);
@@ -352,6 +382,8 @@ namespace CoreEngine
 					size_t ClosePos = str.find("*/", OpenPos);
 					if (ClosePos != String::npos)
 					{
+						if (OpenPos > PosTarget) break;
+
 						if (PosTarget > OpenPos && PosTarget < ClosePos)
 						{
 							return true;
@@ -385,6 +417,43 @@ namespace CoreEngine
 				}
 
 				return false;
+			}
+			void OpenGLShader::ParseShader(const String& shader, const RHI::ShaderHandle& Shader, HashTableMap<String, UniformInfo>& outUniforms)
+			{
+				outUniforms.clear();
+				const int32 Space = 1;
+
+				size_t CurrentPos = 0;
+				bool HasElement = true;
+				while (HasElement)
+				{
+					HasElement = false;
+					for (auto& SearchStr : m_SearchElements)
+					{
+						size_t Pos = shader.find(SearchStr, CurrentPos);
+						if (Pos != SearchStr.npos)
+						{
+							HasElement = true;
+							CurrentPos = Pos + Space;
+							if (IsInComment(shader, Pos)) continue;
+
+							size_t BeginTypePos = Pos + SearchStr.size() + Space;
+							size_t PosBetweenTypeAndName = shader.find(" ", BeginTypePos);
+
+							const String& NameVar =
+								shader.substr(PosBetweenTypeAndName + Space, shader.find(";", PosBetweenTypeAndName) - PosBetweenTypeAndName - Space);
+
+							const auto& FindedType = m_UniformTypStr.find(shader.substr(BeginTypePos, PosBetweenTypeAndName - BeginTypePos));
+							if (FindedType != m_UniformTypStr.end())
+							{
+								UniformInfo Info;
+								Info.Type = FindedType->second;
+								Info.Location = Engine::Get()->GetRenderDevice()->GetLocationUniform(Shader, NameVar);
+								outUniforms.emplace(NameVar, Info);
+							}
+						}
+					}
+				}
 			}
 		} // namespace OpenGL
 	} // namespace Render

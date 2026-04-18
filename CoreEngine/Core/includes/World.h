@@ -8,178 +8,173 @@
 
 namespace CoreEngine
 {
-	namespace Runtime
-	{
-		class Object;
-	}
 	namespace Render
 	{
 		class SceneInterface;
 	}
-}
+} // namespace CoreEngine
+
+class Object;
+class Level;
 
 namespace CoreEngine
 {
 	class TimerManager;
 	class UpdateManager;
-	class Level;
+	class SaveManager;
 
 	struct SpawnParamConfiguration
 	{
 	public:
+
 		Level* SpawnLevel = nullptr;
 	};
 
-	RCLASS()
-		class World : public CoreEngine::Runtime::Object
-	{
-		GENERATED_BODY()
-
-	public:
-		World(const InitializeObject& Initilize);
-	public:
-		virtual void InitProperties() override;
-		virtual void WorldUpdate();
-
-		UpdateManager* GetUpdateManager() const;
-		SaveManager* GetSaveManager() const;
-		float GetWorldDeltaTime() const;
-		const DArray<Level*>& GetLevels() const;
-		virtual FVector GetControllerLocation() const;
-
-		template<class T>
-		T* SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
-		template<class T>
-		T* SpawnActor(Reflection::ClassField* ClassSource, Runtime::Actor* Owner, const SpawnParamConfiguration& Param = SpawnParamConfiguration());
-		
-		virtual void PreSerialize() override;
-		virtual void OnSerialize(SerializeAchive& Achive) override;
-
-		virtual void PreDeserialize() override;
-		virtual void OnDeserialize(SerializeAchive& Data) override;
-
-		void OpenLevel(Level* level);
-		void InitializePlayActors();
-
-		template<class Predict>
-		DArray<Runtime::Actor*> GetAllActorsPredicate(Predict Predication);
-		template<class Predict>
-		Runtime::Actor* GetActorPredicate(Predict Predication);
-
-		virtual void DestroyActor(Runtime::Actor* ActorDestr);
-
-	protected:
-
-		virtual void UpdateWorld();
-
-	private:
-
-		UniquePtr<UpdateManager> m_UpdateManager;
-		UniquePtr<SaveManager> m_SaveManager;
-
-
-		DArray<Level*> m_Levels;
-		RPROPERTY();
-		Level* m_MainLevel;
-
-		Render::SceneInterface* m_Scene;
-
-		float m_DeltaTime;
-		float m_LastTime;
-	};
-
-	template<class T>
-	T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)
-	{
-		if (!Runtime::IsParentClass<Runtime::Actor, T>())
-		{
-			EG_LOG(CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
-			return nullptr;
-		}
-
-		Level* spawnToLevel = nullptr;
-		if (Param.SpawnLevel)
-		{
-			spawnToLevel = Param.SpawnLevel;
-		}
-		else
-		{
-			spawnToLevel = m_Levels.front();
-			if (!spawnToLevel)
-			{
-				EG_LOG(CORE, ELevelLog::ERROR, "There is no single level");
-				return nullptr;
-			}
-		}
-		T* NewActor = Runtime::CreateObject<T>(Owner);
-		NewActor->SetOwner(Owner);
-		NewActor->PostSpawnActor();
-		spawnToLevel->AddActor(NewActor);
-
-		return NewActor;
-	}
-
-	template<class T>
-	inline T* World::SpawnActor(Reflection::ClassField* ClassSource, Runtime::Actor* Owner, const SpawnParamConfiguration& Param)
-	{
-		Reflection::ClassField* ClassOfTargetType = T::GetStaticClass();
-
-		if (!ClassSource->IsChildClassOf(ClassOfTargetType))
-		{
-			EG_LOG(CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
-			return nullptr;
-		}
-
-		
-		Level* spawnToLevel = nullptr;
-		if (Param.SpawnLevel)
-		{
-			spawnToLevel = Param.SpawnLevel;
-		}
-		else
-		{
-			spawnToLevel = m_Levels.front();
-			if (!spawnToLevel)
-			{
-				EG_LOG(CORE, ELevelLog::ERROR, "There is no single level");
-				return nullptr;
-			}
-		}
-		T* NewActor = Runtime::CreateObject<T>(ClassSource, Owner);
-		NewActor->SetOwner(Owner);
-		NewActor->PostSpawnActor();
-		spawnToLevel->AddActor(NewActor);
-
-		return NewActor;
-	}
-
-
-	template<class Predict>
-	DArray<Runtime::Actor*> World::GetAllActorsPredicate(Predict Predication)
-	{
-		DArray<Runtime::Actor*> CollectActors;
-		for (Runtime::Actor* Actor : m_MainLevel->GetActors())
-		{
-			if (Predication(Actor))
-			{
-				CollectActors.push_back(Actor);
-			}
-		}
-		return CollectActors;
-	}
-
-	template<class Predict>
-	Runtime::Actor* World::GetActorPredicate(Predict Predication)
-	{
-		for (Runtime::Actor* Actor : m_MainLevel->GetActors())
-		{
-			if (Predication(Actor))
-			{
-				return Actor;
-			}
-		}
-		return nullptr;
-	}
 	/*template<typename T>
 	inline T* World::SpawnActor(Runtime::Actor* Owner, const SpawnParamConfiguration& Param)*/
+} // namespace CoreEngine
+
+RCLASS()
+class World : public Object
+{
+	GENERATED_BODY()
+
+public:
+
+	World(const CoreEngine::InitializeObject& Initilize);
+
+public:
+
+	virtual void InitProperties() override;
+	virtual void WorldUpdate();
+
+	CoreEngine::UpdateManager* GetUpdateManager() const;
+	CoreEngine::SaveManager* GetSaveManager() const;
+	float GetWorldDeltaTime() const;
+	const DArray<Level*>& GetLevels() const;
+	virtual FVector GetControllerLocation() const;
+
+	template <class T> T* SpawnActor(Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param = CoreEngine::SpawnParamConfiguration());
+	template <class T>
+	T* SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner,
+				  const CoreEngine::SpawnParamConfiguration& Param = CoreEngine::SpawnParamConfiguration());
+
+	virtual void PreSerialize() override;
+	virtual void OnSerialize(CoreEngine::SerializeAchive& Achive) override;
+
+	virtual void PreDeserialize() override;
+	virtual void OnDeserialize(CoreEngine::SerializeAchive& Data) override;
+
+	void OpenLevel(Level* level);
+	void InitializePlayActors();
+
+	template <class Predict> DArray<Actor*> GetAllActorsPredicate(Predict Predication);
+	template <class Predict> Actor* GetActorPredicate(Predict Predication);
+
+	virtual void DestroyActor(Actor* ActorDestr);
+
+protected:
+
+	virtual void UpdateWorld();
+
+private:
+
+	UniquePtr<CoreEngine::UpdateManager> m_UpdateManager;
+	UniquePtr<CoreEngine::SaveManager> m_SaveManager;
+
+	DArray<Level*> m_Levels;
+	RPROPERTY();
+	Level* m_MainLevel;
+
+	CoreEngine::Render::SceneInterface* m_Scene;
+
+	float m_DeltaTime;
+	float m_LastTime;
+};
+
+template <class T> T* World::SpawnActor(Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param)
+{
+	if (!IsParentClass<Actor, T>())
+	{
+		EG_LOG(CoreEngine::CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
+		return nullptr;
+	}
+
+	Level* spawnToLevel = nullptr;
+	if (Param.SpawnLevel)
+	{
+		spawnToLevel = Param.SpawnLevel;
+	}
+	else
+	{
+		spawnToLevel = m_Levels.front();
+		if (!spawnToLevel)
+		{
+			EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "There is no single level");
+			return nullptr;
+		}
+	}
+	T* NewActor = CreateObject<T>(Owner);
+	NewActor->SetOwner(Owner);
+	NewActor->PostSpawnActor();
+	spawnToLevel->AddActor(NewActor);
+
+	return NewActor;
+}
+
+template <class T> inline T* World::SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param)
+{
+	CoreEngine::Reflection::ClassField* ClassOfTargetType = T::GetStaticClass();
+
+	if (!ClassSource->IsChildClassOf(ClassOfTargetType))
+	{
+		EG_LOG(CoreEngine::CORE, ELevelLog::WARNING, "Set class doesn't child of Actor");
+		return nullptr;
+	}
+
+	Level* spawnToLevel = nullptr;
+	if (Param.SpawnLevel)
+	{
+		spawnToLevel = Param.SpawnLevel;
+	}
+	else
+	{
+		spawnToLevel = m_Levels.front();
+		if (!spawnToLevel)
+		{
+			EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "There is no single level");
+			return nullptr;
+		}
+	}
+	T* NewActor = CreateObject<T>(ClassSource, Owner);
+	NewActor->SetOwner(Owner);
+	NewActor->PostSpawnActor();
+	spawnToLevel->AddActor(NewActor);
+
+	return NewActor;
+}
+
+template <class Predict> DArray<Actor*> World::GetAllActorsPredicate(Predict Predication)
+{
+	DArray<Actor*> CollectActors;
+	for (Actor* actor : m_MainLevel->GetActors())
+	{
+		if (Predication(actor))
+		{
+			CollectActors.push_back(actor);
+		}
+	}
+	return CollectActors;
+}
+
+template <class Predict> Actor* World::GetActorPredicate(Predict Predication)
+{
+	for (Actor* actor : m_MainLevel->GetActors())
+	{
+		if (Predication(actor))
+		{
+			return actor;
+		}
+	}
+	return nullptr;
 }

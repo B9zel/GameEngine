@@ -18,117 +18,114 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <Core/includes/AssetManager.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
+#include <Core/includes/Application.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEngine);
 
-namespace CoreEngine
+Engine* Engine::GEngine = nullptr;
+
+Engine::Engine(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
 {
-	Engine* Engine::GEngine = nullptr;
+	GEngine = this;
 
-	Engine::Engine(const InitializeObject& Initilize) : Runtime::Object(Initilize)
+	m_TimerManager = MakeUniquePtr<CoreEngine::TimerManager>();
+	m_MemoryManager = CoreEngine::MemoryManager::Create();
+	m_MemoryManager->GetGarbageCollector()->AddRootObject(this);
+	m_Input = MakeUniquePtr<CoreEngine::InputDevice>();
+}
+
+void Engine::Init()
+{
+	if (!m_AssetManager)
 	{
-		GEngine = this;
-
-		m_TimerManager = MakeUniquePtr<TimerManager>();
-		m_MemoryManager = MemoryManager::Create();
-		m_MemoryManager->GetGarbageCollector()->AddRootObject(this);
-		m_Input = MakeUniquePtr<InputDevice>();
+		m_AssetManager = CreateObject<AssetManager>(this);
 	}
+	m_Render = CoreEngine::Render::Render::Create();
+	m_Render->Construct();
+}
 
-	void Engine::Init()
+FVector2 Engine::GetScreenSize() const
+{
+	CoreEngine::Window& win = CoreEngine::Application::Get()->GetWindow();
+	return FVector2(win.GetWidth(), win.GetHeight());
+}
+
+void Engine::PostInitialize()
+{
+	m_World->InitProperties();
+}
+
+void Engine::ConstructInitialize()
+{
+	m_World = CreateWorld();
+	m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
+}
+
+void Engine::TakeInputEvent(CoreEngine::Event& Input)
+{
+	m_Input->InviteEvent(Input);
+}
+
+Engine* Engine::Create()
+{
+	if (GEngine)
 	{
-		if (!m_AssetManager)
-		{
-			m_AssetManager = Runtime::CreateObject<AssetManager>(this);
-		}
-		m_Render = Render::Render::Create();
-		m_Render->Construct();
-	}
-
-	FVector2 Engine::GetScreenSize() const
-	{
-		Window& win = Application::Get()->GetWindow();
-		return FVector2(win.GetWidth(), win.GetHeight());
-	}
-
-	void Engine::PostInitialize()
-	{
-		m_World->InitProperties();
-	}
-
-	void Engine::ConstructInitialize()
-	{
-		m_World = CreateWorld();
-		m_MemoryManager->GetGarbageCollector()->AddRootObject(m_World);
-	}
-
-	void Engine::TakeInputEvent(Event& Input)
-	{
-		m_Input->InviteEvent(Input);
-	}
-
-	Engine* Engine::Create()
-	{
-		if (GEngine)
-		{
-			EG_LOG(LogEngine, ELevelLog::ERROR, "Engine already exists");
-			return GEngine;
-		}
-
-		GEngine = Runtime::CreateObject<ThisClass>();
-		CHECK(GEngine);
-
+		EG_LOG(LogEngine, ELevelLog::ERROR, "Engine already exists");
 		return GEngine;
 	}
 
-	void Engine::Update()
-	{
-		m_World->WorldUpdate();
-		m_TimerManager->Update(m_World->GetWorldDeltaTime());
-	}
+	GEngine = CreateObject<ThisClass>();
+	CHECK(GEngine);
 
-	Engine* Engine::Get()
-	{
-		return GEngine;
-	}
+	return GEngine;
+}
 
-	World* Engine::CreateWorld() const
-	{
-		return Runtime::CreateObject<World>();
-	}
+void Engine::Update()
+{
+	m_World->WorldUpdate();
+	m_TimerManager->Update(m_World->GetWorldDeltaTime());
+}
 
-	AssetManager* Engine::GetAssetManager() const
-	{
-		return m_AssetManager;
-	}
+Engine* Engine::Get()
+{
+	return GEngine;
+}
 
-	UniquePtr<InputDevice>& Engine::GetInputDevice() const
-	{
-		return m_Input;
-	}
-	UniquePtr<TimerManager>& Engine::GetTimerManager() const
-	{
-		return m_TimerManager;
-	}
-	UniquePtr<MemoryManager>& Engine::GetMemoryManager() const
-	{
-		return m_MemoryManager;
-	}
-	UniquePtr<Render::Render>& Engine::GetRender() const
-	{
-		return m_Render;
-	}
-	const UniquePtr<Render::RenderDevice>& Engine::GetRenderDevice() const
-	{
-		return GetRender()->GetRenderDevice();
-	}
-	World* Engine::GetWorld() const
-	{
-		return m_World;
-	}
-	UniquePtr<Reflection::ReflectionManager>& Engine::GetReflectionManger() const
-	{
-		return Application::Get()->GetReflectionManager();
-	}
+World* Engine::CreateWorld() const
+{
+	return CreateObject<World>();
+}
 
-} // namespace CoreEngine
+AssetManager* Engine::GetAssetManager() const
+{
+	return m_AssetManager;
+}
+
+UniquePtr<CoreEngine::InputDevice>& Engine::GetInputDevice() const
+{
+	return m_Input;
+}
+UniquePtr<CoreEngine::TimerManager>& Engine::GetTimerManager() const
+{
+	return m_TimerManager;
+}
+UniquePtr<CoreEngine::MemoryManager>& Engine::GetMemoryManager() const
+{
+	return m_MemoryManager;
+}
+UniquePtr<CoreEngine::Render::Render>& Engine::GetRender() const
+{
+	return m_Render;
+}
+const UniquePtr<CoreEngine::Render::RenderDevice>& Engine::GetRenderDevice() const
+{
+	return GetRender()->GetRenderDevice();
+}
+World* Engine::GetWorld() const
+{
+	return m_World;
+}
+UniquePtr<CoreEngine::Reflection::ReflectionManager>& Engine::GetReflectionManger() const
+{
+	return CoreEngine::Application::Get()->GetReflectionManager();
+}

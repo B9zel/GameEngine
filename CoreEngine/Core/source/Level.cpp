@@ -1,127 +1,123 @@
 #include <Core/includes/Level.h>
-#include <Runtime/includes/Actor.h>
+
 #include <Core/includes/World.h>
+#include <Core/includes/Engine.h>
+
 #include <Core/includes/Memory/SerializeArchive.h>
 
-
-namespace CoreEngine
+Level::Level(const CoreEngine::InitializeObject& Object) : Object(Object)
 {
-	Level::Level(const InitializeObject& Object) : Object(Object)
-	{
-	}
-	const DArray<Runtime::Actor*>& Level::GetActors() const
-	{
-		return m_Actors;
-	}
+}
+const DArray<Actor*>& Level::GetActors() const
+{
+	return m_Actors;
+}
 
-	void Level::ActorInitialize()
+void Level::ActorInitialize()
+{
+	for (auto& Actor : GetActors())
 	{
-		for (auto& Actor : GetActors())
-		{
-			Actor->InitComponents();
-		}
-
-		for (auto& Actor : GetActors())
-		{
-			Actor->InitProperties();
-		}
-
+		Actor->InitComponents();
 	}
 
-	void Level::InitProperties()
+	for (auto& Actor : GetActors())
 	{
-		
+		Actor->InitProperties();
 	}
+}
 
-	void Level::PreSerialize()
+void Level::InitProperties()
+{
+}
+
+void Level::PreSerialize()
+{
+	Object::PreSerialize();
+
+	for (auto* Object : m_Objects)
 	{
-		Object::PreSerialize();
-
-		for (auto* Object : m_Objects)
-		{
-			Object->PreSerialize();
-		}
-		for (auto* Actor : m_Actors)
-		{
-			Actor->PreSerialize();
-		}
+		Object->PreSerialize();
 	}
-
-	void Level::OnSerialize(SerializeAchive& Achive)
+	for (auto* Actor : m_Actors)
 	{
-		Object::OnSerialize(Achive);
+		Actor->PreSerialize();
+	}
+}
 
-		for (auto* Object : m_Objects)
+void Level::OnSerialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnSerialize(Achive);
+
+	for (auto* Object : m_Objects)
+	{
+		if (!Object->GetHasSerialized())
 		{
-			if (!Object->GetHasSerialized())
-			{
-				Object->Serialize(Achive);
-			}
-		}
-		for (auto* Actor : m_Actors)
-		{
-			if (!Actor->GetHasSerialized())
-			{
-				Actor->Serialize(Achive);
-			}
+			Object->Serialize(Achive);
 		}
 	}
-
-	void Level::PreDeserialize()
+	for (auto* Actor : m_Actors)
 	{
-		Object::PreDeserialize();
-
-		for (auto* Object : m_Objects)
+		if (!Actor->GetHasSerialized())
 		{
-			Object->PreDeserialize();
-		}
-		for (auto* Actor : m_Actors)
-		{
-			Actor->PreDeserialize();
+			Actor->Serialize(Achive);
 		}
 	}
+}
 
-	void Level::OnDeserialize(SerializeAchive& Data)
+void Level::PreDeserialize()
+{
+	Object::PreDeserialize();
+
+	for (auto* Object : m_Objects)
 	{
-		Object::OnDeserialize(Data);
+		Object->PreDeserialize();
+	}
+	for (auto* Actor : m_Actors)
+	{
+		Actor->PreDeserialize();
+	}
+}
 
-		static DArray<Runtime::Actor*> DeleteActors;
-		DeleteActors.clear();
+void Level::OnDeserialize(CoreEngine::SerializeAchive& Data)
+{
+	Object::OnDeserialize(Data);
 
-		DeleteActors = m_Actors;
-		for (auto& i : DeleteActors)
-		{
-			i->Destroy();
-		}
+	static DArray<Actor*> DeleteActors;
+	DeleteActors.clear();
 
-		bool Success = false;
-		for (auto& Elem : Data.FindLastNode()["m_Actors"])
-		{
-			GetWorld()->SpawnActor<Runtime::Actor>(Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr);
-			EG_LOG(CORE, ELevelLog::INFO, Elem.dump(4));
-		}
-
-		for (auto* Object : m_Objects)
-		{
-			if (!Object->GetHasDeserialized())
-			{
-				Object->Deserialize(Data);
-			}
-		}
-		Data.PushPrefix("m_Actors");
-		for (auto* Actor : m_Actors)
-		{
-			if (!Actor->GetHasDeserialized())
-			{
-				Actor->Deserialize(Data);
-			}
-		}
-		Data.PopPrefix();
+	DeleteActors = m_Actors;
+	for (auto& i : DeleteActors)
+	{
+		i->Destroy();
 	}
 
-	void Level::AddActor(Runtime::Actor* newActor)
+	bool Success = false;
+	for (auto& Elem : Data.FindLastNode()["m_Actors"])
 	{
-		m_Actors.push_back(newActor);
-		//m_ActorsGC.push_back(newActor);
+		GetWorld()->SpawnActor<Actor>(CoreEngine::Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr);
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, Elem.dump(4));
 	}
+
+	for (auto* Object : m_Objects)
+	{
+		if (!Object->GetHasDeserialized())
+		{
+			Object->Deserialize(Data);
+		}
+	}
+	Data.PushPrefix("m_Actors");
+	for (auto* Actor : m_Actors)
+	{
+		if (!Actor->GetHasDeserialized())
+		{
+			Actor->Deserialize(Data);
+		}
+	}
+	Data.PopPrefix();
+}
+
+void Level::AddActor(Actor* newActor)
+{
+	m_Actors.push_back(newActor);
+	// m_ActorsGC.push_back(newActor);
 }

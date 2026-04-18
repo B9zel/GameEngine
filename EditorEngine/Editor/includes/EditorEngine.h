@@ -7,10 +7,8 @@
 
 #include <EditorEngine.generated.h>
 
-namespace CoreEngine
-{
-	class World;
-}
+class World;
+
 namespace Editor
 {
 	class EditorViewportClient;
@@ -20,6 +18,7 @@ namespace Editor
 	class SceneHierarhy;
 	class EditorDetails;
 	class BaseEditorPanel;
+	class ContentBrowser;
 } // namespace Editor
 
 enum class EStateWorld : uint8
@@ -29,7 +28,7 @@ enum class EStateWorld : uint8
 };
 
 RCLASS()
-class EditorEngine : public CoreEngine::Engine
+class EditorEngine : public Engine
 {
 	GENERATED_BODY()
 
@@ -44,8 +43,8 @@ public:
 public:
 
 	virtual void Update() override;
-	void SetSelectedObject(CoreEngine::Runtime::Object* NewSelected);
-	CoreEngine::Runtime::Object* GetSelectedObject() const;
+	void SetSelectedObject(Object* NewSelected);
+	Object* GetSelectedObject() const;
 	Editor::EditorViewportClient* GetViewpoertClient() const;
 
 	EStateWorld GetCurrentStateWorld() const;
@@ -55,7 +54,7 @@ public:
 protected:
 
 	void RenderEditor();
-	virtual CoreEngine::World* CreateWorld() const override;
+	virtual World* CreateWorld() const override;
 
 private:
 
@@ -72,10 +71,11 @@ private:
 	SharedPtr<Editor::EditorDetails> DetailsPanel;
 	SharedPtr<Editor::EditorMenuBar> MenuBar;
 	SharedPtr<Editor::EditorToolbar> Toolbar;
+	SharedPtr<Editor::ContentBrowser> ContentBrowser;
 
 	EStateWorld CurretnStateWorld{EStateWorld::Edit};
 
 	UniquePtr<Editor::EditorViewportClient> m_ViewportCamera;
 
-	CoreEngine::Runtime::Object* SelectedObject{nullptr};
+	Object* SelectedObject{nullptr};
 };

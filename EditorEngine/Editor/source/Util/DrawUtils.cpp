@@ -296,11 +296,41 @@ namespace Editor
 		ImGui::PopID();
 	}
 
-	bool DrawComponentContextDraw(EditorEngine* Engine, CoreEngine::Runtime::Object* SelectedObject)
+	void DrawColor(const String& Id, const String& NameString, LinearColor& Value, const float ColumnWidth)
 	{
-		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::ActorComponent::GetStaticClass()))
+		ImGui::PushID(Id.c_str());
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, ColumnWidth);
+
+		float ColWidth = ImGui::GetColumnWidth(0);
+		ImVec2 TextSize = ImGui::CalcTextSize(NameString.c_str());
+		uint64 Size = CalculateSizeOfPropertyName(NameString, ColWidth);
+		if (Size == NameString.size())
 		{
-			auto* Component = dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject);
+			ImGui::TextUnformatted(NameString.c_str());
+		}
+		else
+		{
+			ImGui::TextUnformatted((NameString.substr(0, Size) + "...").c_str());
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("%s", NameString.c_str());
+			}
+		}
+		ImGui::NextColumn();
+		ImGui::PushItemWidth(-FLT_MIN);
+
+		ImGui::ColorEdit4(("##" + NameString).c_str(), Value.Data, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_Float);
+
+		ImGui::Columns(1);
+		ImGui::PopID();
+	}
+
+	bool DrawComponentContextDraw(EditorEngine* Engine, Object* SelectedObject)
+	{
+		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(ActorComponent::GetStaticClass()))
+		{
+			auto* Component = dynamic_cast<ActorComponent*>(SelectedObject);
 			if (Component && !Component->GetIsCreatedNative())
 			{
 				if (ImGui::BeginPopupContextItem(nullptr))
@@ -308,9 +338,9 @@ namespace Editor
 					bool HasDelete = false;
 					if (ImGui::MenuItem("Delete component"))
 					{
-						if (auto* Actor = dynamic_cast<CoreEngine::Runtime::Actor*>(SelectedObject->GetOuter()))
+						if (auto* actor = dynamic_cast<Actor*>(SelectedObject->GetOuter()))
 						{
-							Actor->RemoveComponent(dynamic_cast<CoreEngine::Runtime::ActorComponent*>(SelectedObject));
+							actor->RemoveComponent(dynamic_cast<ActorComponent*>(SelectedObject));
 							Engine->SetSelectedObject(nullptr);
 
 							HasDelete = true;
@@ -323,5 +353,11 @@ namespace Editor
 		}
 		return false;
 	}
+	void PushColorTree()
+	{
+		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.32f, 0.55f, 0.95f, 1.f));
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.22f, 0.45f, 0.85f, 1.f));
 
+	} // namespace Editor
 } // namespace Editor

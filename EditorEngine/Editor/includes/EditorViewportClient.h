@@ -37,7 +37,7 @@ namespace Editor
 
 	public:
 
-		CoreEngine::Dispatcher<bool> EventActiveMove;
+		Dispatcher<bool> EventActiveMove;
 
 	private:
 

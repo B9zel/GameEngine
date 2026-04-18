@@ -2,21 +2,16 @@
 #include <Core/includes/Base.h>
 #include <ReflectionSystem/Include/BaseField.h>
 
-//#include <ReflectionSystem/Include/ClassField.h>
-//#include <ReflectionSystem/Include/ConstructionField.h>
+// #include <ReflectionSystem/Include/ClassField.h>
+// #include <ReflectionSystem/Include/ConstructionField.h>
 #include <ReflectionSystem/Include/ReflectionManager.h>
 
-
+class Object;
+class Engine;
 
 namespace CoreEngine
 {
-	class Engine;
 	class SerializeAchive;
-
-	namespace Runtime
-	{
-		class Object;
-	}
 
 	namespace Reflection
 	{
@@ -61,7 +56,8 @@ namespace CoreEngine
 			BOOL,
 			CHAR,
 			VECTOR3F,
-			TRANSFORM
+			TRANSFORM,
+			COLOR
 		};
 
 		EPrimitiveTypes ConvertToPropertyEnumFromString(const String& NameType);
@@ -71,7 +67,7 @@ namespace CoreEngine
 		{
 			static SharedPtr<BaseTypePropertyType> Create(const String& Type);
 			static SharedPtr<BaseTypePropertyType> Create(ClassField* TypeField);
-			
+
 			virtual String GetNameType() const = 0;
 			virtual bool GetIsPointer() const = 0;
 			virtual ETypeOfPropertyType GetTypeOfPropertyType() const = 0;
@@ -81,13 +77,15 @@ namespace CoreEngine
 		{
 
 			SimplePropertyTypeField() = default;
-			~SimplePropertyTypeField() noexcept {}
+			~SimplePropertyTypeField() noexcept
+			{
+			}
 			SimplePropertyTypeField(const String& Type);
-			
+
 		public:
 
 			SimplePropertyTypeField(const SimplePropertyTypeField& Other) = default;
-			SimplePropertyTypeField( SimplePropertyTypeField&& Other) = default;
+			SimplePropertyTypeField(SimplePropertyTypeField&& Other) = default;
 			SimplePropertyTypeField& operator=(SimplePropertyTypeField&&) = default;
 			SimplePropertyTypeField& operator=(const SimplePropertyTypeField& Other);
 
@@ -105,7 +103,7 @@ namespace CoreEngine
 		public:
 
 			EPrimitiveTypes Primitive;
-		
+
 			String NameType;
 		};
 
@@ -113,9 +111,8 @@ namespace CoreEngine
 		{
 		public:
 
-			ComplexPropertyTypeField(const String& Type);// : BaseTypePropertyType()
-			ComplexPropertyTypeField(ClassField* Field);// : BaseTypePropertyType()
-			
+			ComplexPropertyTypeField(const String& Type); // : BaseTypePropertyType()
+			ComplexPropertyTypeField(ClassField* Field);  // : BaseTypePropertyType()
 
 		public:
 
@@ -128,12 +125,13 @@ namespace CoreEngine
 			ConstructionField* TypeField;
 		};
 
-
 		struct PropertyField : public BaseField
 		{
 
-			virtual ~PropertyField() noexcept {
+			virtual ~PropertyField() noexcept
+			{
 			}
+
 		public:
 
 			PropertyField() = default;
@@ -151,20 +149,18 @@ namespace CoreEngine
 				Offset = Other.Offset;
 				Params = Other.Params;
 				TypeProperty = Other.TypeProperty;
-				
+
 				return *this;
 			}
 
 		public:
 
-			template<class TypeProperty>
-			TypeProperty* GetSourcePropertyByName(void* InstanceClass)
+			template <class TypeProperty> TypeProperty* GetSourcePropertyByName(void* InstanceClass)
 			{
 				return reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 			}
 
-			template<typename TypeProperty>
-			void SetSourceProperty(void* InstanceClass, const TypeProperty NewValur)
+			template <typename TypeProperty> void SetSourceProperty(void* InstanceClass, const TypeProperty NewValur)
 			{
 				TypeProperty* Variable = reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 				if (Variable)
@@ -178,14 +174,14 @@ namespace CoreEngine
 			bool GetIsSupportReflectionSystem() const;
 			virtual EConteinType GetPrimitiveType() const;
 			virtual BaseTypePropertyType* GetTypeProperty() const;
-			
-			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance);
-			virtual void Deserialize(SerializeAchive& Archive, Runtime::Object* Instance);
+
+			virtual void Serialize(SerializeAchive& Archive, Object* Instance);
+			virtual void Deserialize(SerializeAchive& Archive, Object* Instance);
 
 		protected:
 
-			void SerializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance);
-			void DeserializeDefinitionType(SerializeAchive& Archive, Runtime::Object* Instance);
+			void SerializeDefinitionType(SerializeAchive& Archive, Object* Instance);
+			void DeserializeDefinitionType(SerializeAchive& Archive, Object* Instance);
 
 		public:
 
@@ -206,8 +202,7 @@ namespace CoreEngine
 
 		public:
 
-			template<class TypeStorage>
-			TypeStorage* GetElement(void* Instance, const uint32 Index)
+			template <class TypeStorage> TypeStorage* GetElement(void* Instance, const uint32 Index)
 			{
 				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
 				if (Variable)
@@ -217,7 +212,6 @@ namespace CoreEngine
 				return nullptr;
 			}
 
-			
 			bool GetElement(void* Instance, const uint32 Index)
 			{
 				DArray<bool>* Variable = reinterpret_cast<DArray<bool>*>(reinterpret_cast<uint64>(Instance) + Offset);
@@ -228,8 +222,7 @@ namespace CoreEngine
 				return false;
 			}
 
-			template<class TypeStorage>
-			void SetElement(void* Instance, const uint32 Index, TypeStorage NewValue)
+			template <class TypeStorage> void SetElement(void* Instance, const uint32 Index, TypeStorage NewValue)
 			{
 				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
 				if (Variable)
@@ -238,8 +231,7 @@ namespace CoreEngine
 				}
 			}
 
-			template<class TypeStorage>
-			int64 GetSizeArray(void* Instance)
+			template <class TypeStorage> int64 GetSizeArray(void* Instance)
 			{
 				DArray<TypeStorage>* Variable = reinterpret_cast<DArray<TypeStorage>*>(reinterpret_cast<uint64>(Instance) + Offset);
 				if (Variable)
@@ -250,15 +242,14 @@ namespace CoreEngine
 			}
 
 			virtual EConteinType GetPrimitiveType() const override;
-			virtual void Serialize(SerializeAchive& Archive, Runtime::Object* Instance) override;
-			virtual void Deserialize(SerializeAchive& Archive, Runtime::Object* Instance) override;
+			virtual void Serialize(SerializeAchive& Archive, Object* Instance) override;
+			virtual void Deserialize(SerializeAchive& Archive, Object* Instance) override;
 
 		private:
 
-			void SerializedDefenition(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance);
-			void DeserializeDefinitionType(EPrimitiveTypes Type, SerializeAchive& Archive, Runtime::Object* Instance);
+			void SerializedDefenition(EPrimitiveTypes Type, SerializeAchive& Archive, Object* Instance);
+			void DeserializeDefinitionType(EPrimitiveTypes Type, SerializeAchive& Archive, Object* Instance);
 		};
-	}
+	} // namespace Reflection
 
-
-}
+} // namespace CoreEngine

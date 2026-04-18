@@ -6,7 +6,7 @@
 class EditorEngine;
 
 RCLASS()
-class EditorWorld : public CoreEngine::World
+class EditorWorld : public World
 {
 	GENERATED_BODY()
 

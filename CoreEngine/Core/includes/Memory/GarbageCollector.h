@@ -4,21 +4,18 @@
 #include <Core/includes/ObjectPtr.h>
 #include <Core/includes/TimerManager.h>
 
-
 /**
-* 
-*  To add a pointer to track the garbage collector, use the PROPERTY macro in the Object class
-*  
-*/
+ *
+ *  To add a pointer to track the garbage collector, use the PROPERTY macro in the Object class
+ *
+ */
 
 namespace CoreEngine
 {
-	template<class T>
-	class ObjectPtr;
+	template <class T> class ObjectPtr;
 }
 
-
-
+class Object;
 
 namespace CoreEngine
 {
@@ -27,11 +24,6 @@ namespace CoreEngine
 	struct TimerHandle;
 	class Application;
 
-	namespace Runtime
-	{
-		class Object;
-	}
-
 	namespace GB
 	{
 		class GarbageCollector
@@ -39,18 +31,20 @@ namespace CoreEngine
 		public:
 
 			static GarbageCollector* Create();
-			
-			template<class T>
-			void AddProperty(ObjectPtr<T>* Property);
 
-			void AddObject(Runtime::Object* object);
-			void AddRootObject(Runtime::Object* object);
-			void AddReference(Runtime::Object* object);
-			void RemoveObject(Runtime::Object* object);
-			void RemoveRootObject(Runtime::Object* object);
-			void RemoveReference(Runtime::Object* object);
+			template <class T> void AddProperty(ObjectPtr<T>* Property);
 
-			static GarbageCollector* GetGBInstance() { return m_GBInstance; }
+			void AddObject(Object* object);
+			void AddRootObject(Object* object);
+			void AddReference(Object* object);
+			void RemoveObject(Object* object);
+			void RemoveRootObject(Object* object);
+			void RemoveReference(Object* object);
+
+			static GarbageCollector* GetGBInstance()
+			{
+				return m_GBInstance;
+			}
 
 		private:
 
@@ -63,30 +57,27 @@ namespace CoreEngine
 			void Collect();
 			void ResetMarks();
 
-			void MarkObject(Runtime::Object* object);
+			void MarkObject(Object* object);
 
 			void MarkLiveObjects();
-			void MarkObject(Runtime::Object* object, HashTableSet<Runtime::Object*>& outMarkedObjects);
+			void MarkObject(Object* object, HashTableSet<Object*>& outMarkedObjects);
 
-			void OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr);
+			void OnChangePointer(Object* oldPtr, Object* newPtr);
 
 		private:
 
 			static GarbageCollector* m_GBInstance;
 
-			HashTableSet<Runtime::Object*> m_Objects;
-			HashTableSet<Runtime::Object*> m_RootObjects;
-			HashTableMap<Runtime::Object*, size_t> m_ReferenceObjects;
-
+			HashTableSet<Object*> m_Objects;
+			HashTableSet<Object*> m_RootObjects;
+			HashTableMap<Object*, size_t> m_ReferenceObjects;
 
 			float m_rateCollect;
 			TimerHandle collectHandler;
 		};
-		template<class T>
-		inline void GarbageCollector::AddProperty(ObjectPtr<T>* Property)
+		template <class T> inline void GarbageCollector::AddProperty(ObjectPtr<T>* Property)
 		{
 			Property->m_Method.Assign(&GarbageCollector::OnChangePointer, this);
-	
 		}
-	}
-}
+	} // namespace GB
+} // namespace CoreEngine

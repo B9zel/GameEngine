@@ -199,7 +199,7 @@ namespace CoreEngine
 			{
 				Device->DeleteTexture2D(Handle);
 
-				stbi_set_flip_vertically_on_load(1);
+				 stbi_set_flip_vertically_on_load(1);
 
 				int32 width, height, channel;
 				stbi_uc* data = stbi_load(Path.data(), &width, &height, &channel, 0);
@@ -211,10 +211,10 @@ namespace CoreEngine
 					Desc.Data = data;
 					Desc.GenerateMips = GenerateMips;
 					m_path = Path;
+					Desc.Channels = channel;
 
 					if (channel == 3)
 					{
-						Desc.Channels = channel;
 						m_channel = ETypeChannel::RGB;
 						m_internalFormat = GL_RGB8;
 					}

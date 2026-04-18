@@ -7,36 +7,31 @@
 #include <Core/includes/LightProxy.h>
 
 #include "Math/includes/Math.h"
+#include <Core/includes/LightProxy.h>
 
-namespace CoreEngine
+DirectionLightComponent::DirectionLightComponent(const CoreEngine::InitializeObject& Object) : BaseLightComponent(Object)
 {
-	namespace Runtime
-	{
-		DirectionLightComponent::DirectionLightComponent(const InitializeObject& Object) : BaseLightComponent(Object)
-		{
-			LightProxy = MakeUniquePtr<DirectionLightProxy>();
-		}
+	LightProxy = MakeUniquePtr<CoreEngine::DirectionLightProxy>();
+}
 
-		LightProxy* DirectionLightComponent::GetLightProxy()
-		{
-			const FVector4& Rotat = FVector4((GetComponentRotation()), 0);
-			//const FVector& Div = (GetComponentRotation() / 360);
-			/*const float x = Rotat.GetX() > 360 ? Rotat.GetX() - Rotat.GetX() * (Rotat.GetX() / 360) : Rotat.GetX();
-			const float y = Rotat.GetY() > 360 ? Rotat.GetY() - Rotat.GetY() * (Rotat.GetY() / 360) : Rotat.GetY();
-			const float z = Rotat.GetZ() > 360 ? Rotat.GetZ() - Rotat.GetZ() * (Rotat.GetZ() / 360) : Rotat.GetZ();*/
-			//FMatrix4x4 RotMat = glm::yawPitchRoll(Rotat.GetX(), Rotat.GetY(), Rotat.GetZ());
-			//FVector4 ResDirect = RotMat * Rotat.vector;
-			//LightProxy->SetDirection(FVector(ResDirect.x, ResDirect.y, ResDirect.z));
-			LightProxy->SetDirection(GetForwardVector());
-			//LightProxy->SetDirection(Math::ToRadianVector(GetComponentRotation()));
-			//LightProxy->SetDirection(FVector(Math::ToRadian(x), Math::ToRadian(y), Math::ToRadian(z)));
-			//LightProxy->SetDirection(FVector(-0.2f, -1.0f, -0.3f));
-			EG_LOG(CORE, ELevelLog::INFO, "X: {0} Y: {1} Z: {2}", GetForwardVector().GetX(), GetForwardVector().GetY(), GetForwardVector().GetZ());
-			LightProxy->SetColor(GetColor());
-			LightProxy->SetIntencity(GetIntencity());
-			LightProxy->SetID(GetUUID().GetID());
+CoreEngine::LightProxy* DirectionLightComponent::GetLightProxy()
+{
+	const FVector4& Rotat = FVector4((GetComponentRotation()), 0);
+	// const FVector& Div = (GetComponentRotation() / 360);
+	/*const float x = Rotat.GetX() > 360 ? Rotat.GetX() - Rotat.GetX() * (Rotat.GetX() / 360) : Rotat.GetX();
+	const float y = Rotat.GetY() > 360 ? Rotat.GetY() - Rotat.GetY() * (Rotat.GetY() / 360) : Rotat.GetY();
+	const float z = Rotat.GetZ() > 360 ? Rotat.GetZ() - Rotat.GetZ() * (Rotat.GetZ() / 360) : Rotat.GetZ();*/
+	// FMatrix4x4 RotMat = glm::yawPitchRoll(Rotat.GetX(), Rotat.GetY(), Rotat.GetZ());
+	// FVector4 ResDirect = RotMat * Rotat.vector;
+	// LightProxy->SetDirection(FVector(ResDirect.x, ResDirect.y, ResDirect.z));
+	LightProxy->SetDirection(GetForwardVector());
+	// LightProxy->SetDirection(Math::ToRadianVector(GetComponentRotation()));
+	// LightProxy->SetDirection(FVector(Math::ToRadian(x), Math::ToRadian(y), Math::ToRadian(z)));
+	// LightProxy->SetDirection(FVector(-0.2f, -1.0f, -0.3f));
+	EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "X: {0} Y: {1} Z: {2}", GetForwardVector().GetX(), GetForwardVector().GetY(), GetForwardVector().GetZ());
+	LightProxy->SetColor(FVector(GetColor().R, GetColor().G, GetColor().B));
+	LightProxy->SetIntencity(GetIntencity());
+	LightProxy->SetID(GetUUID().GetID());
 
-			return LightProxy.get();
-		}
-	}
+	return LightProxy.get();
 }

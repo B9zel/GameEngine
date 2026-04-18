@@ -6,10 +6,12 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLVertextBufferObject.h>
 #include <Core/includes/PrimitiveProxy.h>
+#include <Runtime/includes/PointLightComponent.h>
+#include <Core/includes/Application.h>
 #include <TestLightActor.generated.h>
 
 RCLASS()
-class LightActor : public CoreEngine::Runtime::Actor
+class LightActor : public Actor
 {
 
 	GENERATED_BODY()
@@ -18,7 +20,7 @@ public:
 
 	LightActor(const CoreEngine::InitializeObject& Object) : Actor(Object)
 	{
-		LightObj = CreateSubObject<CoreEngine::Runtime::SpotLightComponent>("Spot light");
+		LightObj = CreateSubObject<SpotLightComponent>("Spot light");
 		LightObj->SetColor(FVector(0, 1, 0));
 		LightObj->SetConstant(1.0f);
 		LightObj->SetLinear(0.2f);
@@ -26,7 +28,7 @@ public:
 		LightObj->SetIntencity(10);
 		LightObj->SetCutOff(50);
 		LightObj->SetOuterCutOff(60);
-
+		// CoreEngine::Runtime::PoinLightComponent::GetStaticClass();
 		String Path = CoreEngine::Application::Get()->GetAppOptions().pathToProject;
 		/*auto& shadPair = CoreEngine::Render::Shader::LoadShader((Path + "/Shaders/LightShader.glsl").c_str());
 		shade.CompileShader(shadPair.first, shadPair.second);
@@ -44,17 +46,18 @@ public:
 	virtual void Update(float delta) override
 	{
 		Actor::Update(delta);
-
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{} {} {} {}", LightObj->GetColor().Data[0], LightObj->GetColor().Data[1], LightObj->GetColor().Data[2],
+			   LightObj->GetColor().Data[3]);
 		// LightCube->GetSceneProxy()->
 	}
 
 private:
 
 	RPROPERTY();
-	CoreEngine::Runtime::SpotLightComponent* LightObj;
+	SpotLightComponent* LightObj;
 
-	CoreEngine::Runtime::PrimitiveComponent* LightCube;
-	CoreEngine::Render::OpenGL::OpenGLShader shade;
+	PrimitiveComponent* LightCube;
+	//CoreEngine::Render::OpenGL::OpenGLShader shade;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
 

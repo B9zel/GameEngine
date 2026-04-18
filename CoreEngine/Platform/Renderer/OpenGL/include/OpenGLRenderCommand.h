@@ -3,8 +3,13 @@
 
 namespace CoreEngine::Render
 {
+	namespace OpenGL
+	{
+		class OpenGLFramebufferArray;
+	}
+
 	class VertexArrayObject;
-}
+} // namespace CoreEngine::Render
 
 namespace CoreEngine::Render::OpenGL
 {
@@ -72,6 +77,31 @@ namespace CoreEngine::Render::OpenGL
 			: Handle(Handle), NameParam(NameOfParam), Value(Value)
 		{
 		}
+
+		virtual void Execute(RenderDevice* Devise) override;
+		virtual ETypeCommand GetType() const override;
+	};
+
+	struct GLCmdBindFramebufferArray : public RenderCommand
+	{
+		CoreEngine::Render::OpenGL::OpenGLFramebufferArray* Framebuffer; // set handle late
+		uint32 Layer = 0;
+
+	public:
+
+		GLCmdBindFramebufferArray(CoreEngine::Render::OpenGL::OpenGLFramebufferArray* Framebuffer, const uint32 Layer) : Framebuffer(Framebuffer), Layer(Layer)
+		{
+		}
+
+		virtual void Execute(RenderDevice* Devise) override;
+		virtual ETypeCommand GetType() const override;
+	};
+
+	struct GLCmdClearColorAndDepth : public RenderCommand
+	{
+	public:
+
+		GLCmdClearColorAndDepth() = default;
 
 		virtual void Execute(RenderDevice* Devise) override;
 		virtual ETypeCommand GetType() const override;

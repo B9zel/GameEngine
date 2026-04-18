@@ -33,6 +33,8 @@ namespace CoreEngine
 
 			virtual const UniquePtr<RenderDevice>& GetRenderDevice() const;
 
+			static void PrepareMaterial(RMaterial& Mat);
+
 		protected:
 
 			virtual void RenderStaticMeshProxy(const StaticMeshProxy* Proxy, const DArray<LightProxy*>& Lights, const DArray<FMatrix4x4>& LightDirecion) = 0;

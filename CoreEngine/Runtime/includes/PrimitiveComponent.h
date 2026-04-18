@@ -1,31 +1,45 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
+#include <Render/includes/Material.h>
 #include <PrimitiveComponent.generated.h>
 
+class MaterialAsset;
+class MaterialInstance;
+
+namespace CoreEngine::Render
+{
+	struct MaterialHandle;
+}
 
 namespace CoreEngine
 {
 	class PrimitiveProxy;
 
-	namespace Runtime
-	{
-		RCLASS()
-			class PrimitiveComponent : public SceneComponent
-		{
-			GENERATED_BODY()
+} // namespace CoreEngine
+RCLASS()
+class PrimitiveComponent : public SceneComponent
+{
+	GENERATED_BODY()
 
-		public:
+public:
 
-			PrimitiveComponent(const InitializeObject& Object);
+	PrimitiveComponent(const CoreEngine::InitializeObject& Object);
+	// Test
+	virtual void SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMaterial);
 
-		public:
+public:
 
-			virtual PrimitiveProxy* GetSceneProxy() const;
-			virtual PrimitiveProxy* GetUpdateProxy() const;
+	virtual CoreEngine::PrimitiveProxy* GetSceneProxy() const;
+	virtual CoreEngine::PrimitiveProxy* GetUpdateProxy() const;
 
-			//Test
-			PrimitiveProxy* sceneProxy;
+	// Test
+	CoreEngine::PrimitiveProxy* sceneProxy;
 
-		};
-	}
-}
+protected:
+
+	RPROPERTY();
+	DArray<MaterialAsset*> materials;
+	DArray<CoreEngine::Render::MaterialHandle> m_HandleMaterial;
+	RPROPERTY();
+	DArray<MaterialInstance*> m_MaterialInstance;
+};

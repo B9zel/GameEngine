@@ -2,30 +2,26 @@
 #include <Runtime/includes/BaseLightComponent.h>
 #include <DirectionLightComponent.generated.h>
 
-
 namespace CoreEngine
 {
 	class LightProxy;
 	class DirectionLightProxy;
+} // namespace CoreEngine
 
-	namespace Runtime
-	{
-		RCLASS(EditorComponent)
-		class DirectionLightComponent : public BaseLightComponent
-		{
-			GENERATED_BODY()
+RCLASS(EditorComponent)
+class DirectionLightComponent : public BaseLightComponent
+{
+	GENERATED_BODY()
 
-		public:
+public:
 
-			DirectionLightComponent(const InitializeObject& Object);
+	DirectionLightComponent(const CoreEngine::InitializeObject& Object);
 
-		public:
+public:
 
-			virtual LightProxy* GetLightProxy() override;
+	virtual CoreEngine::LightProxy* GetLightProxy() override;
 
-		private:
+private:
 
-			UniquePtr<DirectionLightProxy> LightProxy;
-		};
-	}
-}
+	UniquePtr<CoreEngine::DirectionLightProxy> LightProxy;
+};

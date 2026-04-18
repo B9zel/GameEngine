@@ -1,151 +1,144 @@
 #include <Runtime/CoreObject/Include/Object.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/Memory/SerializeArchive.h>
-// #include <Core/includes/World.h>
+#include <Core/includes/World.h>
 #include <Core/includes/Memory/SaveManager.h>
+#include <Core/includes/Engine.h>
 
-namespace CoreEngine
+Object::Object(const CoreEngine::InitializeObject& Initialize)
 {
-	namespace Runtime
+	m_World = nullptr;
+	m_Outer = nullptr;
+	SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
+	PrivateClass = Initialize.Class;
+	CHECK(PrivateClass);
+
+	ObjectID.GenerateID();
+	Name = PrivateClass->Name;
+}
+void Object::InitProperties()
+{
+	SetWorld(Engine::Get()->GetWorld());
+}
+void Object::SetWorld(World* newWorld)
+{
+	m_World = newWorld;
+}
+World* Object::GetWorld()
+{
+	return m_World;
+}
+CoreEngine::Reflection::ClassField* Object::GetClass() const
+{
+	return PrivateClass;
+}
+
+const CoreEngine::UUID& Object::GetUUID() const
+{
+	return ObjectID;
+}
+void Object::SetName(const String& NewName)
+{
+	Name = NewName;
+}
+
+uint32 Object::GetGCState() const
+{
+	return StateObjectFlagGC;
+}
+
+bool Object::GetHasSerialized() const
+{
+	return HasSerialize;
+}
+
+bool Object::GetHasDeserialized() const
+{
+	return HasDeserialize;
+}
+
+void Object::PreSerialize()
+{
+	HasSerialize = false;
+}
+
+void Object::Serialize(CoreEngine::SerializeAchive& Archive)
+{
+	if (HasSerialize) return;
+	HasSerialize = true;
+
+	CoreEngine::Reflection::ClassField* Class = GetClass();
+	Archive.PushPrefix(GetName());
+	Archive.SerializeData("NameClass", GetClass()->Name);
+	while (Class != nullptr)
 	{
-		Object::Object(const InitializeObject& Initialize)
+		for (auto* Property : Class->PropertyFileds)
 		{
-			m_World = nullptr;
-			m_Outer = nullptr;
-			SetFlag(StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
-			PrivateClass = Initialize.Class;
-			CHECK(PrivateClass);
-
-			ObjectID.GenerateID();
-			Name = PrivateClass->Name;
-
-			
-		}
-		void Object::InitProperties()
-		{
-			SetWorld(Engine::Get()->GetWorld());
-		}
-		void Object::SetWorld(World* newWorld)
-		{
-			m_World = newWorld;
-		}
-		World* Object::GetWorld()
-		{
-			return m_World;
-		}
-		Reflection::ClassField* Object::GetClass() const
-		{
-			return PrivateClass;
-		}
-
-		const UUID& Object::GetUUID() const
-		{
-			return ObjectID;
-		}
-		void Object::SetName(const String& NewName)
-		{
-			Name = NewName;
-		}
-
-		uint32 Object::GetGCState() const
-		{
-			return StateObjectFlagGC;
-		}
-
-		bool Object::GetHasSerialized() const
-		{
-			return HasSerialize;
-		}
-
-		bool Object::GetHasDeserialized() const
-		{
-			return HasDeserialize;
-		}
-
-		void Object::PreSerialize()
-		{
-			HasSerialize = false;
-		}
-
-		void Object::Serialize(SerializeAchive& Archive)
-		{
-			if (HasSerialize) return;
-			HasSerialize = true;
-
-			Reflection::ClassField* Class = GetClass();
-			Archive.PushPrefix(GetName());
-			Archive.SerializeData("NameClass", GetClass()->Name);
-			while (Class != nullptr)
-			{
-				for (auto* Property : Class->PropertyFileds)
-				{
-					Archive.PushPrefix(Property->Name);
-					Property->Serialize(Archive, this);
-					Archive.PopPrefix();
-				}
-
-				Class = Class->ParentClass;
-			}
-			OnSerialize(Archive);
-
+			Archive.PushPrefix(Property->Name);
+			Property->Serialize(Archive, this);
 			Archive.PopPrefix();
 		}
 
-		void Object::PreDeserialize()
+		Class = Class->ParentClass;
+	}
+	OnSerialize(Archive);
+
+	Archive.PopPrefix();
+}
+
+void Object::PreDeserialize()
+{
+	HasDeserialize = false;
+}
+
+void Object::Deserialize(CoreEngine::SerializeAchive& Data)
+{
+	if (HasDeserialize) return;
+	HasDeserialize = true;
+
+	CoreEngine::Reflection::ClassField* Class = GetClass();
+	Data.PushPrefix(GetName());
+
+	while (Class != nullptr)
+	{
+		for (auto* Property : Class->PropertyFileds)
 		{
-			HasDeserialize = false;
-		}
-
-		void Object::Deserialize(SerializeAchive& Data)
-		{
-			if (HasDeserialize) return;
-			HasDeserialize = true;
-
-			Reflection::ClassField* Class = GetClass();
-			Data.PushPrefix(GetName());
-
-			while (Class != nullptr)
-			{
-				for (auto* Property : Class->PropertyFileds)
-				{
-					Data.PushPrefix(Property->Name);
-					Property->Deserialize(Data, this);
-					Data.PopPrefix();
-				}
-
-				Class = Class->ParentClass;
-			}
-			OnDeserialize(Data);
-
+			Data.PushPrefix(Property->Name);
+			Property->Deserialize(Data, this);
 			Data.PopPrefix();
 		}
 
-		void Object::SetOuter(Object* Outer)
-		{
-			m_Outer = Outer;
-		}
+		Class = Class->ParentClass;
+	}
+	OnDeserialize(Data);
 
-		Object* Object::GetOuter() const
-		{
-			return m_Outer;
-		}
+	Data.PopPrefix();
+}
 
-		void Object::MarkGarbage()
-		{
-			SetFlag(static_cast<uint64>(StateObjectFlagGC), static_cast<uint64>(ObjectGCFlags::Garbage));
-		}
+void Object::SetOuter(Object* Outer)
+{
+	m_Outer = Outer;
+}
 
-		void Object::OnDeserialize(SerializeAchive& Data)
-		{
-		}
+Object* Object::GetOuter() const
+{
+	return m_Outer;
+}
 
-		void Object::OnSerialize(SerializeAchive& Archive)
-		{
-		}
+void Object::MarkGarbage()
+{
+	SetFlag(static_cast<uint64>(StateObjectFlagGC), static_cast<uint64>(ObjectGCFlags::Garbage));
+}
 
-		const String& Object::GetName() const
-		{
-			return Name;
-		}
-	} // namespace Runtime
-} // namespace CoreEngine
+void Object::OnDeserialize(CoreEngine::SerializeAchive& Data)
+{
+}
+
+void Object::OnSerialize(CoreEngine::SerializeAchive& Archive)
+{
+}
+
+const String& Object::GetName() const
+{
+	return Name;
+}

@@ -1,5 +1,6 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <Core/includes/World.h>
+#include <Core/includes/Engine.h>
 #include <fstream>
 
 namespace CoreEngine
@@ -26,7 +27,7 @@ namespace CoreEngine
 	{
 		std::ofstream fout(Path);
 		fout << Achive.Data().dump(4);
-		
+
 		fout.close();
 	}
 
@@ -59,10 +60,11 @@ namespace CoreEngine
 
 			EG_LOG(CORE, ELevelLog::INFO, i.dump(4));
 		}
-		
+
 		PreStartDeserialized();
 		StartDeserialized(LoadedAchive);
+
+		return true;
 	}
 
-
-}
+} // namespace CoreEngine

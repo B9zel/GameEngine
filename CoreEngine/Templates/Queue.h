@@ -39,8 +39,8 @@ public:
 
 public:
 
-	CoreEngine::Dispatcher<T*> RemoveElement;
-	CoreEngine::Dispatcher<T*> AddElement;
+	Dispatcher<T*> RemoveElement;
+	Dispatcher<T*> AddElement;
 
 private:
 

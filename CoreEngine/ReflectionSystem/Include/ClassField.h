@@ -30,7 +30,7 @@ namespace CoreEngine
 
 			bool IsChildClassOf(const ClassField* OtherClass);
 
-			virtual void ConstructInstanceObject(Runtime::Object*, const CoreEngine::InitializeObject&) = 0;
+			virtual void ConstructInstanceObject(Object*, const CoreEngine::InitializeObject&) = 0;
 
 			virtual void ValidateMetaClass() override;
 

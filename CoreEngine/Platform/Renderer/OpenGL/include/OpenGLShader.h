@@ -5,26 +5,26 @@
 #include <Math/includes/Matrix.h>
 #include <Math/includes/Vector.h>
 #include <Render/includes/RenderHardwareInterface.h>
+
 #include <glad/glad.h>
 #include <gl/GL.h>
-
 
 namespace CoreEngine
 {
 	namespace Render
 	{
-		
-
 		namespace OpenGL
 		{
 			DECLARE_LOG_CATEGORY_EXTERN(OPENGL_Shader)
 
-
 			class OpenGLShader : public Shader
 			{
-			public:
+			protected:
 
 				OpenGLShader();
+
+			public:
+
 				virtual ~OpenGLShader();
 				OpenGLShader(OpenGLShader&& otherShader) noexcept;
 				OpenGLShader(RenderDevice* Device, const String& vertexShader, const String& fragmentShader);
@@ -52,21 +52,25 @@ namespace CoreEngine
 				virtual bool SetUniformVec2(RenderDevice* Device, const String& nameParam, const FVector2& vec, bool isEnableBind = true) override;
 				virtual bool SetUniformVec3(RenderDevice* Device, const String& nameParam, const FVector& vec, bool isEnableBind = true) override;
 
+				virtual const HashTableMap<String, UniformInfo>& GetAllUniforms() const override;
+
 				bool HasUniformLocation(const char* nameParam);
 				int32 GetUniformLocation(const char* nameParam);
+				virtual const String& GetVertexShader() const override;
+				virtual const String& GetFragmentShader() const override;
 
 			private:
 
 				bool GetCachedLocationParam(const String& Key, int32& outLocation);
 				void AnalysisTextureShader(const String& vertex, const String& fragment);
 				void AnalysisMatrix4(const String& vertex);
-				bool IsInComment(const String& str, const size_t PosTarget);
+				static bool IsInComment(const String& str, const size_t PosTarget);
+				static void ParseShader(const String& shader, const RHI::ShaderHandle& Shader, HashTableMap<String, UniformInfo>& outUniforms);
 
 			private:
 
 				HashTableMap<String, int32> cachedParameters;
 				DArray<String> m_NameTextures;
-
 
 				uint32 m_ID;
 				bool m_IsCompile;
@@ -75,7 +79,13 @@ namespace CoreEngine
 				/////////////////////////////////
 
 				RHI::ShaderHandle Handle;
+				// String is name of uniform
+				HashTableMap<String, UniformInfo> m_Uniforms;
+				String Vertex, Fragment;
+
+				static DArray<String> m_SearchElements;
+				static const HashTableMap<String, EUniformType> m_UniformTypStr;
 			};
-		}
-	}
-}
+		} // namespace OpenGL
+	} // namespace Render
+} // namespace CoreEngine

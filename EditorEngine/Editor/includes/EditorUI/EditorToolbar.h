@@ -2,7 +2,7 @@
 #include <Editor/includes/EditorUI/BaseEditorPanel.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLTexture.h>
 
-class CoreEngine::AssetManager;
+class AssetManager;
 class CoreEngine::Render::Texture2D;
 
 namespace Editor
@@ -24,7 +24,7 @@ namespace Editor
 		CoreEngine::Render::Texture2D* StopTexture;
 		CoreEngine::Render::Texture2D* PlayTexture;
 
-		CoreEngine::AssetManager* AssetManager;
+		AssetManager* AssetManager;
 		CoreEngine::Render::RenderDevice* DeviceRender;
 	};
 

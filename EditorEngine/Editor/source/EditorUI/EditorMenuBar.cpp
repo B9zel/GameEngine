@@ -28,7 +28,7 @@ namespace Editor
 					if (!Path.empty())
 					{
 						OwnerEditor->SetSelectedObject(nullptr);
-						OwnerEditor->GetWorld()->GetSaveManager()->LoadSaveScene(Path); //"../Scene.json");
+						OwnerEditor->GetWorld()->GetSaveManager()->LoadSaveScene(Path);
 					}
 				}
 				if (ImGui::MenuItem("Save As"))
@@ -36,7 +36,7 @@ namespace Editor
 					const String Path = SaveFileDialogeMenu("Reflect engine files (*.reflect)\0*.reflect\0");
 					if (!Path.empty())
 					{
-						OwnerEditor->GetWorld()->GetSaveManager()->SaveScene(Path); //"../Scene.json");
+						OwnerEditor->GetWorld()->GetSaveManager()->SaveScene(Path);
 					}
 				}
 				if (ImGui::MenuItem("Exit"))

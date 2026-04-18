@@ -62,7 +62,7 @@ layout(std140, binding = 2) buffer SpotLightLayout
     SpotLight SpotLights[];
 };
 
-
+[[VERTEX]]
 
 void main()
 {
@@ -75,7 +75,6 @@ void main()
     {
         const int Index = int(DirectionLights[i].LayerShadow);
         FragPosLightSpaces[Index] = LightSpace[Index] * vec4(FragPos, 1.0);
-      
     }
     for (int i = 0; i < CountSpotLight; i++)
     {
@@ -84,8 +83,8 @@ void main()
        
     }
     //const int a = int(DirectionLights[0].LayerShadow);
-   
-    gl_Position = Projection * View * Model * vec4(position + Offset, 1.0f);
+    
+    gl_Position = Projection * View * Model * vec4(position + vertex(), 1.0f);
     
     
 }
@@ -267,8 +266,8 @@ vec3 CalculateDirectionLight()
             return vec3(0, 1, 0);
         }
         //resColor = vec3(FragPosLightSpaces[2]);
-        //resColor += (1.0 - Shadow) * (diffuse + specular) * DirectionLights[i].Intencity;
-        resColor += (diffuse + specular) * DirectionLights[i].Intencity;
+        resColor += (1.0 - Shadow) * (diffuse + specular) * DirectionLights[i].Intencity;
+       // resColor += (diffuse + specular) * DirectionLights[i].Intencity;
       
     }
 
@@ -357,6 +356,7 @@ vec3 CalculateSpotLight()
     return resColor;
 }
 
+[[FRAGMENT]]
 
 void main()
     {
@@ -411,7 +411,8 @@ void main()
         result = vec3(0.05);
     } */
     //
-    result = (CalculateDirectionLight() + CalculatePointLight() + CalculateSpotLight()) * ObjColor;
+    vec3 FrColor = fragment();
+    result = (CalculateDirectionLight() + CalculatePointLight() + CalculateSpotLight()) * FrColor;//* ObjColor;
     result += ambient;
     ObjectID = OutID;
     //result = vec3(1,1,1);

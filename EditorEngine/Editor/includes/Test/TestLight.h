@@ -12,7 +12,7 @@
 #include <TestLight.generated.h>
 
 RCLASS()
-class Light : public CoreEngine::Runtime::Actor
+class Light : public Actor
 {
 	GENERATED_BODY()
 
@@ -20,11 +20,13 @@ public:
 
 	Light(const CoreEngine::InitializeObject& Object);
 
+	virtual void BeginPlay() override;
 	virtual void Update(float deltaTime) override
 	{
-		CoreEngine::Runtime::Actor::Update(deltaTime);
+		Actor::Update(deltaTime);
+
 		// AddActorRotation(FVector(0.1, 0, 0));
-		LightCube->GetSceneProxy()->SetTransformMatrix(LightCube->MakeMatrixMesh());
+		// LightCube->GetSceneProxy()->SetTransformMatrix(LightCube->MakeMatrixMesh());
 		// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Actor {0} {1} {2}", GetActorRotation().GetX(), GetActorRotation().GetY(), GetActorRotation().GetZ());
 		// auto Class = CoreEngine::Engine::Get()->GetReflectionManger()->FindMetaClas("Object");
 		/*	auto Prop = GetStaticClass()->GetPropertyFieldByName(this, "TestVar");
@@ -42,9 +44,9 @@ public:
 
 private:
 
-	CoreEngine::Runtime::MeshComponent* mesh = nullptr;
+	MeshComponent* mesh = nullptr;
 	// CoreEngine::ObjectPtr<CoreEngine::Runtime::DirectionLightComponent> LightObj;
-	CoreEngine::Runtime::PrimitiveComponent* LightCube;
+	PrimitiveComponent* LightCube;
 	CoreEngine::Render::Shader* shade;
 	UniquePtr<CoreEngine::Render::VertexArrayObject> arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
@@ -52,6 +54,7 @@ private:
 
 	CoreEngine::Render::RHI::HandleVAO VAO;
 	CoreEngine::Render::RHI::BufferHandle VBO;
+	CoreEngine::Render::Texture2D* TestTexture;
 
 	float arr[288] = {
 		-0.5f, -0.5f, -0.5f, 0.0f,	0.0f,  -1.0f, 0.0f, 0.0f, 0.5f,	 -0.5f, -0.5f, 0.0f,  0.0f,	 -1.0f, 1.0f, 0.0f,

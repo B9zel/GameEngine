@@ -1,9 +1,31 @@
 #include <Core/includes/Application.h>
 
+#include <Core/includes/Engine.h>
 #include <Core/includes/Base.h>
 #include <Core/includes/Window.h>
 #include <Core/includes/World.h>
 #include <Core/includes/Dispatcher.h>
+
+namespace CoreEngine
+{
+
+	ApplicationOptions::ApplicationOptions() : applicationName{""}, pathToApp{""}, EngineInstance{nullptr}
+	{
+	}
+
+	ApplicationOptions::ApplicationOptions(const String appName, const String path, Engine* engine)
+		: applicationName{appName}, pathToApp{path}, EngineInstance{engine}
+	{
+		const String projectDirectName = "GameEngine";
+		size_t pos = path.find(projectDirectName);
+		if (pos == String::npos)
+		{
+			// Application must be in directory "GameEngine"
+			throw std::exception("Application must be in directory \"GameEngine\"");
+		}
+		pathToProject = (pathToApp.substr(0, pos + projectDirectName.size()));
+	}
+} // namespace CoreEngine
 
 namespace CoreEngine
 {

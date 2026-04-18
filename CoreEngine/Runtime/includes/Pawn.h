@@ -3,43 +3,36 @@
 #include <Runtime/includes/InputComponent.h>
 #include <Pawn.generated.h>
 
-namespace CoreEngine
+class Controller;
+class PlayerController;
+class InputComponent;
+
+RCLASS();
+class Pawn : public Actor
 {
-	namespace Runtime
-	{
-		class Controller;
-		class PlayerController;
-		class InputComponent;
+	GENERATED_BODY()
 
-		RCLASS();
-		class Pawn : public Actor
-		{
-			GENERATED_BODY()
+public:
 
-		public:
+	Pawn(const CoreEngine::InitializeObject& Object);
 
-			Pawn(const InitializeObject& Object);
+public:
 
-		public:
+	Controller* GetOwningController() const;
+	virtual void PossessedBy(Controller* NewController);
+	virtual void Update(float deltaTime) override;
 
-			Controller* GetOwningController() const;
-			virtual void PossessedBy(Controller* NewController);
-			virtual void Update(float deltaTime) override;
+	void PawnRestart();
 
-			void PawnRestart();
+protected:
 
-		protected:
+	virtual void SetupInputPlayerController(InputComponent* inputController);
 
-			virtual void SetupInputPlayerController(InputComponent* inputController);
+protected:
 
-		protected:
+	Controller* OwningController;
+	RPROPERTY();
+	InputComponent* inputComponent;
 
-			Controller* OwningController;
-			RPROPERTY();
-			InputComponent* inputComponent;
-
-			friend PlayerController;
-		};
-
-	}
-}
+	friend PlayerController;
+};

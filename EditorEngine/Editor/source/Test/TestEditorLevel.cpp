@@ -6,13 +6,12 @@
 
 void FirstLevel::ActorInitialize()
 {
-	
-	//auto* controller = GetWorld()->SpawnActor<class MyController>(nullptr);
+
+	// auto* controller = GetWorld()->SpawnActor<class MyController>(nullptr);
 	auto* pawn = GetWorld()->SpawnActor<class Quad>(nullptr);
 	auto* acc = GetWorld()->SpawnActor<class Light>(nullptr);
 	auto* ac = GetWorld()->SpawnActor<class LightActor>(nullptr);
-	//controller->Possess(pawn);
+	// controller->Possess(pawn);
 
 	Level::ActorInitialize();
-	
 }

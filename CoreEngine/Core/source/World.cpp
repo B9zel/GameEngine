@@ -6,136 +6,134 @@
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Runtime/includes/PlayerController.h>
 #include <Core/includes/Memory/SaveManager.h>
+#include <Core/includes/Engine.h>
 #include <GLFW/glfw3.h>
 
-namespace CoreEngine
+World::World(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
 {
-	World::World(const InitializeObject& Initilize) : Object(Initilize)
+	m_UpdateManager = CoreEngine::UpdateManager::CreateInstance();
+	m_Scene = Allocator::Allocate<CoreEngine::Render::Scene>();
+	m_SaveManager = MakeUniquePtr<CoreEngine::SaveManager>();
+	m_SaveManager->SetWorld(this);
+
+	m_LastTime = static_cast<float>(glfwGetTime());
+}
+
+void World::InitProperties()
+{
+	m_Scene->SetWorld(this);
+}
+
+void World::WorldUpdate()
+{
+	float now = static_cast<float>(glfwGetTime());
+	m_DeltaTime = now - m_LastTime;
+	m_LastTime = now;
+
+	UpdateWorld();
+
+	m_Scene->CollectProxy();
+	m_Scene->StartRender();
+}
+
+void World::UpdateWorld()
+{
+	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::PRE_UPDATE);
+	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::UPDATE);
+	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::POST_UPDATE);
+}
+
+CoreEngine::UpdateManager* World::GetUpdateManager() const
+{
+	return m_UpdateManager.get();
+}
+
+CoreEngine::SaveManager* World::GetSaveManager() const
+{
+	return m_SaveManager.get();
+}
+
+float World::GetWorldDeltaTime() const
+{
+	return m_DeltaTime;
+}
+
+const DArray<Level*>& World::GetLevels() const
+{
+	return m_Levels;
+}
+
+FVector World::GetControllerLocation() const
+{
+	for (auto* actor : m_MainLevel->GetActors())
 	{
-		m_UpdateManager = UpdateManager::CreateInstance();
-		m_Scene = Allocator::Allocate<Render::Scene>();
-		m_SaveManager = MakeUniquePtr<SaveManager>();
-		m_SaveManager->SetWorld(this);
-
-		m_LastTime = static_cast<float>(glfwGetTime());
-	}
-
-	void World::InitProperties()
-	{
-		m_Scene->SetWorld(this);
-	}
-
-	void World::WorldUpdate()
-	{
-		float now = static_cast<float>(glfwGetTime());
-		m_DeltaTime = now - m_LastTime;
-		m_LastTime = now;
-
-		UpdateWorld();
-
-		m_Scene->CollectProxy();
-		m_Scene->StartRender();
-	}
-
-	void World::UpdateWorld()
-	{
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::PRE_UPDATE);
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::UPDATE);
-		m_UpdateManager->ExecuteGroup(m_DeltaTime, EStageUpdate::POST_UPDATE);
-	}
-
-	UpdateManager* World::GetUpdateManager() const
-	{
-		return m_UpdateManager.get();
-	}
-
-	SaveManager* World::GetSaveManager() const
-	{
-		return m_SaveManager.get();
-	}
-
-	float World::GetWorldDeltaTime() const
-	{
-		return m_DeltaTime;
-	}
-
-	const DArray<Level*>& World::GetLevels() const
-	{
-		return m_Levels;
-	}
-
-	FVector World::GetControllerLocation() const
-	{
-		for (auto* actor : m_MainLevel->GetActors())
+		if (dynamic_cast<PlayerController*>(actor))
 		{
-			if (dynamic_cast<Runtime::PlayerController*>(actor))
-			{
-				return actor->GetActorLocation();
-			}
-		}
-		return FVector(0);
-	}
-
-	void World::PreSerialize()
-	{
-		Object::PreSerialize();
-
-		m_MainLevel->PreSerialize();
-	}
-
-	void World::OnSerialize(SerializeAchive& Achive)
-	{
-		Object::OnSerialize(Achive);
-
-		m_MainLevel->Serialize(Achive);
-	}
-
-	void World::PreDeserialize()
-	{
-		Object::PreDeserialize();
-
-		m_MainLevel->PreDeserialize();
-	}
-
-	void World::OnDeserialize(SerializeAchive& Data)
-	{
-		Object::OnDeserialize(Data);
-
-		m_MainLevel->Deserialize(Data);
-	}
-
-	void World::OpenLevel(Level* level)
-	{
-		if (!m_MainLevel || !m_Levels.empty())
-		{
-			m_MainLevel->StartDestroy();
-			m_MainLevel->FinishDestroy();
-			m_Levels.erase(std::find(m_Levels.begin(), m_Levels.end(), m_MainLevel));
-			delete m_MainLevel;
-		}
-		level->InitProperties();
-		m_Levels.push_back(level);
-		m_MainLevel = level;
-
-		m_MainLevel->SetWorld(this);
-		m_MainLevel->ActorInitialize();
-		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
-	}
-
-	void World::InitializePlayActors()
-	{
-		for (size_t i = 0; i < m_Levels.size(); i++)
-		{
-			m_Levels[i]->ActorInitialize();
+			return actor->GetActorLocation();
 		}
 	}
+	return FVector(0);
+}
 
-	void World::DestroyActor(Runtime::Actor* ActorDestr)
+void World::PreSerialize()
+{
+	Object::PreSerialize();
+
+	m_MainLevel->PreSerialize();
+}
+
+void World::OnSerialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnSerialize(Achive);
+
+	m_MainLevel->Serialize(Achive);
+}
+
+void World::PreDeserialize()
+{
+	Object::PreDeserialize();
+
+	m_MainLevel->PreDeserialize();
+}
+
+void World::OnDeserialize(CoreEngine::SerializeAchive& Data)
+{
+	Object::OnDeserialize(Data);
+
+	m_MainLevel->Deserialize(Data);
+}
+
+void World::OpenLevel(Level* level)
+{
+	if (!m_MainLevel || !m_Levels.empty())
 	{
-		auto FindedElement = std::find(m_MainLevel->m_Actors.begin(), m_MainLevel->m_Actors.end(), ActorDestr);
-		if (FindedElement != m_MainLevel->m_Actors.end())
-		{
-			m_MainLevel->m_Actors.erase(FindedElement);
-		}
+		m_MainLevel->StartDestroy();
+		m_MainLevel->FinishDestroy();
+		m_Levels.erase(std::find(m_Levels.begin(), m_Levels.end(), m_MainLevel));
+		delete m_MainLevel;
 	}
-} // namespace CoreEngine
+	level->InitProperties();
+	m_Levels.push_back(level);
+	m_MainLevel = level;
+
+	m_MainLevel->SetWorld(this);
+	m_MainLevel->ActorInitialize();
+	Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
+}
+
+void World::InitializePlayActors()
+{
+	for (size_t i = 0; i < m_Levels.size(); i++)
+	{
+		m_Levels[i]->ActorInitialize();
+	}
+}
+
+void World::DestroyActor(Actor* ActorDestr)
+{
+	auto FindedElement = std::find(m_MainLevel->m_Actors.begin(), m_MainLevel->m_Actors.end(), ActorDestr);
+	if (FindedElement != m_MainLevel->m_Actors.end())
+	{
+		m_MainLevel->m_Actors.erase(FindedElement);
+	}
+}

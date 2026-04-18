@@ -2,37 +2,29 @@
 #include <Runtime/includes/Actor.h>
 #include <Controller.generated.h>
 
+class Pawn;
 
-namespace CoreEngine
+RCLASS()
+class Controller : public Actor
 {
-	namespace Runtime
-	{
-		class Pawn;
+	GENERATED_BODY()
 
-		RCLASS()
-			class Controller : public Actor
-		{
-			GENERATED_BODY()
+public:
 
-		public:
+	Controller(const CoreEngine::InitializeObject& Object);
 
-			Controller(const InitializeObject& Object);
+	Pawn* GetControlledPawn() const;
+	void SetControlledPawn(Pawn* NewPawn);
 
+	virtual void Possess(Pawn* pawn);
+	virtual void UnPossess();
 
-			Pawn* GetControlledPawn() const;
-			void SetControlledPawn(Pawn* NewPawn);
+protected:
 
-			virtual void Possess(Pawn* pawn);
-			virtual void UnPossess();
+	virtual void OnPossess(Pawn* NewPawn);
+	virtual void OnUnPossess();
 
-		protected:
+protected:
 
-			virtual void OnPossess(Pawn* NewPawn);
-			virtual void OnUnPossess();
-
-		protected:
-
-			Pawn* ControlledPawn;
-		};
-	}
-}
+	Pawn* ControlledPawn;
+};

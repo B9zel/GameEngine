@@ -2,25 +2,19 @@
 #include <Core/includes/Base.h>
 #include <Core/includes/UpdateManager.h>
 
-
+class Object;
+class Actor;
 
 namespace CoreEngine
 {
-	namespace Runtime
-	{
-		class Object;
-		class Actor;
-	}
-
 	enum class EStageUpdate : uint8;
-
 
 	// Stores pointer on Update method and decides when to call method
 	class UpdateFunction
 	{
 	public:
 
-		friend Runtime::Actor;
+		friend Actor;
 
 	public:
 
@@ -30,11 +24,11 @@ namespace CoreEngine
 		UpdateFunction(UpdateFunction&&) = default;
 
 	public:
-		
+
 		/*
-		* Call bind update function, if LastTimeUpdate more then Interval
-		* @param time after last frame 
-		*/
+		 * Call bind update function, if LastTimeUpdate more then Interval
+		 * @param time after last frame
+		 */
 		virtual void ExecuteUpdate(float deltaTime) = 0;
 
 		EStageUpdate GetStage() const;
@@ -47,4 +41,4 @@ namespace CoreEngine
 		EStageUpdate stage;
 	};
 
-}
+} // namespace CoreEngine

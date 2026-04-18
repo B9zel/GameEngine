@@ -4,9 +4,7 @@
 #include <Runtime/includes/PlayerController.h>
 #include <Events/include/Event.h>
 
-
 #define RESERVE_SPACE_EVENTS 5
-
 
 namespace CoreEngine
 {
@@ -14,9 +12,8 @@ namespace CoreEngine
 	{
 		PlayerInput::~PlayerInput()
 		{
-
 		}
-		Queue<Event*>* PlayerInput::GetReverseQueueEvents()
+		Queue<CoreEngine::Event*>* PlayerInput::GetReverseQueueEvents()
 		{
 			return &m_Events;
 		}
@@ -37,7 +34,7 @@ namespace CoreEngine
 			m_Events.RemoveElement.AddBind(&PlayerInput::OnRemoveElement, this);
 		}
 
-		void PlayerInput::TakeEvent(Event& event)
+		void PlayerInput::TakeEvent(CoreEngine::Event& event)
 		{
 
 			switch (event.GetEventType())
@@ -87,10 +84,10 @@ namespace CoreEngine
 			}
 		}
 
-		void PlayerInput::OnRemoveElement(Event** event)
+		void PlayerInput::OnRemoveElement(CoreEngine::Event** event)
 		{
 			m_eventPool.GiveEventClass(*event);
 		}
 
-	}
-}
+	} // namespace Runtime
+} // namespace CoreEngine

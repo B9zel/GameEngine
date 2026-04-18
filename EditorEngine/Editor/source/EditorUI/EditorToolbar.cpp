@@ -8,21 +8,20 @@ namespace Editor
 {
 	EditorToolbar::EditorToolbar()
 	{
-	
 
-		//PlayTexture = CoreEngine::Render::Texture2D::Create(CoreEngine::Engine::Get()->GetRender()->GetRenderDevice().get(), );
-		//StopTexture = CoreEngine::Render::Texture2D::Create(CoreEngine::Engine::Get()->GetRender()->GetRenderDevice().get() ,);
+		// PlayTexture = CoreEngine::Render::Texture2D::Create(CoreEngine::Engine::Get()->GetRender()->GetRenderDevice().get(), );
+		// StopTexture = CoreEngine::Render::Texture2D::Create(CoreEngine::Engine::Get()->GetRender()->GetRenderDevice().get() ,);
 	}
 
 	void EditorToolbar::Draw()
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 5));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
-		ImGui::Begin("##Toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-		float Size = ImGui::GetWindowHeight() - 4.0f;
+		float Size = ImGui::GetWindowHeight() - 4;
 		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (Size * 0.5));
 
 		uint32 Id = OwnerEditor->GetCurrentStateWorld() == EStateWorld::Edit ? DeviceRender->GetTextureID(PlayTexture->GetTextureHandle())
@@ -53,9 +52,9 @@ namespace Editor
 
 	void EditorToolbar::OnConstruct()
 	{
-		DeviceRender = CoreEngine::Engine::Get()->GetRender()->GetRenderDevice().get();
+		DeviceRender = Engine::Get()->GetRender()->GetRenderDevice().get();
 
-		AssetManager = CoreEngine::Engine::Get()->GetAssetManager();
+		AssetManager = Engine::Get()->GetAssetManager();
 		PlayTexture = AssetManager->LoadTexture("../../Resources/Play.png");
 		StopTexture = AssetManager->LoadTexture("../../Resources/Stop.png");
 	}

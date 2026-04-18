@@ -4,293 +4,287 @@
 #include <Runtime/includes/Controller.h>
 #include <Runtime/includes/ActorComponent.h>
 
-namespace CoreEngine
+Actor::Actor(const CoreEngine::InitializeObject& Initilize) : Object(Initilize), actorUpdate(), RootComponent(nullptr)
 {
-	namespace Runtime
+	RootComponent = CreateSubObject<SceneComponent>("Scene component");
+
+	isBeginedPlay = false;
+	isRegister = false;
+}
+
+void Actor::InitProperties()
+{
+	Object::InitProperties();
+}
+
+void Actor::RegisterAll()
+{
+	for (auto& Component : Components)
 	{
-		Actor::Actor(const InitializeObject& Initilize) : Object(Initilize), actorUpdate(), RootComponent(nullptr)
+		if (Component->GetIsActive())
 		{
-			RootComponent = CreateSubObject<SceneComponent>("Scene component");
-
-			isBeginedPlay = false;
-			isRegister = false;
+			Component->RegisteredComponent();
 		}
+	}
+}
 
-		void Actor::InitProperties()
+void Actor::DispatchBeginPlay()
+{
+	if (GetWorld() && !isBeginedPlay)
+	{
+		BeginPlay();
+		isBeginedPlay = true;
+	}
+}
+
+void Actor::BeginPlay()
+{
+	for (ActorComponent* Component : Components)
+	{
+		if (Component)
 		{
-			Object::InitProperties();
+			Component->BeginPlay();
 		}
+	}
+}
 
-		void Actor::RegisterAll()
+void Actor::EndPlay()
+{
+}
+
+void Actor::Update(float deltaTime)
+{
+}
+
+void Actor::NativeUpdate(float deltaTime)
+{
+	Update(deltaTime);
+}
+
+void Actor::Registered()
+{
+	if (isRegister) return;
+
+	OnRegistered();
+	isRegister = true;
+}
+
+void Actor::InitComponents()
+{
+	for (ActorComponent* component : Components)
+	{
+		if (component->GetIsActive())
 		{
-			for (auto& Component : Components)
-			{
-				if (Component->GetIsActive())
-				{
-					Component->RegisteredComponent();
-				}
-			}
+			component->InitProperties();
 		}
+	}
+}
 
-		void Actor::DispatchBeginPlay()
+void Actor::PostSpawnActor()
+{
+	PreRegistered();
+	PreRegisterAll();
+
+	Registered();
+	RegisterAll();
+}
+
+void Actor::PreRegistered()
+{
+	InitProperties();
+}
+
+void Actor::PreRegisterAll()
+{
+	for (auto* Component : Components)
+	{
+		Component->PreRegisterComponent();
+	}
+}
+
+void Actor::OnRegistered()
+{
+	GetWorld()->GetUpdateManager()->AddFunction(&actorUpdate);
+	actorUpdate.SetUpdateMethod(&Actor::NativeUpdate, this);
+}
+
+SceneComponent* Actor::GetRootComponent() const
+{
+	return RootComponent;
+}
+
+void Actor::SetRootComponent(SceneComponent* root)
+{
+	if (root)
+	{
+		RootComponent = root;
+	}
+}
+FVector Actor::GetActorLocation() const
+{
+	return RootComponent->GetComponentLocation();
+}
+
+FVector Actor::GetActorScale() const
+{
+	return RootComponent->GetComponentScale();
+}
+
+FVector Actor::GetActorRotation() const
+{
+	return RootComponent->GetComponentRotation();
+}
+
+FTransform Actor::GetActorTransform() const
+{
+	return RootComponent->GetTransform();
+}
+
+FVector Actor::GetActorForwardVector() const
+{
+	return RootComponent ? RootComponent->GetForwardVector() : FVector::ForwardVector;
+}
+
+FVector Actor::GetActorRightVector() const
+{
+	return RootComponent ? RootComponent->GetRightVector() : FVector::RightVector;
+}
+
+Actor* Actor::GetOwner() const
+{
+	return Owner;
+}
+
+bool Actor::GetIsRegister() const
+{
+	return isRegister;
+}
+
+void Actor::SetActorLocation(const FVector& newLocation)
+{
+	RootComponent->SetComponentLocation(newLocation);
+}
+
+void Actor::SetActorScale(const FVector& newScale)
+{
+	RootComponent->SetComponentScale(newScale);
+}
+
+void Actor::SetActorRotation(const FVector& newRotation)
+{
+	RootComponent->SetComponentRotation(newRotation);
+}
+
+void Actor::SetActorTransform(const FTransform& newTransform)
+{
+	RootComponent->SetTransform(newTransform);
+}
+
+void Actor::AddActorLocation(const FVector& AddLocation)
+{
+	RootComponent->AddComponentLocation(AddLocation);
+}
+
+void Actor::AddActorRotation(const FVector& AddValue)
+{
+	RootComponent->AddComponentRotation(AddValue);
+}
+
+void Actor::SetOwner(Actor* newOwner)
+{
+	Owner = newOwner;
+}
+
+bool Actor::RemoveComponent(ActorComponent* Component)
+{
+	SceneComponent* NewRoot = nullptr;
+	if (RootComponent->GetChildrenAttaches().empty() && RootComponent->GetClass() != SceneComponent::GetStaticClass())
+	{
+		NewRoot = CreateSubObject<SceneComponent>("Scene root");
+		NewRoot->SetTransform(RootComponent->GetTransform());
+	}
+
+	for (auto It = Components.begin(); It != Components.end(); It++)
+	{
+		if (*It == Component && !(*It)->GetIsCreatedNative())
 		{
-			if (GetWorld() && !isBeginedPlay)
-			{
-				BeginPlay();
-				isBeginedPlay = true;
-			}
+			(*It)->DestroyComponent();
+			Components.erase(It);
+			return true;
 		}
+	}
 
-		void Actor::BeginPlay()
+	if (NewRoot)
+	{
+		RootComponent = NewRoot;
+	}
+
+	return false;
+}
+
+DArray<ActorComponent*> Actor::FindComponentsByClass(CoreEngine::Reflection::ClassField* Class)
+{
+	DArray<ActorComponent*> Res;
+	for (ActorComponent* i : Components)
+	{
+		if (i->GetClass()->IsChildClassOf(Class))
 		{
-			for (ActorComponent* Component : Components)
-			{
-				if (Component)
-				{
-					Component->BeginPlay();
-				}
-			}
+			Res.emplace_back(i);
 		}
+	}
+	return Res;
+}
 
-		void Actor::EndPlay()
-		{
-		}
+const DArray<ActorComponent*>& Actor::GetComponents() const
+{
+	return Components;
+}
+void Actor::PreSerialize()
+{
+	Object::PreSerialize();
 
-		void Actor::Update(float deltaTime)
-		{
-		}
+	for (auto* Component : GetComponents())
+	{
+		Component->PreSerialize();
+	}
+}
+void Actor::PreDeserialize()
+{
+	Object::PreDeserialize();
 
-		void Actor::NativeUpdate(float deltaTime)
-		{
-			Update(deltaTime);
-		}
+	for (auto* Component : GetComponents())
+	{
+		Component->PreDeserialize();
+	}
+}
+void Actor::Destroy()
+{
+	EndPlay();
+	GetWorld()->DestroyActor(this);
+	OnDestroy();
+	for (auto& Component : Components)
+	{
+		Component->DestroyComponent();
+	}
+	GetWorld()->GetUpdateManager()->RemoveFunction(&actorUpdate);
 
-		void Actor::Registered()
-		{
-			if (isRegister) return;
+	MarkGarbage();
+}
 
-			OnRegistered();
-			isRegister = true;
-		}
+void Actor::OnDestroy()
+{
+}
 
-		void Actor::InitComponents()
-		{
-			for (ActorComponent* component : Components)
-			{
-				if (component->GetIsActive())
-				{
-					component->InitProperties();
-				}
-			}
-		}
+void Actor::OnSerialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnSerialize(Achive);
 
-		void Actor::PostSpawnActor()
-		{
-			PreRegistered();
-			PreRegisterAll();
-
-			Registered();
-			RegisterAll();
-		}
-
-		void Actor::PreRegistered()
-		{
-			InitProperties();
-		}
-
-		void Actor::PreRegisterAll()
-		{
-			for (auto* Component : Components)
-			{
-				Component->PreRegisterComponent();
-			}
-		}
-
-		void Actor::OnRegistered()
-		{
-			GetWorld()->GetUpdateManager()->AddFunction(&actorUpdate);
-			actorUpdate.SetUpdateMethod(&Actor::NativeUpdate, this);
-		}
-
-		SceneComponent* Actor::GetRootComponent() const
-		{
-			return RootComponent;
-		}
-
-		void Actor::SetRootComponent(SceneComponent* root)
-		{
-			if (root)
-			{
-				RootComponent = root;
-			}
-		}
-		FVector Actor::GetActorLocation() const
-		{
-			return RootComponent->GetComponentLocation();
-		}
-
-		FVector Actor::GetActorScale() const
-		{
-			return RootComponent->GetComponentScale();
-		}
-
-		FVector Actor::GetActorRotation() const
-		{
-			return RootComponent->GetComponentRotation();
-		}
-
-		FTransform Actor::GetActorTransform() const
-		{
-			return RootComponent->GetTransform();
-		}
-
-		FVector Actor::GetActorForwardVector() const
-		{
-			return RootComponent ? RootComponent->GetForwardVector() : FVector::ForwardVector;
-		}
-
-		FVector Actor::GetActorRightVector() const
-		{
-			return RootComponent ? RootComponent->GetRightVector() : FVector::RightVector;
-		}
-
-		Actor* Actor::GetOwner() const
-		{
-			return Owner;
-		}
-
-		bool Actor::GetIsRegister() const
-		{
-			return isRegister;
-		}
-
-		void Actor::SetActorLocation(const FVector& newLocation)
-		{
-			RootComponent->SetComponentLocation(newLocation);
-		}
-
-		void Actor::SetActorScale(const FVector& newScale)
-		{
-			RootComponent->SetComponentScale(newScale);
-		}
-
-		void Actor::SetActorRotation(const FVector& newRotation)
-		{
-			RootComponent->SetComponentRotation(newRotation);
-		}
-
-		void Actor::SetActorTransform(const FTransform& newTransform)
-		{
-			RootComponent->SetTransform(newTransform);
-		}
-
-		void Actor::AddActorLocation(const FVector& AddLocation)
-		{
-			RootComponent->AddComponentLocation(AddLocation);
-		}
-
-		void Actor::AddActorRotation(const FVector& AddValue)
-		{
-			RootComponent->AddComponentRotation(AddValue);
-		}
-
-		void Actor::SetOwner(Actor* newOwner)
-		{
-			Owner = newOwner;
-		}
-
-		bool Actor::RemoveComponent(ActorComponent* Component)
-		{
-			SceneComponent* NewRoot = nullptr;
-			if (RootComponent->GetChildrenAttaches().empty() && RootComponent->GetClass() != SceneComponent::GetStaticClass())
-			{
-				NewRoot = CreateSubObject<SceneComponent>("Scene root");
-				NewRoot->SetTransform(RootComponent->GetTransform());
-			}
-
-			for (auto It = Components.begin(); It != Components.end(); It++)
-			{
-				if (*It == Component && !(*It)->GetIsCreatedNative())
-				{
-					(*It)->DestroyComponent();
-					Components.erase(It);
-					return true;
-				}
-			}
-
-			if (NewRoot)
-			{
-				RootComponent = NewRoot;
-			}
-
-			return false;
-		}
-
-		DArray<ActorComponent*> Actor::FindComponentsByClass(Reflection::ClassField* Class)
-		{
-			DArray<ActorComponent*> Res;
-			for (ActorComponent* i : Components)
-			{
-				if (i->GetClass()->IsChildClassOf(Class))
-				{
-					Res.emplace_back(i);
-				}
-			}
-			return Res;
-		}
-
-		const DArray<ActorComponent*>& Actor::GetComponents() const
-		{
-			return Components;
-		}
-		void Actor::PreSerialize()
-		{
-			Object::PreSerialize();
-
-			for (auto* Component : GetComponents())
-			{
-				Component->PreSerialize();
-			}
-		}
-		void Actor::PreDeserialize()
-		{
-			Object::PreDeserialize();
-
-			for (auto* Component : GetComponents())
-			{
-				Component->PreDeserialize();
-			}
-		}
-		void Actor::Destroy()
-		{
-			EndPlay();
-			GetWorld()->DestroyActor(this);
-			OnDestroy();
-			for (auto& Component : Components)
-			{
-				Component->DestroyComponent();
-			}
-			GetWorld()->GetUpdateManager()->RemoveFunction(&actorUpdate);
-
-			MarkGarbage();
-		}
-
-		void Actor::OnDestroy()
-		{
-		}
-
-		void Actor::OnSerialize(SerializeAchive& Achive)
-		{
-			Object::OnSerialize(Achive);
-
-			for (auto* Component : GetComponents())
-			{
-				Component->Serialize(Achive);
-			}
-		}
-		void Actor::OnDeserialize(SerializeAchive& Achive)
-		{
-			Object::OnDeserialize(Achive);
-		}
-	} // namespace Runtime
-} // namespace CoreEngine
+	for (auto* Component : GetComponents())
+	{
+		Component->Serialize(Achive);
+	}
+}
+void Actor::OnDeserialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnDeserialize(Achive);
+}

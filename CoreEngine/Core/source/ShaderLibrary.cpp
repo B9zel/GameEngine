@@ -3,7 +3,7 @@
 namespace CoreEngine
 {
 	
-	void ShaderLibrary::AddShader(const String& name, Render::Shader* shader)
+	void ShaderLibrary::AddShader(const String& name, CoreEngine::Render::Shader* shader)
 	{
 		if (IsValidShader(name))
 		{
@@ -21,7 +21,7 @@ namespace CoreEngine
 	{
 		return m_shaders.count(name) > 0;
 	}
-	Render::Shader* ShaderLibrary::GetShader(const String& name)
+	CoreEngine::Render::Shader* ShaderLibrary::GetShader(const String& name)
 	{
 		return m_shaders[name];
 	}

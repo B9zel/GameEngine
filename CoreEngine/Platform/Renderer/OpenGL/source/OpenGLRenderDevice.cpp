@@ -296,6 +296,13 @@ namespace CoreEngine::Render::OpenGL
 		return 0;
 	}
 
+	int32 OpenGLRenderDevice::GetLocationUniform(const RHI::ShaderHandle& Shader, const String& NameUniform) const
+	{
+		const uint32 ShaderID = GetShaderID(Shader);
+
+		return glGetUniformLocation(ShaderID, NameUniform.c_str());
+	}
+
 	bool OpenGLRenderDevice::SetUniformMatrix4x4(const RHI::ShaderHandle& Handle, const String& nameParam, const FMatrix4x4& matrix)
 	{
 		if (!Handle.IsValid()) return false;

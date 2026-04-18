@@ -1,9 +1,11 @@
 #pragma once
 #include <Core/includes/Memory/SerializeArchive.h>
 
+class World;
+class Engine;
+
 namespace CoreEngine
 {
-	class World;
 
 	class SaveManager
 	{
@@ -22,10 +24,9 @@ namespace CoreEngine
 		virtual void SaveScene(const String& Path);
 		virtual bool LoadSaveScene(const String& Path);
 
-	
 	private:
 
 		World* WorldPtr;
 		SerializeAchive Achive;
 	};
-}
+} // namespace CoreEngine

@@ -3,7 +3,7 @@
 #include <Editor/includes/EditorApplication.h>
 #include <Editor/includes/EditorViewportClient.h>
 
-EditorWorld::EditorWorld(const CoreEngine::InitializeObject& Initializer) : CoreEngine::World(Initializer)
+EditorWorld::EditorWorld(const CoreEngine::InitializeObject& Initializer) : World(Initializer)
 {
 	EditEngine = dynamic_cast<EditorEngine*>(EditorEngine::Get());
 }
@@ -17,6 +17,6 @@ void EditorWorld::UpdateWorld()
 {
 	if (EditEngine->GetCurrentStateWorld() == EStateWorld::Play)
 	{
-		CoreEngine::World::UpdateWorld();
 	}
+	World::UpdateWorld();
 }

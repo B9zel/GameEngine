@@ -4,15 +4,34 @@
 #include <Core/includes/UUID.h>
 #include <Render/includes/Shader.h>
 #include <Render/includes/VertexArrayObject.h>
+#include <Render/includes/Material.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(PrimitiveProxyLog)
 
 namespace CoreEngine
 {
-	/*const HashTableMap<Render::Shader*, Pair<Render::VertexArrayObject*, Render::ElementBufferObject*>>& PrimitiveProxy::GetShaders() const
+	/*const HashTableMap<CoreEngine::Render::Shader*, Pair<CoreEngine::Render::VertexArrayObject*, CoreEngine::Render::ElementBufferObject*>>&
+	PrimitiveProxy::GetShaders() const
 	{
 		return Shaders;
 	}*/
+
+	void PrimitiveProxy::AddMaterial(const CoreEngine::Render::MaterialHandle& NewMaterial)
+	{
+		if (NewMaterial.IsValid())
+		{
+			m_Materials.push_back(NewMaterial);
+		}
+		else
+		{
+			EG_LOG(PrimitiveProxyLog, ELevelLog::WARNING, "Can't add material to primitive proxy because material is not valid");
+		}
+	}
+
+	const DArray<CoreEngine::Render::MaterialHandle>& PrimitiveProxy::GetMaterials() const
+	{
+		return m_Materials;
+	}
 
 	const HashTableSet<ParamOfShaderDesc, ShaderDescHasher>& PrimitiveProxy::GetShaders() const
 	{
@@ -29,17 +48,17 @@ namespace CoreEngine
 		Shaders.insert(Desc);
 	}
 
-	// void PrimitiveProxy::AddTexture(Render::Texture* NewTexture)
+	// void PrimitiveProxy::AddTexture(CoreEngine::Render::Texture* NewTexture)
 	//{
 	//	Textures.push_back(NewTexture);
 	// }
 
-	// const DArray<Render::Texture*>& PrimitiveProxy::GetTextures() const
+	// const DArray<CoreEngine::Render::Texture*>& PrimitiveProxy::GetTextures() const
 	//{
 	//	return Textures;
 	// }
 
-	const DArray<Render::RHI::TextureHandle>& PrimitiveProxy::GetTextures() const
+	const DArray<CoreEngine::Render::RHI::TextureHandle>& PrimitiveProxy::GetTextures() const
 	{
 		return Textures;
 	}
@@ -69,7 +88,7 @@ namespace CoreEngine
 		return ViewLocation;
 	}
 
-	void PrimitiveProxy::AddTexture(const Render::RHI::TextureHandle& NewTexture)
+	void PrimitiveProxy::AddTexture(const CoreEngine::Render::RHI::TextureHandle& NewTexture)
 	{
 		Textures.push_back(NewTexture);
 	}

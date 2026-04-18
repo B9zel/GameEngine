@@ -1,82 +1,75 @@
 #pragma once
 #include <Runtime/CoreObject/Include/Object.h>
 #include <Core/includes/MemoryManager.h>
-#include <Core/includes/Application.h>
+#include <Core/includes/Engine.h>
 #include <ReflectionSystem/Include/ReflectionMacros.h>
 #include <ReflectionSystem/Include/RegistryMap/MapRegistryClass.h>
 
-namespace CoreEngine
+class Object;
+
+template <class TParent, class TChild> constexpr bool IsParentClass()
 {
-	namespace Runtime
+	return std::is_base_of<TParent, TChild>::value;
+}
+
+template <class TParent, class TChild> constexpr bool IsParentClass(const TParent& parent, const TChild& child)
+{
+	return std::is_base_of_v<std::remove_reference_t<std::remove_const_t<decltype(parent)>>, std::remove_reference_t<std::remove_const_t<decltype(child)>>>;
+}
+
+template <class TFirst, class TSecond> constexpr bool IsEqualType()
+{
+	return std::is_same<TFirst, TSecond>().value;
+}
+
+template <class T> T* CreateObject(Object* Outer = nullptr)
+{
+	static_assert(IsParentClass<Object, T>(), "The class being created must be a descendant of the object.");
+
+	if (!T::GetStaticClass())
 	{
-		class Object;
+		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Static class don't exist");
+		return nullptr;
+	}
+	CoreEngine::MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
+	T* newObject = memManager->AllocateMemoryForObject<T>();
 
-		template <class TParent, class TChild> constexpr bool IsParentClass()
-		{
-			return std::is_base_of<TParent, TChild>::value;
-		}
+	memManager->GetGarbageCollector()->AddObject(newObject);
+	CoreEngine::InitializeObject InitParam;
+	InitParam.Class = T::GetStaticClass();
+	Allocator::Construct(newObject, InitParam);
+	newObject->InitProperties();
 
-		template <class TParent, class TChild> constexpr bool IsParentClass(const TParent& parent, const TChild& child)
-		{
-			return std::is_base_of_v<std::remove_reference_t<std::remove_const_t<decltype(parent)>>,
-									 std::remove_reference_t<std::remove_const_t<decltype(child)>>>;
-		}
+	return newObject;
+}
 
-		template <class TFirst, class TSecond> constexpr bool IsEqualType()
-		{
-			return std::is_same<TFirst, TSecond>().value;
-		}
+template <class T> T* CreateObject(CoreEngine::Reflection::ClassField* Class, Object* Outer = nullptr)
+{
+	if (!Class) return nullptr;
 
-		template <class T> T* CreateObject(Object* Outer = nullptr)
-		{
-			static_assert(IsParentClass<Object, T>(), "The class being created must be a descendant of the object.");
+	if (!T::GetStaticClass())
+	{
+		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Static class don't exist");
+		return nullptr;
+	}
 
-			if (!T::GetStaticClass())
-			{
-				EG_LOG(CORE, ELevelLog::ERROR, "Static class don't exist");
-				return nullptr;
-			}
-			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
-			T* newObject = memManager->AllocateMemoryForObject<T>();
+	CoreEngine::MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
+	Object* NewObject = memManager->AllocateMemory(Class->Size);
 
-			memManager->GetGarbageCollector()->AddObject(newObject);
-			InitializeObject InitParam;
-			InitParam.Class = T::GetStaticClass();
-			Allocator::Construct(newObject, InitParam);
-			newObject->InitProperties();
+	CoreEngine::InitializeObject InitParam;
+	InitParam.Class = Class;
+	Class->ConstructInstanceObject(NewObject, InitParam);
+	memManager->GetGarbageCollector()->AddObject(NewObject);
+	NewObject->InitProperties();
 
-			return newObject;
-		}
+	return dynamic_cast<T*>(NewObject);
+}
 
-		template <class T> T* CreateObject(Reflection::ClassField* Class, Object* Outer = nullptr)
-		{
-			if (!Class) return nullptr;
+template <class T>
+T* CreateObjectWithInit(Object* Outer = nullptr)
+{
+	T* Obj = CreateObject<T>(Outer);
+	Obj->InitProperties();
 
-			if (!T::GetStaticClass())
-			{
-				EG_LOG(CORE, ELevelLog::ERROR, "Static class don't exist");
-				return nullptr;
-			}
-
-			MemoryManager* memManager = Engine::Get()->GetMemoryManager().get();
-			Runtime::Object* NewObject = memManager->AllocateMemory(Class->Size);
-
-			InitializeObject InitParam;
-			InitParam.Class = Class;
-			Class->ConstructInstanceObject(NewObject, InitParam);
-			memManager->GetGarbageCollector()->AddObject(NewObject);
-			NewObject->InitProperties();
-
-			return dynamic_cast<T*>(NewObject);
-		}
-
-		template <class T> T* CreateObjectWithInit(Object* Outer = nullptr)
-		{
-			T* Obj = CreateObject<T>(Outer);
-			Obj->InitProperties();
-
-			return Obj;
-		}
-
-	} // namespace Runtime
-} // namespace CoreEngine
+	return Obj;
+}

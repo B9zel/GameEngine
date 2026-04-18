@@ -1,44 +1,79 @@
 #include <Runtime/includes/PrimitiveComponent.h>
- #include <Core/includes/PrimitiveProxy.h>
+#include <Core/includes/PrimitiveProxy.h>
+#include <Render/includes/MaterialInterface.h>
 #include <Runtime/includes/Actor.h>
+#include <Render/includes/MaterialManager.h>
+#include <Render/includes/MaterialInstance.h>
+#include <Render/includes/Material.h>
 
-DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT);
+DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT_Log);
 
-namespace CoreEngine
+PrimitiveComponent::PrimitiveComponent(const CoreEngine::InitializeObject& Object) : SceneComponent(Object)
 {
-	namespace Runtime
+	try
 	{
-		PrimitiveComponent::PrimitiveComponent(const InitializeObject& Object) : SceneComponent(Object)
-		{
-			try
-			{
-				sceneProxy = new PrimitiveProxy();
-			}
-			catch (const std::exception& error)
-			{
-				EG_LOG(PRIMITIVE_COMPONENT, ELevelLog::ERROR, error.what());
-				throw error;
-			}
-		}
-		PrimitiveProxy* CoreEngine::Runtime::PrimitiveComponent::GetSceneProxy() const
-		{
-			// Actor* owner = GetOwner();
-			/*if (sceneProxy)
-			{
-				sceneProxy->SetTransform(GetTransform());
+		sceneProxy = new CoreEngine::PrimitiveProxy();
+	}
+	catch (const std::exception& error)
+	{
+		EG_LOG(PRIMITIVE_COMPONENT_Log, ELevelLog::ERROR, error.what());
+		throw error;
+	}
+}
+void PrimitiveComponent::SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMaterial)
+{
+	if (!NewMaterial) return;
 
-			}*/
-			sceneProxy->SetTransformMatrix(MakeMatrixMesh());
+	auto& MaterialHandle = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(NewMaterial);
 
-			return sceneProxy;
-		}
+	RMaterial* ParentMaterial = CoreEngine::Render::MaterialManager::Get().GetMaterial(MaterialHandle);
+	CoreEngine::Render::Render::PrepareMaterial(*ParentMaterial);
 
-		PrimitiveProxy* PrimitiveComponent::GetUpdateProxy() const
-		{
-			/*Transform ProxyTransform = GetTransform();
-			ProxyTransform.SetRotation(Math::ToDegreesVector(ProxyTransform.GetRotation()));*/
-			sceneProxy->SetTransformMatrix(MakeMatrixMesh());
-			return sceneProxy;
-		}
-	} // namespace Runtime
-} // namespace CoreEngine
+	const bool IsCreateNewMaterialInstance = MaterialIndex >= m_HandleMaterial.size();
+
+	if (IsCreateNewMaterialInstance)
+	{
+		MaterialInstance* NewMaterialInstance = CreateObject<MaterialInstance>();
+		NewMaterialInstance->SetParentMaterial(MaterialHandle);
+		m_MaterialInstance.push_back(NewMaterialInstance);
+		materials.push_back(NewMaterial);
+	}
+	else
+	{
+		m_MaterialInstance[MaterialIndex]->SetParentMaterial(MaterialHandle);
+		materials[MaterialIndex] = NewMaterial;
+
+	}
+
+	/*auto* NewInstance = CreateObject<MaterialInstance>();
+	NewInstance
+
+		if ()
+	{
+		m_HandleMaterial.push_back(CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(NewMaterial));
+	}
+	else
+	{
+		m_HandleMaterial[MaterialIndex] = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(NewMaterial);
+	}*/
+}
+CoreEngine::PrimitiveProxy* PrimitiveComponent::GetSceneProxy() const
+{
+	// Actor* owner = GetOwner();
+	/*if (sceneProxy)
+	{
+		sceneProxy->SetTransform(GetTransform());
+
+	}*/
+	sceneProxy->SetTransformMatrix(MakeMatrixMesh());
+
+	return sceneProxy;
+}
+
+CoreEngine::PrimitiveProxy* PrimitiveComponent::GetUpdateProxy() const
+{
+	/*Transform ProxyTransform = GetTransform();
+	ProxyTransform.SetRotation(Math::ToDegreesVector(ProxyTransform.GetRotation()));*/
+	sceneProxy->SetTransformMatrix(MakeMatrixMesh());
+	return sceneProxy;
+}

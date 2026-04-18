@@ -1,9 +1,9 @@
 #pragma once
 
+class World;
 
 namespace CoreEngine
 {
-	class World;
 	namespace Render
 	{
 		class SceneInterface
@@ -14,5 +14,5 @@ namespace CoreEngine
 			virtual void StartRender() = 0;
 			virtual void SetWorld(World* world) = 0;
 		};
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

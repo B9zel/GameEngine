@@ -4,16 +4,14 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
-//#include <type_traits>
+// #include <type_traits>
 #include <Core/includes/Base.h>
-//#include <spdlog/fmt/ostr.h>
+// #include <spdlog/fmt/ostr.h>
 
-//#include <cstdio>
-//#include <format>
+// #include <cstdio>
+// #include <format>
 
-
-template<class T>
-class TVector3;
+template <class T> class TVector3;
 
 using FVector4 = TVector4<float>;
 using DVector4 = TVector4<double>;
@@ -30,12 +28,7 @@ using DVector2 = glm::dvec2;
 using IVector2 = glm::ivec2;
 using UVector2 = glm::uvec2;
 
-
-
-
-
-template<class T>
-class TVector3
+template <class T> class TVector3
 {
 public:
 
@@ -45,6 +38,7 @@ public:
 	static const TVector3<T> DownVector;
 	static const TVector3<T> RightVector;
 	static const TVector3<T> LeftVector;
+	static const TVector3<T> ZeroVector;
 
 public:
 
@@ -179,7 +173,7 @@ public:
 		return res;
 	}
 
-	//TVector3 operator%(const TVector3& otherVec) const
+	// TVector3 operator%(const TVector3& otherVec) const
 	//{
 	//	TVector3 res(vector.x, vector.y, vector.z);
 
@@ -341,16 +335,14 @@ public:
 		vector.z = z;
 	}
 
-	//String ConvertToString() const;
-
+	// String ConvertToString() const;
 
 public:
 
 	glm::vec<3, T, glm::defaultp> vector;
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const TVector3<T>& Vec)
+template <typename T> std::ostream& operator<<(std::ostream& os, const TVector3<T>& Vec)
 {
 	os << "X: ";
 	os << Vec.GetX();
@@ -361,13 +353,12 @@ std::ostream& operator<<(std::ostream& os, const TVector3<T>& Vec)
 
 	return os;
 }
-//template<class T>
-//String TVector3<T>::ConvertToString() const
+// template<class T>
+// String TVector3<T>::ConvertToString() const
 //{
 //	fmt
 //		return std::format("X: {} Y: {} Z: {}", static_cast<T>(vector.x), static_cast<T>(vector.y), static_cast<T>(vector.z));
-//}
-
+// }
 
 const FVector FVector::ForwardVector = FVector(0.0f, 0.0f, -1.0f);
 const FVector FVector::BackVector = FVector(0.0f, 0.0f, 1.0f);
@@ -375,9 +366,11 @@ const FVector FVector::UpVector = FVector(0.0f, 1.0f, 0.0f);
 const FVector FVector::DownVector = FVector(0.0f, -1.0f, 0.0f);
 const FVector FVector::RightVector = FVector(1.0f, 0.0f, 0.0f);
 const FVector FVector::LeftVector = FVector(-1.0f, 0.0f, 0.0f);
+const FVector FVector::ZeroVector = FVector(0.0f, 0.0f, 0.0f);
 const DVector DVector::ForwardVector = DVector(0.0, 0.0, -1.0);
 const DVector DVector::BackVector = DVector(0.0, 0.0, 1.0);
 const DVector DVector::UpVector = DVector(0.0, 1.0, 0.0);
 const DVector DVector::DownVector = DVector(0.0, -1.0, 0.0);
 const DVector DVector::RightVector = DVector(1.0, 0.0, 0.0);
 const DVector DVector::LeftVector = DVector(-1.0, 0.0, 0.0);
+const DVector DVector::ZeroVector = DVector(0.0, 0.0, 0.0);

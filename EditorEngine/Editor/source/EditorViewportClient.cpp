@@ -5,7 +5,6 @@
 #include <Render/includes/Render.h>
 #include <Core/includes/InputDevice.h>
 
-
 namespace Editor
 {
 	EditorViewportClient::EditorViewportClient()
@@ -27,12 +26,13 @@ namespace Editor
 
 	FMatrix4x4 EditorViewportClient::CreateProjection()
 	{
-		FVector2 ScreenSize = CoreEngine::Engine::Get()->GetScreenSize();
+		FVector2 ScreenSize = Engine::Get()->GetScreenSize();
 		FMatrix4x4 Projection;
 
 		if (GetTypeProjection() == ETypeView::PERSPECTIVE)
 		{
-			Projection = Math::CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), static_cast<uint32>(ScreenSize.x), static_cast<uint32>(ScreenSize.y), m_zNear, m_zFar);
+			Projection = Math::CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), static_cast<uint32>(ScreenSize.x), static_cast<uint32>(ScreenSize.y),
+													   m_zNear, m_zFar);
 		}
 		else
 		{
@@ -60,8 +60,8 @@ namespace Editor
 
 	void EditorViewportClient::Update(float DeltaTime, const bool IsHoveredViewport)
 	{
-		CoreEngine::Engine::Get()->GetRender()->SetViewProjectionMatrix(GetViewMatrix(), CreateProjection());
-	
+		Engine::Get()->GetRender()->SetViewProjectionMatrix(GetViewMatrix(), CreateProjection());
+
 		if (!CoreEngine::InputDevice::GetIsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) || !IsHoveredViewport)
 		{
 			LastPosMouse = CoreEngine::InputDevice::GetMousePos();
@@ -69,7 +69,7 @@ namespace Editor
 			return;
 		}
 		EventActiveMove.Call(true);
-		
+
 		FVector NewPos = GetLocation();
 		FVector NewRot = GetRotation();
 
@@ -105,8 +105,7 @@ namespace Editor
 
 		NewRot.SetY(NewRot.GetY() + Difference.x * RealSpeed);
 		NewRot.SetX(Math::Clamp(NewRot.GetX() - Difference.y * RealSpeed, -90, 90));
-	
-			
+
 		SetLocation(NewPos);
 		SetRotation(NewRot);
 	}
@@ -130,4 +129,4 @@ namespace Editor
 		m_Transform.Location = NewLocation;
 	}
 
-}
+} // namespace Editor

@@ -4,66 +4,60 @@
 #include <Math/includes/Transform.h>
 #include <SceneComponent.generated.h>
 
-
-namespace CoreEngine
+RCLASS(EditorComponent);
+class SceneComponent : public ActorComponent
 {
-	namespace Runtime
+	GENERATED_BODY()
+
+public:
+
+	SceneComponent(const CoreEngine::InitializeObject& Object);
+
+public:
+
+	virtual void UpdateComponent(float deltaTime) override
 	{
-		RCLASS(EditorComponent);
-		class SceneComponent : public ActorComponent
-		{
-			GENERATED_BODY()
-
-
-		public:
-
-			SceneComponent(const InitializeObject& Object);
-
-		public:
-
-			virtual void UpdateComponent(float deltaTime) override {}
-			virtual void DestroyComponent() override;
-
-			const FTransform& GetTransform() const;
-			void SetTransform(const FTransform& newTransform);
-
-			FVector GetComponentLocation() const;
-			FVector GetReletiveLocation() const;
-			FVector GetComponentScale() const;
-			FVector GetComponentRotation() const;
-			FVector GetForwardVector() const;
-			FVector GetRightVector() const;
-
-			virtual void SetComponentRotation(const FVector& newRotation);
-			virtual void SetComponentLocation(const FVector& newLocation);
-			virtual void SetComponentScale(const FVector& newScale);
-
-			virtual void AddComponentRotation(const FVector& addRotation);
-			virtual void AddComponentLocation(const FVector& addLocation);
-			virtual void AddComponentScale(const FVector& addScale);
-
-			virtual void SetupToAttachment(SceneComponent* attach);
-
-			virtual const DArray<SceneComponent*>& GetChildrenAttaches() const;
-			virtual SceneComponent* GetParentAttach() const;
-
-			virtual FMatrix4x4 MakeMatrixMesh() const;
-			virtual FMatrix4x4 MakeParentMatrix() const;
-
-		protected:
-
-			FVector CalculateForwardDirection(const FVector& VedDirect, const bool IsConvertToRadian = true) const;
-			FVector CalculateRightDirection() const;
-
-		protected:
-
-			RPROPERTY(EditorVisible);
-			FTransform Transform;
-			FVector Front;
-			SceneComponent* parentAttach;
-
-			RPROPERTY()
-			DArray<SceneComponent*> childrenAttach;
-		};
 	}
-}
+	virtual void DestroyComponent() override;
+
+	const FTransform& GetTransform() const;
+	void SetTransform(const FTransform& newTransform);
+
+	FVector GetComponentLocation() const;
+	FVector GetReletiveLocation() const;
+	FVector GetComponentScale() const;
+	FVector GetComponentRotation() const;
+	FVector GetForwardVector() const;
+	FVector GetRightVector() const;
+
+	virtual void SetComponentRotation(const FVector& newRotation);
+	virtual void SetComponentLocation(const FVector& newLocation);
+	virtual void SetComponentScale(const FVector& newScale);
+
+	virtual void AddComponentRotation(const FVector& addRotation);
+	virtual void AddComponentLocation(const FVector& addLocation);
+	virtual void AddComponentScale(const FVector& addScale);
+
+	virtual void SetupToAttachment(SceneComponent* attach);
+
+	virtual const DArray<SceneComponent*>& GetChildrenAttaches() const;
+	virtual SceneComponent* GetParentAttach() const;
+
+	virtual FMatrix4x4 MakeMatrixMesh() const;
+	virtual FMatrix4x4 MakeParentMatrix() const;
+
+protected:
+
+	FVector CalculateForwardDirection(const FVector& VedDirect, const bool IsConvertToRadian = true) const;
+	FVector CalculateRightDirection() const;
+
+protected:
+
+	RPROPERTY(EditorVisible);
+	FTransform Transform;
+	FVector Front;
+	SceneComponent* parentAttach;
+
+	RPROPERTY()
+	DArray<SceneComponent*> childrenAttach;
+};

@@ -3,10 +3,10 @@
 #include <Render/includes/RenderHardwareInterface.h>
 // #include <Core/includes/AssetManager.h>
 
+class AssetManager;
+
 namespace CoreEngine
 {
-	class AssetManager;
-
 	namespace Render
 	{
 		class RenderDevice;
@@ -116,7 +116,7 @@ namespace CoreEngine
 		{
 		public:
 
-			friend CoreEngine::AssetManager;
+			friend AssetManager;
 
 		protected:
 
@@ -125,7 +125,7 @@ namespace CoreEngine
 		private:
 
 			static UniquePtr<Texture2D> Create(RenderDevice* Device, const String path);
-			//static UniquePtr<Texture2D> Create();
+			// static UniquePtr<Texture2D> Create();
 		};
 	} // namespace Render
 } // namespace CoreEngine

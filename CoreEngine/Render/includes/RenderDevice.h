@@ -42,6 +42,7 @@ namespace CoreEngine::Render
 		virtual const uint32 GetTextureID(const RHI::TextureHandle& Handle) const = 0;
 		virtual const uint32 GetShaderID(const RHI::ShaderHandle& Handle) const = 0;
 		virtual const uint32 GetVAOID(const RHI::HandleVAO& Handle) const = 0;
+		virtual int32 GetLocationUniform(const RHI::ShaderHandle& Shader, const String& NameUniform) const = 0;
 
 		// Shader
 		virtual bool SetUniformMatrix4x4(const RHI::ShaderHandle& Handle, const String& nameParam, const FMatrix4x4& matrix) = 0;

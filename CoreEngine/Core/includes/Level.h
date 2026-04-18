@@ -5,55 +5,43 @@
 #include <Runtime/includes/Actor.h>
 #include "Level.generated.h"
 
+class Object;
+class Actor;
+class World;
 
-namespace CoreEngine
+RCLASS()
+class Level : public Object
 {
-	namespace Runtime
-	{
-		class Object;
-		class Actor;
-	}
-	class World;
+	GENERATED_BODY()
 
-	RCLASS()
-	class Level : public Runtime::Object
-	{
-		GENERATED_BODY()
+private:
 
-	private:
+	friend World;
 
-		friend World;
+public:
 
-	public:
+	Level(const CoreEngine::InitializeObject& Object);
 
-		Level(const InitializeObject& Object);
+	const DArray<Actor*>& GetActors() const;
 
-		const DArray<Runtime::Actor*>& GetActors() const;
+	virtual void ActorInitialize();
+	virtual void InitProperties() override;
 
-		virtual void ActorInitialize();
-		virtual void InitProperties() override;
+	virtual void PreSerialize() override;
+	virtual void OnSerialize(CoreEngine::SerializeAchive& Achive) override;
 
-		virtual void PreSerialize() override;
-		virtual void OnSerialize(SerializeAchive& Achive) override;
+	virtual void PreDeserialize() override;
+	virtual void OnDeserialize(CoreEngine::SerializeAchive& Data) override;
 
-		virtual void PreDeserialize() override;
-		virtual void OnDeserialize(SerializeAchive& Data) override;
+private:
 
-		
-	private:
-		
-		void AddActor(Runtime::Actor* newActor);
+	void AddActor(Actor* newActor);
 
-	protected:
-		
-		//RPROPERTY();
-	//	DArray<float> m_Floats;
+protected:
 
-		RPROPERTY();
-		DArray<Runtime::Object*> m_Objects;
+	RPROPERTY();
+	DArray<Object*> m_Objects;
 
-		RPROPERTY();
-		DArray<Runtime::Actor*> m_Actors;
-		//DArray<ObjectPtr<Runtime::Actor>> m_ActorsGC;
-	};
-}
+	RPROPERTY();
+	DArray<Actor*> m_Actors;
+};

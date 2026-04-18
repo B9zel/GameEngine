@@ -48,7 +48,7 @@ namespace Editor
 			}
 		}
 
-		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(CoreEngine::Runtime::Actor::GetStaticClass()))
+		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(Actor::GetStaticClass()))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Add component"))
@@ -66,8 +66,8 @@ namespace Editor
 					if (ImGui::MenuItem(MetaClass->Name.c_str()))
 					{
 						auto* ClassData = dynamic_cast<CoreEngine::Reflection::ClassField*>(MetaClass);
-						auto* SelectedActor = dynamic_cast<CoreEngine::Runtime::Actor*>(SelectedObject);
-						DArray<CoreEngine::Runtime::ActorComponent*>& Components = SelectedActor->FindComponentsByClass(ClassData);
+						auto* SelectedActor = dynamic_cast<Actor*>(SelectedObject);
+						DArray<ActorComponent*>& Components = SelectedActor->FindComponentsByClass(ClassData);
 						SelectedActor->CreateSubObject(ClassData, MetaClass->Name + std::to_string(Components.size()));
 					}
 				}
@@ -89,7 +89,7 @@ namespace Editor
 	{
 	}
 
-	void EditorDetails::DrawDetailsRecursive(CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Runtime::Object* SourceClass, bool IsDrawTree)
+	void EditorDetails::DrawDetailsRecursive(Object* SelectedObject, Object* SourceClass, bool IsDrawTree)
 	{
 
 		auto* ClassInfo = SelectedObject->GetClass();
@@ -127,8 +127,8 @@ namespace Editor
 		}
 	}
 
-	void EditorDetails::DrawProperty(CoreEngine::Reflection::PropertyField* Property, CoreEngine::Runtime::Object* SelectedObject,
-									 CoreEngine::Reflection::ClassField* MainClass, CoreEngine::Runtime::Object* SourceClass)
+	void EditorDetails::DrawProperty(CoreEngine::Reflection::PropertyField* Property, Object* SelectedObject, CoreEngine::Reflection::ClassField* MainClass,
+									 Object* SourceClass)
 	{
 		static float WidthColumn = 150;
 
@@ -138,9 +138,9 @@ namespace Editor
 			{
 				if (auto* ArrayProperty = dynamic_cast<CoreEngine::Reflection::ArrayPropertyField*>(Property))
 				{
-					for (int64 i = 0; i < ArrayProperty->GetSizeArray<CoreEngine::Runtime::Object*>(SelectedObject); i++)
+					for (int64 i = 0; i < ArrayProperty->GetSizeArray<Object*>(SelectedObject); i++)
 					{
-						auto* Property = *ArrayProperty->GetElement<CoreEngine::Runtime::Object*>(SelectedObject, i);
+						auto* Property = *ArrayProperty->GetElement<Object*>(SelectedObject, i);
 						auto* Source = SourceClass ? SourceClass : Property;
 						DrawDetailsRecursive(Property, Source);
 					}
@@ -150,7 +150,7 @@ namespace Editor
 			{
 				if (auto* ComplexProperty = dynamic_cast<CoreEngine::Reflection::ComplexPropertyTypeField*>(Property))
 				{
-					auto* ComplexInstanceProperty = *Property->GetSourcePropertyByName<CoreEngine::Runtime::Object*>(SelectedObject);
+					auto* ComplexInstanceProperty = *Property->GetSourcePropertyByName<Object*>(SelectedObject);
 					auto* Source = SourceClass ? SourceClass : ComplexInstanceProperty;
 					DrawDetailsRecursive(ComplexInstanceProperty, Source);
 				}
@@ -339,12 +339,18 @@ namespace Editor
 					DrawTransform(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value.GetLocationRef(), Value.GetRotationRef(),
 								  Value.GetScaleRef(), WidthColumn);
 
-					if (auto* SceneComponent = dynamic_cast<CoreEngine::Runtime::SceneComponent*>(SelectedObject))
+					if (auto* sceneComponent = dynamic_cast<SceneComponent*>(SelectedObject))
 					{
-						SceneComponent->SetTransform(Value);
+						sceneComponent->SetTransform(Value);
 					}
 
 					break;
+				}
+				case CoreEngine::Reflection::EPrimitiveTypes::COLOR:
+				{
+					LinearColor& Value = *Property->GetSourcePropertyByName<LinearColor>(SelectedObject);
+
+					DrawColor(Utils::ConvertToString(SelectedObject->GetUUID().GetID()), Property->Name, Value, WidthColumn);
 				}
 				default:
 					break;
@@ -373,7 +379,7 @@ namespace Editor
 		return !Class->PropertyFileds.empty();
 	}
 
-	void EditorDetails::SetSelectableObject(CoreEngine::Runtime::Object* Object)
+	void EditorDetails::SetSelectableObject(Object* Object)
 	{
 		SelectedObject = Object;
 	}

@@ -9,6 +9,7 @@
 #include <Runtime/includes/SceneComponent.h>
 #include <Actor.generated.h>
 
+class Actor;
 
 namespace CoreEngine
 {
@@ -19,7 +20,6 @@ namespace CoreEngine
 		class SceneComponent;
 		class ActorComponent;
 		class Controller;
-
 
 		class UpdateActorFunction : public UpdateFunction
 		{
@@ -46,184 +46,172 @@ namespace CoreEngine
 					LastTimeUpdate = 0.0f;
 				}
 			}
-			void SetUpdateMethod(void(Actor::* method)(float), Actor* obj)
+			void SetUpdateMethod(void (Actor::*method)(float), Actor* obj)
 			{
-				UpdateDelegate = MethodPtr<Runtime::Actor, void(float)>(obj, method);
+				UpdateDelegate = MethodPtr<Actor, void(float)>(obj, method);
 			}
 
 		private:
 
-			MethodPtr<Runtime::Actor, void(float)> UpdateDelegate;
+			MethodPtr<Actor, void(float)> UpdateDelegate;
 		};
 
+	} // namespace Runtime
+} // namespace CoreEngine
 
-		RCLASS();
-		class Actor : public Object
+RCLASS();
+class Actor : public Object
+{
+
+	GENERATED_BODY()
+
+public:
+
+	friend CoreEngine::UpdateFunction;
+
+public:
+
+	Actor(const CoreEngine::InitializeObject& Initilize);
+
+public:
+
+	virtual void InitProperties() override;
+	virtual void RegisterAll();
+	virtual void DispatchBeginPlay();
+	virtual void InitComponents();
+	virtual void PostSpawnActor();
+
+	void Registered();
+	template <class ReturnType> ReturnType* CreateSubObject(const String& Name);
+
+	template <class ReturnType> ReturnType* CreateRuntimeSubObject();
+	template <class ReturnType = ActorComponent> ReturnType* CreateSubObject(CoreEngine::Reflection::ClassField* Class, const String& Name);
+
+	SceneComponent* GetRootComponent() const;
+	void SetRootComponent(SceneComponent* root);
+
+	FVector GetActorLocation() const;
+	FVector GetActorScale() const;
+	FVector GetActorRotation() const;
+	FTransform GetActorTransform() const;
+	FVector GetActorForwardVector() const;
+	FVector GetActorRightVector() const;
+	Actor* GetOwner() const;
+	bool GetIsRegister() const;
+
+	void SetActorLocation(const FVector& newLocation);
+	void SetActorScale(const FVector& newScale);
+	void SetActorRotation(const FVector& newRotation);
+	void SetActorTransform(const FTransform& newTransform);
+	void SetOwner(Actor* newOwner);
+
+	void AddActorLocation(const FVector& AddValue);
+	void AddActorRotation(const FVector& AddValue);
+
+	bool RemoveComponent(ActorComponent* Component);
+
+	template <class TClass> TClass* FindComponentByClass();
+	template <class TClass> DArray<TClass*> FindComponentsByClass();
+	DArray<ActorComponent*> FindComponentsByClass(CoreEngine::Reflection::ClassField* Class);
+
+	const DArray<ActorComponent*>& GetComponents() const;
+
+	virtual void PreSerialize() override;
+	virtual void PreDeserialize() override;
+
+	virtual void Destroy();
+
+protected:
+
+	virtual void BeginPlay();
+	virtual void EndPlay();
+	virtual void Update(float deltaTime);
+	virtual void OnRegistered();
+	virtual void OnSerialize(CoreEngine::SerializeAchive& Achive) override;
+	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
+	virtual void OnDestroy();
+	virtual void PreRegistered();
+	virtual void PreRegisterAll();
+
+private:
+
+	void NativeUpdate(float deltaTime);
+
+protected:
+
+	SceneComponent* RootComponent;
+	CoreEngine::Runtime::UpdateActorFunction actorUpdate;
+
+	Actor* Owner;
+	RPROPERTY();
+	DArray<ActorComponent*> Components;
+
+private:
+
+	bool isBeginedPlay;
+	bool isRegister;
+
+	FVector m_Direction;
+};
+template <class ReturnType> inline ReturnType* Actor::CreateSubObject(const String& Name)
+{
+	return CreateSubObject<ReturnType>(ReturnType::GetStaticClass(), Name);
+}
+template <class ReturnType> inline ReturnType* Actor::CreateRuntimeSubObject()
+{
+	ReturnType* newComponent = CreateSubObject<ReturnType>();
+	newComponent->RegistredComponent();
+
+	return newComponent;
+}
+template <class ReturnType> inline ReturnType* Actor::CreateSubObject(CoreEngine::Reflection::ClassField* Class, const String& Name)
+{
+	ReturnType* obj = CreateObject<ReturnType>(Class);
+	if (obj)
+	{
+		obj->SetOwner(this);
+		obj->SetOuter(this);
+	}
+
+	if (Class->IsChildClassOf(SceneComponent::GetStaticClass()))
+	{
+		auto* newClass = reinterpret_cast<SceneComponent*>(obj);
+		if (RootComponent)
 		{
-
-			GENERATED_BODY()
-
-		public:
-
-			friend UpdateFunction;
-
-		public:
-
-			Actor(const InitializeObject& Initilize);
-
-		public:
-
-			virtual void InitProperties() override;
-			virtual void RegisterAll();
-			virtual void DispatchBeginPlay();
-			virtual void InitComponents();
-			virtual void PostSpawnActor();
-		
-
-			void Registered();
-			template<class ReturnType>
-			ReturnType* CreateSubObject(const String& Name);
-
-			template<class ReturnType>
-			ReturnType* CreateRuntimeSubObject();
-			template<class ReturnType = ActorComponent>
-			ReturnType* CreateSubObject(Reflection::ClassField* Class, const String& Name);
-
-			SceneComponent* GetRootComponent() const;
-			void SetRootComponent(SceneComponent* root);
-
-			FVector GetActorLocation() const;
-			FVector GetActorScale() const;
-			FVector GetActorRotation() const;
-			FTransform GetActorTransform() const;
-			FVector GetActorForwardVector() const;
-			FVector GetActorRightVector() const;
-			Actor* GetOwner() const;
-			bool GetIsRegister() const;
-
-			void SetActorLocation(const FVector& newLocation);
-			void SetActorScale(const FVector& newScale);
-			void SetActorRotation(const FVector& newRotation);
-			void SetActorTransform(const FTransform& newTransform);
-			void SetOwner(Actor* newOwner);
-
-			void AddActorLocation(const FVector& AddValue);
-			void AddActorRotation(const FVector& AddValue);
-
-			bool RemoveComponent(ActorComponent* Component);
-
-			template<class TClass>
-			TClass* FindComponentByClass();
-			template<class TClass>
-			DArray<TClass*> FindComponentsByClass();
-			DArray<ActorComponent*> FindComponentsByClass(Reflection::ClassField* Class);
-
-			const DArray<ActorComponent*>& GetComponents() const;
-
-			virtual void PreSerialize() override;
-			virtual void PreDeserialize() override;
-
-			virtual void Destroy();
-
-		protected:
-
-			virtual void BeginPlay();
-			virtual void EndPlay();
-			virtual void Update(float deltaTime);
-			virtual void OnRegistered();
-			virtual void OnSerialize(SerializeAchive& Achive) override;
-			virtual void OnDeserialize(SerializeAchive& Achive) override;
-			virtual void OnDestroy();
-			virtual void PreRegistered();
-			virtual void PreRegisterAll();
-
-		private:
-
-			void NativeUpdate(float deltaTime);
-
-		protected:
-
-			SceneComponent* RootComponent;
-			UpdateActorFunction actorUpdate;
-
-			Actor* Owner;
-			RPROPERTY();
-			DArray<ActorComponent*> Components;
-			//DArray<ObjectPtr<ActorComponent>> ComponentsGC;
-
-		private:
-
-			bool isBeginedPlay;
-			bool isRegister;
-
-			FVector m_Direction;
-		};
-		template<class ReturnType>
-		inline ReturnType* Actor::CreateSubObject(const String& Name)
-		{
-			return CreateSubObject<ReturnType>(ReturnType::GetStaticClass(), Name);
-		}
-		template<class ReturnType>
-		inline ReturnType* Actor::CreateRuntimeSubObject()
-		{
-			ReturnType* newComponent = CreateSubObject<ReturnType>();
-			newComponent->RegistredComponent();
-
-			return newComponent;
-		}
-		template<class ReturnType>
-		inline ReturnType* Actor::CreateSubObject(Reflection::ClassField* Class, const String& Name)
-		{
-			ReturnType* obj = CreateObject<ReturnType>(Class);
-			if (obj)
-			{
-				obj->SetOwner(this);
-				obj->SetOuter(this);
-			}
-			
-			if (Class->IsChildClassOf(SceneComponent::GetStaticClass()))
-			{	
-				auto* newClass = reinterpret_cast<SceneComponent*>(obj);
-				if (RootComponent)
-				{
-					newClass->SetupToAttachment(RootComponent);
-					newClass->SetTransform(RootComponent->GetTransform());
-				}
-			}
-			obj->SetName(Name);
-
-			Components.emplace_back(obj);
-			//ComponentsGC.emplace_back(obj);
-			return obj;
-		}
-		template<class TClass>
-		inline TClass* Actor::FindComponentByClass()
-		{
-			if (!IsParentClass<ActorComponent, TClass>()) return nullptr;
-			for (ActorComponent* i : Components)
-			{
-				//auto* res = dynamic_cast<TClass*>(i)
-				if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
-				{
-					return dynamic_cast<TClass*>(i);
-				}
-			}
-			return nullptr;
-		}
-		template<class TClass>
-		inline DArray<TClass*> Actor::FindComponentsByClass()
-		{
-			if (!IsParentClass<ActorComponent, TClass>()) return DArray<TClass*>();
-			DArray<TClass*> Res;
-			for (ActorComponent* i : Components)
-			{
-				// auto* res = dynamic_cast<TClass*>(i)
-				if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
-				{
-					Res.emplace_back(dynamic_cast<TClass*>(i));
-				}
-			}
-			return Res;
+			newClass->SetupToAttachment(RootComponent);
+			newClass->SetTransform(RootComponent->GetTransform());
 		}
 	}
+	obj->SetName(Name);
+
+	Components.emplace_back(obj);
+	// ComponentsGC.emplace_back(obj);
+	return obj;
+}
+template <class TClass> inline TClass* Actor::FindComponentByClass()
+{
+	if (!IsParentClass<ActorComponent, TClass>()) return nullptr;
+	for (ActorComponent* i : Components)
+	{
+		// auto* res = dynamic_cast<TClass*>(i)
+		if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
+		{
+			return dynamic_cast<TClass*>(i);
+		}
+	}
+	return nullptr;
+}
+template <class TClass> inline DArray<TClass*> Actor::FindComponentsByClass()
+{
+	if (!IsParentClass<ActorComponent, TClass>()) return DArray<TClass*>();
+	DArray<TClass*> Res;
+	for (ActorComponent* i : Components)
+	{
+		// auto* res = dynamic_cast<TClass*>(i)
+		if (i->GetClass()->IsChildClassOf(TClass::GetStaticClass()))
+		{
+			Res.emplace_back(dynamic_cast<TClass*>(i));
+		}
+	}
+	return Res;
 }

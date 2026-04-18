@@ -6,8 +6,13 @@
 #include <Core/includes/LightProxy.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRendere.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLRenderDevice.h>
+#include <Render/includes/ShaderVariantKey.h>
+#include <Render/includes/ShaderCache.h>
+#include <Render/includes/ShaderCompiler.h>
+#include <Render/includes/Material.h>
+#include <Core/includes/AssetManager.h>
+#include <Render/includes/Shader.h>
 // #include <Render/includes/Framebuffer.h>
-
 
 namespace CoreEngine
 {
@@ -62,6 +67,28 @@ namespace CoreEngine
 		const UniquePtr<RenderDevice>& Render::GetRenderDevice() const
 		{
 			return m_RenderDevice;
+		}
+
+		void Render::PrepareMaterial(RMaterial& Mat)
+		{
+			if (Mat.GetShaderHandle().IsValid()) return;
+
+			ShaderVariantKey Key;
+			Key.m_Hash = Mat.GetShaderAsset()->GetHash();
+			Key.ModeRender = Mat.GetModeRender();
+
+			RHI::ShaderHandle shaderHandle;
+			if (ShaderCache::TryGetShaderHandle(Key, shaderHandle))
+			{
+				Mat.SetShaderHandle(shaderHandle);
+				return;
+			}
+			CompileShaderSource Source = ShaderCompiler::Get().Build(*Mat.GetShaderAsset(), Key);
+
+			Shader* shader = AssetManager::Get().LoadShader(Source.VertexShader, Source.FragmentShader);
+			Mat.SetShaderHandle(shader->GetHandle());
+
+			ShaderCache::AddShader(Key, shader);
 		}
 
 	} // namespace Render

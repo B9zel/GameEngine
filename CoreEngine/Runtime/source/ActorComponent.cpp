@@ -1,67 +1,57 @@
 #include <Runtime/includes/ActorComponent.h>
 #include <Core/includes/World.h>
 
-
-
-namespace CoreEngine
+ActorComponent::ActorComponent(const CoreEngine::InitializeObject& InitParam) : Object(InitParam)
 {
-	namespace Runtime
+}
+
+void ActorComponent::BeginPlay()
+{
+}
+void ActorComponent::UpdateComponent(float deltaTime)
+{
+}
+
+void ActorComponent::DestroyComponent()
+{
+	GetWorld()->GetUpdateManager()->RemoveFunction(&updateFunc);
+	MarkGarbage();
+}
+
+void ActorComponent::InitProperties()
+{
+	Object::InitProperties();
+
+	updateFunc.SetUpdateMethod(&ActorComponent::UpdateComponent, this);
+}
+void ActorComponent::RegisteredComponent()
+{
+	if (isRegistered) return;
+
+	GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
+	isRegistered = true;
+}
+void ActorComponent::PreRegisterComponent()
+{
+	if (!GetOwner()->GetIsRegister())
 	{
-		ActorComponent::ActorComponent(const InitializeObject& InitParam) : Object(InitParam)
-		{
-			
-		}
-
-		void ActorComponent::BeginPlay()
-		{
-		}
-		void ActorComponent::UpdateComponent(float deltaTime)
-		{
-
-		}
-
-		void ActorComponent::DestroyComponent()
-		{
-			GetWorld()->GetUpdateManager()->RemoveFunction(&updateFunc);
-			MarkGarbage();
-		}
-
-		void ActorComponent::InitProperties()
-		{
-			Object::InitProperties();
-
-			updateFunc.SetUpdateMethod(&ActorComponent::UpdateComponent, this);
-		}
-		void ActorComponent::RegisteredComponent()
-		{
-			if (isRegistered) return;
-
-			GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
-			isRegistered = true;
-		}
-		void ActorComponent::PreRegisterComponent()
-		{
-			if (!GetOwner()->GetIsRegister())
-			{
-				IsCreatedNative = true;
-			}
-		}
-		void ActorComponent::SetOwner(Actor* Owner)
-		{
-			this->Owner = Owner;
-		}
-
-		Actor* ActorComponent::GetOwner() const
-		{
-			return Owner;
-		}
-		bool ActorComponent::GetIsActive() const
-		{
-			return isActivate;
-		}
-		bool ActorComponent::GetIsCreatedNative() const
-		{
-			return IsCreatedNative;
-		}
+		IsCreatedNative = true;
 	}
+}
+void ActorComponent::SetOwner(Actor* Owner)
+{
+	this->Owner = Owner;
+}
+
+Actor* ActorComponent::GetOwner() const
+{
+	return Owner;
+}
+bool ActorComponent::GetIsActive() const
+{
+	return isActivate;
+}
+bool ActorComponent::GetIsCreatedNative() const
+{
+	return IsCreatedNative;
 }

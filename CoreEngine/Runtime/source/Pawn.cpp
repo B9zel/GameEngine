@@ -2,52 +2,42 @@
 
 #include <Runtime/includes/Controller.h>
 
-
-namespace CoreEngine
+Pawn::Pawn(const CoreEngine::InitializeObject& Object) : Actor(Object)
 {
-	namespace Runtime
+	OwningController = nullptr;
+	inputComponent = nullptr;
+}
+
+Controller* Pawn::GetOwningController() const
+{
+	return OwningController;
+}
+
+void Pawn::PossessedBy(Controller* NewController)
+{
+	SetOwner(NewController);
+	OwningController = NewController;
+}
+
+void Pawn::Update(float deltaTime)
+{
+	Actor::Update(deltaTime);
+}
+
+void Pawn::PawnRestart()
+{
+	if (!inputComponent)
 	{
-		Pawn::Pawn(const InitializeObject& Object) : Actor(Object)
+		inputComponent = CreateObjectWithInit<InputComponent>(this);
+		if (inputComponent)
 		{
-			OwningController = nullptr;
-			inputComponent = nullptr;
-		}
+			inputComponent->RegisteredComponent();
 
-		Controller* Pawn::GetOwningController() const
-		{
-			return OwningController;
-		}
-
-		void Pawn::PossessedBy(Controller* NewController)
-		{
-			SetOwner(NewController);
-			OwningController = NewController;
-
-		}
-
-		void Pawn::Update(float deltaTime)
-		{
-			Actor::Update(deltaTime);
-
-		}
-
-		void Pawn::PawnRestart()
-		{
-			if (!inputComponent)
-			{
-				inputComponent = CreateObjectWithInit<InputComponent>(this);
-				if (inputComponent)
-				{
-					inputComponent->RegisteredComponent();
-					
-					SetupInputPlayerController(inputComponent);
-				}
-			}
-		}
-
-		void Pawn::SetupInputPlayerController(InputComponent* inputController)
-		{
-			
+			SetupInputPlayerController(inputComponent);
 		}
 	}
+}
+
+void Pawn::SetupInputPlayerController(InputComponent* inputController)
+{
 }

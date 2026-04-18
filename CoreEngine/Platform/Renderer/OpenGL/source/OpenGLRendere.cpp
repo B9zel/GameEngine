@@ -12,6 +12,12 @@
 #include <Render/includes/Framebuffer.h>
 #include <Render/includes/Shader.h>
 #include <Core/includes/AssetManager.h>
+#include <Render/includes/Material.h>
+#include <Render/includes/ShaderCache.h>
+#include <Render/includes/ShaderCompiler.h>
+#include <Render/includes/ShaderAsset.h>
+#include <Core/includes/Application.h>
+#include <Render/includes/MaterialManager.h>
 #include "glad/glad.h"
 
 namespace CoreEngine
@@ -251,6 +257,13 @@ namespace CoreEngine
 				DArray<SimpleSpotLightProxy> SpotLights;
 				DArray<FMatrix4x4> LightSpaces;
 				m_ListCommand.clear();
+				m_ShadowDepthListCommand.clear();
+				CommandPool.ClearCommand();
+				LightsMatrix.clear();
+				m_CurrentShadowFramebufferLayer = 0;
+
+				BuildShadowDepthCommandList(GetRenderDevice().get(), Lights, Primitives, m_ShadowDepthListCommand);
+				ExecuteShadowDepthCommand(GetRenderDevice().get(), Lights, m_ShadowDepthListCommand);
 
 				CollectDataFromProxy(Lights, DirectionLights, PointLights, SpotLights);
 
@@ -356,6 +369,50 @@ namespace CoreEngine
 					}
 				}
 				return LightSpace;
+			}
+
+			void OpenGLRender::BuildDirectionLightShadowDepthCommandList(RenderDevice* Device, LightProxy* Lights,
+																		 const DArray<CoreEngine::PrimitiveProxy*>& Primitives, DArray<FMatrix4x4>& LightSpaces,
+																		 DArray<RenderCommand*>& OutCommands)
+			{
+				auto* DirectionLight = static_cast<DirectionLightProxy*>(Lights);
+				if (!DirectionLight) return;
+
+				const FMatrix4x4 ProjectionLight = Math::CreateOrthoMatrix(-30, 30, -30, 30, 0.0f, 1000.0f);
+				FVector Position;
+				Math::DecomposeLocationMatrix(m_View, Position);
+
+				const FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(Position, DirectionLight->GetDirection(), FVector::UpVector);
+
+				const FMatrix4x4 LightSpace = ProjectionLight * ViewLight;
+				LightSpaces.push_back(LightSpace);
+
+				for (auto* Proxy : Primitives)
+				{
+					if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Proxy))
+					{
+						for (uint64 i = 0; i < StaticProxy->GetIndeces().size(); i++)
+						{
+							// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::BIND_FRAMEBUFFER_ARRAY, ShadowDepth.get(),
+							//												 m_CurrentShadowFramebufferLayer));
+
+							// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::CLEAR_COLOR_AND_DEPTH));
+
+							// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::DRAW_INDEX, StaticProxy->GetArrayObject()[i],
+							//												 StaticProxy->GetIndeces()[i]->size(), []() {}));
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdClearColorAndDepth>());
+
+							OutCommands.push_back(
+								CommandPool.RequestCommand<GLCmdDrawIndex>(StaticProxy->GetArrayObject()[i], StaticProxy->GetIndeces()[i]->size(), []() {}));
+							/*OutCommands.push_back(MakeUniquePtr<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
+							OutCommands.push_back(MakeUniquePtr<GLCmdClearColorAndDepth>());
+
+							OutCommands.push_back(
+								MakeUniquePtr<GLCmdDrawIndex>(StaticProxy->GetArrayObject()[i], StaticProxy->GetIndeces()[i]->size(), []() {}));*/
+						}
+					}
+				}
 			}
 
 			FMatrix4x4 OpenGLRender::DrawSpotLightShadowBuffer(CoreEngine::LightProxy* Light, const DArray<CoreEngine::PrimitiveProxy*>& Primitives)
@@ -482,8 +539,12 @@ namespace CoreEngine
 
 			void OpenGLRender::BuidCommandList(RenderDevice* Device, const DArray<PrimitiveProxy*> Primitives,
 											   const DArray<SimplyDirectionLightProxy>& DirectionLights, const DArray<SimplyPointLightProxy>& PointLights,
-											   const DArray<SimpleSpotLightProxy>& SpotLights, DArray<UniquePtr<RenderCommand>>& OutCommands)
+											   const DArray<SimpleSpotLightProxy>& SpotLights, DArray<RenderCommand*>& OutCommands)
 			{
+				// OutCommands.push_back(MakeUniquePtr<CmdBindShaderProgram>(m_ShaderShadow->GetHandle(), []() {}));
+				OutCommands.push_back(CommandPool.RequestCommand<CmdBindShaderProgram>(m_ShaderShadow->GetHandle(), []() {}));
+				// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::BIND_SHADER_PROGRAM, m_ShaderShadow->GetHandle(), []() {}));
+
 				for (auto* Primitive : Primitives)
 				{
 					if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
@@ -496,35 +557,71 @@ namespace CoreEngine
 			void OpenGLRender::BuildStaticMeshCommandList(RenderDevice* Device, const StaticMeshProxy* Primitive,
 														  const DArray<SimplyDirectionLightProxy>& DirectionLights,
 														  const DArray<SimplyPointLightProxy>& PointLights, const DArray<SimpleSpotLightProxy>& SpotLights,
-														  DArray<UniquePtr<RenderCommand>>& OutCommands)
+														  DArray<RenderCommand*>& OutCommands)
 			{
 
 				for (size_t i = 0; i < Primitive->GetIndeces().size(); i++)
 				{
-					for (auto& el : Primitive->GetShaders())
+					for (auto& el : Primitive->GetMaterials())
 					{
-						OutCommands.push_back(MakeUniquePtr<CmdBindShaderProgram>(el.shader, []() {}));
+						RMaterial* Mat = MaterialManager::Get().GetMaterial(el);
 
-						auto SetTextures = MakeUniquePtr<ActivateTextureSet>();
+						PrepareMaterial(*Mat);
+
+						Shader* shader = ShaderCache::GetShaderFromMaterial(*Mat);
+						RHI::ShaderHandle shaderHandle = shader->GetHandle();
+
+						// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::BIND_SHADER_PROGRAM, shaderHandle, []() {}));
+						//  OutCommands.push_back(MakeUniquePtr<CmdBindShaderProgram>(shaderHandle, []() {}));
+						OutCommands.push_back(CommandPool.RequestCommand<CmdBindShaderProgram>(shaderHandle, []() {}));
+
+						// auto SetTextures = MakeUniquePtr<ActivateTextureSet>();
 						const auto& Textures = Primitive->GetTextures();
-						for (uint32 i = 0; i < Textures.size(); i++)
+						if (!Textures.empty())
 						{
-							SetTextures->Textures.emplace(i, Pair<RHI::TextureHandle, String>(Textures[i], el.TextureNames[i]));
+							// for (uint32 i = 0; i < el.TextureNames.size(); i++)
+							{
+								// SetTextures->Textures.emplace(i, Pair<RHI::TextureHandle, String>(Textures[i], el.TextureNames[i]));
+							}
 						}
-						OutCommands.push_back(MakeUniquePtr<CmdActivationTexture>(std::move(SetTextures), []() {}));
+						// OutCommands.push_back(MakeUniquePtr<CmdActivationTexture>(std::move(SetTextures), []() {}));
 
-						if (el.HasAllMatrix)
+						if (shader->GetHasAllMatrix())
 						{
-							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "Model", Primitive->GetTransformMatrix()));
-							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "View", m_View));
-							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(el.shader, "Projection", m_Projection));
+							/*OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_MATRIX_4X4, shaderHandle, "Model",
+																			 Primitive->GetTransformMatrix()));
+							OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_MATRIX_4X4, shaderHandle, "View", m_View));
+							OutCommands.push_back(
+								CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_MATRIX_4X4, shaderHandle, "Projection", m_Projection));*/
+							/*OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(shaderHandle, "Model", Primitive->GetTransformMatrix()));
+							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(shaderHandle, "View", m_View));
+							OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformMatrix4x4>(shaderHandle, "Projection", m_Projection));*/
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(shaderHandle, "Model", Primitive->GetTransformMatrix()));
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(shaderHandle, "View", m_View));
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(shaderHandle, "Projection", m_Projection));
 						}
 
-						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "DirectionShadowMap", 0));
-						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniformVector3>(el.shader, "ViewPos", Engine::Get()->GetWorld()->GetControllerLocation()));
-						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountPointLight", PointLights.size()));
-						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountDirectionLight", DirectionLights.size()));
-						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(el.shader, "CountSpotLight", SpotLights.size()));
+						/*OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_1I, shaderHandle, "DirectionShadowMap", 0));
+						OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_VECTOR3, shaderHandle, "ViewPos",
+																		 Engine::Get()->GetWorld()->GetControllerLocation()));
+						OutCommands.push_back(
+							CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_1I, shaderHandle, "CountPointLight", PointLights.size()));
+						OutCommands.push_back(
+							CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_1I, shaderHandle, "CountDirectionLight", DirectionLights.size()));
+						OutCommands.push_back(
+							CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_1I, shaderHandle, "CountSpotLight", SpotLights.size()));*/
+						/*OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "DirectionShadowMap", 0));
+						OutCommands.push_back(
+							MakeUniquePtr<GLCmdSetUniformVector3>(shaderHandle, "ViewPos", Engine::Get()->GetWorld()->GetControllerLocation()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountPointLight", PointLights.size()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountDirectionLight", DirectionLights.size()));
+						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountSpotLight", SpotLights.size()));*/
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, "DirectionShadowMap", 0));
+						OutCommands.push_back(
+							CommandPool.RequestCommand<GLCmdSetUniformVector3>(shaderHandle, "ViewPos", Engine::Get()->GetWorld()->GetControllerLocation()));
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, "CountPointLight", PointLights.size()));
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, "CountDirectionLight", DirectionLights.size()));
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, "CountSpotLight", SpotLights.size()));
 
 						m_SSBODirectionLight.Bind(0);
 						m_SSBOPointLight.Bind(1);
@@ -532,12 +629,16 @@ namespace CoreEngine
 						m_SSBOLightSpace.Bind(3);
 						glBindBuffer(GL_SHADER_STORAGE_BUFFER, 3);
 
-						OutCommands.push_back(MakeUniquePtr<GLCmdDrawIndex>(Primitive->GetArrayObject()[i], Primitive->GetIndeces()[i]->size(), []() {}));
+						/*	OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::DRAW_INDEX, Primitive->GetArrayObject()[i],
+																			 Primitive->GetIndeces()[i]->size(), []() {}));*/
+						// OutCommands.push_back(MakeUniquePtr<GLCmdDrawIndex>(Primitive->GetArrayObject()[i], Primitive->GetIndeces()[i]->size(), []() {}));
+						OutCommands.push_back(
+							CommandPool.RequestCommand<GLCmdDrawIndex>(Primitive->GetArrayObject()[i], Primitive->GetIndeces()[i]->size(), []() {}));
 					}
 				}
 			}
 
-			void OpenGLRender::ExecuteCommandList(RenderDevice* Device, const DArray<UniquePtr<RenderCommand>>& Commands)
+			void OpenGLRender::ExecuteCommandList(RenderDevice* Device, const DArray<RenderCommand*>& Commands)
 			{
 				m_ResultScene->Bind();
 				ClearBuffersScreen();
@@ -593,9 +694,137 @@ namespace CoreEngine
 												   ETypeStorageDraw::STREAM);
 				m_SSBOPointLight.CreaterBuffer(OutPointLights.data(), OutPointLights.size(), sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
 				m_SSBOSpotLight.CreaterBuffer(OutSpotLights.data(), OutSpotLights.size(), sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
-				// m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
+				m_SSBOLightSpace.CreaterBuffer(LightsMatrix.data(), LightsMatrix.size(), sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
 			}
+
+			void OpenGLRender::BuildShadowDepthCommandList(RenderDevice* Device, const DArray<LightProxy*>& Lights,
+														   const DArray<CoreEngine::PrimitiveProxy*>& Primitives, DArray<RenderCommand*>& OutCommands)
+			{
+				for (auto* Light : Lights)
+				{
+					if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT) continue;
+					switch (Light->GetTypeLight())
+					{
+					case ETypeLight::DIRECTION_LIGHT:
+						BuildDirectionLightShadowDepthCommandList(Device, Light, Primitives, LightsMatrix, OutCommands);
+						break;
+					case ETypeLight::SPOTLIGHT:
+						BuildSpotLightShadowDepthCommandList(Device, Light, Primitives, LightsMatrix, OutCommands);
+						break;
+					default:
+						break;
+					}
+					m_CurrentShadowFramebufferLayer++;
+				}
+			}
+
+			void OpenGLRender::BuildSpotLightShadowDepthCommandList(RenderDevice* Device, LightProxy* Lights,
+																	const DArray<CoreEngine::PrimitiveProxy*>& Primitives, DArray<FMatrix4x4>& LightSpace,
+																	DArray<RenderCommand*>& OutCommands)
+			{
+			}
+
+			void OpenGLRender::ExecuteShadowDepthCommand(RenderDevice* Device, const DArray<LightProxy*>& Lights, const DArray<RenderCommand*>& Commands)
+			{
+				// Shadow depth
+				uint32 SumSize = 0;
+				for (auto& It : m_LightsFramebuffer)
+				{
+					SumSize += It.second.size();
+				}
+				if (Lights.size() != SumSize)
+				{
+					m_LightsFramebuffer.clear();
+				}
+
+				uint32 LayerIndex = 0;
+				// m_ShaderShadow->Bind();
+				ShadowDepth->Bind();
+				glCullFace(GL_FRONT);
+				// for (auto* Light : Lights)
+				//{
+				//	if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT) continue;
+				//	auto* CreateBuffer = FindLightShadowData(Light->GetTypeLight(), Light->GetID());
+
+				//	if (!CreateBuffer)
+				//	{
+				//		LightShadowData LightData;
+				//		LightData.Layer = LayerIndex;
+				//		LightData.IDLight = Light->GetID();
+				//		CreateBuffer = &m_LightsFramebuffer[Light->GetTypeLight()].emplace_back(LightData);
+				//	}
+				//	ShadowDepth->BindDepthLayar(LayerIndex);
+				//	ClearBuffersScreen();
+
+				//	switch (Light->GetTypeLight())
+				//	{
+				//	case ETypeLight::DIRECTION_LIGHT:
+				//		LightsMatrix.push_back(DrawDirectionLightShadowBuffer(Light, Primitives));
+				//		break;
+				//	case ETypeLight::SPOTLIGHT:
+				//		LightsMatrix.push_back(DrawSpotLightShadowBuffer(Light, Primitives));
+				//	default:
+				//		break;
+				//	}
+
+				//	LayerIndex++;
+				//	// CreateBuffer->ShadowDepth->UnBind();
+				//}
+				for (auto* Light : Lights)
+				{
+					if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT || Light->GetTypeLight() == ETypeLight::SPOTLIGHT) continue;
+
+					auto* CreateBuffer = FindLightShadowData(Light->GetTypeLight(), Light->GetID());
+
+					if (!CreateBuffer)
+					{
+						LightShadowData LightData;
+						LightData.Layer = LayerIndex;
+						LightData.IDLight = Light->GetID();
+						CreateBuffer = &m_LightsFramebuffer[Light->GetTypeLight()].emplace_back(LightData);
+					}
+					ShadowDepth->ActivateDepthTexture();
+					for (auto& Command : m_ShadowDepthListCommand)
+					{
+						Command->Execute(Device);
+					}
+				}
+				ShadowDepth->UnBind();
+				glCullFace(GL_BACK);
+			}
+
+			
 
 		} // namespace OpenGL
 	} // namespace Render
 } // namespace CoreEngine
+
+namespace CoreEngine::Render::OpenGL
+{
+	void RenderCommandPool::ReturnCommand(RenderCommand* Command)
+	{
+		auto& ArrCeil = m_CommandPool.find(typeid(*Command));
+		if (ArrCeil == m_CommandPool.end()) return;
+
+		for (auto& el : ArrCeil->second)
+		{
+			if (el.IsUsed && Command == el.Command.get() && el.Type == typeid(*Command))
+			{
+				el.IsUsed = false;
+				return;
+			}
+		}
+	}
+
+	void RenderCommandPool::ClearCommand()
+	{
+		for (auto& Pools : m_CommandPool)
+		{
+			for (auto& CeilCommand : Pools.second)
+			{
+				CeilCommand.IsUsed = false;
+			}
+		}
+	}
+
+} // namespace CoreEngine::Render::OpenGL

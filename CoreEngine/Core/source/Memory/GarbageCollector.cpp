@@ -3,16 +3,14 @@
 #include <Core/includes/Memory/Allocator.h>
 #include <Core/includes/Engine.h>
 #include <Core/includes/TimerManager.h>
-#include <Core/includes/World.h>
-#include <ReflectionSystem/Include/BaseField.h>
-
+// #include <Core/includes/World.h>
+// #include <ReflectionSystem/Include/BaseField.h>
 
 namespace CoreEngine
 {
 	namespace GB
 	{
 		GarbageCollector* GarbageCollector::m_GBInstance = nullptr;
-
 
 		GarbageCollector::GarbageCollector()
 		{
@@ -23,7 +21,6 @@ namespace CoreEngine
 		{
 			Engine::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, m_rateCollect, true);
 		}
-
 
 		GarbageCollector* GarbageCollector::Create()
 		{
@@ -37,23 +34,22 @@ namespace CoreEngine
 			Allocator::Construct(m_GBInstance, GarbageCollector());
 
 			m_GBInstance->Init();
-			
+
 			return m_GBInstance;
 		}
 
-		
-		void GarbageCollector::AddObject(Runtime::Object* object)
+		void GarbageCollector::AddObject(Object* object)
 		{
 			m_Objects.insert(object);
 		}
 
-		void GarbageCollector::AddRootObject(Runtime::Object* object)
+		void GarbageCollector::AddRootObject(Object* object)
 		{
 			m_RootObjects.insert(object);
-			//AddObject(object);
+			// AddObject(object);
 		}
 
-		void GarbageCollector::AddReference(Runtime::Object* object)
+		void GarbageCollector::AddReference(Object* object)
 		{
 			if (m_ReferenceObjects.count(object))
 			{
@@ -65,24 +61,24 @@ namespace CoreEngine
 			}
 		}
 
-		void GarbageCollector::RemoveObject(Runtime::Object* object)
+		void GarbageCollector::RemoveObject(Object* object)
 		{
 			m_ReferenceObjects.erase(object);
 			m_RootObjects.erase(object);
 			m_Objects.erase(object);
 		}
 
-		void GarbageCollector::RemoveRootObject(Runtime::Object* object)
+		void GarbageCollector::RemoveRootObject(Object* object)
 		{
 			auto It = m_RootObjects.find(object);
 			if (It != m_RootObjects.end())
 			{
 				m_RootObjects.erase(object);
-				//m_Objects.insert(object);
+				// m_Objects.insert(object);
 			}
 		}
 
-		void GarbageCollector::RemoveReference(Runtime::Object* object)
+		void GarbageCollector::RemoveReference(Object* object)
 		{
 			if (m_ReferenceObjects.count(object))
 			{
@@ -103,7 +99,7 @@ namespace CoreEngine
 			MarkLiveObjects();
 			EG_LOG(CORE, ELevelLog::WARNING, "Collect");
 
-			static DArray<Runtime::Object*> deleteObjects;
+			static DArray<Object*> deleteObjects;
 			deleteObjects.clear();
 			for (auto* obj : m_Objects)
 			{
@@ -112,7 +108,7 @@ namespace CoreEngine
 				if (HasFlag(obj->GetGCState(), static_cast<uint32>(ObjectGCFlags::Unreachable)))
 				{
 					deleteObjects.push_back(obj);
-					
+
 					EG_LOG(CORE, ELevelLog::INFO, "Delete");
 				}
 			}
@@ -139,12 +135,14 @@ namespace CoreEngine
 			}
 		}
 
-		void GarbageCollector::MarkObject(Runtime::Object* object)
+		void GarbageCollector::MarkObject(Object* object)
 		{
-			if (!object || HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::LiveObject)) || HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::Garbage))) return;
+			if (!object || HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::LiveObject)) ||
+				HasFlag(object->GetGCState(), static_cast<uint32>(ObjectGCFlags::Garbage)))
+				return;
 			RemoveFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::Unreachable));
 			SetFlag(object->StateObjectFlagGC, static_cast<uint32>(ObjectGCFlags::LiveObject));
-			
+
 			Reflection::ClassField* CurrentClass = object->GetClass();
 			while (CurrentClass != nullptr)
 			{
@@ -152,27 +150,25 @@ namespace CoreEngine
 				{
 					if (Variable->GetIsPointer() && Variable->GetIsSupportReflectionSystem())
 					{
-						//MarkObject(*Variable->GetSourcePropertyByName<Runtime::Object*>(object));
+						// MarkObject(*Variable->GetSourcePropertyByName<Runtime::Object*>(object));
 						if (Variable->GetPrimitiveType() == Reflection::EConteinType::ARRAY)
 						{
 							if (auto* ArrayField = dynamic_cast<Reflection::ArrayPropertyField*>(Variable))
 							{
-								for (uint64 i = 0; i < ArrayField->GetSizeArray<Runtime::Object*>(object); ++i)
+								for (uint64 i = 0; i < ArrayField->GetSizeArray<Object*>(object); ++i)
 								{
-									MarkObject(*ArrayField->GetElement<Runtime::Object*>(object, i));
+									MarkObject(*ArrayField->GetElement<Object*>(object, i));
 								}
 							}
 						}
 						else if (Variable->GetPrimitiveType() == Reflection::EConteinType::PRIMITIVE)
 						{
-							MarkObject(*Variable->GetSourcePropertyByName<Runtime::Object*>(object));
+							MarkObject(*Variable->GetSourcePropertyByName<Object*>(object));
 						}
 					}
 				}
 				CurrentClass = CurrentClass->ParentClass;
 			}
-			
-
 		}
 
 		void GarbageCollector::MarkLiveObjects()
@@ -188,19 +184,17 @@ namespace CoreEngine
 			}*/
 		}
 
-		void GarbageCollector::MarkObject(Runtime::Object* object, HashTableSet<Runtime::Object*>& outMarkedObjects)
+		void GarbageCollector::MarkObject(Object* object, HashTableSet<Object*>& outMarkedObjects)
 		{
 			if (outMarkedObjects.find(object) != outMarkedObjects.end()) return;
 
 			outMarkedObjects.insert(object);
-			
 		}
 
-
-		void GarbageCollector::OnChangePointer(Runtime::Object* oldPtr, Runtime::Object* newPtr)
+		void GarbageCollector::OnChangePointer(Object* oldPtr, Object* newPtr)
 		{
 			if (oldPtr == newPtr) return;
-			
+
 			if (oldPtr)
 			{
 				RemoveReference(oldPtr);
@@ -210,5 +204,5 @@ namespace CoreEngine
 				AddReference(newPtr);
 			}
 		}
-	}
-}
+	} // namespace GB
+} // namespace CoreEngine

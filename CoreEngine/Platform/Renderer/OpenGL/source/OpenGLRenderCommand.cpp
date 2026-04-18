@@ -1,6 +1,7 @@
 #define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 #include "Platform/Renderer/OpenGL/include/OpenGLRenderCommand.h"
 #include "Render/includes/VertexArrayObject.h"
+#include "Platform/Renderer/OpenGL/include/OpenGLFramebufferArray.h"
 #include "glad/glad.h"
 
 namespace CoreEngine::Render::OpenGL
@@ -14,7 +15,7 @@ namespace CoreEngine::Render::OpenGL
 			return;
 		}
 		glBindVertexArray(ArrayObject);
-		
+
 		glDrawElements(GL_TRIANGLES, CountIndex, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 	}
@@ -52,5 +53,21 @@ namespace CoreEngine::Render::OpenGL
 	RenderCommand::ETypeCommand GLCmdSetUniformVector3::GetType() const
 	{
 		return ETypeCommand::UNIFORM_VECTOR3;
+	}
+	void GLCmdBindFramebufferArray::Execute(RenderDevice* Devise)
+	{
+		Framebuffer->BindDepthLayar(Layer);
+	}
+	RenderCommand::ETypeCommand GLCmdBindFramebufferArray::GetType() const
+	{
+		return ETypeCommand::BIND_FRAMEBUFFER_ARRAY;
+	}
+	void GLCmdClearColorAndDepth::Execute(RenderDevice* Devise)
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	RenderCommand::ETypeCommand GLCmdClearColorAndDepth::GetType() const
+	{
+		return ETypeCommand::CLEAR_COLOR_AND_DEPTH;
 	}
 } // namespace CoreEngine::Render::OpenGL

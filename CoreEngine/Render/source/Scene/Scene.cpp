@@ -5,7 +5,9 @@
 #include <Render/includes/Render.h>
 #include <Core/includes/PrimitiveProxy.h>
 #include <Core/includes/LightProxy.h>
+#include <Core/includes/Engine.h>
 #include <Runtime/includes/BaseLightComponent.h>
+#include <Core/includes/World.h>
 
 
 namespace CoreEngine
@@ -26,11 +28,11 @@ namespace CoreEngine
 				{
 					for (auto* Component : Actor->GetComponents())
 					{
-						if (auto* Primitive = dynamic_cast<Runtime::PrimitiveComponent*>(Component))
+						if (auto* Primitive = dynamic_cast<PrimitiveComponent*>(Component))
 						{
 							m_RenderProxy.emplace_back(Primitive->GetUpdateProxy());
 						}
-						else if (auto* Light = dynamic_cast<Runtime::BaseLightComponent*>(Component))
+						else if (auto* Light = dynamic_cast<BaseLightComponent*>(Component))
 						{
 							if (!Light->GetIsVisible()) continue;
 							m_LightProxy.emplace_back(Light->GetLightProxy());

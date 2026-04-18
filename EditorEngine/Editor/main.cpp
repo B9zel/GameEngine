@@ -135,7 +135,7 @@ unsigned int indexArr[] = {0, 1, 2, 0, 2, 3};
 //	FMatrix4x4 matRotate;
 // };
 
-class Test : CoreEngine::Runtime::Object
+class Test : Object
 {
 public:
 
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 	CoreEngine::InitializeObject Init;
 	// Init.Class = FirstLevel::GetStaticClass();
 
-	auto* level = CoreEngine::Runtime::CreateObject<FirstLevel>(app->GetEngine()->GetWorld()); // new FirstLevel(Init);
+	auto* level = CreateObject<FirstLevel>(app->GetEngine()->GetWorld()); // new FirstLevel(Init);
 	app->Get()->GetEngine()->GetWorld()->OpenLevel(level);
 	// app->PushLayer(new RenderLayer);
 

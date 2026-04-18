@@ -2,9 +2,9 @@
 #include <Render/includes/Scene/SceneInterface.h>
 
 #include <Core/includes/Base.h>
-#include <Core/includes/World.h>
+//#include <Core/includes/World.h>
 
-
+class World;
 
 namespace CoreEngine
 {
@@ -13,7 +13,6 @@ namespace CoreEngine
 
 	namespace Render
 	{
-
 		class SceneInterface;
 
 		class Scene : public SceneInterface
@@ -39,5 +38,5 @@ namespace CoreEngine
 			DArray<LightProxy*> m_LightProxy;
 			World* m_World;
 		};
-	}
-}
+	} // namespace Render
+} // namespace CoreEngine

@@ -1,39 +1,33 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Core/includes/Engine.h>
+
 #include <Core/includes/ShaderLibrary.h>
 #include <Core/includes/LayerStack.h>
 #include <Events/include/Event.h>
 #include <Core/includes/Base.h>
 
+class Engine;
+
 namespace CoreEngine
 {
-	class Engine;
+	namespace Reflection
+	{
+		class ReflectionManager;
+	}
+
 	class Window;
 	class Layer;
 	class Event;
 
 	struct ApplicationOptions
 	{
-		ApplicationOptions() : applicationName{""}, pathToApp{""}, EngineInstance{nullptr}
-		{
-		}
-		ApplicationOptions(const String appName, const String path, Engine* engine) : applicationName{appName}, pathToApp{path}, EngineInstance{engine}
-		{
-			const String projectDirectName = "GameEngine";
-			size_t pos = path.find(projectDirectName);
-			if (pos == String::npos)
-			{
-				// Application must be in directory "GameEngine"
-				throw std::exception("Application must be in directory \"GameEngine\"");
-			}
-			pathToProject = (pathToApp.substr(0, pos + projectDirectName.size()));
-		}
+		ApplicationOptions();
+		ApplicationOptions(const String appName, const String path, Engine* engine);
 		String applicationName;
 		String pathToApp;
 		String pathToProject;
-		UniquePtr<Engine> EngineInstance;
+		UniquePtr<class Engine> EngineInstance;
 	};
 
 	class Application
@@ -77,8 +71,6 @@ namespace CoreEngine
 		virtual void CreateApp();
 
 		virtual void Exit();
-
-		// void PushLayer(Layer* layer) { m_stack.PushLayer(layer); }
 
 	protected:
 

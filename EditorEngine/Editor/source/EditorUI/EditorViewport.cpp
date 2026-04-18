@@ -9,6 +9,7 @@
 #include <glad/glad.h>
 #include <ImGuizmo/ImGuizmo.h>
 #include <Core/includes/World.h>
+#include <glfw/glfw3.h>
 
 namespace Editor
 {
@@ -38,7 +39,7 @@ namespace Editor
 
 		static ImVec2 lastSize = ImGui::GetWindowSize();
 
-		FrameBuffer = CoreEngine::Engine::Get()->GetRender()->GetRenderSceneBuffer();
+		FrameBuffer = Engine::Get()->GetRender()->GetRenderSceneBuffer();
 		// FrameBuffer->Bind();
 		uint32 Texture = FrameBuffer->GetColorAttachmentID(0);
 
@@ -164,8 +165,7 @@ namespace Editor
 
 				int32 IdActor = FrameBuffer->ReadPixel(1, localX, localY);
 
-				auto* FindedActor =
-					OwnerEditor->GetWorld()->GetActorPredicate([&](CoreEngine::Runtime::Actor* Actor) { return Actor->GetUUID().GetID() == IdActor; });
+				auto* FindedActor = OwnerEditor->GetWorld()->GetActorPredicate([&](Actor* actor) { return actor->GetUUID().GetID() == IdActor; });
 				if (FindedActor)
 				{
 					OwnerEditor->SetSelectedObject(FindedActor);
@@ -195,7 +195,7 @@ namespace Editor
 
 		if (auto* WorldObject = GetSceneComponentFromSelected())
 		{
-			ImGuizmo::SetOrthographic(true);
+			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
@@ -207,7 +207,7 @@ namespace Editor
 			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection();
 
 			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration),
-								 ImGuizmo::MODE::LOCAL, Math::GetValuePtr(ObjectMatrix));
+								 ImGuizmo::MODE::WORLD, Math::GetValuePtr(ObjectMatrix));
 			if (ImGuizmo::IsUsing())
 			{
 				FVector Location, Rotation, Scale;
@@ -294,18 +294,18 @@ namespace Editor
 		m_CanChangeOpirations = !IsActive;
 	}
 
-	CoreEngine::Runtime::SceneComponent* EditorViewport::GetSceneComponentFromSelected() const
+	SceneComponent* EditorViewport::GetSceneComponentFromSelected() const
 	{
 		if (!OwnerEditor || !OwnerEditor->GetSelectedObject()) return nullptr;
 
-		if (OwnerEditor->GetSelectedObject()->GetClass()->IsChildClassOf(CoreEngine::Runtime::Actor::GetStaticClass()))
+		if (OwnerEditor->GetSelectedObject()->GetClass()->IsChildClassOf(Actor::GetStaticClass()))
 		{
-			return dynamic_cast<CoreEngine::Runtime::Actor*>(OwnerEditor->GetSelectedObject())->GetRootComponent();
+			return dynamic_cast<Actor*>(OwnerEditor->GetSelectedObject())->GetRootComponent();
 		}
-		return dynamic_cast<CoreEngine::Runtime::SceneComponent*>(OwnerEditor->GetSelectedObject());
+		return dynamic_cast<SceneComponent*>(OwnerEditor->GetSelectedObject());
 	}
 
-	FMatrix4x4 EditorViewport::GetMatrixOfComponent(CoreEngine::Runtime::SceneComponent* Component) const
+	FMatrix4x4 EditorViewport::GetMatrixOfComponent(SceneComponent* Component) const
 	{
 		if (!Component) FMatrix4x4(1);
 

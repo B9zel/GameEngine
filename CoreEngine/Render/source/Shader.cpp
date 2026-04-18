@@ -3,6 +3,7 @@
 #include <Render/includes/RendererAPI.h>
 #include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
 #include <Render/includes/RenderDevice.h>
+#include <Core/includes/AssetManager.h>
 
 namespace CoreEngine
 {
@@ -40,17 +41,26 @@ namespace CoreEngine
 
 		UniquePtr<Shader> Shader::CreateShader()
 		{
+			class CreatorOpenGLShader : public OpenGL::OpenGLShader
+			{
+			public:
+
+				CreatorOpenGLShader() : OpenGLShader()
+				{
+				}
+			};
+
 			switch (RendererAPI::GetAPI())
 			{
 			case RendererAPI::API::None:
 				EG_LOG(CORE, ELevelLog::CRITICAL, "No renderer API to create");
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return MakeUniquePtr<OpenGL::OpenGLShader>();
+				return MakeUniquePtr<CreatorOpenGLShader>();
 			default:
 				break;
 			}
-			EG_LOG(CORE, ELevelLog::CRITICAL, "No implament API to create");
+			ASSERT("No implament API to create");
 		}
 	} // namespace Render
 } // namespace CoreEngine

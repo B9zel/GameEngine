@@ -2,16 +2,14 @@
 #include <Editor/includes/EditorUI/BaseEditorPanel.h>
 #include <Core/includes/Base.h>
 
-namespace CoreEngine::Runtime
-{
-	class Object;
-	class Actor;
-}
+class Object;
+class Actor;
+
 namespace CoreEngine::Reflection
 {
 	struct ClassField;
 	struct PropertyField;
-}
+} // namespace CoreEngine::Reflection
 
 namespace Editor
 {
@@ -24,19 +22,20 @@ namespace Editor
 		virtual void Draw() override;
 		virtual void OnConstruct() override;
 
-		void SetSelectableObject(CoreEngine::Runtime::Object* Object);
+		void SetSelectableObject(Object* Object);
 
 	private:
 
-		void DrawDetailsRecursive(CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Runtime::Object* SourceClass, bool IsDrawTree=true);
-		void DrawProperty(CoreEngine::Reflection::PropertyField* Property, CoreEngine::Runtime::Object* SelectedObject, CoreEngine::Reflection::ClassField* MainClass, CoreEngine::Runtime::Object* SourceClass);
+		void DrawDetailsRecursive(Object* SelectedObject, Object* SourceClass, bool IsDrawTree = true);
+		void DrawProperty(CoreEngine::Reflection::PropertyField* Property, Object* SelectedObject,
+						  CoreEngine::Reflection::ClassField* MainClass, Object* SourceClass);
 
 		bool HasAnyPropertyDeep(CoreEngine::Reflection::ClassField* Class);
 		bool HasAnyProperty(CoreEngine::Reflection::ClassField* Class);
 
 	private:
 
-		CoreEngine::Runtime::Object* SelectedObject{ nullptr };
+		Object* SelectedObject{nullptr};
 		HashTableSet<CoreEngine::Reflection::ClassField*> HasEditorRender;
 	};
-}
+} // namespace Editor

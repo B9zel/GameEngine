@@ -2,22 +2,28 @@
 #include <Core/includes/Base.h>
 #include <Render/includes/RenderHardwareInterface.h>
 #include <Math/includes/Matrix.h>
-// #include <Render/includes/ShaderUtils.h>
+#include <Render/includes/UniformType.h>
 //  #include <Core/includes/AssetManager.h>
+
+class AssetManager;
 
 namespace CoreEngine
 {
-	class AssetManager;
-
 	namespace Render
 	{
 		class RenderDevice;
+
+		struct UniformInfo
+		{
+			EUniformType Type;
+			int32 Location;
+		};
 
 		class Shader
 		{
 		public:
 
-			friend CoreEngine::AssetManager;
+			friend AssetManager;
 
 		public:
 
@@ -46,6 +52,10 @@ namespace CoreEngine
 			virtual bool SetUniformVec2(RenderDevice* Device, const String& nameParam, const FVector2& vec, bool isEnableBind = true) = 0;
 			virtual bool SetUniformVec3(RenderDevice* Device, const String& nameParam, const FVector& vec, bool isEnableBind = true) = 0;
 			virtual const DArray<String>& GetNamesOfTexture() const = 0;
+
+			virtual const HashTableMap<String, UniformInfo>& GetAllUniforms() const = 0;
+			virtual const String& GetVertexShader() const = 0;
+			virtual const String& GetFragmentShader() const = 0;
 
 		private:
 

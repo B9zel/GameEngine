@@ -50,7 +50,7 @@ namespace CoreEngine
 
 	private:
 
-		Dispatcher<Event&> m_dispatch;
+		Dispatcher<CoreEngine::Event&> m_dispatch;
 	};
 
 
