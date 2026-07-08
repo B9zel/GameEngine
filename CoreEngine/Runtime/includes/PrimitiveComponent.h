@@ -1,6 +1,8 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
 #include <Render/includes/Material.h>
+#include <Render/includes/MaterialAsset.h>
+#include <Render/includes/MaterialInstance.h>
 #include <PrimitiveComponent.generated.h>
 
 class MaterialAsset;
@@ -27,6 +29,9 @@ public:
 	// Test
 	virtual void SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMaterial);
 
+	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
+	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
+
 public:
 
 	virtual CoreEngine::PrimitiveProxy* GetSceneProxy() const;
@@ -35,11 +40,24 @@ public:
 	// Test
 	CoreEngine::PrimitiveProxy* sceneProxy;
 
+private:
+
+	void OnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field);
+	void PreOnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field);
+
 protected:
 
 	RPROPERTY();
 	DArray<MaterialAsset*> materials;
+
+	RPROPERTY(EditorVisible);
+	MaterialAsset* material;
+
 	DArray<CoreEngine::Render::MaterialHandle> m_HandleMaterial;
 	RPROPERTY();
 	DArray<MaterialInstance*> m_MaterialInstance;
+
+private:
+
+	CoreEngine::Render::MaterialHandle HandlePrevMaterial;
 };

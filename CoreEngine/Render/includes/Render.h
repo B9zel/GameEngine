@@ -2,6 +2,8 @@
 #include <Render/includes/RendererAPI.h>
 #include <Math/includes/Matrix.h>
 
+class RMaterial;
+
 namespace CoreEngine
 {
 	class PrimitiveProxy;

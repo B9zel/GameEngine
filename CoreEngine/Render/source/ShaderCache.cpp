@@ -4,7 +4,7 @@
 
 namespace CoreEngine::Render
 {
-	DECLARE_LOG_CATEGORY_EXTERN(RenderHandleLog);
+	DECLARE_LOG_CATEGORY_EXTERN(ShaderCacheLog);
 
 	HashTableMap<ShaderVariantKey, Shader*, ShaderVariantKeyHasher> ShaderCache::m_Cache;
 
@@ -22,6 +22,8 @@ namespace CoreEngine::Render
 
 	Shader* ShaderCache::GetShaderFromMaterial(const RMaterial& material)
 	{
+		if (!material.GetShaderAsset()) return nullptr;
+
 		ShaderVariantKey Key;
 		Key.m_Hash = material.GetShaderAsset()->GetHash();
 		Key.ModeRender = material.GetModeRender();
@@ -39,12 +41,12 @@ namespace CoreEngine::Render
 	{
 		if (m_Cache.count(Key))
 		{
-			EG_LOG(RenderHandleLog, ELevelLog::WARNING, "Shader with this key already exist in cache");
+			EG_LOG(ShaderCacheLog, ELevelLog::WARNING, "Shader with this key already exist in cache");
 			return;
 		}
 		if (!shader)
 		{
-			EG_LOG(RenderHandleLog, ELevelLog::WARNING, "Invalid shader pointer");
+			EG_LOG(ShaderCacheLog, ELevelLog::WARNING, "Invalid shader pointer");
 			return;
 		}
 

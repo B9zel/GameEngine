@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/includes/Base.h>
-// #include <Core/includes/ObjectPtr.h>
 //  #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/UUID.h>
 // #include <ReflectionSystem/Include/MetaClass.h>
@@ -75,11 +74,14 @@ public:
 	const CoreEngine::UUID& GetUUID() const;
 	const String& GetName() const;
 
-	void SetName(const String& NewName);
+	virtual void SetName(const String& NewName);
 
 	uint32 GetGCState() const;
 	bool GetHasSerialized() const;
 	bool GetHasDeserialized() const;
+
+	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property);
+	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property);
 
 	virtual void StartDestroy()
 	{
@@ -112,6 +114,7 @@ private:
 
 	CoreEngine::UUID ObjectID;
 	CoreEngine::Reflection::ClassField* PrivateClass;
+	RPROPERTY();
 	String Name;
 
 	// GC

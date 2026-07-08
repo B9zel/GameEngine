@@ -41,6 +41,11 @@ namespace CoreEngine
 			void RemoveRootObject(Object* object);
 			void RemoveReference(Object* object);
 
+			const HashTableSet<Object*>& GetObjects() const;
+			const HashTableSet<Object*>& GetRootObjects() const;
+			const HashTableSet<Object*>& GetAllObjects() const;
+			
+
 			static GarbageCollector* GetGBInstance()
 			{
 				return m_GBInstance;

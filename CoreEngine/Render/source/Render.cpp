@@ -71,14 +71,17 @@ namespace CoreEngine
 
 		void Render::PrepareMaterial(RMaterial& Mat)
 		{
-			if (Mat.GetShaderHandle().IsValid()) return;
+			if (!Mat.GetShaderAsset()) return;
 
 			ShaderVariantKey Key;
 			Key.m_Hash = Mat.GetShaderAsset()->GetHash();
 			Key.ModeRender = Mat.GetModeRender();
 
 			RHI::ShaderHandle shaderHandle;
-			if (ShaderCache::TryGetShaderHandle(Key, shaderHandle))
+			const bool HasShader = ShaderCache::TryGetShaderHandle(Key, shaderHandle);
+			if (HasShader && Mat.GetShaderHandle() == shaderHandle) return;
+
+			if (HasShader)
 			{
 				Mat.SetShaderHandle(shaderHandle);
 				return;
@@ -86,6 +89,8 @@ namespace CoreEngine
 			CompileShaderSource Source = ShaderCompiler::Get().Build(*Mat.GetShaderAsset(), Key);
 
 			Shader* shader = AssetManager::Get().LoadShader(Source.VertexShader, Source.FragmentShader);
+			if (!shader) return;
+
 			Mat.SetShaderHandle(shader->GetHandle());
 
 			ShaderCache::AddShader(Key, shader);

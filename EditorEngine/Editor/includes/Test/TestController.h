@@ -4,7 +4,7 @@
 #include <Core/includes/InputDevice.h>
 #include <Math/includes/Math.h>
 #include <Runtime/includes/InputComponent.h>
-//#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 #include <TestController.generated.h>
 
 RCLASS()
@@ -72,7 +72,7 @@ protected:
 			SetActorRotation(GetActorRotation() + FVector((DeltaY * 0.1), 0.0f, 0.0f));
 		}
 		LastMousePos = Engine::Get()->GetInputDevice()->GetMousePos();
-		Engine::Get()->GetInputDevice()->SetMousePos(LastMousePos);
+		// Engine::Get()->GetInputDevice()->SetMousePos(LastMousePos);
 	}
 
 	void MoveLeft(float axis)

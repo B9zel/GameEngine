@@ -70,4 +70,20 @@ namespace CoreEngine::Render::OpenGL
 	{
 		return ETypeCommand::CLEAR_COLOR_AND_DEPTH;
 	}
+	void GLCmdActivateDepthTexture::Execute(RenderDevice* Devise)
+	{
+		Framebuffer->ActivateDepthTexture();
+	}
+	RenderCommand::ETypeCommand GLCmdActivateDepthTexture::GetType() const
+	{
+		return ETypeCommand::ACTIVATE_TEXTURE_2D_ARRAY;
+	}
+	void GLCmdActivateLayerTexture::Execute(RenderDevice* Devise)
+	{
+		glActiveTexture(GL_TEXTURE0 + Layer);
+	}
+	RenderCommand::ETypeCommand GLCmdActivateLayerTexture::GetType() const
+	{
+		return ETypeCommand::ACTIVATE_LAYER_TEXTURE;
+	}
 } // namespace CoreEngine::Render::OpenGL

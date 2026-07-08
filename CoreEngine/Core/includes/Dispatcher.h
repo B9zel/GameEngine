@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/includes/Base.h>
+#include <Core/includes/Log.h>
 #include <iostream>
 
 namespace CoreEngine
@@ -40,7 +41,7 @@ public:
 	{
 		if (m_MtDispatch.empty()) return false;
 
-		MethodPtr<Class, TypeParam> removeFn(method, classOfMethod);
+		MethodPtr<Class, TypeParam> removeFn(classOfMethod, method);
 		for (DArray<FunctionParam>::iterator it = m_MtDispatch.begin(); it != m_MtDispatch.end(); ++it)
 		{
 			if (*(it->GetFunction()) == removeFn)
@@ -50,7 +51,7 @@ public:
 			}
 		}
 
-		EG_LOG(CORE, ELevelLog::WARNING, "There is no function");
+		EG_LOG(CoreEngine::CORE, ELevelLog::WARNING, "There is no function");
 		return false;
 	}
 

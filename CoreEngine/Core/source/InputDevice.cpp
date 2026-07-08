@@ -40,6 +40,13 @@ namespace CoreEngine
 		return DVector2(x, y);
 	}
 
+	void InputDevice::SetCursor(GLFWwindow* window, const int32 Type)
+	{
+		GLFWcursor* Cursor = glfwCreateStandardCursor(Type);
+
+		glfwSetCursor(window, Cursor);
+	}
+
 	void InputDevice::InviteEvent(Event& event)
 	{
 

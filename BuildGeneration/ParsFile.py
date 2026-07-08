@@ -18,7 +18,8 @@ ClassKeyWord = OpenConfig["Macros"]["Class"]
 PropertyKeyWord = OpenConfig["Macros"]["Property"]
 OutputFiles = OpenConfig["DEFAULT"]["OutputGenFiles"]
 
-files = SerchAllFiles(ParseArrayConfig(Path), ".h")
+PathAndModule = ParseArrayConfig(Path)
+files = SerchAllFiles(PathAndModule[0],PathAndModule[1], ".h")
 # files += SerchAllFiles(ParseArrayConfig(Path), ".cpp")
 
 
@@ -236,6 +237,7 @@ def GetParent(pr, cursor):
         if IsCollect:
             if token.spelling not in ("public", "protected", "private"):
                 Res += token.spelling
+                break
     return Res
 
 def GetParentWithNamepsace(NamespaceAbove:str, ParentFullName:str):
@@ -310,11 +312,12 @@ def PrintTokens(tk):
                         break
 
 index = cindex.Index.create()
-for file in files:
-    GenFileNextIteration = False
-    pathg = os.path.abspath(file)
-    pr = index.parse(pathg, args=["-x", "c++","-std=c++17","-nostdinc", "-I.", r"-IC:\Projects\C++\GameEngine\CoreEngine\Core", "-DRPROPERTY(x)="], options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+for module in files:
+    for file in files[module]:
+        GenFileNextIteration = False
+        pathg = os.path.abspath(file)
+        pr = index.parse(pathg, args=["-x", "c++","-std=c++17","-nostdinc", "-I.", r"-IC:\Projects\C++\GameEngine\CoreEngine\Core", "-DRPROPERTY(x)="], options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
     # print(f"\n\nStart {file.name}\n\n")
-    ParseClassesOfFile(ParseFile(pr, FindedClassMacros(pr)), file, OutputFiles)
+        ParseClassesOfFile(ParseFile(pr, FindedClassMacros(pr)), file, OutputFiles + "/" + module)
     # for i in ParseFile(pr.cursor, FindedClassMacros(pr)):
     #    GenerateCodeClass(i.Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, i)

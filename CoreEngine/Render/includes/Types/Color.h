@@ -30,6 +30,9 @@ public:
 	LinearColor operator/(const LinearColor& Other);
 	LinearColor& operator/=(const LinearColor& Other);
 
+	bool operator==(const LinearColor& Other) const;
+	bool operator!=(const LinearColor& Other) const;
+
 public:
 
 	union

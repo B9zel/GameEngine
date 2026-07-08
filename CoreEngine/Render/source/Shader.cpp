@@ -61,6 +61,8 @@ namespace CoreEngine
 				break;
 			}
 			ASSERT("No implament API to create");
+
+			return UniquePtr<Shader>();
 		}
 	} // namespace Render
 } // namespace CoreEngine

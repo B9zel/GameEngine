@@ -252,19 +252,7 @@ vec3 CalculateDirectionLight()
         vec3 specular = strangeSpecular * spec * DirectionLights[i].Color;
 
         float Shadow = ShadowDirectionCalculation(FragPosLightSpaces[int(DirectionLights[i].LayerShadow)], norm, lightDir, DirectionLights[i].LayerShadow);
-        if (Shadow == 20)
-        {
-            return vec3(0,0,1);
-        }
-       /* if (Shadow < 0)
-        {
-            resColor = vec3(1,0,0);
-            return resColor;
-        }*/
-        if (Shadow > 1.0f)
-        {
-            return vec3(0, 1, 0);
-        }
+        
         //resColor = vec3(FragPosLightSpaces[2]);
         resColor += (1.0 - Shadow) * (diffuse + specular) * DirectionLights[i].Intencity;
        // resColor += (diffuse + specular) * DirectionLights[i].Intencity;
@@ -342,7 +330,7 @@ vec3 CalculateSpotLight()
             float Distance = length(SpotLights[i].Location - FragPos);
             float Attenuation = 1.0f / (SpotLights[i].Constant + SpotLights[i].Linear * Distance + SpotLights[i].Quadratic * (Distance * Distance));
             float Shadow = ShadowSpotlightCalculation(FragPosLightSpaces[int(SpotLights[i].LayerShadow)], norm, -lightDir, SpotLights[i].Location, SpotLights[i].LayerShadow);
-
+         
             diffuse *= Attenuation;
             specular *= Attenuation;
 
@@ -412,6 +400,7 @@ void main()
     } */
     //
     vec3 FrColor = fragment();
+
     result = (CalculateDirectionLight() + CalculatePointLight() + CalculateSpotLight()) * FrColor;//* ObjColor;
     result += ambient;
     ObjectID = OutID;

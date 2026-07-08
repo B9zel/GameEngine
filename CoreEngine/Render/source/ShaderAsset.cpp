@@ -21,6 +21,10 @@ namespace CoreEngine::Render
 
 } // namespace CoreEngine::Render
 
+ShaderAsset::ShaderAsset(const CoreEngine::InitializeObject& Initilize) : Asset(Initilize)
+{
+}
+
 uint64 ShaderAsset::GetHash() const
 {
 	std::hash<String> Hasher;
@@ -52,4 +56,14 @@ void ShaderAsset::OnDeserialize(CoreEngine::SerializeAchive& Achive)
 CoreEngine::EAssetType ShaderAsset::GetAssetType() const
 {
 	return CoreEngine::EAssetType::Shader;
+}
+
+const SourceShader& ShaderAsset::GetCustomShader() const
+{
+	return CustomShader;
+}
+
+void ShaderAsset::SetCustomShader(const SourceShader& NewShader)
+{
+	CustomShader = NewShader;
 }

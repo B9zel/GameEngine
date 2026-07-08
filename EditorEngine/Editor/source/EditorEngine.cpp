@@ -166,6 +166,21 @@ void EditorEngine::RenderEditor()
 	for (int n = 0; n < 100; n++)
 		samples[n] = sinf(n * 0.2f + ImGui::GetTime() * 1.5f);
 	ImGui::PlotLines("Samples", samples, 100);
+	static int ScoreIteration = 0;
+	static float AvaragetFPS = 0;
+	static float SumFPS = 0;
+	if (SumFPS > 1)
+	{
+		AvaragetFPS = ScoreIteration;
+		ScoreIteration = 0;
+		SumFPS = 0;
+	}
+	float FPS = 1 / GetWorld()->GetWorldDeltaTime();
+	SumFPS += GetWorld()->GetWorldDeltaTime();
+
+	ImGui::Text("FPS %f", FPS);
+	ImGui::Text("Avarage FPS %f", AvaragetFPS);
+	ScoreIteration++;
 
 	// Display contents in a scrolling region
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");

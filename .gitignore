@@ -3,6 +3,7 @@ Bin
 Docs
 venv
 .idea
+.vscode
 
 *.slo
 *.lo

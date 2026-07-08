@@ -57,6 +57,14 @@ bool Object::GetHasDeserialized() const
 	return HasDeserialize;
 }
 
+void Object::PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
+{
+}
+
+void Object::PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
+{
+}
+
 void Object::PreSerialize()
 {
 	HasSerialize = false;
@@ -68,7 +76,7 @@ void Object::Serialize(CoreEngine::SerializeAchive& Archive)
 	HasSerialize = true;
 
 	CoreEngine::Reflection::ClassField* Class = GetClass();
-	Archive.PushPrefix(GetName());
+	Archive.PushPrefix(GetClass()->Name);
 	Archive.SerializeData("NameClass", GetClass()->Name);
 	while (Class != nullptr)
 	{

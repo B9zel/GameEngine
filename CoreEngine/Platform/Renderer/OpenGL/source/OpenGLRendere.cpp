@@ -152,7 +152,7 @@ namespace CoreEngine
 				//		}
 
 				//		glActiveTexture(GL_TEXTURE0);
-				//		ShadowDepth->ActivateDepthTexture();
+				// ShadowDepth->ActivateDepthTexture();
 				//		shader->SetUniform1i("DirectionShadowMap", 0, false);
 				//		shader->SetUniformVec3("ViewPos", Engine::Get()->GetWorld()->GetControllerLocation(), false);
 				//		shader->SetUniform1i("CountPointLight", PointLights.size(), false);
@@ -345,8 +345,11 @@ namespace CoreEngine
 				FMatrix4x4 LightSpace(1);
 				if (!Direction) return LightSpace;
 
-				FMatrix4x4 ProjectionLight = Math::CreateOrthoMatrix(-30, 30, -30, 30, 0.0f, 1000.5f);
+				FMatrix4x4 ProjectionLight = Math::CreateOrthoMatrix(-300, 300, -300, 300, 0.0f, 1000.5f);
 				FVector DirectionLight = -(Direction->GetDirection() * 100);
+
+				FVector PosView;
+				Math::DecomposeLocationMatrix(m_View, PosView);
 
 				FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(DirectionLight, Direction->GetDirection(), FVector::UpVector);
 				LightSpace = ProjectionLight * ViewLight;
@@ -382,10 +385,33 @@ namespace CoreEngine
 				FVector Position;
 				Math::DecomposeLocationMatrix(m_View, Position);
 
-				const FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(Position, DirectionLight->GetDirection(), FVector::UpVector);
+				FVector Pos = -(DirectionLight->GetDirection() * 100);
+
+				const FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(Pos, DirectionLight->GetDirection(), FVector::UpVector);
+
+				// const float NearPlane = 0.1f;
+				// const float FarPlane = 100.0f;
+
+				// const FMatrix4x4 ProjectionLight = Math::CreateOrthoMatrix(-30, 30, -30, 30, NearPlane, FarPlane);
+				// FVector Position;
+				// Math::DecomposeLocationMatrix(m_View, Position);
+				// FMatrix4x4 InvView = Math::Inverse(m_View);
+				// FVector Forward = glm::vec3(InvView[2]);
+
+				// FVector Center = Position + Forward * (NearPlane + FarPlane) * 0.5f;
+				// float lightDistance = 100.0f;
+				// FVector lightEyePos = Center - DirectionLight->GetDirection() * lightDistance;
+
+				// FVector Pos = -(DirectionLight->GetDirection() * 100);
+
+				// const FMatrix4x4 ViewLight = Math::CreateMatrixLookAt(lightEyePos, lightEyePos + DirectionLight->GetDirection(), FVector::UpVector);
 
 				const FMatrix4x4 LightSpace = ProjectionLight * ViewLight;
 				LightSpaces.push_back(LightSpace);
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdClearColorAndDepth>());
+				OutCommands.push_back(CommandPool.RequestCommand<CmdBindShaderProgram>(m_ShaderShadow->GetHandle(), []() {}));
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(m_ShaderShadow->GetHandle(), "LightSpaceMat", LightSpace));
 
 				for (auto* Proxy : Primitives)
 				{
@@ -400,8 +426,8 @@ namespace CoreEngine
 
 							// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::DRAW_INDEX, StaticProxy->GetArrayObject()[i],
 							//												 StaticProxy->GetIndeces()[i]->size(), []() {}));
-							OutCommands.push_back(CommandPool.RequestCommand<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
-							OutCommands.push_back(CommandPool.RequestCommand<GLCmdClearColorAndDepth>());
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(m_ShaderShadow->GetHandle(), "ModelMat",
+																									   StaticProxy->GetTransformMatrix()));
 
 							OutCommands.push_back(
 								CommandPool.RequestCommand<GLCmdDrawIndex>(StaticProxy->GetArrayObject()[i], StaticProxy->GetIndeces()[i]->size(), []() {}));
@@ -485,7 +511,7 @@ namespace CoreEngine
 			{
 				CurrentRes = Resolition;
 				// m_ShadowBuffer->Resize(Resolition.x * 6, Resolition.y * 6);
-				ShadowDepth->Resize(Resolition.x, Resolition.y);
+				ShadowDepth->Resize(Resolition.x * 4, Resolition.y * 4);
 				m_ResultScene->Resize(Resolition.x, Resolition.y);
 			}
 
@@ -565,9 +591,9 @@ namespace CoreEngine
 					for (auto& el : Primitive->GetMaterials())
 					{
 						RMaterial* Mat = MaterialManager::Get().GetMaterial(el);
+						if (!Mat->GetShaderAsset()) continue;
 
 						PrepareMaterial(*Mat);
-
 						Shader* shader = ShaderCache::GetShaderFromMaterial(*Mat);
 						RHI::ShaderHandle shaderHandle = shader->GetHandle();
 
@@ -616,6 +642,10 @@ namespace CoreEngine
 						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountPointLight", PointLights.size()));
 						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountDirectionLight", DirectionLights.size()));
 						OutCommands.push_back(MakeUniquePtr<GLCmdSetUniform1i>(shaderHandle, "CountSpotLight", SpotLights.size()));*/
+
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdActivateLayerTexture>());
+						OutCommands.push_back(CommandPool.RequestCommand<GLCmdActivateDepthTexture>(ShadowDepth.get()));
+
 						OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, "DirectionShadowMap", 0));
 						OutCommands.push_back(
 							CommandPool.RequestCommand<GLCmdSetUniformVector3>(shaderHandle, "ViewPos", Engine::Get()->GetWorld()->GetControllerLocation()));
@@ -679,7 +709,7 @@ namespace CoreEngine
 					{
 						SpotLightProxy* Proxy = dynamic_cast<SpotLightProxy*>(Lights[i]);
 						SimpleSpotLightProxy SimpleSpotLight = {
-							Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : 0,
+							Proxy->GetColor(),	   Proxy->GetDirection(), Proxy->GetLocation(),	   ShadowData ? ShadowData->Layer : -1,
 							Proxy->GetIntencity(), Proxy->GetCutOff(),	  Proxy->GetOuterCutOff(), Proxy->GetConstant(),
 							Proxy->GetLinear(),	   Proxy->GetQuadratic()};
 						OutSpotLights.emplace_back(SimpleSpotLight);
@@ -719,9 +749,47 @@ namespace CoreEngine
 			}
 
 			void OpenGLRender::BuildSpotLightShadowDepthCommandList(RenderDevice* Device, LightProxy* Lights,
-																	const DArray<CoreEngine::PrimitiveProxy*>& Primitives, DArray<FMatrix4x4>& LightSpace,
+																	const DArray<CoreEngine::PrimitiveProxy*>& Primitives, DArray<FMatrix4x4>& LightSpaces,
 																	DArray<RenderCommand*>& OutCommands)
 			{
+				auto* SpotLight = dynamic_cast<SpotLightProxy*>(Lights);
+				FMatrix4x4 LightSpace(1);
+
+				FMatrix4x4 ProjectionLight = Math::CreatePerspectiveMatrix((SpotLight->GetOuterCutOff() * 8), ShadowDepth->GetSpecifiction().Width,
+																		   ShadowDepth->GetSpecifiction().Height, 0.1, 10001);
+				FVector DirectionLight = (SpotLight->GetDirection());
+
+				FMatrix4x4 ViewLight =
+					Math::CreateMatrixLookAt(SpotLight->GetLocation(), SpotLight->GetLocation() + SpotLight->GetDirection() * 100, FVector::UpVector);
+				LightSpace = ProjectionLight * ViewLight;
+				LightSpaces.push_back(LightSpace);
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdClearColorAndDepth>());
+				OutCommands.push_back(CommandPool.RequestCommand<CmdBindShaderProgram>(m_ShaderShadow->GetHandle(), []() {}));
+				OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(m_ShaderShadow->GetHandle(), "LightSpaceMat", LightSpace));
+
+				for (auto* Proxy : Primitives)
+				{
+					if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Proxy))
+					{
+						for (size_t i = 0; i < StaticProxy->GetIndeces().size(); i++)
+						{
+							// StaticProxy->GetArrayObject()[i]->Bind();
+
+							using namespace CoreEngine::Render;
+
+							// m_ShaderShadow->SetUniformMatrix4x4("LightSpaceMat", LightSpace, false);
+							// m_ShaderShadow->SetUniformMatrix4x4("ModelMat", StaticProxy->GetTransformMatrix(), false);
+							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(m_ShaderShadow->GetHandle(), "ModelMat",
+																									   StaticProxy->GetTransformMatrix()));
+
+							OutCommands.push_back(
+								CommandPool.RequestCommand<GLCmdDrawIndex>(StaticProxy->GetArrayObject()[i], StaticProxy->GetIndeces()[i]->size(), []() {}));
+						}
+					}
+				}
+
+				// OutCommands.push_back(CommandPool.RequestCommand<GLCmdBindFramebufferArray>(ShadowDepth.get(), m_CurrentShadowFramebufferLayer));
 			}
 
 			void OpenGLRender::ExecuteShadowDepthCommand(RenderDevice* Device, const DArray<LightProxy*>& Lights, const DArray<RenderCommand*>& Commands)
@@ -772,7 +840,7 @@ namespace CoreEngine
 				//}
 				for (auto* Light : Lights)
 				{
-					if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT || Light->GetTypeLight() == ETypeLight::SPOTLIGHT) continue;
+					if (Light->GetTypeLight() == ETypeLight::POINT_LIGHT) continue;
 
 					auto* CreateBuffer = FindLightShadowData(Light->GetTypeLight(), Light->GetID());
 
@@ -784,16 +852,16 @@ namespace CoreEngine
 						CreateBuffer = &m_LightsFramebuffer[Light->GetTypeLight()].emplace_back(LightData);
 					}
 					ShadowDepth->ActivateDepthTexture();
+					ShadowDepth->BindDepthLayar(LayerIndex);
 					for (auto& Command : m_ShadowDepthListCommand)
 					{
 						Command->Execute(Device);
 					}
+					LayerIndex++;
 				}
 				ShadowDepth->UnBind();
 				glCullFace(GL_BACK);
 			}
-
-			
 
 		} // namespace OpenGL
 	} // namespace Render

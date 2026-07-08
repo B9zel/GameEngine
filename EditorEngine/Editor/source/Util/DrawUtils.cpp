@@ -4,6 +4,7 @@
 #include "Editor/includes/EditorEngine.h"
 #include "Runtime/includes/ActorComponent.h"
 #include "Runtime/includes/Actor.h"
+#include <ReflectionSystem/Include/BaseField.h>
 // #include <imgui.h>
 
 namespace Editor
@@ -222,6 +223,7 @@ namespace Editor
 	}
 	void DrawString(const String& Id, const String& NameString, String& SourceStr, const uint32 MaxBufferSize, const float ColumnWidth)
 	{
+
 		ImGui::PushID(Id.c_str());
 
 		ImGui::Columns(2);
@@ -333,7 +335,7 @@ namespace Editor
 			auto* Component = dynamic_cast<ActorComponent*>(SelectedObject);
 			if (Component && !Component->GetIsCreatedNative())
 			{
-				if (ImGui::BeginPopupContextItem(nullptr))
+				if (ImGui::BeginPopupContextItem("##ComponentContext"))
 				{
 					bool HasDelete = false;
 					if (ImGui::MenuItem("Delete component"))

@@ -13,14 +13,12 @@ public:
 
 	void SetParentMaterial(const CoreEngine::Render::MaterialHandle& ParentMaterial);
 	const CoreEngine::Render::MaterialHandle& GetParentMaterial() const;
-
-private:
-
-	UniquePtr<CoreEngine::Render::BaseMaterialProperty> CreatePropertyFromType(const EUniformType& Type);
+	const CoreEngine::Render::MaterialHandle& GetPotentialParentMaterial() const;
 
 private:
 
 	CoreEngine::Render::MaterialHandle m_ParentMaterial;
+	CoreEngine::Render::MaterialHandle m_PotentialParentMaterial;
 
 	DArray<UniquePtr<CoreEngine::Render::BaseMaterialProperty>> m_MaterialProperties;
 };

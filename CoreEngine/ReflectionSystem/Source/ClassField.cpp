@@ -54,4 +54,22 @@ namespace CoreEngine::Reflection
 		}
 	}
 
+	const DArray<PropertyField*>& ClassField::GetWithParentPropertyFields() const
+	{
+		static DArray<PropertyField*> Fields;
+		Fields.clear();
+		ClassField* StorageFields = const_cast<ClassField*>(this);
+
+		while (StorageFields)
+		{
+			for (auto& Property : StorageFields->PropertyFileds)
+			{
+				Fields.emplace_back(Property);
+			}
+			StorageFields = StorageFields->ParentClass;
+		}
+
+		return Fields;
+	}
+
 }

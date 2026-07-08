@@ -44,9 +44,10 @@ public:
 
 private:
 
+	RPROPERTY(EditorVisible);
 	MeshComponent* mesh = nullptr;
 	// CoreEngine::ObjectPtr<CoreEngine::Runtime::DirectionLightComponent> LightObj;
-	PrimitiveComponent* LightCube;
+	PrimitiveComponent* LightCubeeee = nullptr;
 	CoreEngine::Render::Shader* shade;
 	UniquePtr<CoreEngine::Render::VertexArrayObject> arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;

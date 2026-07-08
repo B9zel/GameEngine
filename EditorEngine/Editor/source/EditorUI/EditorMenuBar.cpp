@@ -39,6 +39,10 @@ namespace Editor
 						OwnerEditor->GetWorld()->GetSaveManager()->SaveScene(Path);
 					}
 				}
+				if (ImGui::MenuItem("Save all"))
+				{
+					OwnerEditor->GetWorld()->GetSaveManager()->SaveContentItems();
+				}
 				if (ImGui::MenuItem("Exit"))
 				{
 					EditorApplication::Get()->Exit();

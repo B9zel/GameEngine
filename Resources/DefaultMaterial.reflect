@@ -1,0 +1,15 @@
+{
+    "EditorMaterialAsset": {
+        "Name": {
+            "Name": "DefaultMaterial"
+        },
+        "NameClass": "EditorMaterialAsset",
+        "PathToAsset": {
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultMaterial.reflect"
+        },
+        "PathToShaderAsset": {
+            "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultShader.reflect"
+        }
+    },
+    "Type": 3
+}

@@ -7,7 +7,7 @@
 #include <Render/includes/ElementBufferObject.h>
 #include <Render/includes/Material.h>
 #include <Core/includes/Application.h>
-#include <Render/includes/Material.h>
+#include <Render/includes/MaterialAsset.h>
 #include <glad/glad.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(MESH_COMPONENT_LOG);
@@ -15,24 +15,31 @@ DECLARE_LOG_CATEGORY_EXTERN(MESH_COMPONENT_LOG);
 MeshComponent::MeshComponent(const CoreEngine::InitializeObject& Object) : PrimitiveComponent(Object)
 {
 	auto* AssetManager = Engine::Get()->GetAssetManager();
-	m_Shader.push_back(AssetManager->LoadShader(CoreEngine::Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl"));
-	// m_Shader.push_back(Render::Shader::CreateShader());
-	// m_Shader.push_back(Render::Shader::CreateShader());
+	// m_Shader.push_back(AssetManager->LoadShader(CoreEngine::Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl"));
+	//  m_Shader.push_back(Render::Shader::CreateShader());
+	//  m_Shader.push_back(Render::Shader::CreateShader());
 	m_Proxy = MakeUniquePtr<CoreEngine::StaticMeshProxy>();
 
-	SourceShader DefaultShader =
+	/*SourceShader DefaultShader =
 		AssetManager->LoadStringShaderFromFile(CoreEngine::Application::Get()->GetAppOptions().pathToProject + "/Shaders/DefaultShader.glsl");
-	auto DefaultShaderAsset = MakeSharedPtr<CoreEngine::Render::ShaderAsset>();
-	DefaultShaderAsset->CustomShader = DefaultShader;
+	auto DefaultShaderAsset = CreateObject<ShaderAsset>();
+	DefaultShaderAsset->SetCustomShader(DefaultShader);*/
 
-	auto* Mat = CreateObject<RMaterial>(this);
-	Mat->SetShaderAsset(DefaultShaderAsset);
+	auto* ShadAsset = dynamic_cast<ShaderAsset*>(
+		AssetManager::Get().LoadAsset(CoreEngine::Application::Get()->GetAppOptions().pathToProject + "/Resources/DefaultShader.reflect"));
+	auto* MatAsset = dynamic_cast<MaterialAsset*>(
+		AssetManager::Get().LoadAsset(CoreEngine::Application::Get()->GetAppOptions().pathToProject + "/Resources/DefaultMaterial.reflect"));
+	// MaterialAsset* MatAsset = CreateObject<MaterialAsset>();
+	MatAsset->SetShaderAsset(ShadAsset);
 
-	materials.push_back(Mat);
-	// auto& Shaders = m_Shader[0]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
-	// m_Shader[0]->CompileShader(Shaders.first, Shaders.second);
-	// Shaders = m_Shader[1]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/IdVisualShader.glsl").c_str());
-	// m_Shader[1]->CompileShader(Shaders.first, Shaders.second);
+	/*auto* Mat = CreateObject<RMaterial>(this);
+	Mat->SetShaderAsset(DefaultShaderAsset);*/
+	SetMaterial(0, MatAsset);
+	// materials.push_back(MatAsset);
+	//   auto& Shaders = m_Shader[0]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/StaticMeshBaseShader.glsl").c_str());
+	//   m_Shader[0]->CompileShader(Shaders.first, Shaders.second);
+	//   Shaders = m_Shader[1]->LoadShader((Application::Get()->GetAppOptions().pathToProject + "/Shaders/IdVisualShader.glsl").c_str());
+	//   m_Shader[1]->CompileShader(Shaders.first, Shaders.second);
 }
 
 bool MeshComponent::LoadMesh(const StringView Path)
@@ -77,20 +84,20 @@ CoreEngine::PrimitiveProxy* MeshComponent::GetUpdateProxy() const
 	// m_Proxy->AddLightLocation(FVector(3, 2, -7));
 	if (!m_Models.empty())
 	{
-		for (uint64 i = 0; i < m_Shader.size(); i++)
-		{
-			CoreEngine::ParamOfShaderDesc Desc;
-			Desc.shader = m_Shader[i]->GetHandle();
+		// for (uint64 i = 0; i < m_Shader.size(); i++)
+		//{
+		//	CoreEngine::ParamOfShaderDesc Desc;
+		//	Desc.shader = m_Shader[i]->GetHandle();
 
-			// Desc.ElementObject = m_Models[i]->GetEBO();
-			Desc.TextureNames = m_Shader[i]->GetNamesOfTexture();
-			Desc.HasAllMatrix = m_Shader[i]->GetHasAllMatrix();
+		//	// Desc.ElementObject = m_Models[i]->GetEBO();
+		//	Desc.TextureNames = m_Shader[i]->GetNamesOfTexture();
+		//	Desc.HasAllMatrix = m_Shader[i]->GetHasAllMatrix();
 
-			m_Proxy->AddShader(Desc);
-		}
-		for (auto* Mat : materials)
+		// m_Proxy->AddShader(Desc);
+		//}
+		for (auto* Mat : m_MaterialInstance)
 		{
-			m_Proxy->AddMaterial(Mat);
+			m_Proxy->AddMaterial(Mat->GetParentMaterial());
 		}
 
 		// for (uint64 i = 0; i < m_Shader.size(); i++)

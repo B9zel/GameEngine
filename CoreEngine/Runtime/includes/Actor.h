@@ -179,7 +179,7 @@ template <class ReturnType> inline ReturnType* Actor::CreateSubObject(CoreEngine
 		if (RootComponent)
 		{
 			newClass->SetupToAttachment(RootComponent);
-			newClass->SetTransform(RootComponent->GetTransform());
+			newClass->SetTransform(FTransform(FVector(0.0f), FVector(0.0f), FVector(1.0f)));
 		}
 	}
 	obj->SetName(Name);

@@ -19,4 +19,6 @@ void EditorWorld::UpdateWorld()
 	{
 	}
 	World::UpdateWorld();
+
+	//EG_LOG(CoreEngine::CORE, ELevelLog::INFO, 1.0f / GetWorldDeltaTime());
 }

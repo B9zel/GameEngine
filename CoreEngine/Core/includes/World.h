@@ -4,6 +4,7 @@
 #include <Runtime/includes/Actor.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Core/includes/Level.h>
+#include <Math/includes/Transform.h>
 #include <World.generated.h>
 
 namespace CoreEngine
@@ -54,9 +55,10 @@ public:
 	const DArray<Level*>& GetLevels() const;
 	virtual FVector GetControllerLocation() const;
 
-	template <class T> T* SpawnActor(Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param = CoreEngine::SpawnParamConfiguration());
 	template <class T>
-	T* SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner,
+	T* SpawnActor(Actor* Owner, const FTransform& transform, const CoreEngine::SpawnParamConfiguration& Param = CoreEngine::SpawnParamConfiguration());
+	template <class T>
+	T* SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner, const FTransform& transform,
 				  const CoreEngine::SpawnParamConfiguration& Param = CoreEngine::SpawnParamConfiguration());
 
 	virtual void PreSerialize() override;
@@ -92,7 +94,7 @@ private:
 	float m_LastTime;
 };
 
-template <class T> T* World::SpawnActor(Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param)
+template <class T> T* World::SpawnActor(Actor* Owner, const FTransform& transform, const CoreEngine::SpawnParamConfiguration& Param)
 {
 	if (!IsParentClass<Actor, T>())
 	{
@@ -114,15 +116,19 @@ template <class T> T* World::SpawnActor(Actor* Owner, const CoreEngine::SpawnPar
 			return nullptr;
 		}
 	}
+
 	T* NewActor = CreateObject<T>(Owner);
 	NewActor->SetOwner(Owner);
 	NewActor->PostSpawnActor();
 	spawnToLevel->AddActor(NewActor);
+	NewActor->SetActorTransform(transform);
 
 	return NewActor;
 }
 
-template <class T> inline T* World::SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner, const CoreEngine::SpawnParamConfiguration& Param)
+template <class T>
+inline T* World::SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Actor* Owner, const FTransform& transform,
+							const CoreEngine::SpawnParamConfiguration& Param)
 {
 	CoreEngine::Reflection::ClassField* ClassOfTargetType = T::GetStaticClass();
 
@@ -150,6 +156,7 @@ template <class T> inline T* World::SpawnActor(CoreEngine::Reflection::ClassFiel
 	NewActor->SetOwner(Owner);
 	NewActor->PostSpawnActor();
 	spawnToLevel->AddActor(NewActor);
+	NewActor->SetActorTransform(transform);
 
 	return NewActor;
 }

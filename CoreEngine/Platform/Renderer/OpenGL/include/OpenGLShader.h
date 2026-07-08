@@ -83,8 +83,10 @@ namespace CoreEngine
 				HashTableMap<String, UniformInfo> m_Uniforms;
 				String Vertex, Fragment;
 
-				static DArray<String> m_SearchElements;
-				static const HashTableMap<String, EUniformType> m_UniformTypStr;
+			public:
+
+				static const DArray<String> SearchElements;
+				static const HashTableMap<String, EUniformType> UniformTypStr;
 			};
 		} // namespace OpenGL
 	} // namespace Render

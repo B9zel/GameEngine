@@ -94,7 +94,7 @@ void Level::OnDeserialize(CoreEngine::SerializeAchive& Data)
 	bool Success = false;
 	for (auto& Elem : Data.FindLastNode()["m_Actors"])
 	{
-		GetWorld()->SpawnActor<Actor>(CoreEngine::Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr);
+		GetWorld()->SpawnActor<Actor>(CoreEngine::Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr, FTransform());
 		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, Elem.dump(4));
 	}
 

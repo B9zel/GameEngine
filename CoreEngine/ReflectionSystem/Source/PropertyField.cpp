@@ -163,6 +163,11 @@ namespace CoreEngine
 		{
 			return ETypeOfPropertyType::COMPLEX;
 		}
+
+		ConstructionField* ComplexPropertyTypeField::GetTypeFiled() const
+		{
+			return TypeField;
+		}
 		// End ComplexPropertyTypeField
 
 		// Begin PropertyField

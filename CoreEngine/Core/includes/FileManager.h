@@ -13,5 +13,7 @@ namespace CoreEngine
 		static String ReadFile(const char* path);
 		static void WriteFile(const char* path, const String& text);
 		static void AddInFile(const char* path, const String& text);
+
+		static String RenameFile(const String& Path, const String& NewName);
 	};
 }

@@ -119,6 +119,7 @@ namespace CoreEngine
 			virtual String GetNameType() const override;
 			virtual bool GetIsPointer() const;
 			virtual ETypeOfPropertyType GetTypeOfPropertyType() const override;
+			ConstructionField* GetTypeFiled() const;
 
 		public:
 

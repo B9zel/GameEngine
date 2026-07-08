@@ -30,6 +30,9 @@ namespace Editor
 		void DrawProperty(CoreEngine::Reflection::PropertyField* Property, Object* SelectedObject,
 						  CoreEngine::Reflection::ClassField* MainClass, Object* SourceClass);
 
+		void DrawPointerProperty(CoreEngine::Reflection::PropertyField* Property, Object* SelectedObject, CoreEngine::Reflection::ClassField* MainClass,
+								 Object* SourceClass);
+
 		bool HasAnyPropertyDeep(CoreEngine::Reflection::ClassField* Class);
 		bool HasAnyProperty(CoreEngine::Reflection::ClassField* Class);
 

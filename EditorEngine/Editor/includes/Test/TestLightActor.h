@@ -46,18 +46,17 @@ public:
 	virtual void Update(float delta) override
 	{
 		Actor::Update(delta);
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "{} {} {} {}", LightObj->GetColor().Data[0], LightObj->GetColor().Data[1], LightObj->GetColor().Data[2],
-			   LightObj->GetColor().Data[3]);
+
 		// LightCube->GetSceneProxy()->
 	}
 
 private:
 
-	RPROPERTY();
+	RPROPERTY(EditorVisible);
 	SpotLightComponent* LightObj;
 
 	PrimitiveComponent* LightCube;
-	//CoreEngine::Render::OpenGL::OpenGLShader shade;
+	// CoreEngine::Render::OpenGL::OpenGLShader shade;
 	CoreEngine::Render::OpenGL::OpenGLVertexArrayObject arrObj;
 	CoreEngine::Render::OpenGL::OpenGLVertexBufferObject vertObj;
 

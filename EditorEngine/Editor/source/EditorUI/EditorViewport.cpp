@@ -6,6 +6,8 @@
 #include <Core/includes/InputDevice.h>
 #include <Render/includes/Render.h>
 #include <imgui/imgui.h>
+#include <Core/includes/Application.h>
+#include <Core/includes/Window.h>
 #include <glad/glad.h>
 #include <ImGuizmo/ImGuizmo.h>
 #include <Core/includes/World.h>
@@ -34,6 +36,7 @@ namespace Editor
 	}
 	void EditorViewport::Draw()
 	{
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_Modal);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
@@ -68,8 +71,10 @@ namespace Editor
 		}
 
 		// ѕоложим Image в child (чтобы не по€вл€лс€ scroll)
+
 		ImGui::BeginChild("ViewportChild", displaySize, false,
 						  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground);
+
 		// optionally выровн€ть по центру
 		ImVec2 cur = ImGui::GetCursorPos();
 		float padX = (ImGui::GetContentRegionAvail().x - displaySize.x) * 0.5f;
@@ -195,16 +200,24 @@ namespace Editor
 
 		if (auto* WorldObject = GetSceneComponentFromSelected())
 		{
+			// glfwSetWindowAspectRatio((GLFWwindow*)CoreEngine::Application::Get()->GetWindow().GetNativeWindow(), 16, 9);
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+
+			/*	ImVec2 imageMin = ImGui::GetItemRectMin();
+				ImVec2 imageMax = ImGui::GetItemRectMax();
+				ImGuizmo::SetRect(imageMin.x, imageMin.y, imageMax.x - imageMin.x, imageMax.y - imageMin.y);*/
+
 			// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Pre change {0} {1} {2}", WorldObject->GetComponentRotation().GetX(),
 			// WorldObject->GetComponentRotation().GetY(), WorldObject->GetComponentRotation().GetZ())
 
 			FMatrix4x4 ObjectMatrix = WorldObject->MakeMatrixMesh(); // GetMatrixOfComponent();
 			FMatrix4x4 ViewMatrix = (OwnerEditor->GetViewpoertClient()->GetViewMatrix());
-			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection();
+			const FVector2 Size = Engine::Get()->GetScreenSize();
+			;
+			FMatrix4x4 ProjectionMatrix = OwnerEditor->GetViewpoertClient()->CreateProjection(Size.x, Size.y);
 
 			ImGuizmo::Manipulate(Math::GetValuePtr(ViewMatrix), Math::GetValuePtr(ProjectionMatrix), static_cast<ImGuizmo::OPERATION>(m_GuizmoOpiration),
 								 ImGuizmo::MODE::WORLD, Math::GetValuePtr(ObjectMatrix));
@@ -223,10 +236,16 @@ namespace Editor
 
 		FrameBuffer->UnBind();
 
+		UpdateTypeCursor();
+
+		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, ImGui::GetMouseCursor());
+		m_IsMoveCameraLastFrame = m_IsMoveCamera;
+
 		ImGui::EndChild();
 		ImGui::PopStyleVar();
 		ImGui::End();
-		// ImGui::Begin("Drag and Drop Example");
+
+		//  ImGui::Begin("Drag and Drop Example");
 
 		/*static int sourceValue = 42;
 		static int targetValue = 0;*/
@@ -275,8 +294,69 @@ namespace Editor
 		// ImGui::End();
 	}
 
+	void EditorViewport::UpdateTypeCursor()
+	{
+		if (ImGui::IsWindowHovered() && !m_IsMoveCamera)
+		{
+			CoreEngine::InputDevice::SetCursor(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CROSSHAIR_CURSOR);
+			// glfwSetInputMode(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else if ((ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange))
+		{
+			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+		}
+
+		if (m_IsMoveCamera)
+		{
+			glfwSetInputMode(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+
+			double mouseX, mouseY;
+			glfwGetCursorPos(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), &mouseX, &mouseY);
+
+			double minX = ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowPos().x, maxX = ImGui::GetWindowContentRegionMax().x + ImGui::GetWindowPos().x;
+			double minY = ImGui::GetWindowContentRegionMin().y + ImGui::GetWindowPos().y, maxY = ImGui::GetWindowContentRegionMax().y + ImGui::GetWindowPos().y;
+
+			bool needReset = false;
+
+			if (mouseX < minX)
+			{
+				mouseX = minX;
+				needReset = true;
+			}
+			if (mouseX > maxX)
+			{
+				mouseX = maxX;
+				needReset = true;
+			}
+			if (mouseY < minY)
+			{
+				mouseY = minY;
+				needReset = true;
+			}
+			if (mouseY > maxY)
+			{
+				mouseY = maxY;
+				needReset = true;
+			}
+
+			if (needReset)
+			{
+				glfwSetCursorPos(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), mouseX, mouseY);
+			}
+		}
+		else if (m_IsMoveCameraLastFrame)
+		{
+			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+			CoreEngine::InputDevice::SetCursor(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CROSSHAIR_CURSOR);
+		}
+	}
+
 	void EditorViewport::OnConstruct()
 	{
+		OwnerEditor->GetViewpoertClient()->EventActiveMove.AddBind(&EditorViewport::BindMoveCamera, this);
 	}
 
 	void EditorViewport::SetFrameBuffer(const SharedPtr<CoreEngine::Render::Framebuffer>& Buffer)
@@ -314,6 +394,16 @@ namespace Editor
 			return Component->GetParentAttach()->GetTransform().ToMatrix() * Component->GetTransform().ToMatrix();
 		}
 		return Component->GetTransform().ToMatrix();
+	}
+
+	void EditorViewport::BindMoveCamera(const bool IsMove)
+	{
+		m_IsMoveCamera = IsMove;
+
+		if (IsMove)
+		{
+			PosCursorBeforeMove = ImGui::GetMousePos();
+		}
 	}
 
 } // namespace Editor

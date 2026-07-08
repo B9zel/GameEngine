@@ -23,9 +23,12 @@ namespace CoreEngine::Render
 
 	private:
 
-		HashTableMap<MaterialAsset*, MaterialHandle> m_MaterialHandles;
-		HashTableMap<MaterialHandle, RMaterial*> m_Materials;
+		uint64 GetHashMaterialAsset(MaterialAsset* Asset) const;
 
+	private:
+
+		HashTableMap<uint64, MaterialHandle> m_MaterialHandles;
+		HashTableMap<MaterialHandle, RMaterial*, RenderHandleHasher> m_Materials;
 
 		uint64 ID = CoreEngine::Render::RenderHandle::StartId;
 	};

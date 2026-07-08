@@ -107,4 +107,32 @@ namespace CoreEngine::Render::OpenGL
 		virtual ETypeCommand GetType() const override;
 	};
 
+	struct GLCmdActivateDepthTexture : public RenderCommand
+	{
+		CoreEngine::Render::OpenGL::OpenGLFramebufferArray* Framebuffer;
+
+	public:
+
+		GLCmdActivateDepthTexture(CoreEngine::Render::OpenGL::OpenGLFramebufferArray* Framebuffer) : Framebuffer(Framebuffer)
+		{
+		}
+
+		virtual void Execute(RenderDevice* Devise) override;
+		virtual ETypeCommand GetType() const override;
+	};
+
+	struct GLCmdActivateLayerTexture : public RenderCommand
+	{
+		uint32 Layer;
+
+	public:
+
+		GLCmdActivateLayerTexture(uint32 Layer = 0) : Layer(Layer)
+		{
+		}
+
+		virtual void Execute(RenderDevice* Devise) override;
+		virtual ETypeCommand GetType() const override;
+	};
+
 } // namespace CoreEngine::Render::OpenGL

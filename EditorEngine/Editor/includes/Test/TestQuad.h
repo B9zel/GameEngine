@@ -65,7 +65,6 @@ public:
 		Pawn::Update(deltaTime);
 		// Shader.SetUniformVec3("PosLight", FVector(3, 2, -7));
 		//  Shader.SetUniformVec3("ViewPos", GetOwner()->GetActorLocation());
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "Play");
 	}
 
 protected:
@@ -105,7 +104,7 @@ protected:
 
 private:
 
-	RPROPERTY()
+	RPROPERTY(EditorVisible);
 	DirectionLightComponent* LightObj;
 	PrimitiveComponent* quad = nullptr;
 	MeshComponent* mesh = nullptr;

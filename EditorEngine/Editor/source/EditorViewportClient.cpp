@@ -24,15 +24,18 @@ namespace Editor
 		SetRotation(FVector(0, -90, 0));
 	}
 
-	FMatrix4x4 EditorViewportClient::CreateProjection()
+	FMatrix4x4 EditorViewportClient::CreateProjection(const uint32 WidhtScreen, const uint32 HeightScreen)
 	{
-		FVector2 ScreenSize = Engine::Get()->GetScreenSize();
 		FMatrix4x4 Projection;
 
 		if (GetTypeProjection() == ETypeView::PERSPECTIVE)
 		{
-			Projection = Math::CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), static_cast<uint32>(ScreenSize.x), static_cast<uint32>(ScreenSize.y),
-													   m_zNear, m_zFar);
+			if (WidhtScreen <= 0 || HeightScreen <= 0)
+			{
+				return FMatrix4x4(1);
+			}
+
+			Projection = Math::CreatePerspectiveMatrix(Math::ToRadian(m_FieldOfView), WidhtScreen, HeightScreen, m_zNear, m_zFar);
 		}
 		else
 		{
@@ -60,7 +63,8 @@ namespace Editor
 
 	void EditorViewportClient::Update(float DeltaTime, const bool IsHoveredViewport)
 	{
-		Engine::Get()->GetRender()->SetViewProjectionMatrix(GetViewMatrix(), CreateProjection());
+		Engine::Get()->GetRender()->SetViewProjectionMatrix(GetViewMatrix(),
+															CreateProjection(Engine::Get()->GetScreenSize().x, Engine::Get()->GetScreenSize().y));
 
 		if (!CoreEngine::InputDevice::GetIsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) || !IsHoveredViewport)
 		{

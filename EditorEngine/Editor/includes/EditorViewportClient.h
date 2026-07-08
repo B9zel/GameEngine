@@ -29,9 +29,13 @@ namespace Editor
 
 		const FVector& GetLocation() const;
 		const FVector& GetRotation() const;
-		FMatrix4x4 CreateProjection();
+		FMatrix4x4 CreateProjection(const uint32 WidhtScreen, const uint32 HeightScreen);
 		ETypeView GetTypeProjection() const;
 		FMatrix4x4 GetViewMatrix();
+
+		void SetViewportSize(const uint32 Width, const uint32 Height);
+		uint32 GetViewportWidth() const;
+		uint32 GetViewportHeight() const;
 
 		void Update(float DeltaTime, const bool IsHoveredViewport);
 
@@ -59,5 +63,8 @@ namespace Editor
 		float m_rightOrtho;
 		float m_bottomOrtho;
 		float m_topOrtho;
+
+		uint32 m_ViewportWidth{0};
+		uint32 m_ViewportHeight{0};
 	};
 }

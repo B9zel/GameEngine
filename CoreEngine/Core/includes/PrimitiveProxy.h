@@ -2,6 +2,7 @@
 #include <Core/includes/Base.h>
 
 #include <Render/includes/RenderHardwareInterface.h>
+#include <Render/includes/MaterialInterface.h>
 
 #include <Math/includes/Transform.h>
 

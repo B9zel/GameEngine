@@ -52,4 +52,10 @@ namespace CoreEngine::Render
 
 		static const uint64 StartId = 1;
 	};
+
+	struct RenderHandleHasher
+	{
+		size_t operator()(const RenderHandle& Handle) const;
+	};
+
 } // namespace CoreEngine::Render

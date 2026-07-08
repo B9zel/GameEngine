@@ -1,0 +1,15 @@
+{
+    "EditorMaterialAsset": {
+        "Name": {
+            "Name": "NewMaterial12"
+        },
+        "NameClass": "EditorMaterialAsset",
+        "PathToAsset": {
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial12.reflect"
+        },
+        "PathToShaderAsset": {
+            "PathToShaderAsset": ""
+        }
+    },
+    "Type": 3
+}

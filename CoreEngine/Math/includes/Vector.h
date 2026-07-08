@@ -2,6 +2,8 @@
 
 #include <Math/includes/Vector4.h>
 #include <glm/vec3.hpp>
+#include <glm/glm.hpp>
+#include <glm/detail/type_vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
 // #include <type_traits>
@@ -101,14 +103,14 @@ public:
 		return *this;
 	}
 
-	bool operator==(const TVector3& otherVec)
+	inline bool operator==(const TVector3<T>& otherVec) const
 	{
-		return vertor == otherVec.vector;
+		return vector == otherVec.vector;
 	}
 
-	bool operator!=(const TVector3& otherVec)
+	inline bool operator!=(const TVector3<T>& otherVec) const
 	{
-		return vertor != otherVec.vector;
+		return vector != otherVec.vector;
 	}
 
 	TVector3& operator+=(const TVector3& otherVec)

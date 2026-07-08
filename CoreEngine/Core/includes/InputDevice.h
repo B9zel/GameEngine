@@ -3,7 +3,7 @@
 #include <Core/includes/Dispatcher.h>
 #include <Math/includes/Vector.h>
 
-
+struct GLFWwindow;
 
 namespace CoreEngine
 {
@@ -21,6 +21,7 @@ namespace CoreEngine
 		static void SetMousePos(const DVector2& Pos);
 		static bool GetIsButtonPressed(uint32 button);
 		static bool GetIsButtonReleased(uint32 button);
+		static void SetCursor(GLFWwindow* window, const int32 Type);
 		static DVector2 GetMousePos();
 
 		template<class Class>

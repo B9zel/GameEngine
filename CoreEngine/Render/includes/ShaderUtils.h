@@ -4,6 +4,13 @@
 
 struct SourceShader
 {
+public:
+
+	bool operator==(const SourceShader& Other) const;
+	bool operator!=(const SourceShader& Other) const;
+
+public:
+
 	String VertexShader;
 	String FragmentShader;
 };

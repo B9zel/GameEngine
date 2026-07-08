@@ -6,6 +6,10 @@
 #include <Render/includes/Shader.h>
 #include <Core/includes/FileManager.h>
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
+#include <Render/includes/MaterialAsset.h>
+#include <Core/includes/MemoryManager.h>
+#include <Core/includes/Memory/SaveManager.h>
+#include <Core/includes/World.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(AssetManagerLog);
 
@@ -37,6 +41,7 @@ CoreEngine::Render::Shader* AssetManager::LoadShader(const String& VertexSh, con
 
 	UniquePtr<CoreEngine::Render::Shader> NewShad = CoreEngine::Render::Shader::CreateShader();
 	NewShad->CompileShader(Engine::Get()->GetRender()->GetRenderDevice().get(), VertexSh, FragShad);
+	if (!NewShad->GetIsCompile()) return nullptr;
 
 	auto It = Shaders.insert(Pair<String, UniquePtr<CoreEngine::Render::Shader>>(Key, std::move(NewShad)));
 
@@ -46,8 +51,14 @@ CoreEngine::Render::Shader* AssetManager::LoadShader(const String& VertexSh, con
 CoreEngine::Render::Shader* AssetManager::LoadShader(const String& Path)
 {
 	SourceShader LoadedShaders = LoadStringShaderFromFile(Path);
+	auto* Shader = LoadShader(LoadedShaders.VertexShader, LoadedShaders.FragmentShader);
 
-	return LoadShader(LoadedShaders.VertexShader, LoadedShaders.FragmentShader);
+	if (!Shader)
+	{
+		EG_LOG(AssetManagerLog, ELevelLog::ERROR, "Can't load shader: {}", Path);
+	}
+
+	return Shader;
 }
 
 void AssetManager::ClearAllAssets()
@@ -56,6 +67,33 @@ void AssetManager::ClearAllAssets()
 	for (auto& Texture : Textures)
 	{
 		Device->DeleteTexture2D(Texture->GetTextureHandle());
+	}
+}
+
+void AssetManager::PreChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field)
+{
+	if (Field.Name == "Name")
+	{
+		for (uint32 i = 0; i < m_Assets.size(); i++)
+		{
+			for (auto* field : m_Assets[i]->GetClass()->PropertyFileds)
+			{
+				if (Field == (*field))
+				{
+					AssetChangingName = *LoadedAssets.find(m_Assets[i]->GetName());
+				}
+			}
+		}
+	}
+}
+
+void AssetManager::PostChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field)
+{
+	if (Field.Name == "Name")
+	{
+		auto Node = LoadedAssets.extract(AssetChangingName.first);
+		Node.key() = *Field.GetSourcePropertyByName<String>(m_Assets[AssetChangingName.second]);
+		LoadedAssets.insert(std::move(Node));
 	}
 }
 
@@ -95,4 +133,53 @@ AssetManager& AssetManager::Get()
 
 	EG_LOG(AssetManagerLog, ELevelLog::CRITICAL, "Asset manager don't exist");
 	return *CreateObject<AssetManager>();
+}
+
+Asset* AssetManager::LoadAsset(const String& Path)
+{
+	auto& ExistAsset = LoadedAssets.find(Path);
+	if (ExistAsset != LoadedAssets.end())
+	{
+		return m_Assets[ExistAsset->second];
+	}
+
+	CoreEngine::SerializeAchive Achive;
+	CoreEngine::EAssetType TypeAsset = Engine::Get()->GetWorld()->GetSaveManager()->LoadFileAsset(Path, Achive);
+	if (TypeAsset == CoreEngine::EAssetType::None) return nullptr;
+
+	Asset* NewAsset = CoreEngine::AssetFactory::CreateAsset(TypeAsset);
+	CoreEngine::MemoryManager::GetInstance()->GetGarbageCollector()->AddRootObject(NewAsset);
+	NewAsset->PreDeserialize();
+	NewAsset->Deserialize(Achive);
+
+	NewAsset->PreChangeProperty.AddBind(&AssetManager::PreChangeNameOfAsset, this);
+	NewAsset->PostChangeProperty.AddBind(&AssetManager::PostChangeNameOfAsset, this);
+
+	m_Assets.push_back(NewAsset);
+	LoadedAssets.emplace(Path, m_Assets.size() - 1);
+
+	return NewAsset;
+}
+
+Asset* AssetManager::CreateAsset(const String& Path, CoreEngine::EAssetType Type)
+{
+	auto& ExistAsset = LoadedAssets.find(Path);
+	if (ExistAsset != LoadedAssets.end())
+	{
+		return nullptr;
+	}
+
+	Asset* NewAsset = CoreEngine::AssetFactory::CreateAsset(Type);
+	CoreEngine::MemoryManager::GetInstance()->GetGarbageCollector()->AddRootObject(NewAsset);
+
+	NewAsset->SetPathToAsset(Path);
+	m_Assets.push_back(NewAsset);
+	LoadedAssets.emplace(Path, m_Assets.size() - 1);
+
+	return NewAsset;
+}
+
+const DArray<Asset*> AssetManager::GetLoadedAssets() const
+{
+	return m_Assets;
 }

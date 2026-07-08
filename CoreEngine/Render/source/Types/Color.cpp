@@ -99,3 +99,12 @@ LinearColor& LinearColor::operator/=(const LinearColor& Other)
 
 	return *this;
 }
+
+bool LinearColor::operator==(const LinearColor& Other) const
+{
+	return R == Other.R && G == Other.G && B == Other.B && A == Other.A;
+}
+bool LinearColor::operator!=(const LinearColor& Other) const
+{
+	return !(*this == Other);
+}

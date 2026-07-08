@@ -28,7 +28,7 @@ CoreEngine::LightProxy* DirectionLightComponent::GetLightProxy()
 	// LightProxy->SetDirection(Math::ToRadianVector(GetComponentRotation()));
 	// LightProxy->SetDirection(FVector(Math::ToRadian(x), Math::ToRadian(y), Math::ToRadian(z)));
 	// LightProxy->SetDirection(FVector(-0.2f, -1.0f, -0.3f));
-	EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "X: {0} Y: {1} Z: {2}", GetForwardVector().GetX(), GetForwardVector().GetY(), GetForwardVector().GetZ());
+	// EG_LOG(CoreEngine::CORE, ELevelLog::INFO, "X: {0} Y: {1} Z: {2}", GetForwardVector().GetX(), GetForwardVector().GetY(), GetForwardVector().GetZ());
 	LightProxy->SetColor(FVector(GetColor().R, GetColor().G, GetColor().B));
 	LightProxy->SetIntencity(GetIntencity());
 	LightProxy->SetID(GetUUID().GetID());

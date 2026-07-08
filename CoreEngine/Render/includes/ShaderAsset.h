@@ -10,14 +10,20 @@ class ShaderAsset : public Asset
 
 public:
 
+	ShaderAsset(const CoreEngine::InitializeObject& Initilize);
+
+public:
+
 	uint64 GetHash() const;
 
 	virtual void OnSerialize(CoreEngine::SerializeAchive& Achive) override;
 	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
 
 	virtual CoreEngine::EAssetType GetAssetType() const override;
+	const SourceShader& GetCustomShader() const;
+	void SetCustomShader(const SourceShader& NewShader);
 
-public:
+protected:
 
 	SourceShader CustomShader;
 };

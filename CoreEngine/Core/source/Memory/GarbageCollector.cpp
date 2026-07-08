@@ -204,5 +204,23 @@ namespace CoreEngine
 				AddReference(newPtr);
 			}
 		}
+
+		const HashTableSet<Object*>& GarbageCollector::GetObjects() const
+		{
+			return m_Objects;
+		}
+		const HashTableSet<Object*>& GarbageCollector::GetRootObjects() const
+		{
+			return m_RootObjects;
+		}
+		const HashTableSet<Object*>& GarbageCollector::GetAllObjects() const
+		{
+			static HashTableSet<Object*> AllObjects;
+			AllObjects.clear();
+
+			AllObjects = m_Objects;
+			AllObjects.insert(m_RootObjects.begin(), m_RootObjects.end());
+			return AllObjects;
+		}
 	} // namespace GB
 } // namespace CoreEngine

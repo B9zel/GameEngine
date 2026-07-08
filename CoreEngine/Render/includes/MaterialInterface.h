@@ -3,6 +3,8 @@
 #include <Render/includes/RenderHandle.h>
 #include <Render/includes/Enums/ShaderRenderType.h>
 #include <Render/includes/UniformType.h>
+#include <Math/includes/Vector.h>
+#include <Math/includes/Matrix.h>
 #include <MaterialInterface.generated.h>
 
 namespace CoreEngine::Render
@@ -136,6 +138,9 @@ namespace CoreEngine::Render
 
 		uint32 Value;
 	};
+
+	UniquePtr<CoreEngine::Render::BaseMaterialProperty> CreatePropertyFromType(const EUniformType& Type);
+
 	// namespace Render
 } // namespace CoreEngine::Render
 

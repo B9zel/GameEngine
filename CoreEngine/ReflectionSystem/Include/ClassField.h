@@ -33,6 +33,7 @@ namespace CoreEngine
 			virtual void ConstructInstanceObject(Object*, const CoreEngine::InitializeObject&) = 0;
 
 			virtual void ValidateMetaClass() override;
+			const DArray<PropertyField*>& GetWithParentPropertyFields() const;
 
 		public:
 

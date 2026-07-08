@@ -1,10 +1,13 @@
 #include <Core/includes/Memory/SaveManager.h>
 #include <Core/includes/World.h>
 #include <Core/includes/Engine.h>
+#include <Core/includes/Asset.h>
 #include <fstream>
 
 namespace CoreEngine
 {
+	const String SaveManager::FileExtension = ".reflect";
+
 	void SaveManager::SetWorld(World* NewWorld)
 	{
 		WorldPtr = NewWorld;
@@ -65,6 +68,73 @@ namespace CoreEngine
 		StartDeserialized(LoadedAchive);
 
 		return true;
+	}
+
+	void SaveManager::SaveContentItems()
+	{
+		static DArray<Object*> SerializeAssets;
+		SerializeAssets.clear();
+
+		auto& Objects = MemoryManager::GetInstance()->GetGarbageCollector()->GetAllObjects();
+		for (auto& Obj : Objects)
+		{
+			if (Obj->GetClass()->IsChildClassOf(Asset::GetStaticClass()))
+			{
+				SerializeAssets.emplace_back(Obj);
+			}
+		}
+
+		PreContentItemStartSerialized(SerializeAssets);
+		StartConteneItemSerialized(SerializeAssets);
+	}
+
+	EAssetType SaveManager::LoadFileAsset(const String& Path, SerializeAchive& OutData)
+	{
+		if (Path.rfind(FileExtension) == Path.npos) return EAssetType::None;
+
+		std::ifstream File(Path);
+		if (!File.is_open()) return EAssetType::None;
+
+		File >> OutData;
+
+		bool IsSuccess = false;
+		auto TypeAsset = OutData.DeserializeData<CoreEngine::EAssetType>("Type", IsSuccess);
+
+		return TypeAsset;
+	}
+
+	bool SaveManager::SaveAsset(const String& Path, Asset* SavingAsset)
+	{
+		CoreEngine::SerializeAchive LocalAchive;
+
+		LocalAchive.SerializeData("Type", SavingAsset->GetAssetType());
+
+		SavingAsset->Serialize(LocalAchive);
+		std::ofstream fout(Path);
+		fout << LocalAchive.Data().dump(4);
+		fout.close();
+
+		return true;
+	}
+
+	void SaveManager::PreContentItemStartSerialized(const DArray<Object*>& SerializeAssets)
+	{
+		Achive.ClearData();
+		for (auto* Asset : SerializeAssets)
+		{
+			Asset->PreSerialize();
+		}
+	}
+
+	void SaveManager::StartConteneItemSerialized(const DArray<Object*>& SerializeAssets)
+	{
+		for (auto* asset : SerializeAssets)
+		{
+			Achive.ClearData();
+
+			Asset* ToAsset = static_cast<Asset*>(asset);
+			SaveAsset(ToAsset->GetPathToAsset(), ToAsset);
+		}
 	}
 
 } // namespace CoreEngine

@@ -9,9 +9,9 @@ namespace CoreEngine
 		namespace OpenGL
 		{
 
-			DArray<String> OpenGLShader::m_SearchElements = {"uniform"};
+			const DArray<String> OpenGLShader::SearchElements = {"uniform"};
 			// clang-format off
-			const HashTableMap<String, EUniformType> OpenGLShader::m_UniformTypStr = { 
+			const HashTableMap<String, EUniformType> OpenGLShader::UniformTypStr = { 
 				{"float", EUniformType::FLOAT},
 				{"int", EUniformType::INT},
 				{"uint", EUniformType::UINT},
@@ -81,7 +81,7 @@ namespace CoreEngine
 					m_IsCompile = true;
 					AnalysisTextureShader(vertexShader, fragmentShader);
 					AnalysisMatrix4(vertexShader);
-					ParseShader(vertexShader + fragmentShader, m_Uniforms);
+					ParseShader(vertexShader + fragmentShader, GetHandle(), m_Uniforms);
 					Fragment = fragmentShader;
 					Vertex = vertexShader;
 				}
@@ -428,7 +428,7 @@ namespace CoreEngine
 				while (HasElement)
 				{
 					HasElement = false;
-					for (auto& SearchStr : m_SearchElements)
+					for (auto& SearchStr : SearchElements)
 					{
 						size_t Pos = shader.find(SearchStr, CurrentPos);
 						if (Pos != SearchStr.npos)
@@ -443,8 +443,8 @@ namespace CoreEngine
 							const String& NameVar =
 								shader.substr(PosBetweenTypeAndName + Space, shader.find(";", PosBetweenTypeAndName) - PosBetweenTypeAndName - Space);
 
-							const auto& FindedType = m_UniformTypStr.find(shader.substr(BeginTypePos, PosBetweenTypeAndName - BeginTypePos));
-							if (FindedType != m_UniformTypStr.end())
+							const auto& FindedType = UniformTypStr.find(shader.substr(BeginTypePos, PosBetweenTypeAndName - BeginTypePos));
+							if (FindedType != UniformTypStr.end())
 							{
 								UniformInfo Info;
 								Info.Type = FindedType->second;

@@ -5,6 +5,7 @@ import os
 
 def ParseArrayConfig(arr):
     res = [""]
+    ResModules = [""]
     arr = arr.replace('[', '' ,1)
     arr = arr[-1::-1].replace(']', '', 1)[-1::-1]
 
@@ -14,20 +15,24 @@ def ParseArrayConfig(arr):
             continue
         if i != ',':
             res[currentIndex] += i
+            if i.isalpha():
+                ResModules[currentIndex] += i
         else:
             res.append("")
+            ResModules.append("")
             currentIndex += 1
-    return res
+    return res, ResModules
 
-def SerchAllFiles(path, extenshion):
-    Res = []
-    for Path in path:
-        targetPath = pl.PurePath(pl.Path(__file__).parent / Path)
+def SerchAllFiles(path, module, extenshion):
+    Res = {}
+    for PathIndex in range(len(path)):
+        Res[module[PathIndex]] = []
+        targetPath = pl.PurePath(pl.Path(__file__).parent / path[PathIndex])
         for root, dirs, files in os.walk(targetPath):
             for file in files:
                 point = file.find(".")
                 if file.find(extenshion, point) != -1:
-                    Res.append(pl.PurePath(root) /  file)
+                    Res[module[PathIndex]].append(pl.PurePath(root) / file)
     return Res
 
 def GetNameFilesWithoutExtenshion(file:str):
@@ -36,7 +41,7 @@ def GetNameFilesWithoutExtenshion(file:str):
         return file[:Point]
     return file
 
-def ParseFile(FileList:list, FindedClassKeyWorld, callBack, FilePath, DirectoryOutputFile):
+def ParseFile(FileList:list, FindedClassKeyWorld, callBack, FilePath, DirectoryOutputFile, CurrentModule):
     ClassKeyWoldBuffer = ""
     NextLineClass = False
     for line in FileList:
@@ -53,7 +58,7 @@ def ParseFile(FileList:list, FindedClassKeyWorld, callBack, FilePath, DirectoryO
                     classNameEndPos = len(line) - 1
                 else:
                     classNameEndPos = findedInheritance
-                callBack(ClassKeyWoldBuffer, line[findedClassKey + len(KeyWordClass):classNameEndPos], FilePath.name, FilePath,DirectoryOutputFile)
+                callBack(ClassKeyWoldBuffer, line[findedClassKey + len(KeyWordClass):classNameEndPos], FilePath.name, FilePath,DirectoryOutputFile, CurrentModule)
             NextLineClass = False
             continue
         findedClass = line.find(FindedClassKeyWorld)
