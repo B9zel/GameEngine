@@ -82,6 +82,7 @@ void Object::Serialize(CoreEngine::SerializeAchive& Archive)
 	{
 		for (auto* Property : Class->PropertyFileds)
 		{
+			if (static_cast<uint32>(Property->Params) & static_cast<uint32>(CoreEngine::Reflection::EPropertyFieldParams::Transient)) continue;
 			Archive.PushPrefix(Property->Name);
 			Property->Serialize(Archive, this);
 			Archive.PopPrefix();

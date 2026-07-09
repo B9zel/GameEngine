@@ -63,8 +63,14 @@ void PrimitiveComponent::PreEditChangeProperty(CoreEngine::Reflection::PropertyF
 {
 	if (Property.Name == STRINGCON_DETAILS(material))
 	{
-		material->PostChangeProperty.Remove(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
-		material->PreChangeProperty.Remove(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
+		// if (material->PreChangeProperty.HasBind(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this))
+		{
+			material->PreChangeProperty.Remove(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
+		}
+		// if (material->PostChangeProperty.HasBind(&PrimitiveComponent::OnChangeMaterialShaderAsset, this))
+		{
+			material->PostChangeProperty.Remove(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
+		}
 	}
 }
 

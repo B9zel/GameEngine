@@ -168,8 +168,15 @@ public:
 			return false;
 		}
 
-		const MethodPtr& pMethod = dynamic_cast<const MethodPtr&>(other);
-		if (pFn != pMethod.pFn || pClass != pMethod.pClass) return false;
+		try
+		{
+			const MethodPtr& pMethod = dynamic_cast<const MethodPtr&>(other);
+			if (pFn != pMethod.pFn || pClass != pMethod.pClass) return false;
+		}
+		catch (const std::bad_cast&)
+		{
+			return false;
+		}
 
 		return true;
 	}

@@ -73,6 +73,31 @@ public:
 		}
 	}
 
+	template <class Class> inline bool HasBind(void (Class::*method)(Args...), Class* classOfMethod)
+	{
+		FunctionParam func;
+		func.Assign(method, classOfMethod);
+		for (auto& Function : m_MtDispatch)
+		{
+			if (Function == func)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	template <class Class> inline bool HasBind(MethodPtr<Class, TypeParam>& bind)
+	{
+		for (auto& Function : m_MtDispatch)
+		{
+			if ((*Function.GetFunction()) == bind)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	const DArray<FunctionParam>& GetDispatch()
 	{
 		return m_MtDispatch;

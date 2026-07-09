@@ -595,6 +595,8 @@ namespace CoreEngine
 
 						PrepareMaterial(*Mat);
 						Shader* shader = ShaderCache::GetShaderFromMaterial(*Mat);
+						if (!shader) continue;
+
 						RHI::ShaderHandle shaderHandle = shader->GetHandle();
 
 						// OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::BIND_SHADER_PROGRAM, shaderHandle, []() {}));

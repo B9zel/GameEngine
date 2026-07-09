@@ -76,11 +76,11 @@ void AssetManager::PreChangeNameOfAsset(CoreEngine::Reflection::PropertyField& F
 	{
 		for (uint32 i = 0; i < m_Assets.size(); i++)
 		{
-			for (auto* field : m_Assets[i]->GetClass()->PropertyFileds)
+			for (auto* field : m_Assets[i]->GetClass()->GetWithParentPropertyFields())
 			{
 				if (Field == (*field))
 				{
-					AssetChangingName = *LoadedAssets.find(m_Assets[i]->GetName());
+					AssetChangingName = *LoadedAssets.find(m_Assets[i]->GetPathToAsset());
 				}
 			}
 		}

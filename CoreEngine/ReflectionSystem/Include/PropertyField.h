@@ -32,10 +32,11 @@ namespace CoreEngine
 			ARRAY
 		};
 
-		enum class EPropertyFieldParams : uint32
+		enum EPropertyFieldParams : uint32
 		{
 			NONE = 0,
-			EditorVisible = FLAG_OFFSET(0)
+			EditorVisible = FLAG_OFFSET(0),
+			Transient = FLAG_OFFSET(1)
 		};
 
 		enum class EPrimitiveTypes : uint8
@@ -188,7 +189,7 @@ namespace CoreEngine
 
 			uint32 SizeByte;
 			uint32 Offset;
-			EPropertyFieldParams Params;
+			uint32 Params; // EPropertyFieldParams
 
 		protected:
 

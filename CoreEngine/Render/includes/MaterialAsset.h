@@ -30,7 +30,7 @@ public:
 
 private:
 
-	RPROPERTY(EditorVisible);
+	RPROPERTY(EditorVisible Transient);
 	ShaderAsset* m_ShaderAsset = nullptr;
 
 	RPROPERTY();
