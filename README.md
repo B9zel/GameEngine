@@ -8,7 +8,6 @@ A modular game engine built with C++ and modern graphics APIs. This project prov
 </p>
 
 <p align="center">
-	
 	<img src="Resources\Editor2.png" alt="Editor Screenshot" width="800">
 </p>
 
