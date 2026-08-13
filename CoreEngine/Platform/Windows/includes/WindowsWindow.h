@@ -13,6 +13,7 @@ namespace CoreEngine
 	public:
 		
 		WindowsWindow(const WindowOptions& options);
+		virtual ~WindowsWindow() override;
 
 	public:
 
@@ -36,7 +37,7 @@ namespace CoreEngine
 
 		UniquePtr<Render::GraphicsContext> m_context;
 
-		GLFWwindow* m_Window;
+		GLFWwindow* m_Window{nullptr};
 		
 	};
 

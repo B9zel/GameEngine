@@ -2,16 +2,11 @@
 
 #include <Core/includes/Base.h>
 #include <Core/includes/Memory/GarbageCollector.h>
-#include <Core/includes/MemoryManager.h>
+#include <Runtime/CoreObject/Include/Object.h>
 
 namespace CoreEngine
 {
 	class Application;
-	namespace Runtime
-	{
-		class Object;
-	}
-
 	namespace GB
 	{
 		class GarbageCollector;
@@ -23,8 +18,9 @@ namespace CoreEngine
 
 		~ObjectPtr();
 
-		ObjectPtr() = delete;
-		ObjectPtr(T* value);
+		ObjectPtr() noexcept = default;
+		ObjectPtr(T* value) noexcept;
+		ObjectPtr(const ObjectPtr& other) noexcept;
 		ObjectPtr(ObjectPtr&& Other) noexcept;
 
 		T* operator=(T* value);
@@ -55,53 +51,41 @@ namespace CoreEngine
 
 	private:
 
-		T* m_Property;
-		Function<void(Runtime::Object*, Runtime::Object*)> m_Method;
+		void AddReference() noexcept;
+		void RemoveReference() noexcept;
+
+		T* m_Property{nullptr};
 
 		friend GB::GarbageCollector;
 	};
 
 	template <class T> inline ObjectPtr<T>::~ObjectPtr()
 	{
-		if (m_Property)
-		{
-			// Engine::Get()->GetMemoryManager()->GetGarbageCollector()->RemoveReference(reinterpret_cast<Runtime::Object*>(m_Property));
-		}
+		RemoveReference();
 	}
 
-	// template<class T>
-	// inline ObjectPtr<T>::ObjectPtr() : m_Property{ nullptr }
-	//{
-	//	//m_Property = nullptr;
-	//	//Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddProperty(this);
-	// }
-
-	template <class T> inline ObjectPtr<T>::ObjectPtr(T* value) : ObjectPtr()
+	template <class T> inline ObjectPtr<T>::ObjectPtr(T* value) noexcept : m_Property(value)
 	{
-		m_Property = value;
-
-		m_Method.Invoke(std::move(nullptr), std::move(m_Property));
+		AddReference();
 	}
 
-	template <class T> inline ObjectPtr<T>::ObjectPtr(ObjectPtr&& Other) noexcept : ObjectPtr()
+	template <class T> inline ObjectPtr<T>::ObjectPtr(const ObjectPtr& other) noexcept : m_Property(other.m_Property)
 	{
-		T* oldData = m_Property;
-		m_Property = Other.m_Property;
+		AddReference();
+	}
 
+	template <class T> inline ObjectPtr<T>::ObjectPtr(ObjectPtr&& Other) noexcept : m_Property(Other.m_Property)
+	{
 		Other.m_Property = nullptr;
-
-		// m_Method.Invoke(std::move(oldData), std::move(m_Property));
-		// Other.m_Method.Invoke(m_Property, nullptr);
 	}
 
 	template <class T> inline T* ObjectPtr<T>::operator=(T* value)
 	{
-		T* oldData = m_Property;
-		m_Property = value;
-
-		if (oldData != m_Property)
+		if (m_Property != value)
 		{
-			m_Method.Invoke(std::move(oldData), std::move(m_Property));
+			RemoveReference();
+			m_Property = value;
+			AddReference();
 		}
 
 		return m_Property;
@@ -109,33 +93,43 @@ namespace CoreEngine
 
 	template <class T> ObjectPtr<T>& ObjectPtr<T>::operator=(const ObjectPtr& other)
 	{
-		T* oldPtr = m_Property;
-		m_Property = Other.m_Property;
-
-		if (oldPtr != m_Property)
-		{
-			m_Method.Invoke(std::move(oldPtr), std::move(m_Property));
-		}
-
+		operator=(other.m_Property);
 		return *this;
 	}
 
 	template <class T> ObjectPtr<T>& ObjectPtr<T>::operator=(ObjectPtr&& other) noexcept
 	{
-		T* oldData = m_Property;
+		if (this == &other) return *this;
 
-		m_Property = Other.m_Property;
-		Other.m_Property = nullptr;
-
-		///	m_Method.Invoke(std::move(oldData), std::move(m_Property));
-		//	Other.m_Method.Invoke(m_Property, nullptr);
-
+		RemoveReference();
+		m_Property = other.m_Property;
+		other.m_Property = nullptr;
 		return *this;
 	}
 
 	template <class T> inline bool ObjectPtr<T>::IsValid() const
 	{
 		return m_Property != nullptr;
+	}
+
+	template <class T> inline void ObjectPtr<T>::AddReference() noexcept
+	{
+		if (!m_Property) return;
+
+		if (auto* collector = GB::GarbageCollector::GetGBInstance())
+		{
+			collector->AddReference(static_cast<Object*>(m_Property));
+		}
+	}
+
+	template <class T> inline void ObjectPtr<T>::RemoveReference() noexcept
+	{
+		if (!m_Property) return;
+
+		if (auto* collector = GB::GarbageCollector::GetGBInstance())
+		{
+			collector->RemoveReference(static_cast<Object*>(m_Property));
+		}
 	}
 
 } // namespace CoreEngine

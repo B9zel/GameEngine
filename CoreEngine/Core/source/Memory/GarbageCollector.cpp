@@ -17,6 +17,11 @@ namespace CoreEngine
 			m_rateCollect = 5;
 		}
 
+		GarbageCollector::~GarbageCollector()
+		{
+			m_GBInstance = nullptr;
+		}
+
 		void GarbageCollector::Init()
 		{
 			Engine::Get()->GetTimerManager()->SetTimer(collectHandler, this, &GarbageCollector::Collect, m_rateCollect, true);
@@ -30,27 +35,52 @@ namespace CoreEngine
 				return m_GBInstance;
 			}
 
-			m_GBInstance = (GarbageCollector*)(Allocator::Allocate(sizeof(GarbageCollector)));
-			Allocator::Construct(m_GBInstance, GarbageCollector());
+			void* collectorMemory = Allocator::Allocate(sizeof(GarbageCollector));
+			try
+			{
+				m_GBInstance = new (collectorMemory) GarbageCollector();
+			}
+			catch (...)
+			{
+				Allocator::Deallocate(collectorMemory);
+				m_GBInstance = nullptr;
+				throw;
+			}
 
-			m_GBInstance->Init();
+			try
+			{
+				m_GBInstance->Init();
+			}
+			catch (...)
+			{
+				GarbageCollector* failedCollector = m_GBInstance;
+				m_GBInstance = nullptr;
+				Allocator::DestroyAndDeallocate(failedCollector);
+				throw;
+			}
 
 			return m_GBInstance;
 		}
 
 		void GarbageCollector::AddObject(Object* object)
 		{
+			if (!object) return;
+
 			m_Objects.insert(object);
 		}
 
 		void GarbageCollector::AddRootObject(Object* object)
 		{
+			if (!object) return;
+
 			m_RootObjects.insert(object);
 			// AddObject(object);
 		}
 
 		void GarbageCollector::AddReference(Object* object)
 		{
+			if (!object) return;
+
 			if (m_ReferenceObjects.count(object))
 			{
 				m_ReferenceObjects[object]++;
@@ -99,8 +129,7 @@ namespace CoreEngine
 			MarkLiveObjects();
 			EG_LOG(CORE, ELevelLog::WARNING, "Collect");
 
-			static DArray<Object*> deleteObjects;
-			deleteObjects.clear();
+			DArray<Object*> deleteObjects;
 			for (auto* obj : m_Objects)
 			{
 				if (!obj) continue;
@@ -116,8 +145,33 @@ namespace CoreEngine
 			for (auto* delObj : deleteObjects)
 			{
 				RemoveObject(delObj);
-				Allocator::Deallocate(delObj);
+				delObj->StartDestroy();
+				delObj->FinishDestroy();
+				Allocator::DestroyAndDeallocate(delObj);
 			}
+		}
+
+		void GarbageCollector::Shutdown()
+		{
+			if (Engine::Get() && Engine::Get()->GetTimerManager())
+			{
+				Engine::Get()->GetTimerManager()->RemoveTimer(collectHandler);
+			}
+
+			DArray<Object*> objects(m_Objects.begin(), m_Objects.end());
+			for (Object* object : objects)
+			{
+				if (!object) continue;
+
+				RemoveObject(object);
+				object->StartDestroy();
+				object->FinishDestroy();
+				Allocator::DestroyAndDeallocate(object);
+			}
+
+			m_Objects.clear();
+			m_RootObjects.clear();
+			m_ReferenceObjects.clear();
 		}
 
 		void GarbageCollector::ResetMarks()
@@ -178,10 +232,13 @@ namespace CoreEngine
 				MarkObject(el);
 			}
 
-			/*for (auto& el : m_ReferenceObjects)
+			for (auto& el : m_ReferenceObjects)
 			{
-				MarkObject(el.first, outMarkedObjects);
-			}*/
+				if (el.second > 0)
+				{
+					MarkObject(el.first);
+				}
+			}
 		}
 
 		void GarbageCollector::MarkObject(Object* object, HashTableSet<Object*>& outMarkedObjects)
@@ -189,20 +246,6 @@ namespace CoreEngine
 			if (outMarkedObjects.find(object) != outMarkedObjects.end()) return;
 
 			outMarkedObjects.insert(object);
-		}
-
-		void GarbageCollector::OnChangePointer(Object* oldPtr, Object* newPtr)
-		{
-			if (oldPtr == newPtr) return;
-
-			if (oldPtr)
-			{
-				RemoveReference(oldPtr);
-			}
-			if (newPtr)
-			{
-				AddReference(newPtr);
-			}
 		}
 
 		const HashTableSet<Object*>& GarbageCollector::GetObjects() const

@@ -36,18 +36,19 @@ public:
 
 public:
 
-	virtual CoreEngine::EAssetType GetAssetType() const;
+	virtual CoreEngine::EAssetType GetAssetType() const; // Override this function in derived classes to return the specific asset type
 	const String& GetPathToAsset() const;
 	void SetPathToAsset(const String& NewPath);
 
 	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 	virtual void SetName(const String& NewName) override;
+	virtual void OnSerialize(CoreEngine::SerializeAchive& Archive) override;
 
 public:
 
-	Dispatcher<CoreEngine::Reflection::PropertyField&> PreChangeProperty;
-	Dispatcher<CoreEngine::Reflection::PropertyField&> PostChangeProperty;
+	Dispatcher<Asset*, CoreEngine::Reflection::PropertyField&> PreChangeProperty;
+	Dispatcher<Asset*,CoreEngine::Reflection::PropertyField&> PostChangeProperty;
 
 protected:
 

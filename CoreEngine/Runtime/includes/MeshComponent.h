@@ -16,6 +16,9 @@ namespace CoreEngine
 		class Model;
 	}
 } // namespace CoreEngine
+
+class MeshAsset;
+
 RCLASS();
 class MeshComponent : public PrimitiveComponent
 {
@@ -33,12 +36,17 @@ public:
 	virtual CoreEngine::PrimitiveProxy* GetSceneProxy() const override;
 	virtual CoreEngine::PrimitiveProxy* GetUpdateProxy() const override;
 
+	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
+	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
+
 private:
 
 	void SetupNode(aiNode* Node, const aiScene* Scene);
 	bool CheckCorrectNormals(aiNode* Node, const aiScene* Scene);
 	bool CheckMeshNormal(aiMesh* Node, const aiScene* Scene);
 	void ReloadMesh(Assimp::Importer& Importer, aiScene** Scene);
+
+	void PostOnChangeModelAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
 
 	struct ModelDeleter
 	{
@@ -52,6 +60,7 @@ private:
 
 	DArray<UniquePtr<CoreEngine::Render::Model, ModelDeleter>> m_Models;
 	UniquePtr<CoreEngine::StaticMeshProxy> m_Proxy;
+
 	String m_PathToMesh;
 
 public:

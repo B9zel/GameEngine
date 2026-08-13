@@ -9,6 +9,7 @@ namespace CoreEngine
 		class SceneInterface
 		{
 		public:
+			virtual ~SceneInterface() = default;
 
 			virtual void CollectProxy() = 0;
 			virtual void StartRender() = 0;

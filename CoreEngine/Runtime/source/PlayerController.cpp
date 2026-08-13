@@ -74,7 +74,7 @@ void PlayerController::ProcessInput(float deltaTime)
 {
 	Queue<CoreEngine::Event*>* events = (playerInput->GetReverseQueueEvents());
 
-	auto& InputControlledPawn = GetControlledPawn()->inputComponent;
+	auto* InputControlledPawn = GetControlledPawn() ? GetControlledPawn()->inputComponent : nullptr;
 	int64 size = events->Size();
 
 	for (int64 i = 0; i < size; i++)

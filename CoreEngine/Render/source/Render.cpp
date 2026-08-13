@@ -27,6 +27,11 @@ namespace CoreEngine
 			isInit = true;
 		}
 
+		Render::~Render()
+		{
+			isInit = false;
+		}
+
 		UniquePtr<Render> Render::Create()
 		{
 			UniquePtr<Render> render;

@@ -199,7 +199,7 @@ namespace CoreEngine
 			{
 				Device->DeleteTexture2D(Handle);
 
-				 stbi_set_flip_vertically_on_load(1);
+				stbi_set_flip_vertically_on_load(1);
 
 				int32 width, height, channel;
 				stbi_uc* data = stbi_load(Path.data(), &width, &height, &channel, 0);
@@ -242,8 +242,8 @@ namespace CoreEngine
 					}
 
 
-					stbi_image_free(data);
 					UnBind();*/
+					stbi_image_free(data);
 
 					return true;
 				}

@@ -511,7 +511,7 @@ namespace CoreEngine
 			{
 				CurrentRes = Resolition;
 				// m_ShadowBuffer->Resize(Resolition.x * 6, Resolition.y * 6);
-				ShadowDepth->Resize(Resolition.x * 4, Resolition.y * 4);
+				ShadowDepth->Resize(Resolition.x * 2, Resolition.y * 2);
 				m_ResultScene->Resize(Resolition.x, Resolition.y);
 			}
 

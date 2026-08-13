@@ -19,6 +19,12 @@ namespace Editor
 	private:
 
 		void DrawAndWalkComponents(const DArray<SceneComponent*>& Components);
+		void DragDropTarget(SceneComponent* sceneComponent);
 		bool IsChildComponent(Actor* Actor);
+
+	private:
+
+		SceneComponent* ComponentDrag{nullptr};
+		bool HasTargetValid{false};
 	};
 } // namespace Editor

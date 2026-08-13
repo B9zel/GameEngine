@@ -152,6 +152,8 @@ namespace CoreEngine
 
 		DArray<String> Prefixes;
 		nlohmann::json DataSave;// = YAML::Node(YAML::NodeType::Map);
+		nlohmann::json MissingNode;
+		bool IsDeserializing{false};
 
 
 	};

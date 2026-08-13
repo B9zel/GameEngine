@@ -21,8 +21,8 @@
                                 "Transform": {
                                     "Transform": {
                                         "Location": [
-                                            0.057590365409851074,
-                                            0.0,
+                                            -7.025753974914551,
+                                            1.8822944164276123,
                                             0.0
                                         ],
                                         "Rotation": [
@@ -164,7 +164,7 @@
                                 "Transform": {
                                     "Transform": {
                                         "Location": [
-                                            -6.055521488189697,
+                                            -3.0295839309692383,
                                             0.0,
                                             0.0
                                         ],
@@ -190,7 +190,7 @@
                                             "Transform": {
                                                 "Location": [
                                                     0.0,
-                                                    1.0,
+                                                    0.0,
                                                     0.0
                                                 ],
                                                 "Rotation": [
@@ -211,20 +211,6 @@
                                                     "Name": "MaterialInstance"
                                                 },
                                                 "NameClass": "MaterialInstance"
-                                            }
-                                        },
-                                        "materials": {
-                                            "EditorMaterialAsset": {
-                                                "Name": {
-                                                    "Name": "DefaultMaterial"
-                                                },
-                                                "NameClass": "EditorMaterialAsset",
-                                                "PathToAsset": {
-                                                    "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultMaterial.reflect"
-                                                },
-                                                "PathToShaderAsset": {
-                                                    "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultShader.reflect"
-                                                }
                                             }
                                         }
                                     }

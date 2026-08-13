@@ -4,6 +4,7 @@
 #include <Runtime/CoreObject/Include/ObjectGlobal.h>
 #include <Editor/includes/Asset/EditorMaterialAsset.h>
 #include <Editor/includes/Asset/EditorShaderAsset.h>
+#include <Editor/includes/Asset/EditorMeshAsset.h>
 
 Asset* CoreEngine::AssetFactory::CreateAsset(const EAssetType& Type)
 {
@@ -13,6 +14,8 @@ Asset* CoreEngine::AssetFactory::CreateAsset(const EAssetType& Type)
 		return CreateObject<Asset>(EditorMaterialAsset::GetStaticClass());
 	case EAssetType::Shader:
 		return CreateObject<Asset>(EditorShaderAsset::GetStaticClass());
+	case EAssetType::Model:
+		return CreateObject<Asset>(EditorMeshAsset::GetStaticClass());
 	default:
 		ASSERT("Asset type is not implemant");
 		return nullptr;

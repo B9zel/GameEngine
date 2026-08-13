@@ -16,6 +16,17 @@ namespace CoreEngine
 		Init(options);
 	}
 
+	WindowsWindow::~WindowsWindow()
+	{
+		m_context.reset();
+		if (m_Window)
+		{
+			glfwDestroyWindow(m_Window);
+			m_Window = nullptr;
+		}
+		isCreateWindow = false;
+	}
+
 	String WindowsWindow::GetTitle() const
 	{
 		return winData.Title;
@@ -26,7 +37,7 @@ namespace CoreEngine
 	}
 	uint32 WindowsWindow::GetHeight() const
 	{
-		return winData.Width;
+		return winData.Height;
 	}
 	void* WindowsWindow::GetNativeWindow() const
 	{
@@ -61,6 +72,7 @@ namespace CoreEngine
 
 		m_Window = glfwCreateWindow(winData.Width, winData.Height, winData.Title.c_str(), nullptr, nullptr);
 		CORE_UNASSERT(!m_Window, "Can't create GLFW window");
+		isCreateWindow = m_Window != nullptr;
 		EG_LOG(CORE, ELevelLog::INFO, "Create GLFW window");
 
 
@@ -138,6 +150,7 @@ namespace CoreEngine
 			});
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 			{
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				const WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 				EventCloseWindow event;
 				data->eventCallBack(event);

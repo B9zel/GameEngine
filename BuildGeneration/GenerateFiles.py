@@ -1,62 +1,51 @@
 import configparser
 import pathlib as pl
-import os
-from pathlib import PurePath
-from GeneralFile import *
 
-OpenConfig = configparser.ConfigParser()
-OpenConfig.read(f"{pl.Path(__file__).parent}/BuildGenConfig.ini")
-Path = OpenConfig["DEFAULT"]["Path"]
-ClassKeyWord = OpenConfig["Macros"]["Class"]
-OutputFiles = OpenConfig["DEFAULT"]["OutputGenFiles"]
-
-if not os.path.exists(pl.Path(__file__).parent /OutputFiles):
-    os.makedirs(pl.Path(__file__).parent / OutputFiles)
-
-Modules = ParseArrayConfig(Path)
-files = SerchAllFiles(Modules[0],Modules[1], ".h")
+from GeneralFile import GetNameFilesWithoutExtenshion, ParseArrayConfig, ParseFile, SerchAllFiles
 
 
-def CreateFile(ClassLine, ClassNameLine,FileName,PathToFileName, Output, module):
-    if not ClassLine or not ClassNameLine:
+SCRIPT_DIRECTORY = pl.Path(__file__).parent
+CONFIG = configparser.ConfigParser()
+CONFIG.read(SCRIPT_DIRECTORY / "BuildGenConfig.ini")
+SOURCE_PATHS = CONFIG["DEFAULT"]["Path"]
+CLASS_MACRO = CONFIG["Macros"]["Class"]
+OUTPUT_DIRECTORY = CONFIG["DEFAULT"]["OutputGenFiles"]
+
+
+def CreateFile(class_macro, class_name, file_name, _source_path, output, module):
+    """Create an empty generated header/source pair for one reflected file."""
+    if not class_macro or not class_name:
         return False
 
-    Path = (pl.Path(__file__).parent / Output).absolute() / module
-    if not os.path.exists(Path):
-        os.mkdir(Path)
+    module_output = (SCRIPT_DIRECTORY / output).absolute() / module
+    module_output.mkdir(parents=True, exist_ok=True)
+    file_stem = GetNameFilesWithoutExtenshion(file_name)
 
-    openFilePath = Path / (GetNameFilesWithoutExtenshion(file.name) + ".generated.h")
-    newFile = open(openFilePath, "w")
-    newFile.close()
-    openFilePath = Path / (GetNameFilesWithoutExtenshion(file.name) + ".gen.cpp")
-    newFile = open(openFilePath, "w")
-    newFile.close()
+    # The second generation stage expects both files to exist and be empty.
+    (module_output / f"{file_stem}.generated.h").write_text("")
+    (module_output / f"{file_stem}.gen.cpp").write_text("")
+    return True
 
 
+def main():
+    """Prepare empty output files for the libclang generation stage."""
+    output_path = SCRIPT_DIRECTORY / OUTPUT_DIRECTORY
+    output_path.mkdir(parents=True, exist_ok=True)
 
-def ParseFileForGenerater(FileList:list):
-    for line in FileList:
-        findedClass = line.find(ClassKeyWord)
-        if findedClass != -1:
-            closedBracket = line.find(')', findedClass)
-            ClassKeyWoldBuffer = line[findedClass:closedBracket + 1]
-            NextLineClass = True
+    source_paths, modules = ParseArrayConfig(SOURCE_PATHS)
+    files_by_module = SerchAllFiles(source_paths, modules, ".h")
+    for module, files in files_by_module.items():
+        for file in files:
+            with open(file, "r") as source_file:
+                ParseFile(
+                    source_file.readlines(),
+                    CLASS_MACRO,
+                    CreateFile,
+                    file,
+                    OUTPUT_DIRECTORY,
+                    module,
+                )
 
 
-i = 0
-for module in files:
-    GenFileNextIteration = False
-    if i >= 98:
-        print()
-    i += 1
-    for file in files[module]:
-        with open(file, "r") as f:
-            line = f.readlines()
-            ParseFile(line, ClassKeyWord, CreateFile, file ,OutputFiles, module)
-
-# templateCmake = open(f"{pl.Path(__file__).parent}/TemplateCMakeForGenFiles.txt", 'r')
-# GenCmake = open(f"{pl.Path(__file__).parent / OutputFiles}/CMakeLists.txt", 'w')
-# GenCmake.write("".join(templateCmake.readlines()))
-#
-# templateCmake.close()
-# GenCmake.close()
+if __name__ == "__main__":
+    main()

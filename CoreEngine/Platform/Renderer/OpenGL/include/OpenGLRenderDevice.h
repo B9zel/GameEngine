@@ -23,6 +23,7 @@ namespace CoreEngine::Render::OpenGL
 	public:
 
 		using IDType = uint64;
+		virtual ~OpenGLRenderDevice() override;
 
 	public:
 

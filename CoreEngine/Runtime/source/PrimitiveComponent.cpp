@@ -59,19 +59,19 @@ void PrimitiveComponent::SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMat
 		m_HandleMaterial[MaterialIndex] = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(NewMaterial);
 	}*/
 }
+void PrimitiveComponent::SetMeshAsset(MeshAsset* NewAsset)
+{
+	AssetModel = NewAsset;
+}
+
 void PrimitiveComponent::PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
 {
 	if (Property.Name == STRINGCON_DETAILS(material))
 	{
-		// if (material->PreChangeProperty.HasBind(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this))
-		{
-			material->PreChangeProperty.Remove(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
-		}
-		// if (material->PostChangeProperty.HasBind(&PrimitiveComponent::OnChangeMaterialShaderAsset, this))
-		{
-			material->PostChangeProperty.Remove(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
-		}
+		material->PreChangeProperty.Remove(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
+		material->PostChangeProperty.Remove(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
 	}
+	
 }
 
 void PrimitiveComponent::PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
@@ -82,6 +82,7 @@ void PrimitiveComponent::PostEditChangeProperty(CoreEngine::Reflection::Property
 		material->PreChangeProperty.AddBind(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
 		SetMaterial(0, material);
 	}
+
 }
 
 CoreEngine::PrimitiveProxy* PrimitiveComponent::GetSceneProxy() const
@@ -105,7 +106,7 @@ CoreEngine::PrimitiveProxy* PrimitiveComponent::GetUpdateProxy() const
 	return sceneProxy;
 }
 
-void PrimitiveComponent::OnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field)
+void PrimitiveComponent::OnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field)
 {
 	auto& MaterialHandle = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(material);
 
@@ -127,7 +128,8 @@ void PrimitiveComponent::OnChangeMaterialShaderAsset(CoreEngine::Reflection::Pro
 	//  m_HandleMaterial[0] = MaterialHandle;
 }
 
-void PrimitiveComponent::PreOnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field)
+void PrimitiveComponent::PreOnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field)
 {
 	HandlePrevMaterial = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(material);
 }
+

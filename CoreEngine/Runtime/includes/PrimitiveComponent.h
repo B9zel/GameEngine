@@ -3,10 +3,12 @@
 #include <Render/includes/Material.h>
 #include <Render/includes/MaterialAsset.h>
 #include <Render/includes/MaterialInstance.h>
+#include <Core/includes/MeshAsset.h>
 #include <PrimitiveComponent.generated.h>
 
 class MaterialAsset;
 class MaterialInstance;
+class MeshAsset;
 
 namespace CoreEngine::Render
 {
@@ -28,6 +30,7 @@ public:
 	PrimitiveComponent(const CoreEngine::InitializeObject& Object);
 	// Test
 	virtual void SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMaterial);
+	virtual void SetMeshAsset(MeshAsset* NewAsset);
 
 	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
@@ -42,8 +45,8 @@ public:
 
 private:
 
-	void OnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field);
-	void PreOnChangeMaterialShaderAsset(CoreEngine::Reflection::PropertyField& Field);
+	void OnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
+	void PreOnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
 
 protected:
 
@@ -51,7 +54,10 @@ protected:
 	DArray<MaterialAsset*> materials;
 
 	RPROPERTY(EditorVisible);
-	MaterialAsset* material;
+	MeshAsset* AssetModel = nullptr;
+
+	RPROPERTY(EditorVisible);
+	MaterialAsset* material = nullptr;
 
 	DArray<CoreEngine::Render::MaterialHandle> m_HandleMaterial;
 	RPROPERTY();

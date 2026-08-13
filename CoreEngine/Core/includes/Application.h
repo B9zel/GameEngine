@@ -35,7 +35,7 @@ namespace CoreEngine
 	public:
 
 		Application(ApplicationOptions& options);
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		Application(const Application&) = delete;
 		Application(Application&&) = delete;
@@ -88,7 +88,7 @@ namespace CoreEngine
 		ShaderLibrary shaderLibrary;
 		EventDispatch EventDispatcher;
 
-		bool m_isRun;
+		bool m_isRun{ true };
 		static Application* m_Instance;
 
 	private:

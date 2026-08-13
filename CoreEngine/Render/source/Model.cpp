@@ -15,7 +15,10 @@ namespace CoreEngine
 	{
 		Model::~Model()
 		{
-			ClearModel();
+			if (m_HasLoadModel)
+			{
+				ClearModel();
+			}
 		}
 
 		Model::Model(Model&& Other)
@@ -27,8 +30,14 @@ namespace CoreEngine
 			m_VBO = std::move(Other.m_VBO);
 			m_Vertices = std::move(Other.m_Vertices);
 			m_HasLoadModel = Other.m_HasLoadModel;
+			m_HandleVBO = Other.m_HandleVBO;
+			m_HandleEBO = Other.m_HandleEBO;
+			m_HandleVAO = Other.m_HandleVAO;
 
 			Other.m_HasLoadModel = false;
+			Other.m_HandleVBO.Invalide();
+			Other.m_HandleEBO.Invalide();
+			Other.m_HandleVAO.Invalide();
 		}
 
 		Model::Model()
@@ -46,18 +55,27 @@ namespace CoreEngine
 
 		void Model::ClearModel()
 		{
+			if (!m_HasLoadModel) return;
+
 			m_Vertices.clear();
+			m_Indeces.clear();
 			m_Textures.clear();
 
 			auto& Device = Engine::Get()->GetRenderDevice();
-			Device->DeleteVAO(m_VAO->GetHandle());
-			Device->DeleteVBO(m_VBO->GetHandle());
+			Device->DeleteVAO(m_HandleVAO);
+			Device->DeleteVBO(m_HandleVBO);
+			Device->DeleteEBO(m_HandleEBO);
+			m_HasLoadModel = false;
 			// m_VAO->DeleteVertexObject();
 			// m_VBO->DeleteBuffer();
 		}
 
 		void Model::SetupModel(aiMesh* Mesh, const aiScene* Scene, const SpecificationVertexData& Data)
 		{
+			if (m_HasLoadModel)
+			{
+				ClearModel();
+			}
 
 			for (int64 i = 0; i < Mesh->mNumVertices; i++)
 			{
@@ -145,13 +163,14 @@ namespace CoreEngine
 
 			// clang-format off
 			static DArray<Turple<uint32, uint32, uint32, ETypeData, uint32>> Attributs = {
-				{0, 3, sizeof(Vertex), ETypeData::FLOAT, 0}, 
-				{1, 3, sizeof(Vertex), ETypeData::FLOAT, 12}, 
-				{2, 2, sizeof(Vertex), ETypeData::FLOAT, 24}, 
-				{3, 1, sizeof(Vertex), ETypeData::INT, 32}};
+				{0, 3, static_cast<uint32>(sizeof(Vertex)), ETypeData::FLOAT, 0},
+				{1, 3, static_cast<uint32>(sizeof(Vertex)), ETypeData::FLOAT, 12},
+				{2, 2, static_cast<uint32>(sizeof(Vertex)), ETypeData::FLOAT, 24},
+				{3, 1, static_cast<uint32>(sizeof(Vertex)), ETypeData::INT, 32}};
 			// clang-format on
 
 			m_HandleVAO = Device->CreateVAO(m_HandleVBO, m_HandleEBO, Attributs);
+			m_HasLoadModel = true;
 
 			/*m_VAO->CreateVertexArray();
 			m_VBO->CreateBuffer(m_Vertices.data(), m_Vertices.size() * CountFloat, ETypeData::FLOAT, ETypeStorageDraw::STATIC, *m_VAO.get());
@@ -170,7 +189,7 @@ namespace CoreEngine
 			return m_Indeces;
 		}
 
-		const const RHI::HandleVAO& Model::GetVertexArrayObject() const
+		const RHI::HandleVAO& Model::GetVertexArrayObject() const
 		{
 			return m_HandleVAO;
 		}

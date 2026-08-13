@@ -53,7 +53,7 @@ namespace CoreEngine
 		
 	protected:
 
-		bool isCreateWindow;
+		bool isCreateWindow{false};
 		struct WindowData
 		{
 			uint32 Height = 0;

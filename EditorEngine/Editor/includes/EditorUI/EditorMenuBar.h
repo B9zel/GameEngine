@@ -14,6 +14,6 @@ namespace Editor
 	private:
 
 		String SaveFileDialogeMenu(const char* Filter);
-		String OpenFileDialoge(const char* Filter);
+		String OpenFileDialogeMenu(const char* Filter);
 	};
 } // namespace Editor

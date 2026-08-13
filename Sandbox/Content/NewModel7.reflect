@@ -1,0 +1,15 @@
+{
+    "EditorMeshAsset": {
+        "Name": {
+            "Name": "NewModel7"
+        },
+        "NameClass": "EditorMeshAsset",
+        "PathToAsset": {
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewModel7.reflect"
+        },
+        "PathToModel": {
+            "PathToModel": ""
+        }
+    },
+    "Type": 2
+}

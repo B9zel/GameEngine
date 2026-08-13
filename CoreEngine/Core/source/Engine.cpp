@@ -34,6 +34,20 @@ Engine::Engine(const CoreEngine::InitializeObject& Initilize) : Object(Initilize
 	m_Input = MakeUniquePtr<CoreEngine::InputDevice>();
 }
 
+Engine::~Engine()
+{
+	// Managed objects can release render resources, so GC must shut down while
+	// the render device and window context are still alive.
+	m_MemoryManager.reset();
+	m_World = nullptr;
+	m_AssetManager = nullptr;
+
+	m_Render.reset();
+	m_TimerManager.reset();
+	m_Input.reset();
+	GEngine = nullptr;
+}
+
 void Engine::Init()
 {
 	if (!m_AssetManager)

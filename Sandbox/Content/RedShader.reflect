@@ -1,11 +1,11 @@
 {
     "EditorShaderAsset": {
         "Name": {
-            "Name": "NewShader8"
+            "Name": "RedShader"
         },
         "NameClass": "EditorShaderAsset",
         "PathToAsset": {
-            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewShader8.reflect"
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\RedShader.reflect"
         },
         "Shaders": {
             "Fragment": "vec3 fragment()\n{\n   return vec3(1.0f, 0.0f, 0.0f);\n}",

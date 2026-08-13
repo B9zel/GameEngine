@@ -31,10 +31,6 @@ namespace CoreEngine
 		void RemoveFunction(UpdateFunction* RemFunc);
 		void ExecuteGroup(float deltaTime, const EStageUpdate stage);
 
-	protected:
-
-		static UpdateManager* m_Instance;
-
 	private:
 
 		HashTableMap<EStageUpdate, DArray<UpdateFunction*>> m_GroupUpdate;

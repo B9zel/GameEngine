@@ -47,9 +47,10 @@ namespace CoreEngine::Render
 		if (!Asset) return 0;
 		uint64 Hash = 0;
 
-		Hash ^= std::hash<String>{}(Asset->GetPathToShaderAsset()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);
+		Hash ^= std::hash<uint64>{}(Asset->GetUUID().GetID()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);
+		/*Hash ^= std::hash<String>{}(Asset->GetPathToShaderAsset()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);
 		Hash ^= std::hash<String>{}(Asset->GetPathToAsset()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);
-		Hash ^= std::hash<EShaderRenderType>{}(Asset->GetModeRender()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);
+		Hash ^= std::hash<EShaderRenderType>{}(Asset->GetModeRender()) + 0x9e3779b9 + (Hash << 6) + (Hash >> 2);*/
 
 		return Hash;
 	}

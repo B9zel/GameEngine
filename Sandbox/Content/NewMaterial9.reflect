@@ -1,29 +1,14 @@
 {
     "EditorMaterialAsset": {
+        "Name": {
+            "Name": "NewMaterial9"
+        },
         "NameClass": "EditorMaterialAsset",
-        "m_ShaderAsset": {
-            "EditorShaderAsset": {
-                "Name": {
-                    "Name": "NewShader11"
-                },
-                "NameClass": "EditorShaderAsset",
-                "PathToAsset": {
-                    "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewShader11.reflect"
-                },
-                "Shaders": {
-                    "Fragment": "vec3 fragment()\n{\n   return vec3(1.0f, 0.0f, 1.0f);\n}",
-                    "Vertex": "vec3 vertex()\n{\n   return vec3(0.0f, 0.0f, 0.0f);\n} "
-                }
-            },
-            "Name": {
-                "Name": "NewMaterial9"
-            },
-            "PathToAsset": {
-                "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial9.reflect"
-            },
-            "PathToShaderAsset": {
-                "PathToShaderAsset": ""
-            }
+        "PathToAsset": {
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial9.reflect"
+        },
+        "PathToShaderAsset": {
+            "PathToShaderAsset": ""
         }
     },
     "Type": 3

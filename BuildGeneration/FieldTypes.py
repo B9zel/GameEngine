@@ -6,32 +6,37 @@ class ETypePrimitive(Enum):
     CUSTOM_PRIMITIVE = 2
     ARRAY = 3
 
+
 class VariableField:
     def __init__(self):
         self.NameVar = ""
         self.Type = ""
         self.Params = []
         self.TypePrimitive = ETypePrimitive.PRIMITIVE
+        self.IsPointer = False
+
 
 class ArrayType(VariableField):
     def __init__(self):
         super().__init__()
         self.InnerType = ""
 
+
 class ClassField:
     def __init__(self):
         self.Name = ""
         self.Namespace = ""
-        self.IsPointer = False
         self.LineGenBody = MacrosData()
         self.ParamsClass = MacrosData()
         self.Parent = ""
-        self.Variable:VariableField = []
+        self.Variable: list[VariableField] = []
+
     def __str__(self):
         return f"Name: {self.Name}    Namespace: {self.Namespace}"
 
     def IsValidGeneretedBody(self):
         return self.LineGenBody.Location != -1
+
 
 class MacrosData:
     def __init__(self):

@@ -70,29 +70,32 @@ void AssetManager::ClearAllAssets()
 	}
 }
 
-void AssetManager::PreChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field)
+void AssetManager::PreChangeNameOfAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field)
 {
 	if (Field.Name == "Name")
 	{
-		for (uint32 i = 0; i < m_Assets.size(); i++)
+		/*for (size_t i = 0; i < m_Assets.size(); i++)
 		{
 			for (auto* field : m_Assets[i]->GetClass()->GetWithParentPropertyFields())
 			{
 				if (Field == (*field))
-				{
-					AssetChangingName = *LoadedAssets.find(m_Assets[i]->GetPathToAsset());
-				}
-			}
+				{*/
+		if (auto It = LoadedAssets.find(asset->GetPathToAsset()); It != LoadedAssets.end())
+		{
+			AssetChangingName = *It;
 		}
+		//}
+		//}
+		//}
 	}
 }
 
-void AssetManager::PostChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field)
+void AssetManager::PostChangeNameOfAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field)
 {
 	if (Field.Name == "Name")
 	{
 		auto Node = LoadedAssets.extract(AssetChangingName.first);
-		Node.key() = *Field.GetSourcePropertyByName<String>(m_Assets[AssetChangingName.second]);
+		Node.key() = m_Assets[AssetChangingName.second]->GetPathToAsset();
 		LoadedAssets.insert(std::move(Node));
 	}
 }

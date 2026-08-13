@@ -33,14 +33,14 @@ void Asset::PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Propert
 {
 	Object::PreEditChangeProperty(Property);
 
-	PreChangeProperty.Call(Property);
+	PreChangeProperty.Call(this, Property);
 }
 
 void Asset::PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
 {
 	Object::PostEditChangeProperty(Property);
 
-	PostChangeProperty.Call(Property);
+	PostChangeProperty.Call(this, Property);
 }
 
 CoreEngine::EAssetType Asset::GetAssetType() const
@@ -60,16 +60,47 @@ void Asset::SetPathToAsset(const String& NewPath)
 
 void Asset::SetName(const String& NewName)
 {
+	Object::SetName(NewName);
+
 #if WITH_EDITOR
 
 	const String& Path = CoreEngine::FileManager::RenameFile(PathToAsset, NewName);
 	if (!Path.empty())
 	{
-		Engine::Get()->GetWorld()->GetSaveManager()->SaveAsset(Path, this);
 		PathToAsset = Path;
+		Engine::Get()->GetWorld()->GetSaveManager()->SaveAsset(Path, this);
 	}
 
 #endif
+}
 
-	Object::SetName(NewName);
+void Asset::OnSerialize(CoreEngine::SerializeAchive& Archive)
+{
+	Object::OnSerialize(Archive);
+
+	CoreEngine::Reflection::ClassField* Class = GetClass();
+	DArray<CoreEngine::Reflection::PropertyField*> Fields = Class->GetWithParentPropertyFields();
+
+	for (auto* Property : Fields)
+	{
+		if (Property->GetIsPointer())
+		{
+			auto object = Property->GetSourcePropertyByName<Object*>(this);
+			if (object && *object)
+			{
+				if (auto* asset = dynamic_cast<Asset*>(*object))
+				{
+					asset->GetPathToAsset
+				}
+			}
+
+			if ()
+			{
+			}
+
+			Archive.PushPrefix(Property->Name);
+			Property->Serialize(Archive, this);
+			Archive.PopPrefix();
+		}
+	}
 }

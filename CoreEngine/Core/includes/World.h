@@ -43,6 +43,7 @@ class World : public Object
 public:
 
 	World(const CoreEngine::InitializeObject& Initilize);
+	virtual ~World();
 
 public:
 
@@ -86,12 +87,12 @@ private:
 
 	DArray<Level*> m_Levels;
 	RPROPERTY();
-	Level* m_MainLevel;
+	Level* m_MainLevel{ nullptr };
 
-	CoreEngine::Render::SceneInterface* m_Scene;
+	UniquePtr<CoreEngine::Render::SceneInterface> m_Scene;
 
-	float m_DeltaTime;
-	float m_LastTime;
+	float m_DeltaTime{0.0f};
+	float m_LastTime{0.0f};
 };
 
 template <class T> T* World::SpawnActor(Actor* Owner, const FTransform& transform, const CoreEngine::SpawnParamConfiguration& Param)

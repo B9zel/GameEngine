@@ -1,7 +1,6 @@
 #pragma once
 #include <Core/includes/Base.h>
 #include <Templates/Function.h>
-#include <Core/includes/ObjectPtr.h>
 #include <Core/includes/TimerManager.h>
 
 /**
@@ -31,8 +30,7 @@ namespace CoreEngine
 		public:
 
 			static GarbageCollector* Create();
-
-			template <class T> void AddProperty(ObjectPtr<T>* Property);
+			~GarbageCollector();
 
 			void AddObject(Object* object);
 			void AddRootObject(Object* object);
@@ -40,6 +38,7 @@ namespace CoreEngine
 			void RemoveObject(Object* object);
 			void RemoveRootObject(Object* object);
 			void RemoveReference(Object* object);
+			void Shutdown();
 
 			const HashTableSet<Object*>& GetObjects() const;
 			const HashTableSet<Object*>& GetRootObjects() const;
@@ -67,8 +66,6 @@ namespace CoreEngine
 			void MarkLiveObjects();
 			void MarkObject(Object* object, HashTableSet<Object*>& outMarkedObjects);
 
-			void OnChangePointer(Object* oldPtr, Object* newPtr);
-
 		private:
 
 			static GarbageCollector* m_GBInstance;
@@ -80,9 +77,5 @@ namespace CoreEngine
 			float m_rateCollect;
 			TimerHandle collectHandler;
 		};
-		template <class T> inline void GarbageCollector::AddProperty(ObjectPtr<T>* Property)
-		{
-			Property->m_Method.Assign(&GarbageCollector::OnChangePointer, this);
-		}
 	} // namespace GB
 } // namespace CoreEngine

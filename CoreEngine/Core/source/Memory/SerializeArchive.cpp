@@ -112,8 +112,28 @@ namespace CoreEngine
 		for (auto& Prefix : Prefixes)
 		{
 			auto child = LastNode->find(Prefix);
-			if (!LastNode->count(Prefix))
+			if (child == LastNode->end() && IsDeserializing && LastNode->is_object())
 			{
+				child = std::find_if(LastNode->begin(), LastNode->end(), [&Prefix](const nlohmann::json& Node)
+				{
+					if (!Node.is_object()) return false;
+
+					const auto NameNode = Node.find("Name");
+					if (NameNode == Node.end() || !NameNode->is_object()) return false;
+
+					const auto NameValue = NameNode->find("Name");
+					return NameValue != NameNode->end() && NameValue->is_string() && NameValue->get<String>() == Prefix;
+				});
+			}
+
+			if (child == LastNode->end())
+			{
+				if (IsDeserializing)
+				{
+					MissingNode = nlohmann::json::object();
+					return MissingNode;
+				}
+
 				(*LastNode)[Prefix] = nlohmann::json({});
 				child = LastNode->find(Prefix);
 			}
@@ -143,6 +163,9 @@ namespace CoreEngine
 	std::istream& operator>>(std::istream& stream, SerializeAchive& j)
 	{
 		stream >> j.DataSave;
+		j.Prefixes.clear();
+		j.MissingNode = nlohmann::json::object();
+		j.IsDeserializing = true;
 		return stream;
 	}
 }

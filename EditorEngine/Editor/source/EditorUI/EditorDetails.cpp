@@ -5,12 +5,12 @@
 #include <ReflectionSystem/Include/PropertyField.h>
 #include <Math/includes/Transform.h>
 #include <Runtime/includes/SceneComponent.h>
-#include <Editor/includes/Util/DrawUtils.h>
+#include <Editor/includes/Utills/DrawUtills.h>
+#include <Editor/includes/Utills/EditorUtill.h>
 #include <Runtime/includes/Actor.h>
 #include <Runtime/includes/ActorComponent.h>
 #include <Editor/includes/EditorEngine.h>
 #include <Editor/includes/EditorDrawingInterface.h>
-#include <Editor/includes/Util/EditorUtil.h>
 #include <Runtime/CoreObject/Include/Object.h>
 
 namespace CoreEngine::Reflection

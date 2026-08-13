@@ -54,6 +54,6 @@ namespace CoreEngine
 			EG_LOG(FileManagerLog, ELevelLog::WARNING, "Can't rename file {}", Path);
 			return "";
 		}
-		return std::filesystem::path(NewPath).string();
+		return std::filesystem::path(NewPath).make_preferred().string();
 	}
 } // namespace CoreEngine

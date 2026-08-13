@@ -132,11 +132,10 @@ namespace Editor
 			{
 				for (int j = 0; j < Height; j++)
 				{
-					// верхний левый угол картинки
-					ImVec2 size = ImGui::GetItemRectSize(); // размер картинки
+					ImVec2 size = ImGui::GetItemRectSize();
 
 					// relY = Height - relY;
-					//  Координаты мыши относительно картинки
+
 					int a = FrameBuffer->ReadPixel(1, i, Height - j);
 					if (a != 0)
 					{
@@ -234,11 +233,9 @@ namespace Editor
 			}
 		}
 
+		UpdateTypeCursor();
 		FrameBuffer->UnBind();
 
-		UpdateTypeCursor();
-
-		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, ImGui::GetMouseCursor());
 		m_IsMoveCameraLastFrame = m_IsMoveCamera;
 
 		ImGui::EndChild();
@@ -296,7 +293,12 @@ namespace Editor
 
 	void EditorViewport::UpdateTypeCursor()
 	{
-		if (ImGui::IsWindowHovered() && !m_IsMoveCamera)
+		ImVec2 pos = ImGui::GetCursorScreenPos();
+		ImVec2 mouse = ImGui::GetMousePos();
+		float localX = mouse.x - pos.x;
+		float localY = abs(mouse.y - pos.y);
+
+		if (ImGui::IsWindowHovered() && !m_IsMoveCamera && FrameBuffer->ReadPixel(1, localX, localY) > 0)
 		{
 			CoreEngine::InputDevice::SetCursor(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CROSSHAIR_CURSOR);
 			// glfwSetInputMode(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -308,7 +310,7 @@ namespace Editor
 
 		if (m_IsMoveCamera)
 		{
-			glfwSetInputMode(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			// glfwSetInputMode(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
@@ -398,12 +400,17 @@ namespace Editor
 
 	void EditorViewport::BindMoveCamera(const bool IsMove)
 	{
-		m_IsMoveCamera = IsMove;
-
-		if (IsMove)
+		if (!IsMove && m_IsMoveCamera != IsMove)
+		{
+			glfwSetCursorPos(static_cast<GLFWwindow*>(CoreEngine::Application::Get()->GetWindow().GetNativeWindow()), PosCursorBeforeMove.x,
+							 PosCursorBeforeMove.y);
+		}
+		else if (IsMove && m_IsMoveCamera != IsMove)
 		{
 			PosCursorBeforeMove = ImGui::GetMousePos();
 		}
+
+		m_IsMoveCamera = IsMove;
 	}
 
 } // namespace Editor

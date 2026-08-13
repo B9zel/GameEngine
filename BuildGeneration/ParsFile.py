@@ -1,323 +1,347 @@
 import configparser
+import os
 import pathlib as pl
 
-from argparse import Namespace
-from pkgutil import extend_path
-
 from clang import cindex
+
+from FieldTypes import ArrayType, ClassField, ETypePrimitive, MacrosData, VariableField
+from GeneralFile import ParseArrayConfig, SerchAllFiles
 from ParsClasses import ParseClassesOfFile
-from FieldTypes import *
-from GeneralFile import SerchAllFiles, ParseArrayConfig,GetNameFilesWithoutExtenshion
-import os
 
 
-OpenConfig = configparser.ConfigParser()
-OpenConfig.read(f"{pl.Path(__file__).parent}/BuildGenConfig.ini")
-Path = OpenConfig["DEFAULT"]["Path"]
-ClassKeyWord = OpenConfig["Macros"]["Class"]
-PropertyKeyWord = OpenConfig["Macros"]["Property"]
-OutputFiles = OpenConfig["DEFAULT"]["OutputGenFiles"]
+SCRIPT_DIRECTORY = pl.Path(__file__).parent
+PROJECT_DIRECTORY = SCRIPT_DIRECTORY.parent
 
-PathAndModule = ParseArrayConfig(Path)
-files = SerchAllFiles(PathAndModule[0],PathAndModule[1], ".h")
-# files += SerchAllFiles(ParseArrayConfig(Path), ".cpp")
+CONFIG = configparser.ConfigParser()
+CONFIG.read(SCRIPT_DIRECTORY / "BuildGenConfig.ini")
+SOURCE_PATHS = CONFIG["DEFAULT"]["Path"]
+CLASS_MACRO = CONFIG["Macros"]["Class"]
+PROPERTY_MACRO = CONFIG["Macros"]["Property"]
+OUTPUT_FILES = CONFIG["DEFAULT"]["OutputGenFiles"]
 
+# Keep parser flags in one place because they define how project headers are seen by libclang.
+PARSER_ARGUMENTS = [
+    "-x",
+    "c++",
+    "-std=c++17",
+    "-nostdinc",
+    "-I.",
+    f"-I{PROJECT_DIRECTORY / 'CoreEngine' / 'Core'}",
+    "-DRPROPERTY(x)=",
+]
 
-
-def GetNamespaceWithClass(cursor):
-    partsOfNamespace = []
-    buffCur = cursor.semantic_parent
-    while buffCur and buffCur.kind != cindex.CursorKind.TRANSLATION_UNIT:
-        if buffCur.spelling and buffCur.kind in (cindex.CursorKind.NAMESPACE,
-            cindex.CursorKind.CLASS_DECL,
-            cindex.CursorKind.STRUCT_DECL):
-            partsOfNamespace.append(buffCur.spelling)
-        buffCur = buffCur.semantic_parent
-    return "::".join(reversed(partsOfNamespace))
 
 def GetNamespace(cursor):
-    partsOfNamespace = []
-    buffCur = cursor.semantic_parent
-    while buffCur and buffCur.kind != cindex.CursorKind.TRANSLATION_UNIT:
-        if buffCur.spelling and buffCur.kind == cindex.CursorKind.NAMESPACE:
-            partsOfNamespace.append(buffCur.spelling)
-        buffCur = buffCur.semantic_parent
-    return "::".join(reversed(partsOfNamespace))
+    namespace_parts = []
+    parent = cursor.semantic_parent
+    while parent and parent.kind != cindex.CursorKind.TRANSLATION_UNIT:
+        if parent.spelling and parent.kind == cindex.CursorKind.NAMESPACE:
+            namespace_parts.append(parent.spelling)
+        parent = parent.semantic_parent
+    return "::".join(reversed(namespace_parts))
 
-def FindedClassMacros(pr:cindex.TranslationUnit):
-    res:MacrosData = []
-    for token in pr.get_tokens(extent=pr.cursor.extent):
-        #print(token.location.line, token.location.column)
-        if token.location.line == 180 and token.location.column == 1:
-            print()
+
+def FindedClassMacros(translation_unit: cindex.TranslationUnit):
+    """Collect configured class macros and their source locations."""
+    result = []
+    for token in translation_unit.get_tokens(extent=translation_unit.cursor.extent):
         try:
-            if token.spelling == ClassKeyWord:
-                NewMacros = MacrosData()
-                NewMacros.Name = token.spelling
-                NewMacros.Location = token.location.line
-                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)), SearchClassCheck)
-                res.append(NewMacros)
+            if token.spelling == CLASS_MACRO:
+                macro = MacrosData()
+                macro.Name = token.spelling
+                macro.Location = token.location.line
+                macro.Params = CollectPropertyConfig(
+                    list(translation_unit.get_tokens(extent=token.cursor.extent)),
+                    SearchClassCheck,
+                )
+                result.append(macro)
         except UnicodeDecodeError:
             continue
-    return res
+    return result
 
-def CollectPropertyFields(pr, cursor):
-    garbageMacrosProperty = []
-    for token in pr.get_tokens(extent=cursor.extent):
+
+def CollectPropertyFields(translation_unit, cursor):
+    """Match property macros to fields in a reflected class."""
+    unmatched_property_macros = []
+    for token in translation_unit.get_tokens(extent=cursor.extent):
         try:
-            if token.spelling == PropertyKeyWord:
-                NewMacros = MacrosData()
-                NewMacros.Name = token.spelling
-                NewMacros.Location = token.location.line
-                NewMacros.Params = CollectPropertyConfig(pr, list(pr.get_tokens(extent=token.cursor.extent)), SearchVariableCheck)
-                garbageMacrosProperty.append(NewMacros)
+            if token.spelling == PROPERTY_MACRO:
+                macro = MacrosData()
+                macro.Name = token.spelling
+                macro.Location = token.location.line
+                macro.Params = CollectPropertyConfig(
+                    list(translation_unit.get_tokens(extent=token.cursor.extent)),
+                    SearchVariableCheck,
+                )
+                unmatched_property_macros.append(macro)
         except UnicodeDecodeError:
             continue
-    PropertyFields = []
+
+    property_fields = []
     for node in cursor.get_children():
-        if not garbageMacrosProperty:
+        if not unmatched_property_macros:
             break
-        if node.kind == cindex.CursorKind.FIELD_DECL:
-            PosMacros = node.location.line
-            FileName = node.location.file.name
-            FindedMacros = list(filter(lambda el: el.Location <= PosMacros, garbageMacrosProperty))
-            if not FindedMacros:
-                continue
+        if node.kind != cindex.CursorKind.FIELD_DECL:
+            continue
 
-            TypeCollectRes = CollectFullTypeName(pr, node)
-            if TypeCollectRes[1] == ETypePrimitive.ARRAY:
-                NewProperty = ArrayType()
-                NewProperty.InnerType = TypeCollectRes[2]
-                NewProperty.IsPointer = "*" in NewProperty.InnerType
-            elif TypeCollectRes[1] == ETypePrimitive.CUSTOM_PRIMITIVE:
-                NewProperty = VariableField()
-                NewProperty.IsPointer = False
-            else:
-                NewProperty = VariableField()
-                NewProperty.IsPointer = node.type.kind == cindex.TypeKind.POINTER
-            NewProperty.NameVar = node.spelling
-            NewProperty.Type = TypeCollectRes[0]
-            NewProperty.TypePrimitive = TypeCollectRes[1]
-            NewProperty.Params = FindedMacros[0].Params
+        matching_macros = [
+            macro for macro in unmatched_property_macros if macro.Location <= node.location.line
+        ]
+        if not matching_macros:
+            continue
 
-            PropertyFields.append(NewProperty)
-            garbageMacrosProperty.remove(*FindedMacros)
-    return PropertyFields
+        type_name, primitive_type, inner_type = CollectFullTypeName(translation_unit, node)
+        if primitive_type == ETypePrimitive.ARRAY:
+            property_field = ArrayType()
+            property_field.InnerType = inner_type
+            property_field.IsPointer = "*" in inner_type
+        else:
+            property_field = VariableField()
+            property_field.IsPointer = (
+                False
+                if primitive_type == ETypePrimitive.CUSTOM_PRIMITIVE
+                else node.type.kind == cindex.TypeKind.POINTER
+            )
 
-def GetDeclarationFromType(type):
-    if type.kind in (cindex.TypeKind.POINTER, cindex.TypeKind.LVALUEREFERENCE, cindex.TypeKind.RVALUEREFERENCE):
-        type = type.get_pointee()
+        matched_macro = matching_macros[0]
+        property_field.NameVar = node.spelling
+        property_field.Type = type_name
+        property_field.TypePrimitive = primitive_type
+        property_field.Params = matched_macro.Params
+        property_fields.append(property_field)
+        unmatched_property_macros.remove(matched_macro)
 
-    declaration = type.get_declaration()
+    return property_fields
+
+
+def GetDeclarationFromType(clang_type):
+    if clang_type.kind in (
+        cindex.TypeKind.POINTER,
+        cindex.TypeKind.LVALUEREFERENCE,
+        cindex.TypeKind.RVALUEREFERENCE,
+    ):
+        clang_type = clang_type.get_pointee()
+
+    declaration = clang_type.get_declaration()
     if declaration and declaration.kind != cindex.CursorKind.NO_DECL_FOUND:
         return declaration
-    canonic = type.get_canonical()
-    if canonic and canonic != type:
-        declaration = canonic.get_declaration()
-        if declaration and declaration.type != cindex.CursorKind.NO_DECL_FOUND:
+
+    canonical_type = clang_type.get_canonical()
+    if canonical_type and canonical_type != clang_type:
+        declaration = canonical_type.get_declaration()
+        if declaration and declaration.kind != cindex.CursorKind.NO_DECL_FOUND:
             return declaration
     return None
 
-def SearchVariableCheck(j):
-    return j[1].spelling == "RPROPERTY"
 
-def SearchClassCheck(j):
-    return j[1].spelling == "RCLASS"
-
-def CollectPropertyConfig(tu, token:list, SearchPredicate):
-    if not token:
-        return []
-    ResCollect = []
-
-    FindPos = list(filter(SearchPredicate, enumerate(token)))
-    begin = False
-    end = False
-
-    if FindPos:
-        for i in range(FindPos[0][0] + 1, len(token)):
-            if token[i].spelling == "(":
-                begin = True
-            elif token[i].spelling == ")":
-                end = True
-                break
-            elif token[i].spelling not in (",", ";"):
-                ResCollect.append(token[i].spelling)
-
-    return ResCollect
+def SearchVariableCheck(indexed_token):
+    return indexed_token[1].spelling == "RPROPERTY"
 
 
-def CollectNamespaceOfProperty(cursor):
-    return ""
-    parts = []
-    parent = cursor.semantic_parent
-    while parent and parent.kind != cindex.CursorKind.TRANSLATION_UNIT:
-        if parent.spelling and parent.kind != cindex.CursorKind.NAMESPACE:
-            parts.append(parent.spelling)
-        elif parent.spelling and parent.kind in (cindex.CursorKind.CLASS_DECL, cindex.CursorKind.STRUCT_DECL):
-            parts.append(parent.spelling)
-        parent = parent.semantic_parent
-    return "::".join(reversed(parts))
+def SearchClassCheck(indexed_token):
+    return indexed_token[1].spelling == "RCLASS"
 
-def CollectFullTypeName(tu, cursor) -> (str, ETypePrimitive, str):
-    tokens = list(tu.get_tokens(extent=cursor.extent))
+
+def CollectPropertyConfig(tokens: list, search_predicate):
+    """Return macro arguments, excluding punctuation."""
     if not tokens:
-        tokens = [tok for tok in tu.get_tokens(extent=pr.cursor.extent) if
-                  tok.location.line in (cursor.location.line - 1, cursor.location.line, cursor.location.line + 1) and tok.location.file.name == cursor.location.name]
+        return []
 
-    templateType = ExtractTemplateInnder("".join(i.spelling for i in tokens), "DArray")
-    if templateType[0]:
-        return f"DArray<{GetNamespace(cursor)}::{templateType[1]}>", ETypePrimitive.ARRAY, f"{GetNamespace(cursor)}::{templateType[1]}"
-    if tokens[0].spelling in ("FVector", "FTransform", "String", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64", "LinearColor"):
+    matching_positions = list(filter(search_predicate, enumerate(tokens)))
+    if not matching_positions:
+        return []
+
+    result = []
+    for index in range(matching_positions[0][0] + 1, len(tokens)):
+        spelling = tokens[index].spelling
+        if spelling == ")":
+            break
+        if spelling not in ("(", ",", ";"):
+            result.append(spelling)
+    return result
+
+
+def CollectNamespaceOfProperty(_cursor):
+    """Keep property namespaces empty to preserve the current generated output."""
+    return ""
+
+
+def CollectFullTypeName(translation_unit, cursor) -> tuple[str, ETypePrimitive, str]:
+    tokens = list(translation_unit.get_tokens(extent=cursor.extent))
+    if not tokens:
+        # Fall back to nearby tokens when libclang gives the field an empty extent.
+        tokens = [
+            token
+            for token in translation_unit.get_tokens(extent=translation_unit.cursor.extent)
+            if token.location.line
+            in (cursor.location.line - 1, cursor.location.line, cursor.location.line + 1)
+            and token.location.file
+            and cursor.location.file
+            and token.location.file.name == cursor.location.file.name
+        ]
+    if not tokens:
+        return cursor.type.spelling, ETypePrimitive.PRIMITIVE, ""
+
+    template_type = ExtractTemplateInnder("".join(token.spelling for token in tokens), "DArray")
+    if template_type[0]:
+        namespace = GetNamespace(cursor)
+        qualified_inner_type = f"{namespace}::{template_type[1]}"
+        return (
+            f"DArray<{qualified_inner_type}>",
+            ETypePrimitive.ARRAY,
+            qualified_inner_type,
+        )
+
+    custom_primitives = {
+        "FVector",
+        "FTransform",
+        "String",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "LinearColor",
+    }
+    if tokens[0].spelling in custom_primitives:
         return tokens[0].spelling, ETypePrimitive.CUSTOM_PRIMITIVE, ""
 
-    declar = GetDeclarationFromType(cursor.type)
-    if declar:
-        namespaces = CollectNamespaceOfProperty(declar)
-        Type = declar.type.spelling
-        return f"{namespaces}::{Type}", ETypePrimitive.PRIMITIVE, ""
-    spell = ""
-    for token in tu.get_tokens(extent=cursor.extent):
-        spell += token.spelling
-    if "*" in spell:
-        return spell[:spell.find("*")], ETypePrimitive.PRIMITIVE, ""
-    spell = cursor.type.spelling
+    declaration = GetDeclarationFromType(cursor.type)
+    if declaration:
+        namespace = CollectNamespaceOfProperty(declaration)
+        return f"{namespace}::{declaration.type.spelling}", ETypePrimitive.PRIMITIVE, ""
 
-    if "::" in spell:
-        last = spell.rfind("::")
-        likelyNs = spell[:last]
-        return likelyNs, ETypePrimitive.PRIMITIVE
-    return spell, ETypePrimitive.PRIMITIVE, ""
+    spelling = "".join(
+        token.spelling for token in translation_unit.get_tokens(extent=cursor.extent)
+    )
+    if "*" in spelling:
+        return spelling[:spelling.find("*")], ETypePrimitive.PRIMITIVE, ""
 
-def ExtractTemplateInnder(Type:str, SearchTemplate:str) -> (bool, str):
-    """
-    :param Type: type of variable
-    :param SearchTemplate: string for search in Type
-    :return: first param is successes, second param inner type
-    """
-    FindedTemp = Type.find(SearchTemplate)
-    if FindedTemp < 0:
-        return (False, "")
+    spelling = cursor.type.spelling
+    if "::" in spelling:
+        return spelling[:spelling.rfind("::")], ETypePrimitive.PRIMITIVE, ""
+    return spelling, ETypePrimitive.PRIMITIVE, ""
 
-    InnerTypeStart = FindedTemp + len(SearchTemplate)
-    start = Type.find("<", InnerTypeStart)
-    if start < 0:
-        return (False, "")
-    i = start
+
+def ExtractTemplateInnder(type_name: str, search_template: str) -> tuple[bool, str]:
+    """Extract the inner type from a possibly nested template expression."""
+    template_start = type_name.find(search_template)
+    if template_start < 0:
+        return False, ""
+
+    inner_type_start = template_start + len(search_template)
+    opening_bracket = type_name.find("<", inner_type_start)
+    if opening_bracket < 0:
+        return False, ""
+
     depth = 0
-    end = -1
-    while i < len(Type):
-        char = Type[i]
-        if char == "<":
+    closing_bracket = -1
+    for index in range(opening_bracket, len(type_name)):
+        character = type_name[index]
+        if character == "<":
             depth += 1
-        elif char == ">":
+        elif character == ">":
             depth -= 1
             if depth == 0:
-                end = i
-        i += 1
-    return (True, Type[start + 1:end])
+                closing_bracket = index
+    if closing_bracket < 0:
+        return False, ""
+    return True, type_name[opening_bracket + 1:closing_bracket]
 
-def CollectGeneratedBody(pr, cursor):
-    for token in pr.get_tokens(extent=cursor.extent):
+
+def CollectGeneratedBody(translation_unit, cursor):
+    for token in translation_unit.get_tokens(extent=cursor.extent):
         if token.spelling == "GENERATED_BODY":
-            FindGenBody = MacrosData()
-            FindGenBody.Name = "GENERATED_BODY"
-            FindGenBody.Location = token.location.line
-            return FindGenBody
+            generated_body = MacrosData()
+            generated_body.Name = "GENERATED_BODY"
+            generated_body.Location = token.location.line
+            return generated_body
 
-def GetParent(pr, cursor):
-    IsCollect = False
-    Res = ""
-    Namespace = []
-    for token in pr.get_tokens(extent=cursor.extent):
+
+def GetParent(translation_unit, cursor):
+    collect_parent = False
+    parent_name = ""
+    for token in translation_unit.get_tokens(extent=cursor.extent):
         if token.spelling == "{":
             break
         if token.spelling == ":":
-            IsCollect = True
+            collect_parent = True
             continue
-        if IsCollect:
-            if token.spelling not in ("public", "protected", "private"):
-                Res += token.spelling
-                break
-    return Res
+        if collect_parent and token.spelling not in ("public", "protected", "private"):
+            parent_name += token.spelling
+            break
+    return parent_name
 
-def GetParentWithNamepsace(NamespaceAbove:str, ParentFullName:str):
-    if not ParentFullName:
+
+def GetParentWithNamepsace(namespace_above: str, parent_full_name: str):
+    if not parent_full_name:
         return ""
-    Pos = ParentFullName.find("::")
-    if Pos != -1 and NamespaceAbove in ParentFullName:
-        return ParentFullName
-    else:
-        return NamespaceAbove + "::" + ParentFullName
+    if "::" in parent_full_name and namespace_above in parent_full_name:
+        return parent_full_name
+    return namespace_above + "::" + parent_full_name
 
-def ParseFile(pr, FindedMacrosClass:list) -> list:
-    if not FindedMacrosClass:
+
+def ParseFile(translation_unit, class_macros: list) -> list:
+    if not class_macros:
         return []
-    classesRes = []
-    for node in walk(pr.cursor):
-        if node.kind == cindex.CursorKind.CLASS_DECL:
-            macros = node.location.line - 1
-            FindedMacros = list(filter(lambda el: el.Location == macros, FindedMacrosClass))
-            if not FindedMacros:
-                continue
-            NewClass = ClassField()
-            NewClass.Name = node.spelling
-            #NewClass.Namespace = GetNamespaceWithClass(node)
-            NewClass.LineGenBody = CollectGeneratedBody(pr, node)
-            NewClass.ParamsClass = FindedMacros[0]
-            NewClass.Parent = GetParentWithNamepsace(NewClass.Namespace, GetParent(pr, node))
-            if not NewClass.IsValidGeneretedBody():
-                continue
-            NewClass.Variable = CollectPropertyFields(pr, node)
-            classesRes.append(NewClass)
-            print(node.displayname)
-        if node.kind == cindex.CursorKind.CXX_BASE_SPECIFIER:
-            print(node.spelling)
-    return classesRes
 
+    classes = []
+    for node in walk(translation_unit.cursor):
+        if node.kind != cindex.CursorKind.CLASS_DECL:
+            continue
 
-def ParseClass(cursor):
-    for fields in cursor:
-        if fields.kind == cindex.CursorKind.FIELD_DECL and fields.location.file:
-            pass
+        macro_line = node.location.line - 1
+        matching_macros = [macro for macro in class_macros if macro.Location == macro_line]
+        if not matching_macros:
+            continue
 
-def PrintParse(cursor,ns="", depth=0):
-    if cursor.kind == cindex.CursorKind.NAMESPACE:
-        ns = ns + "::" + cursor.spelling if ns else cursor.spelling
+        generated_body = CollectGeneratedBody(translation_unit, node)
+        if generated_body is None:
+            continue
 
-    if cursor.kind == cindex.CursorKind.CLASS_DECL:
-        print(f"Класс: {cursor.spelling}, пространство имён: {ns}")
+        class_field = ClassField()
+        class_field.Name = node.spelling
+        class_field.LineGenBody = generated_body
+        class_field.ParamsClass = matching_macros[0]
+        class_field.Parent = GetParentWithNamepsace(
+            class_field.Namespace,
+            GetParent(translation_unit, node),
+        )
+        if not class_field.IsValidGeneretedBody():
+            continue
+        class_field.Variable = CollectPropertyFields(translation_unit, node)
+        classes.append(class_field)
+    return classes
 
-    if cursor.kind == cindex.CursorKind.FIELD_DECL:
-        print(f"  Переменная: {cursor.spelling} ({cursor.type.spelling})")
-
-    for child in cursor.get_children():
-        PrintParse(child, ns, depth + 1)
 
 def walk(cursor):
-    for c in cursor.get_children():
-        yield c
-        yield from walk(c)
+    for child in cursor.get_children():
+        yield child
+        yield from walk(child)
 
-def PrintTokens(tk):
-    HasMacros = False
-    HasClass = False
-    for token in tk.get_tokens(extent=tk.cursor.extent):
-        if token.spelling == ClassKeyWord:
-            print("Найден макрос:", token.spelling, "строка:", token.location.line)
 
-            for child in walk(tk.cursor):
-                if child.kind == cindex.CursorKind.CLASS_DECL:
-                    if child.location.line > token.location.line:
-                        print(child.spelling)
-                        break
+def main():
+    """Parse reflected headers and populate the prepared generated files."""
+    source_paths, modules = ParseArrayConfig(SOURCE_PATHS)
+    files_by_module = SerchAllFiles(source_paths, modules, ".h")
+    index = cindex.Index.create()
 
-index = cindex.Index.create()
-for module in files:
-    for file in files[module]:
-        GenFileNextIteration = False
-        pathg = os.path.abspath(file)
-        pr = index.parse(pathg, args=["-x", "c++","-std=c++17","-nostdinc", "-I.", r"-IC:\Projects\C++\GameEngine\CoreEngine\Core", "-DRPROPERTY(x)="], options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
-    # print(f"\n\nStart {file.name}\n\n")
-        ParseClassesOfFile(ParseFile(pr, FindedClassMacros(pr)), file, OutputFiles + "/" + module)
-    # for i in ParseFile(pr.cursor, FindedClassMacros(pr)):
-    #    GenerateCodeClass(i.Name, GetNameFilesWithoutExtenshion(file.name),file, OutputFiles, i)
+    for module, files in files_by_module.items():
+        for file in files:
+            translation_unit = index.parse(
+                os.path.abspath(file),
+                args=PARSER_ARGUMENTS,
+                options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
+            )
+            classes = ParseFile(
+                translation_unit,
+                FindedClassMacros(translation_unit),
+            )
+            ParseClassesOfFile(classes, file, f"{OUTPUT_FILES}/{module}")
+
+
+if __name__ == "__main__":
+    main()

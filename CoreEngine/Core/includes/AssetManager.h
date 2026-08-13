@@ -44,8 +44,8 @@ private:
 
 	void ClearAllAssets();
 
-	void PreChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field);
-	void PostChangeNameOfAsset(CoreEngine::Reflection::PropertyField& Field);
+	void PreChangeNameOfAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
+	void PostChangeNameOfAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
 
 private:
 
@@ -55,7 +55,7 @@ private:
 	DArray<Asset*> m_Assets;
 
 	// Path and index in m_Assets
-	HashTableMap<String, uint32> LoadedAssets;
+	HashTableMap<String, size_t> LoadedAssets;
 
-	Pair<String, uint32> AssetChangingName;
+	Pair<String, size_t> AssetChangingName;
 };

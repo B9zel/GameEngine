@@ -1,17 +1,33 @@
-#include "../CoreEngine/Core/includes/Memory/Allocator.h"
+#include <Core/includes/Memory/Allocator.h>
 
-void* Allocator::Allocate(uint32 bytes) noexcept
+void* Allocator::Allocate(size_t bytes)
 {
-    return std::malloc(bytes);
+	if (void* memory = std::malloc(bytes))
+	{
+		return memory;
+	}
+
+	throw std::bad_alloc();
 }
 
-inline void* Allocator::Reallocate(void* mem, uint32 size) noexcept
+void* Allocator::Reallocate(void* mem, size_t size)
 {
-    return std::realloc(mem, size);
+	if (size == 0)
+	{
+		Deallocate(mem);
+		return nullptr;
+	}
+
+	if (void* memory = std::realloc(mem, size))
+	{
+		return memory;
+	}
+
+	throw std::bad_alloc();
 }
 
 void Allocator::Deallocate(void* mem) noexcept
 {
-    return std::free(mem);
+	std::free(mem);
 }
 

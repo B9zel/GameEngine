@@ -40,10 +40,18 @@ namespace CoreEngine
 		// m_Engine = move(options.EngineInstance);
 	}
 
+	Application::~Application()
+	{
+		InstanceEngine.reset();
+		m_ReflectionManger.reset();
+		window.reset();
+		m_Instance = nullptr;
+		glfwTerminate();
+	}
 	void Application::Start()
 	{
 		InstanceEngine->PostInitialize();
-		while (m_isRun)
+		while (m_isRun && window && !glfwWindowShouldClose(static_cast<GLFWwindow*>(window->GetNativeWindow())))
 		{
 			InstanceEngine->Update();
 			window->OnUpdate();
@@ -83,7 +91,6 @@ namespace CoreEngine
 	void Application::Exit()
 	{
 		m_isRun = false;
-		glfwTerminate();
 	}
 
 	void Application::ConstructEngine()

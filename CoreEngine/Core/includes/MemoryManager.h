@@ -1,6 +1,5 @@
 #pragma once
 #include <Core/includes/Base.h>
-#include <Core/includes/ObjectPtr.h>
 #include <Core/includes/Memory/Allocator.h>
 
 /**

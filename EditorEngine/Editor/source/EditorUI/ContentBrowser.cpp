@@ -1,6 +1,6 @@
 #include <Editor/includes/EditorUI/ContentBrowser.h>
 #include <Core/includes/Application.h>
-#include <Editor/includes/Util/DrawUtils.h>
+#include <Editor/includes/Utills/DrawUtills.h>
 #include <Render/includes/Texture.h>
 #include <Render/includes/RenderDevice.h>
 #include <Core/includes/AssetManager.h>
@@ -165,8 +165,8 @@ namespace Editor
 											 ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll))
 						{
 
-							std::filesystem::rename(m_StorageDirectories[i].path(),
-													m_StorageDirectories[i].path().parent_path() / String(m_RenameItems.RenameBuffer).append(".reflect"));
+							/*	std::filesystem::rename(m_StorageDirectories[i].path(),
+														m_StorageDirectories[i].path().parent_path() / String(m_RenameItems.RenameBuffer).append(".reflect"));*/
 
 							for (auto& asset : AssetManager::Get().GetLoadedAssets())
 							{
@@ -381,6 +381,21 @@ namespace Editor
 				const String& NewMaterial = "NewShader" + Utils::ConvertToString(m_StorageDirectories.size());
 				const String& Path = (m_CurrentPath / (NewMaterial + FileExtension)).string();
 				Asset* NewAsset = AssetManager::Get().CreateAsset(Path, CoreEngine::EAssetType::Shader);
+				auto* EditorAsset = dynamic_cast<IEditorDrawingInterface*>(NewAsset);
+				if (NewAsset)
+				{
+					NewAsset->SetName(NewMaterial);
+					m_Assts.emplace(Path, EditorAsset);
+					Engine::Get()->GetWorld()->GetSaveManager()->SaveAsset(Path, NewAsset);
+				}
+
+				CollectAllFilesAndDirectories(m_CurrentPath, m_StorageDirectories);
+			}
+			else if (ImGui::MenuItem("Model"))
+			{
+				const String& NewMaterial = "NewModel" + Utils::ConvertToString(m_StorageDirectories.size());
+				const String& Path = (m_CurrentPath / (NewMaterial + FileExtension)).string();
+				Asset* NewAsset = AssetManager::Get().CreateAsset(Path, CoreEngine::EAssetType::Model);
 				auto* EditorAsset = dynamic_cast<IEditorDrawingInterface*>(NewAsset);
 				if (NewAsset)
 				{

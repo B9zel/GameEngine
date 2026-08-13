@@ -8,6 +8,8 @@
 #include <Render/includes/Material.h>
 #include <Core/includes/Application.h>
 #include <Render/includes/MaterialAsset.h>
+#include <Core/includes/MeshAsset.h>
+#include <Core/includes/MeshAsset.h>
 #include <glad/glad.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(MESH_COMPONENT_LOG);
@@ -121,6 +123,27 @@ CoreEngine::PrimitiveProxy* MeshComponent::GetUpdateProxy() const
 	return m_Proxy.get();
 }
 
+void MeshComponent::PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
+{
+	PrimitiveComponent::PreEditChangeProperty(Property);
+
+	if (Property.Name == STRINGCON_DETAILS(AssetModel) && AssetModel)
+	{
+		AssetModel->PostChangeProperty.Remove(&MeshComponent::PostOnChangeModelAsset, this);
+	}
+}
+
+void MeshComponent::PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
+{
+	PrimitiveComponent::PostEditChangeProperty(Property);
+	if (Property.Name == STRINGCON_DETAILS(AssetModel))
+	{
+		AssetModel->PostChangeProperty.AddBind(&MeshComponent::PostOnChangeModelAsset, this);
+
+		LoadMesh(AssetModel->GetPathToModel());
+	}
+}
+
 void MeshComponent::SetupNode(aiNode* Node, const aiScene* Scene)
 {
 	for (int64 i = 0; i < Node->mNumMeshes; i++)
@@ -168,4 +191,12 @@ void MeshComponent::ReloadMesh(Assimp::Importer& Importer, aiScene** Scene)
 {
 	Importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
 	//	*Scene = Importer.ApplyPostProcessing(aiProcess_RemoveComponent | aiProcess_GenSmoothNormals);
+}
+
+void MeshComponent::PostOnChangeModelAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field)
+{
+	if (auto* Mesh = dynamic_cast<MeshAsset*>(asset))
+	{
+		LoadMesh(Mesh->GetPathToModel());
+	}
 }

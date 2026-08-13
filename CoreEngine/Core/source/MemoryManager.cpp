@@ -20,19 +20,27 @@ namespace CoreEngine
 	{
 		if (m_MemoryInstance)
 		{
-			EG_LOG(CORE, ELevelLog::WARNING, "Memory manager already exists");
-			return UniquePtr<MemoryManager>(m_MemoryInstance);
+			EG_LOG(CORE, ELevelLog::ERROR, "Memory manager already exists");
+			return nullptr;
 		}
 
-		m_MemoryInstance = new MemoryManager();
-		m_MemoryInstance->m_collector = GB::GarbageCollector::Create();
+		auto newManager = UniquePtr<MemoryManager>(new MemoryManager());
+		newManager->m_collector = GB::GarbageCollector::Create();
+		m_MemoryInstance = newManager.get();
 
-		return UniquePtr<MemoryManager>(m_MemoryInstance);
+		return newManager;
 	}
 
 	MemoryManager::~MemoryManager()
 	{
-		Allocator::Deallocate<GB::GarbageCollector>(m_collector);
+		if (m_collector)
+		{
+			m_collector->Shutdown();
+			Allocator::DestroyAndDeallocate(m_collector);
+			m_collector = nullptr;
+		}
+
+		m_MemoryInstance = nullptr;
 	}
 
 } // namespace CoreEngine

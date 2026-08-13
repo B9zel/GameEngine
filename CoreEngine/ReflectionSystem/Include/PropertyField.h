@@ -162,12 +162,12 @@ namespace CoreEngine
 				return reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 			}
 
-			template <typename TypeProperty> void SetSourceProperty(void* InstanceClass, const TypeProperty NewValur)
+			template <typename TypeProperty> void SetSourceProperty(void* InstanceClass, const TypeProperty NewValue)
 			{
 				TypeProperty* Variable = reinterpret_cast<TypeProperty*>(reinterpret_cast<uint64>(InstanceClass) + Offset);
 				if (Variable)
 				{
-					(*Variable) = NewValur;
+					(*Variable) = NewValue;
 				}
 			}
 

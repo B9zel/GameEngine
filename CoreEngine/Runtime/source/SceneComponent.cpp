@@ -5,7 +5,33 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <Runtime/includes/Actor.h>
+#include <cmath>
 // #include <glm/gtc/quaternion.hpp>
+
+namespace
+{
+	FVector GetWorldScale(const SceneComponent* component)
+	{
+		FVector worldScale = component->GetComponentScale();
+		for (const SceneComponent* parent = component->GetParentAttach(); parent; parent = parent->GetParentAttach())
+		{
+			worldScale *= parent->GetComponentScale();
+		}
+		return worldScale;
+	}
+
+	float GetRelativeScaleAxis(float worldScale, float parentWorldScale)
+	{
+		constexpr float MinScale = 0.000001f;
+		return std::abs(parentWorldScale) > MinScale ? worldScale / parentWorldScale : 0.0f;
+	}
+
+	FVector GetRelativeScale(const FVector& worldScale, const FVector& parentWorldScale)
+	{
+		return FVector(GetRelativeScaleAxis(worldScale.GetX(), parentWorldScale.GetX()), GetRelativeScaleAxis(worldScale.GetY(), parentWorldScale.GetY()),
+					   GetRelativeScaleAxis(worldScale.GetZ(), parentWorldScale.GetZ()));
+	}
+} // namespace
 
 SceneComponent::SceneComponent(const CoreEngine::InitializeObject& Object) : ActorComponent(Object)
 {
@@ -21,23 +47,57 @@ void SceneComponent::DestroyComponent()
 {
 	if (parentAttach)
 	{
-		for (uint64 i = 0; i < childrenAttach.size(); i++)
+		SceneComponent* targetParent = parentAttach;
+		while (!childrenAttach.empty())
 		{
-			childrenAttach[i]->SetupToAttachment(parentAttach);
+			SceneComponent* child = childrenAttach.front();
+			if (!child)
+			{
+				childrenAttach.erase(childrenAttach.begin());
+				continue;
+			}
+
+			child->SetupToAttachment(targetParent);
 		}
-		auto& arrChildren = parentAttach->childrenAttach;
-		arrChildren.erase(std::find(arrChildren.begin(), arrChildren.end(), this));
+
+		auto& siblings = targetParent->childrenAttach;
+		const auto selfIt = std::find(siblings.begin(), siblings.end(), this);
+		if (selfIt != siblings.end())
+		{
+			siblings.erase(selfIt);
+		}
+
+		parentAttach = nullptr;
+		ActorComponent::DestroyComponent();
 		return;
 	}
+
 	SceneComponent* NextRoot = childrenAttach.empty() ? nullptr : childrenAttach.front();
 	if (NextRoot)
 	{
-		for (uint64 i = 0; i < childrenAttach.size(); i++)
+		childrenAttach.erase(childrenAttach.begin());
+		NextRoot->parentAttach = nullptr;
+
+		while (!childrenAttach.empty())
 		{
-			childrenAttach[i]->SetupToAttachment(NextRoot);
+			SceneComponent* child = childrenAttach.front();
+			if (!child)
+			{
+				childrenAttach.erase(childrenAttach.begin());
+				continue;
+			}
+
+			child->SetupToAttachment(NextRoot);
 		}
+
 		GetOwner()->SetRootComponent(NextRoot);
 	}
+	else if (GetOwner() && GetOwner()->GetRootComponent() == this)
+	{
+		GetOwner()->SetRootComponent(nullptr);
+	}
+
+	ActorComponent::DestroyComponent();
 }
 
 const FTransform& SceneComponent::GetTransform() const
@@ -63,9 +123,9 @@ FVector SceneComponent::GetReletiveLocation() const
 {
 	if (parentAttach)
 	{
-		return parentAttach->GetComponentLocation() - GetComponentLocation();
+		return parentAttach->GetReletiveLocation() - GetComponentLocation();
 	}
-	return GetComponentLocation();
+	return FVector::ZeroVector;
 }
 
 FVector SceneComponent::GetComponentScale() const
@@ -73,9 +133,27 @@ FVector SceneComponent::GetComponentScale() const
 	return Transform.GetScale();
 }
 
+FVector SceneComponent::GetReletiveScale() const
+{
+	if (parentAttach)
+	{
+		return parentAttach->GetReletiveScale() - GetComponentScale();
+	}
+	return FVector::ZeroVector;
+}
+
 FVector SceneComponent::GetComponentRotation() const
 {
 	return Transform.GetRotation();
+}
+
+FVector SceneComponent::GetReletiveRotation() const
+{
+	if (parentAttach)
+	{
+		return parentAttach->GetReletiveRotation() - GetComponentRotation();
+	}
+	return FVector::ZeroVector;
 }
 
 FVector SceneComponent::GetForwardVector() const
@@ -146,16 +224,38 @@ void SceneComponent::AddComponentScale(const FVector& addScale)
 
 void SceneComponent::SetupToAttachment(SceneComponent* attach)
 {
-	if (!attach) return;
+	if (!attach || attach == this) return;
+	if (attach == parentAttach) return;
+
+	for (SceneComponent* ancestor = attach; ancestor; ancestor = ancestor->parentAttach)
+	{
+		if (ancestor == this) return;
+	}
+
+	const FVector worldScale = GetWorldScale(this);
 
 	if (parentAttach)
 	{
 		auto& arrChildren = parentAttach->childrenAttach;
-		arrChildren.erase(std::find(arrChildren.begin(), arrChildren.end(), this));
+		const auto selfIt = std::find(arrChildren.begin(), arrChildren.end(), this);
+		if (selfIt != arrChildren.end())
+		{
+			arrChildren.erase(selfIt);
+		}
+	}
+
+	if (parentAttach)
+	{
+		SetComponentLocation(attach->GetReletiveLocation() - GetReletiveLocation());
+		SetComponentRotation(attach->GetReletiveRotation() - GetReletiveRotation());
 	}
 
 	parentAttach = attach;
-	attach->childrenAttach.push_back(this);
+	SetComponentScale(GetRelativeScale(worldScale, GetWorldScale(attach)));
+	if (std::find(attach->childrenAttach.begin(), attach->childrenAttach.end(), this) == attach->childrenAttach.end())
+	{
+		attach->childrenAttach.push_back(this);
+	}
 }
 
 const DArray<SceneComponent*>& SceneComponent::GetChildrenAttaches() const

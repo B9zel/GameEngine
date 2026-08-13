@@ -1,68 +1,76 @@
-import pathlib as pl
 import os
+import pathlib as pl
 
 
+def ParseArrayConfig(value):
+    """Parse the configured source paths and derive their module names."""
+    paths = [""]
+    modules = [""]
+    value = value.replace("[", "", 1)
+    value = value[::-1].replace("]", "", 1)[::-1]
 
-def ParseArrayConfig(arr):
-    res = [""]
-    ResModules = [""]
-    arr = arr.replace('[', '' ,1)
-    arr = arr[-1::-1].replace(']', '', 1)[-1::-1]
-
-    currentIndex = 0
-    for i in arr:
-        if not res[currentIndex] and i == " ":
+    current_index = 0
+    for character in value:
+        if not paths[current_index] and character == " ":
             continue
-        if i != ',':
-            res[currentIndex] += i
-            if i.isalpha():
-                ResModules[currentIndex] += i
+        if character != ",":
+            paths[current_index] += character
+            if character.isalpha():
+                modules[current_index] += character
         else:
-            res.append("")
-            ResModules.append("")
-            currentIndex += 1
-    return res, ResModules
+            paths.append("")
+            modules.append("")
+            current_index += 1
+    return paths, modules
 
-def SerchAllFiles(path, module, extenshion):
-    Res = {}
-    for PathIndex in range(len(path)):
-        Res[module[PathIndex]] = []
-        targetPath = pl.PurePath(pl.Path(__file__).parent / path[PathIndex])
-        for root, dirs, files in os.walk(targetPath):
+
+def SerchAllFiles(paths, modules, extension):
+    """Collect matching files for every configured module."""
+    result = {}
+    for path_index, source_path in enumerate(paths):
+        module = modules[path_index]
+        result[module] = []
+        target_path = pl.Path(__file__).parent / source_path
+        for root, _, files in os.walk(target_path):
             for file in files:
-                point = file.find(".")
-                if file.find(extenshion, point) != -1:
-                    Res[module[PathIndex]].append(pl.PurePath(root) / file)
-    return Res
+                if file.endswith(extension):
+                    result[module].append(pl.PurePath(root) / file)
+    return result
 
-def GetNameFilesWithoutExtenshion(file:str):
-    Point = file.find(".")
-    if Point != -1:
-        return file[:Point]
+
+def GetNameFilesWithoutExtenshion(file: str):
+    """Return the part of a file name before its first dot."""
+    extension_start = file.find(".")
+    if extension_start != -1:
+        return file[:extension_start]
     return file
 
-def ParseFile(FileList:list, FindedClassKeyWorld, callBack, FilePath, DirectoryOutputFile, CurrentModule):
-    ClassKeyWoldBuffer = ""
-    NextLineClass = False
-    for line in FileList:
-        if NextLineClass:
+
+def ParseFile(file_lines: list, class_macro, callback, file_path, output_directory, current_module):
+    """Call *callback* for classes immediately following the reflection macro."""
+    class_macro_text = ""
+    class_is_on_next_line = False
+    for line in file_lines:
+        if class_is_on_next_line:
             line = line.replace(" ", "")
-            KeyWordClass = "class"
-            findedClassKey = line.find(KeyWordClass)
-            endLine = line.find(";")
-            if endLine == -1 and findedClassKey != -1:
-                InheritanceKeyCharacter = ":"
-                findedInheritance = line.find(InheritanceKeyCharacter, findedClassKey + len(KeyWordClass))
-                classNameEndPos = 0
-                if findedInheritance == -1:
-                    classNameEndPos = len(line) - 1
-                else:
-                    classNameEndPos = findedInheritance
-                callBack(ClassKeyWoldBuffer, line[findedClassKey + len(KeyWordClass):classNameEndPos], FilePath.name, FilePath,DirectoryOutputFile, CurrentModule)
-            NextLineClass = False
+            class_keyword = "class"
+            class_start = line.find(class_keyword)
+            line_ends_declaration = line.find(";")
+            if line_ends_declaration == -1 and class_start != -1:
+                inheritance_start = line.find(":", class_start + len(class_keyword))
+                class_name_end = len(line) - 1 if inheritance_start == -1 else inheritance_start
+                callback(
+                    class_macro_text,
+                    line[class_start + len(class_keyword):class_name_end],
+                    file_path.name,
+                    file_path,
+                    output_directory,
+                    current_module,
+                )
+            class_is_on_next_line = False
             continue
-        findedClass = line.find(FindedClassKeyWorld)
-        if findedClass != -1:
-            closedBracket = line.find(')', findedClass)
-            ClassKeyWoldBuffer = line[findedClass:closedBracket + 1]
-            NextLineClass = True
+        macro_start = line.find(class_macro)
+        if macro_start != -1:
+            closing_bracket = line.find(")", macro_start)
+            class_macro_text = line[macro_start:closing_bracket + 1]
+            class_is_on_next_line = True

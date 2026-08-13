@@ -9,6 +9,12 @@ namespace CoreEngine
 	namespace Reflection
 	{
 		ReflectionManager* ReflectionManager::Instance = nullptr;
+
+		ReflectionManager::~ReflectionManager()
+		{
+			Instance = nullptr;
+		}
+
 		UniquePtr<ReflectionManager> ReflectionManager::CreateReflectionManager()
 		{
 			class WrapperReflectionManger : public ReflectionManager
@@ -22,7 +28,8 @@ namespace CoreEngine
 				return NewInstance;
 			}
 
-			return UniquePtr<ReflectionManager>(Instance);
+			EG_LOG(ReflectionManagerLog, ELevelLog::ERROR, "Reflection manager already exists");
+			return nullptr;
 		}
 
 		void ReflectionManager::RegisterNewClass(const String& NameClass, const SharedPtr<ClassField>& NewClass)

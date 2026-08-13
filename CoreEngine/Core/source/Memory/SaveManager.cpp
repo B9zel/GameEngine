@@ -55,13 +55,33 @@ namespace CoreEngine
 	{
 		std::ifstream File(Path);
 		if (!File.is_open()) return false;
-		SerializeAchive LoadedAchive;
-		File >> LoadedAchive;
-		EG_LOG(CORE, ELevelLog::INFO, LoadedAchive.Data().dump(4));
-		for (auto& i : LoadedAchive.Data()["World"]["FirstLevel"])
-		{
 
-			EG_LOG(CORE, ELevelLog::INFO, i.dump(4));
+		SerializeAchive LoadedAchive;
+		try
+		{
+			File >> LoadedAchive;
+		}
+		catch (const nlohmann::json::exception& Error)
+		{
+			EG_LOG(CORE, ELevelLog::ERROR, "Can't parse scene file '{0}': {1}", Path, Error.what());
+			return false;
+		}
+
+		auto& Root = LoadedAchive.Data();
+		if (!Root.is_object() || Root.count("Type") != 0)
+		{
+			EG_LOG(CORE, ELevelLog::ERROR, "File '{0}' is an asset, not a scene", Path);
+			return false;
+		}
+
+		const bool HasWorld = std::any_of(Root.begin(), Root.end(), [](const nlohmann::json& Node)
+		{
+			return Node.is_object() && Node.count("m_MainLevel") != 0;
+		});
+		if (!HasWorld)
+		{
+			EG_LOG(CORE, ELevelLog::ERROR, "File '{0}' doesn't contain a serialized world", Path);
+			return false;
 		}
 
 		PreStartDeserialized();

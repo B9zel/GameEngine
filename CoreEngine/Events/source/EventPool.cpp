@@ -51,11 +51,16 @@ namespace CoreEngine
 		}
 		UniquePtr<EventCell> newCells = MakeUniquePtr<EventCell>();
 		newCells->event = CreateEventByType(eventType);
+		if (!newCells->event) return nullptr;
+
+		newCells->IsFree = false;
 		return m_PoolEvents[eventType].emplace_back(std::move(newCells))->event.get();
 	}
 
 	void CoreEngine::EventPool::GiveEventClass(Event* event)
 	{
+		if (!event) return;
+
 		for (auto& i : m_PoolEvents[event->GetEventType()])
 		{
 			if (i->event.get() == event)
@@ -80,7 +85,7 @@ namespace CoreEngine
 		case EEventType::WINDOW_FOCUSED: return MakeUniquePtr<EventFocusedWindow>();
 		case EEventType::WINDOW_RESIZE: return MakeUniquePtr<EventResizeWidnow>();
 		default:
-			break;
+			return nullptr;
 		}
 	}
 }

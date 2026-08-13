@@ -21,6 +21,7 @@ namespace CoreEngine
 		public:
 
 			Render();
+			virtual ~Render();
 
 		public:
 

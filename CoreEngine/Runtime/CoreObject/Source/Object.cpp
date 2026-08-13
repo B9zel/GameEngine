@@ -136,7 +136,7 @@ Object* Object::GetOuter() const
 
 void Object::MarkGarbage()
 {
-	SetFlag(static_cast<uint64>(StateObjectFlagGC), static_cast<uint64>(ObjectGCFlags::Garbage));
+	SetFlag(StateObjectFlagGC, static_cast<uint64>(ObjectGCFlags::Garbage));
 }
 
 void Object::OnDeserialize(CoreEngine::SerializeAchive& Data)

@@ -46,7 +46,7 @@ public:
 	 */
 	virtual void Update();
 	Engine(const CoreEngine::InitializeObject& Initilize);
-	virtual ~Engine() = default;
+	virtual ~Engine();
 
 public:
 

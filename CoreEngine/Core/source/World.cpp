@@ -12,12 +12,14 @@
 World::World(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
 {
 	m_UpdateManager = CoreEngine::UpdateManager::CreateInstance();
-	m_Scene = Allocator::Allocate<CoreEngine::Render::Scene>();
+	m_Scene = MakeUniquePtr<CoreEngine::Render::Scene>();
 	m_SaveManager = MakeUniquePtr<CoreEngine::SaveManager>();
 	m_SaveManager->SetWorld(this);
 
 	m_LastTime = static_cast<float>(glfwGetTime());
 }
+
+World::~World() = default;
 
 void World::InitProperties()
 {
@@ -65,6 +67,8 @@ const DArray<Level*>& World::GetLevels() const
 
 FVector World::GetControllerLocation() const
 {
+	if (!m_MainLevel) return FVector::ZeroVector;
+
 	for (auto* actor : m_MainLevel->GetActors())
 	{
 		if (dynamic_cast<PlayerController*>(actor))
@@ -105,18 +109,33 @@ void World::OnDeserialize(CoreEngine::SerializeAchive& Data)
 
 void World::OpenLevel(Level* level)
 {
-	if (!m_MainLevel || !m_Levels.empty())
+	if (!level)
 	{
-		m_MainLevel->StartDestroy();
-		m_MainLevel->FinishDestroy();
-		m_Levels.erase(std::find(m_Levels.begin(), m_Levels.end(), m_MainLevel));
-		delete m_MainLevel;
+		EG_LOG(CoreEngine::CORE, ELevelLog::ERROR, "Can't open null level");
+		return;
 	}
+
+	if (m_MainLevel == level) return;
+
+	if (m_MainLevel)
+	{
+		Level* previousLevel = m_MainLevel;
+		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->RemoveRootObject(previousLevel);
+
+		const auto levelIt = std::find(m_Levels.begin(), m_Levels.end(), previousLevel);
+		if (levelIt != m_Levels.end())
+		{
+			m_Levels.erase(levelIt);
+		}
+
+		previousLevel->MarkGarbage();
+	}
+
+	level->SetWorld(this);
 	level->InitProperties();
 	m_Levels.push_back(level);
 	m_MainLevel = level;
 
-	m_MainLevel->SetWorld(this);
 	m_MainLevel->ActorInitialize();
 	Engine::Get()->GetMemoryManager()->GetGarbageCollector()->AddRootObject(m_MainLevel);
 }

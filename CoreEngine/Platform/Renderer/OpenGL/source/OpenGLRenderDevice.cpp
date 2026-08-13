@@ -15,6 +15,30 @@ DECLARE_LOG_CATEGORY_EXTERN(GLRenderDeviceLog);
 
 namespace CoreEngine::Render::OpenGL
 {
+	OpenGLRenderDevice::~OpenGLRenderDevice()
+	{
+		for (auto& buffer : m_VBOBuffers)
+		{
+			glDeleteBuffers(1, &buffer.second);
+		}
+		for (auto& buffer : m_IBOBuffers)
+		{
+			glDeleteBuffers(1, &buffer.second);
+		}
+		for (auto& vertexArray : m_VAOBuffers)
+		{
+			glDeleteVertexArrays(1, &vertexArray.second);
+		}
+		for (auto& texture : m_Textures2D)
+		{
+			glDeleteTextures(1, &texture.second);
+		}
+		for (const auto& shader : m_Shaders)
+		{
+			glDeleteProgram(shader.second);
+		}
+	}
+
 	RHI::BufferHandle OpenGLRenderDevice::CreateBuffer(const EBufferTargetType Target, const void* DataArr, const uint32 sizeArr, const ETypeData& TypeArr,
 													   const ETypeStorageDraw typeDraw)
 	{
@@ -474,6 +498,8 @@ namespace CoreEngine::Render::OpenGL
 
 		if (auto& It = m_VBOBuffers.find(Handle.GetId()); It != m_VBOBuffers.end())
 		{
+			glDeleteBuffers(1, &It->second);
+
 			m_VBOBuffers.erase(It);
 			Handle.Invalide();
 			return true;
@@ -488,6 +514,8 @@ namespace CoreEngine::Render::OpenGL
 
 		if (auto& It = m_IBOBuffers.find(Handle.GetId()); It != m_IBOBuffers.end())
 		{
+			glDeleteBuffers(1, &It->second);
+
 			m_IBOBuffers.erase(It);
 			Handle.Invalide();
 			return true;
@@ -534,6 +562,8 @@ namespace CoreEngine::Render::OpenGL
 
 		if (auto& It = m_VAOBuffers.find(Handle.GetId()); It != m_VAOBuffers.end())
 		{
+			glDeleteVertexArrays(1, &It->second);
+
 			m_VAOBuffers.erase(It);
 			Handle.Invalide();
 			return true;

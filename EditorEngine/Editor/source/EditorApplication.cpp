@@ -19,7 +19,12 @@ namespace Editor
 
 	EditorApplication::~EditorApplication()
 	{
-		ImGui_ImplOpenGL3_Shutdown();
+		if (ImGui::GetCurrentContext())
+		{
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
+		}
 	}
 
 	void EditorApplication::CreateApp()

@@ -115,10 +115,7 @@ SceneComponent* Actor::GetRootComponent() const
 
 void Actor::SetRootComponent(SceneComponent* root)
 {
-	if (root)
-	{
-		RootComponent = root;
-	}
+	RootComponent = root;
 }
 FVector Actor::GetActorLocation() const
 {

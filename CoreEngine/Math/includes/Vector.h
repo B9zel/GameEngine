@@ -41,6 +41,7 @@ public:
 	static const TVector3<T> RightVector;
 	static const TVector3<T> LeftVector;
 	static const TVector3<T> ZeroVector;
+	static const TVector3<T> OneVector;
 
 public:
 
@@ -369,6 +370,8 @@ const FVector FVector::DownVector = FVector(0.0f, -1.0f, 0.0f);
 const FVector FVector::RightVector = FVector(1.0f, 0.0f, 0.0f);
 const FVector FVector::LeftVector = FVector(-1.0f, 0.0f, 0.0f);
 const FVector FVector::ZeroVector = FVector(0.0f, 0.0f, 0.0f);
+const FVector FVector::OneVector = FVector(1.0f, 1.0f, 1.0f);
+
 const DVector DVector::ForwardVector = DVector(0.0, 0.0, -1.0);
 const DVector DVector::BackVector = DVector(0.0, 0.0, 1.0);
 const DVector DVector::UpVector = DVector(0.0, 1.0, 0.0);
@@ -376,3 +379,4 @@ const DVector DVector::DownVector = DVector(0.0, -1.0, 0.0);
 const DVector DVector::RightVector = DVector(1.0, 0.0, 0.0);
 const DVector DVector::LeftVector = DVector(-1.0, 0.0, 0.0);
 const DVector DVector::ZeroVector = DVector(0.0, 0.0, 0.0);
+const DVector DVector::OneVector = DVector(1.0, 1.0, 1.0);

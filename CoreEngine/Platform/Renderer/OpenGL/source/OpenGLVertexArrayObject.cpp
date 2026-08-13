@@ -1,4 +1,5 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLVertexArrayObject.h>
+#include <cstdint>
 #include <Platform/Renderer/OpenGL/include/OpenGLConvertData.h>
 #include <Core/includes/Engine.h>
 #include <Render/includes/RenderCommand.h>
@@ -64,12 +65,12 @@ namespace CoreEngine
 				if (typeData == ETypeData::INT || typeData == ETypeData::UNSIGNED_INT)
 				{
 					glVertexAttribIPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), step * GetSizeOfFromEnum(typeData),
-										   (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+										   reinterpret_cast<GLvoid*>(static_cast<uintptr_t>(beginStep * GetSizeOfFromEnum(typeData))));
 				}
 				else
 				{
 					glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
-										  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+										  reinterpret_cast<GLvoid*>(static_cast<uintptr_t>(beginStep * GetSizeOfFromEnum(typeData))));
 				}
 				glEnableVertexAttribArray(location);
 				UnBind();
@@ -125,7 +126,7 @@ namespace CoreEngine
 
 				// Bind(Device);
 				glVertexAttribPointer(location, sizeArgument, GetAPITypeFromEnum(typeData), GL_FALSE, step * GetSizeOfFromEnum(typeData),
-									  (GLvoid*)(beginStep * GetSizeOfFromEnum(typeData)));
+									  reinterpret_cast<GLvoid*>(static_cast<uintptr_t>(beginStep * GetSizeOfFromEnum(typeData))));
 				glEnableVertexAttribArray(location);
 				UnBind();
 			}

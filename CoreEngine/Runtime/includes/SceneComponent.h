@@ -26,7 +26,9 @@ public:
 	FVector GetComponentLocation() const;
 	FVector GetReletiveLocation() const;
 	FVector GetComponentScale() const;
+	FVector GetReletiveScale() const;
 	FVector GetComponentRotation() const;
+	FVector GetReletiveRotation() const;
 	FVector GetForwardVector() const;
 	FVector GetRightVector() const;
 

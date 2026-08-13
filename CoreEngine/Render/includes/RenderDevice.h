@@ -22,6 +22,7 @@ namespace CoreEngine::Render
 	class RenderDevice
 	{
 	public:
+		virtual ~RenderDevice() = default;
 
 		// Create VBO/IBO
 		virtual RHI::BufferHandle CreateBuffer(const EBufferTargetType Target, const void* DataArr, const uint32 sizeArr, const ETypeData& TypeArr,
