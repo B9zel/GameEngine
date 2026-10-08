@@ -27,6 +27,19 @@ public:
 	void SetShaderAsset(ShaderAsset* Shader);
 
 	const String GetPathToShaderAsset() const;
+	DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>& GetShaderUniforms();
+
+private:
+
+	void PostChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property);
+	void PreChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property);
+	void SetNewShader(ShaderAsset* Shader);
+
+	void UpdateShaderUniforms();
+
+public:
+
+	DispatcherVoid OnUpdateShaderUniform;
 
 private:
 
@@ -36,7 +49,7 @@ private:
 	RPROPERTY();
 	String PathToShaderAsset;
 
-	DArray<UniquePtr<CoreEngine::Render::BaseMaterialProperty>> m_ShaderUniforms;
+	DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>> m_ShaderUniforms;
 
 	EShaderRenderType m_ModeRender = EShaderRenderType::LIT;
 };

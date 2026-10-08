@@ -14,7 +14,9 @@ public:
 
 public:
 
-	virtual void DrawElements() override
-	{
-	}
+	virtual void DrawElements() override;
+
+private:
+
+	//DArray<UniquePtr<CoreEngine::Render::BaseMaterialProperty>> m_MaterialProperties;
 };

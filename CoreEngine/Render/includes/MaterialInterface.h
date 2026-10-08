@@ -17,10 +17,10 @@ namespace CoreEngine::Render
 	{
 	public:
 
-		template <class ReturnType> ReturnType* GetValue() const
+		template <class ReturnType> ReturnType* GetProperty() const
 		{
-			constexpr IsValidType = std::is_same_v<ReturnType, float> || std::is_same_v<ReturnType, int32> || std::is_same_v<ReturnType, uint32> ||
-									std::is_same_v<ReturnType, FVector> || std::is_same_v<ReturnType, FMatrix4x4>;
+			constexpr bool IsValidType = std::is_same_v<ReturnType, float> || std::is_same_v<ReturnType, int32> || std::is_same_v<ReturnType, uint32> ||
+										 std::is_same_v<ReturnType, FVector> || std::is_same_v<ReturnType, FMatrix4x4>;
 			CORE_ASSERT(IsValidType, "Invalid type for material property");
 
 			return static_cast<ReturnType*>(GetProperty());
@@ -31,7 +31,7 @@ namespace CoreEngine::Render
 		BaseMaterialProperty(const EUniformType type) : Type{type}
 		{
 		}
-		virtual void* GetProperty() = 0;
+		virtual void* GetProperty() const = 0;
 
 	public:
 
@@ -49,14 +49,14 @@ namespace CoreEngine::Render
 
 	protected:
 
-		virtual void* GetProperty() override
+		virtual void* GetProperty() const override
 		{
 			return &Value;
 		}
 
 	public:
 
-		float Value;
+		mutable float Value = 0.0f;
 	};
 
 	struct MaterialPropertyVec3 : public BaseMaterialProperty
@@ -69,14 +69,14 @@ namespace CoreEngine::Render
 
 	protected:
 
-		virtual void* GetProperty() override
+		virtual void* GetProperty() const override
 		{
 			return &Value;
 		}
 
 	public:
 
-		FVector Value = FVector::ZeroVector;
+		mutable FVector Value = FVector::ZeroVector;
 	};
 
 	struct MaterialPropertyMat4 : public BaseMaterialProperty
@@ -89,14 +89,14 @@ namespace CoreEngine::Render
 
 	protected:
 
-		virtual void* GetProperty() override
+		virtual void* GetProperty() const override
 		{
 			return &Value;
 		}
 
 	public:
 
-		FMatrix4x4 Value;
+		mutable FMatrix4x4 Value;
 	};
 
 	struct MaterialPropertyInt : public BaseMaterialProperty
@@ -109,14 +109,14 @@ namespace CoreEngine::Render
 
 	protected:
 
-		virtual void* GetProperty() override
+		virtual void* GetProperty() const override
 		{
 			return &Value;
 		}
 
 	public:
 
-		int32 Value;
+		mutable int32 Value = 0;
 	};
 
 	struct MaterialPropertyUInt : public BaseMaterialProperty
@@ -129,14 +129,14 @@ namespace CoreEngine::Render
 
 	protected:
 
-		virtual void* GetProperty() override
+		virtual void* GetProperty() const override
 		{
 			return &Value;
 		}
 
 	public:
 
-		uint32 Value;
+		mutable uint32 Value = 0;
 	};
 
 	UniquePtr<CoreEngine::Render::BaseMaterialProperty> CreatePropertyFromType(const EUniformType& Type);

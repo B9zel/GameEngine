@@ -23,6 +23,10 @@ public:
 	const SourceShader& GetCustomShader() const;
 	void SetCustomShader(const SourceShader& NewShader);
 
+public:
+
+	DispatcherVoid ApplyNewShader;
+
 protected:
 
 	SourceShader CustomShader;

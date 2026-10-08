@@ -1,28 +1,26 @@
 #pragma once
-
-
+#include <stdint.h>
 
 // 8-bit signed int
-typedef signed char int8;
+typedef int8_t int8;
 
 // 16-bit signed int
-typedef signed short int16;
+typedef int16_t int16;
 
 // 32-bit signed int
-typedef signed int int32;
+typedef int32_t int32;
 
 // 64-bit signed int
-typedef signed long long int64;
-
+typedef int64_t int64;
 
 // 8-bit unsigned int
-typedef unsigned char uint8;
+typedef uint8_t uint8;
 
 // 16-bit unsigned int
-typedef unsigned short uint16;
+typedef uint16_t uint16;
 
 // 32-bit unsigned int
-typedef unsigned int uint32;
+typedef uint32_t uint32;
 
 // 64-bit unsigned int
-typedef unsigned long long uint64;
+typedef uint64_t uint64;

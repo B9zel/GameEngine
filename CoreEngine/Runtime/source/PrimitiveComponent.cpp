@@ -5,6 +5,7 @@
 #include <Render/includes/MaterialManager.h>
 #include <Render/includes/MaterialInstance.h>
 #include <Render/includes/Material.h>
+#include <Render/includes/MaterialAsset.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(PRIMITIVE_COMPONENT_Log);
 
@@ -30,7 +31,6 @@ void PrimitiveComponent::SetMaterial(uint32 MaterialIndex, MaterialAsset* NewMat
 	CoreEngine::Render::Render::PrepareMaterial(*ParentMaterial);
 
 	const bool IsCreateNewMaterialInstance = MaterialIndex >= m_HandleMaterial.size();
-
 	if (IsCreateNewMaterialInstance)
 	{
 		MaterialInstance* NewMaterialInstance = CreateObject<MaterialInstance>();
@@ -70,8 +70,8 @@ void PrimitiveComponent::PreEditChangeProperty(CoreEngine::Reflection::PropertyF
 	{
 		material->PreChangeProperty.Remove(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
 		material->PostChangeProperty.Remove(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
+		material->OnUpdateShaderUniform.Remove(&PrimitiveComponent::OnChangeShaderCode, this);
 	}
-	
 }
 
 void PrimitiveComponent::PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property)
@@ -80,20 +80,22 @@ void PrimitiveComponent::PostEditChangeProperty(CoreEngine::Reflection::Property
 	{
 		material->PostChangeProperty.AddBind(&PrimitiveComponent::OnChangeMaterialShaderAsset, this);
 		material->PreChangeProperty.AddBind(&PrimitiveComponent::PreOnChangeMaterialShaderAsset, this);
+
+		material->OnUpdateShaderUniform.AddBind(&PrimitiveComponent::OnChangeShaderCode, this);
+
 		SetMaterial(0, material);
 	}
+}
 
+const DArray<MaterialInstance*>& PrimitiveComponent::GetMaterialInstances() const
+{
+	return m_MaterialInstance;
 }
 
 CoreEngine::PrimitiveProxy* PrimitiveComponent::GetSceneProxy() const
 {
-	// Actor* owner = GetOwner();
-	/*if (sceneProxy)
-	{
-		sceneProxy->SetTransform(GetTransform());
-
-	}*/
 	sceneProxy->SetTransformMatrix(MakeMatrixMesh());
+	
 
 	return sceneProxy;
 }
@@ -103,6 +105,7 @@ CoreEngine::PrimitiveProxy* PrimitiveComponent::GetUpdateProxy() const
 	/*Transform ProxyTransform = GetTransform();
 	ProxyTransform.SetRotation(Math::ToDegreesVector(ProxyTransform.GetRotation()));*/
 	sceneProxy->SetTransformMatrix(MakeMatrixMesh());
+	
 	return sceneProxy;
 }
 
@@ -133,3 +136,12 @@ void PrimitiveComponent::PreOnChangeMaterialShaderAsset(Asset* asset, CoreEngine
 	HandlePrevMaterial = CoreEngine::Render::MaterialManager::Get().CreateAndRegisterMaterial(material);
 }
 
+void PrimitiveComponent::OnChangeShaderCode()
+{
+	if (!m_MaterialInstance.empty())
+	{
+		RMaterial* ParentMaterial = CoreEngine::Render::MaterialManager::Get().GetMaterial(m_MaterialInstance.front()->GetParentMaterial());
+		CoreEngine::Render::Render::PrepareMaterial(*ParentMaterial);
+		m_MaterialInstance.front()->UpdateUniform(m_MaterialInstance.front()->GetParentMaterial());
+	}
+}

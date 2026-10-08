@@ -106,6 +106,17 @@ namespace CoreEngine
 	{
 		return m_UUID;
 	}
+
+	void PrimitiveProxy::SetMaterialProperties(const DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>* MaterialProperties)
+	{
+		m_MaterialProperties = MaterialProperties;
+	}
+
+	const DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>* PrimitiveProxy::GetMaterialProperties() const
+	{
+		return m_MaterialProperties;
+	}
+
 } // namespace CoreEngine
 
 size_t ShaderDescHasher::operator()(const CoreEngine::ParamOfShaderDesc& Desc) const

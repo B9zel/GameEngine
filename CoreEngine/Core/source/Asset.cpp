@@ -90,12 +90,8 @@ void Asset::OnSerialize(CoreEngine::SerializeAchive& Archive)
 			{
 				if (auto* asset = dynamic_cast<Asset*>(*object))
 				{
-					asset->GetPathToAsset
+					// asset->GetPathToAsset();
 				}
-			}
-
-			if ()
-			{
 			}
 
 			Archive.PushPrefix(Property->Name);

@@ -8,7 +8,22 @@
             "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial12.reflect"
         },
         "PathToShaderAsset": {
-            "PathToShaderAsset": ""
+            "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\PurpleShader.reflect"
+        },
+        "m_ShaderAsset": {
+            "EditorShaderAsset": {
+                "Name": {
+                    "Name": "PurpleShader"
+                },
+                "NameClass": "EditorShaderAsset",
+                "PathToAsset": {
+                    "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\PurpleShader.reflect"
+                },
+                "Shaders": {
+                    "Fragment": "vec3 fragment()\n{\n   return vec3(1.0f, 0.0f, 1.0f);\n}",
+                    "Vertex": "uniform int CameraID;\nuniform vec3 a;\n\nvec3 vertex()\n{\n   return vec3(a.x, a.y, a.z);\n}"
+                }
+            }
         }
     },
     "Type": 3

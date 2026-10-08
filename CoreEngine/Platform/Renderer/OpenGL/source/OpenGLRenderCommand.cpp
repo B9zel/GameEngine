@@ -45,6 +45,16 @@ namespace CoreEngine::Render::OpenGL
 		return ETypeCommand::UNIFORM_MATRIX_4X4;
 	}
 
+	void GLCmdSetUniform1f::Execute(RenderDevice* Devise)
+	{
+		Devise->SetUniformFloat(Handle, NameParam, Value);
+	}
+
+	RenderCommand::ETypeCommand GLCmdSetUniform1f::GetType() const
+	{
+		return ETypeCommand::UNIFORM_1F;
+	}
+
 	void GLCmdSetUniformVector3::Execute(RenderDevice* Devise)
 	{
 		Devise->SetUniformVec3(Handle, NameParam, Value);
@@ -86,4 +96,5 @@ namespace CoreEngine::Render::OpenGL
 	{
 		return ETypeCommand::ACTIVATE_LAYER_TEXTURE;
 	}
+
 } // namespace CoreEngine::Render::OpenGL

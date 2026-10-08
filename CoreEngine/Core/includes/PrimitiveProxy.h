@@ -73,6 +73,8 @@ namespace CoreEngine
 		const FVector& GetViewLocation() const;
 		void SetUUID(const UUID* uuid);
 		const UUID* GetUUID() const;
+		void SetMaterialProperties(const DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>* MaterialProperties);
+		const DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>* GetMaterialProperties() const;
 
 	protected:
 
@@ -85,7 +87,7 @@ namespace CoreEngine
 		FMatrix4x4 transform;
 		UUID* m_UUID;
 		DArray<CoreEngine::Render::MaterialHandle> m_Materials;
-
+		const DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>* m_MaterialProperties;
 		// Test
 	public:
 

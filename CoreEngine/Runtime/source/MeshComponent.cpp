@@ -9,7 +9,7 @@
 #include <Core/includes/Application.h>
 #include <Render/includes/MaterialAsset.h>
 #include <Core/includes/MeshAsset.h>
-#include <Core/includes/MeshAsset.h>
+#include <Render/includes/MaterialInstance.h>
 #include <glad/glad.h>
 
 DECLARE_LOG_CATEGORY_EXTERN(MESH_COMPONENT_LOG);
@@ -78,12 +78,16 @@ CoreEngine::PrimitiveProxy* MeshComponent::GetSceneProxy() const
 
 CoreEngine::PrimitiveProxy* MeshComponent::GetUpdateProxy() const
 {
+	PrimitiveComponent::GetUpdateProxy();
+
 	m_Proxy->ClearData();
 	m_Proxy->SetTransformMatrix(MakeMatrixMesh());
 
 	m_Proxy->SetUUID(&GetOwner()->GetUUID());
-	// m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
-	// m_Proxy->AddLightLocation(FVector(3, 2, -7));
+	m_Proxy->SetMaterialProperties(&material->GetShaderUniforms());
+	// m_Proxy->SetMaterialProperties(GetMaterialInstances().empty() ? nullptr : m_MaterialInstance.front()->GetMaterialProperties());
+	//  m_Proxy->SetViewLocation(GetOwner()->GetWorld()->GetControllerLocation());
+	//  m_Proxy->AddLightLocation(FVector(3, 2, -7));
 	if (!m_Models.empty())
 	{
 		// for (uint64 i = 0; i < m_Shader.size(); i++)

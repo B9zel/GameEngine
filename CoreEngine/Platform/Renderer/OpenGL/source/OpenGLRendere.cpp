@@ -629,6 +629,43 @@ namespace CoreEngine
 							OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(shaderHandle, "Projection", m_Projection));
 						}
 
+						for (auto Property : *Primitive->GetMaterialProperties())
+						{
+							SharedPtr<BaseMaterialProperty> Parameter = Property;
+
+							switch (Parameter->Type)
+							{
+							case EUniformType::FLOAT:
+							{
+								auto* FloatProperty = static_cast<MaterialPropertyFloat*>(Parameter.get());
+								OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1f>(shaderHandle, FloatProperty->Name, FloatProperty->Value));
+								break;
+							}
+							case EUniformType::VEC3:
+							{
+								auto* Vector3Property = static_cast<MaterialPropertyVec3*>(Parameter.get());
+								OutCommands.push_back(
+									CommandPool.RequestCommand<GLCmdSetUniformVector3>(shaderHandle, Vector3Property->Name, Vector3Property->Value));
+								break;
+							}
+							case EUniformType::INT:
+							{
+								auto* IntProperty = static_cast<MaterialPropertyInt*>(Parameter.get());
+								OutCommands.push_back(CommandPool.RequestCommand<GLCmdSetUniform1i>(shaderHandle, IntProperty->Name, IntProperty->Value));
+								break;
+							}
+							case EUniformType::MAT4:
+							{
+								auto* Vector4Property = static_cast<MaterialPropertyMat4*>(Parameter.get());
+								OutCommands.push_back(
+									CommandPool.RequestCommand<GLCmdSetUniformMatrix4x4>(shaderHandle, Vector4Property->Name, Vector4Property->Value));
+								break;
+							}
+							default:
+								break;
+							}
+						}
+
 						/*OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_1I, shaderHandle, "DirectionShadowMap", 0));
 						OutCommands.push_back(CommandPool.RequestCommand(RenderCommand::ETypeCommand::UNIFORM_VECTOR3, shaderHandle, "ViewPos",
 																		 Engine::Get()->GetWorld()->GetControllerLocation()));

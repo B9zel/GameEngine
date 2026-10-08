@@ -48,6 +48,22 @@ namespace CoreEngine::Render::OpenGL
 		virtual ETypeCommand GetType() const override;
 	};
 
+	struct GLCmdSetUniform1f : public RenderCommand
+	{
+		RHI::ShaderHandle Handle;
+		String NameParam;
+		float Value;
+
+	public:
+
+		GLCmdSetUniform1f(const RHI::ShaderHandle Handle, const String NameOfParam, float Value) : Handle(Handle), NameParam(NameOfParam), Value(Value)
+		{
+		}
+
+		virtual void Execute(RenderDevice* Devise) override;
+		virtual ETypeCommand GetType() const override;
+	};
+
 	struct GLCmdSetUniformMatrix4x4 : public RenderCommand
 	{
 		RHI::ShaderHandle Handle;

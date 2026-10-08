@@ -65,5 +65,9 @@ const SourceShader& ShaderAsset::GetCustomShader() const
 
 void ShaderAsset::SetCustomShader(const SourceShader& NewShader)
 {
-	CustomShader = NewShader;
+	if (NewShader != CustomShader)
+	{
+		CustomShader = NewShader;
+		ApplyNewShader.Call();
+	}
 }

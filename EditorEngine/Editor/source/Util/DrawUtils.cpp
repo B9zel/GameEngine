@@ -328,6 +328,71 @@ namespace Editor
 		ImGui::PopID();
 	}
 
+	void DrawMatrix4x4(const String& Id, const String& NameString, FMatrix4x4& Value, const float ColumnWidth)
+	{
+		ImGui::PushID(Id.c_str());
+		ImGui::PushID(NameString.c_str());
+
+		auto DrawRowFunc = [&](const int32 Row, FVector4 Vec) 
+		{
+			const String NumberOfRow = ToString(Row);
+
+			ImGui::Columns(2);
+			ImGui::SetColumnWidth(0, ColumnWidth);
+			ImGui::Text(NameString.c_str());
+			ImGui::NextColumn();
+			ImGui::AlignTextToFramePadding();
+			ImGui::PushMultiItemsWidths(4, ImGui::CalcItemWidth());
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing | ImGuiStyleVar_WindowBorderSize, ImVec2(10, 0));
+
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 0, 0, 1));
+			ImGui::Text((NumberOfRow + "x1").c_str());
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			ImGui::DragFloat(("##" + NumberOfRow + "x1").c_str(), &Vec.vector.x, 0.01f, 0, 0, "%.0003f");
+			ImGui::PopItemWidth();
+
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
+			ImGui::Text((NumberOfRow + "x2").c_str());
+			ImGui::PopStyleColor(2);
+			ImGui::SameLine();
+			ImGui::DragFloat(("##" + NumberOfRow + "x2").c_str(), &Vec.vector.y, 0.01f, 0, 0, "%.0003f");
+			ImGui::PopItemWidth();
+
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 1, 1));
+			ImGui::Text((NumberOfRow + "x3").c_str());
+			ImGui::PopStyleColor();
+			ImGui::SameLine();
+			ImGui::DragFloat(("##" + NumberOfRow + "x3").c_str(), &Vec.vector.z, 0.01, 0, 0, "%.0003f");
+			ImGui::PopItemWidth();
+
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 1, 1));
+			ImGui::Text((NumberOfRow + "x4").c_str());
+			ImGui::PopStyleColor();
+			ImGui::SameLine();
+			ImGui::DragFloat(("##" + NumberOfRow + "x4").c_str(), &Vec.vector.w, 0.01, 0, 0, "%.0003f");
+			ImGui::PopItemWidth();
+
+			ImGui::PopStyleVar();
+			ImGui::Columns(1);
+			
+		};
+		DrawRowFunc(1, Value[0]);
+		DrawRowFunc(2, Value[1]);
+		DrawRowFunc(3, Value[2]);
+		DrawRowFunc(4, Value[3]);
+		
+
+		ImGui::PopID();
+		ImGui::PopID();
+	}
+
+
 	bool DrawComponentContextDraw(EditorEngine* Engine, Object* SelectedObject)
 	{
 		if (SelectedObject && SelectedObject->GetClass()->IsChildClassOf(ActorComponent::GetStaticClass()))

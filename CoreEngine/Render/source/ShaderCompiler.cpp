@@ -33,6 +33,12 @@ namespace CoreEngine::Render
 	{
 		CompileShaderSource Result;
 
+		const String& CustomVertexShader = Asset.GetCustomShader().VertexShader;
+		const String& CustomFragmentShader = Asset.GetCustomShader().FragmentShader;
+
+		Result.CustomVertexShader = CustomVertexShader;
+		Result.CustomFragmentShader = CustomFragmentShader;
+
 		SourceShader LitShader = TypeRenderShaders[ShaderVarient.ModeRender];
 
 		uint64 Pos = LitShader.VertexShader.find(VertexShaderKeyWord);
@@ -42,8 +48,7 @@ namespace CoreEngine::Render
 			return Result;
 		}
 
-		Result.VertexShader =
-			LitShader.VertexShader.substr(0, Pos) + Asset.GetCustomShader().VertexShader + LitShader.VertexShader.substr(Pos + VertexShaderKeyWord.size());
+		Result.VertexShader = LitShader.VertexShader.substr(0, Pos) + CustomVertexShader + LitShader.VertexShader.substr(Pos + VertexShaderKeyWord.size());
 
 		Pos = LitShader.FragmentShader.find(FragmentShaderKeyWord);
 		if (Pos == String::npos)
@@ -52,9 +57,8 @@ namespace CoreEngine::Render
 			return Result;
 		}
 
-		int b = Asset.GetCustomShader().FragmentShader.size();
-		Result.FragmentShader = (LitShader.FragmentShader.substr(0, Pos) + Asset.GetCustomShader().FragmentShader +
-								 LitShader.FragmentShader.substr(Pos + FragmentShaderKeyWord.size()));
+		Result.FragmentShader =
+			(LitShader.FragmentShader.substr(0, Pos) + CustomFragmentShader + LitShader.FragmentShader.substr(Pos + FragmentShaderKeyWord.size()));
 
 		return Result;
 	}

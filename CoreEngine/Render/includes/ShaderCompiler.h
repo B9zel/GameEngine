@@ -12,6 +12,9 @@ namespace CoreEngine::Render
 	{
 		String VertexShader;
 		String FragmentShader;
+
+		String CustomVertexShader;
+		String CustomFragmentShader;
 	};
 
 	class ShaderCompiler

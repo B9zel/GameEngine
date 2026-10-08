@@ -86,6 +86,7 @@ public:
 		}
 		return false;
 	}
+
 	template <class Class> inline bool HasBind(MethodPtr<Class, TypeParam>& bind)
 	{
 		for (auto& Function : m_MtDispatch)
@@ -107,3 +108,5 @@ private:
 
 	DArray<FunctionParam> m_MtDispatch;
 };
+
+using DispatcherVoid = Dispatcher<>;

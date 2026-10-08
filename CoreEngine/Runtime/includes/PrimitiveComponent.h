@@ -1,8 +1,8 @@
 #pragma once
 #include <Runtime/includes/SceneComponent.h>
-#include <Render/includes/Material.h>
 #include <Render/includes/MaterialAsset.h>
 #include <Render/includes/MaterialInstance.h>
+#include <Render/includes/MaterialInterface.h>
 #include <Core/includes/MeshAsset.h>
 #include <PrimitiveComponent.generated.h>
 
@@ -35,6 +35,8 @@ public:
 	virtual void PreEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 
+	const DArray<MaterialInstance*>& GetMaterialInstances() const;
+
 public:
 
 	virtual CoreEngine::PrimitiveProxy* GetSceneProxy() const;
@@ -47,6 +49,7 @@ private:
 
 	void OnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
 	void PreOnChangeMaterialShaderAsset(Asset* asset, CoreEngine::Reflection::PropertyField& Field);
+	void OnChangeShaderCode();
 
 protected:
 
