@@ -44,6 +44,8 @@ public:
 	virtual void PostEditChangeProperty(CoreEngine::Reflection::PropertyField& Property) override;
 	virtual void SetName(const String& NewName) override;
 	virtual void OnSerialize(CoreEngine::SerializeAchive& Archive) override;
+	virtual void OnPreFieldsDeserialize(CoreEngine::SerializeAchive& Achive) override;
+	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
 
 public:
 

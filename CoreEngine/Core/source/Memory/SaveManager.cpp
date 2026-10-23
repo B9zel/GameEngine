@@ -26,6 +26,7 @@ namespace CoreEngine
 	{
 		WorldPtr->Serialize(Achive);
 	}
+
 	void SaveManager::SaveSceneSerializedData(const String& Path)
 	{
 		std::ofstream fout(Path);
@@ -78,11 +79,11 @@ namespace CoreEngine
 		{
 			return Node.is_object() && Node.count("m_MainLevel") != 0;
 		});
-		if (!HasWorld)
+		/*if (!HasWorld)
 		{
 			EG_LOG(CORE, ELevelLog::ERROR, "File '{0}' doesn't contain a serialized world", Path);
 			return false;
-		}
+		}*/
 
 		PreStartDeserialized();
 		StartDeserialized(LoadedAchive);

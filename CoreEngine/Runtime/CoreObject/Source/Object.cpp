@@ -72,27 +72,24 @@ void Object::PreSerialize()
 
 void Object::Serialize(CoreEngine::SerializeAchive& Archive)
 {
-	if (HasSerialize) return;
+	if (!Archive.TrySerializeObject(this)) return;
 	HasSerialize = true;
 
 	CoreEngine::Reflection::ClassField* Class = GetClass();
-	Archive.PushPrefix(GetClass()->Name);
+	CoreEngine::SerializeAchive::ObjectScope Scope(Archive, GetUUID().GetID());
 	Archive.SerializeData("NameClass", GetClass()->Name);
+
 	while (Class != nullptr)
 	{
 		for (auto* Property : Class->PropertyFileds)
 		{
 			if (static_cast<uint32>(Property->Params) & static_cast<uint32>(CoreEngine::Reflection::EPropertyFieldParams::Transient)) continue;
-			Archive.PushPrefix(Property->Name);
 			Property->Serialize(Archive, this);
-			Archive.PopPrefix();
 		}
 
 		Class = Class->ParentClass;
 	}
 	OnSerialize(Archive);
-
-	Archive.PopPrefix();
 }
 
 void Object::PreDeserialize()
@@ -100,21 +97,28 @@ void Object::PreDeserialize()
 	HasDeserialize = false;
 }
 
+void Object::OnPreFieldsDeserialize(CoreEngine::SerializeAchive& Data)
+{
+}
+
 void Object::Deserialize(CoreEngine::SerializeAchive& Data)
 {
 	if (HasDeserialize) return;
 	HasDeserialize = true;
 
-	CoreEngine::Reflection::ClassField* Class = GetClass();
-	Data.PushPrefix(GetName());
+	OnPreFieldsDeserialize(Data);
 
+	CoreEngine::Reflection::ClassField* Class = GetClass();
+	CoreEngine::SerializeAchive::ObjectScope Scope(Data, GetUUID().GetID());
+	// Data.PushPrefix(GetName());
+	// Data.PushPrefix(ToString(GetUUID().GetID()));
 	while (Class != nullptr)
 	{
 		for (auto* Property : Class->PropertyFileds)
 		{
-			Data.PushPrefix(Property->Name);
+			// Data.PushPrefix(Property->Name);
 			Property->Deserialize(Data, this);
-			Data.PopPrefix();
+			// Data.PopPrefix();
 		}
 
 		Class = Class->ParentClass;
@@ -145,6 +149,16 @@ void Object::OnDeserialize(CoreEngine::SerializeAchive& Data)
 
 void Object::OnSerialize(CoreEngine::SerializeAchive& Archive)
 {
+}
+
+void Object::SetUUID(const CoreEngine::UUID& newUUID)
+{
+	ObjectID = newUUID;
+}
+
+void Object::ClearUUID()
+{
+	ObjectID.Release();
 }
 
 const String& Object::GetName() const

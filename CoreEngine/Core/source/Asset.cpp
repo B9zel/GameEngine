@@ -77,26 +77,18 @@ void Asset::SetName(const String& NewName)
 void Asset::OnSerialize(CoreEngine::SerializeAchive& Archive)
 {
 	Object::OnSerialize(Archive);
+}
 
-	CoreEngine::Reflection::ClassField* Class = GetClass();
-	DArray<CoreEngine::Reflection::PropertyField*> Fields = Class->GetWithParentPropertyFields();
+void Asset::OnPreFieldsDeserialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnPreFieldsDeserialize(Achive);
 
-	for (auto* Property : Fields)
-	{
-		if (Property->GetIsPointer())
-		{
-			auto object = Property->GetSourcePropertyByName<Object*>(this);
-			if (object && *object)
-			{
-				if (auto* asset = dynamic_cast<Asset*>(*object))
-				{
-					// asset->GetPathToAsset();
-				}
-			}
+	Achive.PushPrefix("Objects");
+}
 
-			Archive.PushPrefix(Property->Name);
-			Property->Serialize(Archive, this);
-			Archive.PopPrefix();
-		}
-	}
+void Asset::OnDeserialize(CoreEngine::SerializeAchive& Achive)
+{
+	Object::OnDeserialize(Achive);
+
+	Achive.PopPrefix();
 }

@@ -1,0 +1,377 @@
+{
+    "FormatVersion": 2,
+    "Objects": {
+        "11": {
+            "Name": "MaterialInstance",
+            "NameClass": "MaterialInstance",
+            "m_Outer": null
+        },
+        "12": {
+            "AssetModel": null,
+            "Name": "MeshChair",
+            "NameClass": "MeshComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [],
+            "m_MaterialInstance": [
+                {
+                    "$ref": 13
+                }
+            ],
+            "m_Outer": {
+                "$ref": 5
+            },
+            "material": {
+                "$ref": 9
+            },
+            "materials": [
+                {
+                    "$ref": 9
+                }
+            ]
+        },
+        "13": {
+            "Name": "MaterialInstance",
+            "NameClass": "MaterialInstance",
+            "m_Outer": null
+        },
+        "14": {
+            "Intencity": 1.0,
+            "IsVisible": true,
+            "Name": "Direction light",
+            "NameClass": "DirectionLightComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [],
+            "m_Outer": {
+                "$ref": 5
+            }
+        },
+        "15": {
+            "Components": [
+                {
+                    "$ref": 16
+                },
+                {
+                    "$ref": 17
+                }
+            ],
+            "Name": "Light",
+            "NameClass": "Light",
+            "m_Outer": null,
+            "mesh": {
+                "$ref": 17
+            }
+        },
+        "16": {
+            "Name": "Scene component",
+            "NameClass": "SceneComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [
+                {
+                    "$ref": 17
+                }
+            ],
+            "m_Outer": {
+                "$ref": 15
+            }
+        },
+        "17": {
+            "AssetModel": null,
+            "Name": "Mesh",
+            "NameClass": "MeshComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [],
+            "m_MaterialInstance": [
+                {
+                    "$ref": 18
+                }
+            ],
+            "m_Outer": {
+                "$ref": 15
+            },
+            "material": {
+                "$ref": 9
+            },
+            "materials": [
+                {
+                    "$ref": 9
+                }
+            ]
+        },
+        "18": {
+            "Name": "MaterialInstance",
+            "NameClass": "MaterialInstance",
+            "m_Outer": null
+        },
+        "19": {
+            "Components": [
+                {
+                    "$ref": 20
+                },
+                {
+                    "$ref": 21
+                }
+            ],
+            "LightObj": {
+                "$ref": 21
+            },
+            "Name": "LightActor",
+            "NameClass": "LightActor",
+            "m_Outer": null
+        },
+        "2": {
+            "Name": "EditorWorld",
+            "NameClass": "EditorWorld",
+            "m_MainLevel": {
+                "$ref": 4
+            },
+            "m_Outer": null
+        },
+        "20": {
+            "Name": "Scene component",
+            "NameClass": "SceneComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [
+                {
+                    "$ref": 21
+                }
+            ],
+            "m_Outer": {
+                "$ref": 19
+            }
+        },
+        "21": {
+            "CutOff": 50.0,
+            "Intencity": 10.0,
+            "IsVisible": true,
+            "Name": "Spot light",
+            "NameClass": "SpotLightComponent",
+            "OuterCutOff": 60.0,
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [],
+            "m_Outer": {
+                "$ref": 19
+            }
+        },
+        "4": {
+            "Name": "FirstLevel",
+            "NameClass": "FirstLevel",
+            "m_Actors": [
+                {
+                    "$ref": 5
+                },
+                {
+                    "$ref": 15
+                },
+                {
+                    "$ref": 19
+                }
+            ],
+            "m_Objects": [],
+            "m_Outer": null
+        },
+        "5": {
+            "A": -431602080.0,
+            "Components": [
+                {
+                    "$ref": 6
+                },
+                {
+                    "$ref": 7
+                },
+                {
+                    "$ref": 12
+                },
+                {
+                    "$ref": 14
+                }
+            ],
+            "LightObj": {
+                "$ref": 14
+            },
+            "Name": "Quad",
+            "NameClass": "Quad",
+            "inputComponent": null,
+            "m_Outer": null
+        },
+        "6": {
+            "Name": "Scene component",
+            "NameClass": "SceneComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "childrenAttach": [
+                {
+                    "$ref": 7
+                },
+                {
+                    "$ref": 12
+                },
+                {
+                    "$ref": 14
+                }
+            ],
+            "m_Outer": {
+                "$ref": 5
+            }
+        },
+        "7": {
+            "AssetModel": null,
+            "Name": "Mesh",
+            "NameClass": "MeshComponent",
+            "Transform": {
+                "Location": [
+                    0.0,
+                    -1.0,
+                    0.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929
+                ]
+            },
+            "childrenAttach": [],
+            "m_MaterialInstance": [
+                {
+                    "$ref": 11
+                }
+            ],
+            "m_Outer": {
+                "$ref": 5
+            },
+            "material": {
+                "$ref": 9
+            },
+            "materials": [
+                {
+                    "$ref": 9
+                }
+            ]
+        },
+        "9": {
+            "Name": "DefaultMaterial",
+            "NameClass": "EditorMaterialAsset",
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultMaterial.reflect",
+            "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Resources\\DefaultShader.reflect",
+            "m_Outer": null
+        }
+    },
+    "Root": {
+        "$ref": 2
+    }
+}

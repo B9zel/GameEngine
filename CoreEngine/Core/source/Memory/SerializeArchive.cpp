@@ -3,10 +3,50 @@
 #include <nlohmann/json.hpp>
 
 #include <Math/includes/Transform.h>
+#include <Runtime/CoreObject/Include/Object.h>
+#include <stdexcept>
 
 namespace CoreEngine
 {
+	SerializeAchive::ObjectScope::ObjectScope(SerializeAchive& InArchive, uint64 ID)
+		: Archive(InArchive), PreviousPrefixes(std::move(InArchive.Prefixes))
+	{
+		Archive.Prefixes = {"Objects", std::to_string(ID)};
+	}
+
+	SerializeAchive::ObjectScope::~ObjectScope()
+	{
+		Archive.Prefixes = std::move(PreviousPrefixes);
+	}
+
+	bool SerializeAchive::TrySerializeObject(const Object* Value)
+	{
+		const uint64 ID = Value->GetUUID().GetID();
+		const auto Result = SerializedObjects.emplace(ID, Value);
+		if (!Result.second)
+		{
+			if (Result.first->second != Value)
+				throw std::runtime_error("Duplicate object UUID while saving: " + std::to_string(ID));
+			return false;
+		}
+		if (SerializedObjects.size() == 1)
+		{
+			DataSave["FormatVersion"] = 2;
+			DataSave["Root"] = MakeReference(Value);
+		}
+		return true;
+	}
+
+	nlohmann::json SerializeAchive::MakeReference(const Object* Value) const
+	{
+		if (!Value) return nullptr;
+		return nlohmann::json{{"$ref", Value->GetUUID().GetID()}};
+	}
 	//YAML::Node SerializeAchive::DataSave = YAML::Node(YAML::NodeType::Map);
+	SerializeAchive::SerializeAchive(nlohmann::json& Data)
+	{
+		DataSave = Data;
+	}
 
 	bool SerializeAchive::HasData(const String& KeyName)
 	{
@@ -80,6 +120,10 @@ namespace CoreEngine
 	void SerializeAchive::ClearData()
 	{
 		DataSave.clear();
+		Prefixes.clear();
+		SerializedObjects.clear();
+		MissingNode = nlohmann::json::object();
+		IsDeserializing = false;
 	}
 	bool SerializeAchive::IsEmpty()
 	{
@@ -143,6 +187,7 @@ namespace CoreEngine
 	
 		return *LastNode;
 	}
+
 	nlohmann::json& SerializeAchive::FindDeserializeLastNode()
 	{
 		nlohmann::json* LastNode = &DataSave;
@@ -164,6 +209,7 @@ namespace CoreEngine
 	{
 		stream >> j.DataSave;
 		j.Prefixes.clear();
+		j.SerializedObjects.clear();
 		j.MissingNode = nlohmann::json::object();
 		j.IsDeserializing = true;
 		return stream;

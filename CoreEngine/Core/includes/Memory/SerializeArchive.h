@@ -6,12 +6,28 @@
 #include <istream>
 
 class FTransform;
+class Object;
 
 namespace CoreEngine
 {
 	class SerializeAchive
 	{
 	public:
+		// Each object record has an absolute path, independent of its caller.
+		class ObjectScope
+		{
+		public:
+			ObjectScope(SerializeAchive& Archive, uint64 ID);
+			~ObjectScope();
+			ObjectScope(const ObjectScope&) = delete;
+			ObjectScope& operator=(const ObjectScope&) = delete;
+		private:
+			SerializeAchive& Archive;
+			DArray<String> PreviousPrefixes;
+		};
+
+		bool TrySerializeObject(const Object* Value);
+		nlohmann::json MakeReference(const Object* Value) const;
 
 		template<class T>
 		void SerializeData(const String& NameData, const T& Data)
@@ -139,6 +155,7 @@ namespace CoreEngine
 		friend std::istream& operator>>(std::istream& stream, SerializeAchive& j);
 
 		SerializeAchive() = default;
+		SerializeAchive(nlohmann::json& Data);
 		SerializeAchive(const SerializeAchive&) = delete;
 		SerializeAchive& operator=(const SerializeAchive&) = delete;
 
@@ -151,6 +168,7 @@ namespace CoreEngine
 	private:
 
 		DArray<String> Prefixes;
+		HashTableMap<uint64, const Object*> SerializedObjects;
 		nlohmann::json DataSave;// = YAML::Node(YAML::NodeType::Map);
 		nlohmann::json MissingNode;
 		bool IsDeserializing{false};

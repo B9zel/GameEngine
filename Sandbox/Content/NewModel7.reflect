@@ -1,15 +1,16 @@
 {
-    "EditorMeshAsset": {
-        "Name": {
-            "Name": "NewModel7"
-        },
-        "NameClass": "EditorMeshAsset",
-        "PathToAsset": {
-            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewModel7.reflect"
-        },
-        "PathToModel": {
-            "PathToModel": ""
+    "FormatVersion": 2,
+    "Objects": {
+        "24": {
+            "Name": "NewModel7",
+            "NameClass": "EditorMeshAsset",
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewModel7.reflect",
+            "PathToModel": "",
+            "m_Outer": null
         }
+    },
+    "Root": {
+        "$ref": 24
     },
     "Type": 2
 }

@@ -9,7 +9,7 @@
 #include <Object.generated.h>
 
 class Engine;
-
+class Level;
 namespace CoreEngine
 {
 	class Layer;
@@ -55,6 +55,10 @@ class Object
 
 public:
 
+	friend Level;
+
+public:
+
 	Object(const CoreEngine::InitializeObject& Initilize);
 	virtual ~Object()
 	{
@@ -93,6 +97,7 @@ public:
 	virtual void PreSerialize();
 	void Serialize(CoreEngine::SerializeAchive& Archive);
 	virtual void PreDeserialize();
+	virtual void OnPreFieldsDeserialize(CoreEngine::SerializeAchive& Data);
 	void Deserialize(CoreEngine::SerializeAchive& Data);
 
 	void SetOuter(Object* Outer);
@@ -104,18 +109,20 @@ protected:
 
 	virtual void OnDeserialize(CoreEngine::SerializeAchive& Data);
 	virtual void OnSerialize(CoreEngine::SerializeAchive& Archive);
+	void SetUUID(const CoreEngine::UUID& newUUID);
+	void ClearUUID();
 
 private:
 
 	RPROPERTY();
 	Object* m_Outer;
+	RPROPERTY();
+	String Name;
 
 	World* m_World;
 
 	CoreEngine::UUID ObjectID;
 	CoreEngine::Reflection::ClassField* PrivateClass;
-	RPROPERTY();
-	String Name;
 
 	// GC
 	uint64 StateObjectFlagGC{0};

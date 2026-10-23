@@ -1,16 +1,19 @@
 {
-    "EditorShaderAsset": {
-        "Name": {
-            "Name": "RedShader"
-        },
-        "NameClass": "EditorShaderAsset",
-        "PathToAsset": {
-            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\RedShader.reflect"
-        },
-        "Shaders": {
-            "Fragment": "vec3 fragment()\n{\n   return vec3(1.0f, 0.0f, 0.0f);\n}",
-            "Vertex": "vec3 vertex()\n{\n   return vec3(1.0f, 0.0f, 0.0f);\n} "
+    "FormatVersion": 2,
+    "Objects": {
+        "26": {
+            "Name": "RedShader",
+            "NameClass": "EditorShaderAsset",
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\RedShader.reflect",
+            "Shaders": {
+                "Fragment": "vec3 fragment()\n{\n   return vec3(1.0f, 0.0f, 0.0f);\n}",
+                "Vertex": "vec3 vertex()\n{\n   return vec3(1.0f, 0.0f, 0.0f);\n} "
+            },
+            "m_Outer": null
         }
+    },
+    "Root": {
+        "$ref": 26
     },
     "Type": 4
 }

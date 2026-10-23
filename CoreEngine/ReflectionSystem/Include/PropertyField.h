@@ -179,6 +179,7 @@ namespace CoreEngine
 
 			virtual void Serialize(SerializeAchive& Archive, Object* Instance);
 			virtual void Deserialize(SerializeAchive& Archive, Object* Instance);
+			virtual Object* GetObjectValue(void* Instance) const;
 
 		protected:
 
@@ -246,6 +247,7 @@ namespace CoreEngine
 			virtual EConteinType GetPrimitiveType() const override;
 			virtual void Serialize(SerializeAchive& Archive, Object* Instance) override;
 			virtual void Deserialize(SerializeAchive& Archive, Object* Instance) override;
+			virtual DArray<Object*> GetObjectValues(void* Instance) const;
 
 		private:
 

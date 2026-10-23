@@ -74,11 +74,11 @@ public:
 	template <class Predict> DArray<Actor*> GetAllActorsPredicate(Predict Predication);
 	template <class Predict> Actor* GetActorPredicate(Predict Predication);
 
-	virtual void DestroyActor(Actor* ActorDestr);
-
 protected:
 
 	virtual void UpdateWorld();
+	virtual void RemoveFromWorld(Level* level);
+	void MarkLevelGC(Level* level);
 
 private:
 
@@ -120,8 +120,8 @@ template <class T> T* World::SpawnActor(Actor* Owner, const FTransform& transfor
 
 	T* NewActor = CreateObject<T>(Owner);
 	NewActor->SetOwner(Owner);
-	NewActor->PostSpawnActor();
 	spawnToLevel->AddActor(NewActor);
+	NewActor->PostSpawnActor();
 	NewActor->SetActorTransform(transform);
 
 	return NewActor;
@@ -155,8 +155,8 @@ inline T* World::SpawnActor(CoreEngine::Reflection::ClassField* ClassSource, Act
 	}
 	T* NewActor = CreateObject<T>(ClassSource, Owner);
 	NewActor->SetOwner(Owner);
-	NewActor->PostSpawnActor();
 	spawnToLevel->AddActor(NewActor);
+	NewActor->PostSpawnActor();
 	NewActor->SetActorTransform(transform);
 
 	return NewActor;

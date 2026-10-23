@@ -14,7 +14,7 @@ void ActorComponent::UpdateComponent(float deltaTime)
 
 void ActorComponent::DestroyComponent()
 {
-	GetWorld()->GetUpdateManager()->RemoveFunction(&updateFunc);
+	UnregisterComponent();
 	MarkGarbage();
 }
 
@@ -24,6 +24,21 @@ void ActorComponent::InitProperties()
 
 	updateFunc.SetUpdateMethod(&ActorComponent::UpdateComponent, this);
 }
+
+void ActorComponent::EndPlay()
+{
+
+
+}
+
+void ActorComponent::UnregisterComponent()
+{
+	if (!isRegistered) return;
+
+	GetWorld()->GetUpdateManager()->RemoveFunction(&updateFunc);
+	isRegistered = false;
+}
+
 void ActorComponent::RegisteredComponent()
 {
 	if (isRegistered) return;

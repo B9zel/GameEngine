@@ -10,6 +10,7 @@
 #include <Actor.generated.h>
 
 class Actor;
+class Level;
 
 namespace CoreEngine
 {
@@ -68,6 +69,7 @@ class Actor : public Object
 public:
 
 	friend CoreEngine::UpdateFunction;
+	friend Level;
 
 public:
 
@@ -97,6 +99,10 @@ public:
 	FVector GetActorForwardVector() const;
 	FVector GetActorRightVector() const;
 	Actor* GetOwner() const;
+	Level* GetLevel() const
+	{
+		return m_Level;
+	}
 	bool GetIsRegister() const;
 
 	void SetActorLocation(const FVector& newLocation);
@@ -120,6 +126,7 @@ public:
 	virtual void PreDeserialize() override;
 
 	virtual void Destroy();
+	virtual void RouteEndPlay();
 
 protected:
 
@@ -130,12 +137,16 @@ protected:
 	virtual void OnSerialize(CoreEngine::SerializeAchive& Achive) override;
 	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
 	virtual void OnDestroy();
+	virtual void Unregister();
 	virtual void PreRegistered();
 	virtual void PreRegisterAll();
+
+	DArray<ActorComponent*>& GetComponents_Source();
 
 private:
 
 	void NativeUpdate(float deltaTime);
+	void UnregisterAllComponents();
 
 protected:
 
@@ -147,6 +158,9 @@ protected:
 	DArray<ActorComponent*> Components;
 
 private:
+
+	Level* m_Level{nullptr};
+	bool m_IsDestroying{false};
 
 	bool isBeginedPlay;
 	bool isRegister;

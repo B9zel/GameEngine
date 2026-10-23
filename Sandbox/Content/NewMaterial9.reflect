@@ -1,15 +1,16 @@
 {
-    "EditorMaterialAsset": {
-        "Name": {
-            "Name": "NewMaterial9"
-        },
-        "NameClass": "EditorMaterialAsset",
-        "PathToAsset": {
-            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial9.reflect"
-        },
-        "PathToShaderAsset": {
-            "PathToShaderAsset": ""
+    "FormatVersion": 2,
+    "Objects": {
+        "23": {
+            "Name": "NewMaterial9",
+            "NameClass": "EditorMaterialAsset",
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial9.reflect",
+            "PathToShaderAsset": "",
+            "m_Outer": null
         }
+    },
+    "Root": {
+        "$ref": 23
     },
     "Type": 3
 }

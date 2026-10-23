@@ -7,6 +7,17 @@ namespace CoreEngine
 	{
 	public:
 
+		UUID() = default;
+		UUID(const uint64& id) : CurrentID(id)
+		{
+		}
+		UUID(const UUID& other) = default;
+		UUID(UUID&& other) = default;
+		UUID& operator=(const UUID& other) = default;
+		UUID& operator=(UUID&& other) = default;
+
+	public:
+
 		void GenerateID();
 
 		uint64 GetID() const;

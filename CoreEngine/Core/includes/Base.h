@@ -49,7 +49,7 @@ class Function;
 #define CORE_UNASSERT(is, log) { if (is) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
 #define CORE_ASSERT(is, log) { if (!(is)) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
 #define ASSERT(log) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }
-#define CHECK(is) { CORE_UNASSERT(!is, "Fail check"); }
+#define CHECK(is) { CORE_UNASSERT(!(is), "Fail check"); }
 
 #define FUNCTION_NAME __FUNCTION__
 #define NUMBER_LINE  STRINGCON(__LINE__)
@@ -124,6 +124,13 @@ SharedPtr<T> MakeSharedPtr(Args&& ...args)
 
 template<class T>
 String ToString(T& value)
+{
+	std::ostringstream oss;
+	oss << value;
+	return oss.str();
+}
+template<class T>
+String ToString(T&& value)
 {
 	std::ostringstream oss;
 	oss << value;

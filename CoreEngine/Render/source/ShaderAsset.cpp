@@ -41,6 +41,7 @@ void ShaderAsset::OnSerialize(CoreEngine::SerializeAchive& Achive)
 	Achive.PushPrefix("Shaders");
 	Achive.SerializeData("Vertex", CustomShader.VertexShader);
 	Achive.SerializeData("Fragment", CustomShader.FragmentShader);
+	Achive.PopPrefix();
 }
 
 void ShaderAsset::OnDeserialize(CoreEngine::SerializeAchive& Achive)
@@ -51,6 +52,7 @@ void ShaderAsset::OnDeserialize(CoreEngine::SerializeAchive& Achive)
 	bool IsSuccess = false;
 	CustomShader.VertexShader = Achive.DeserializeData<String>("Vertex", IsSuccess);
 	CustomShader.FragmentShader = Achive.DeserializeData<String>("Fragment", IsSuccess);
+	Achive.PopPrefix();
 }
 
 CoreEngine::EAssetType ShaderAsset::GetAssetType() const

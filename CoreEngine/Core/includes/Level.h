@@ -17,6 +17,7 @@ class Level : public Object
 private:
 
 	friend World;
+	friend Actor;
 
 public:
 
@@ -33,9 +34,17 @@ public:
 	virtual void PreDeserialize() override;
 	virtual void OnDeserialize(CoreEngine::SerializeAchive& Data) override;
 
+protected:
+
+	virtual void Deinitialize();
+
 private:
 
+	void RouteEndPlayRemoveFromWorld();
 	void AddActor(Actor* newActor);
+	void RemoveActor(Actor* actor);
+
+	Actor* CreateObjectFromClass(CoreEngine::Reflection::ClassField* Class);
 
 protected:
 

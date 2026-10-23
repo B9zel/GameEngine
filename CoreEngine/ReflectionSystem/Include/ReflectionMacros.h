@@ -110,6 +110,10 @@ namespace CoreEngine::Runtime
 			Params = Param;                                                                                                                                    \
 			TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(Type::GetStaticClass());                                                       \
 		}                                                                                                                                                      \
+		virtual Object* GetObjectValue(void* Instance) const override                                                                                            \
+		{                                                                                                                                                      \
+			return *reinterpret_cast<Type**>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                                               \
+		}                                                                                                                                                      \
 		PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName) & Other) = default;                                                                \
 		PASTE_DETAILS(Field_, VarName) & operator=(const PASTE_DETAILS(Field_, VarName) & Other) = default;                                                    \
 	};
@@ -150,6 +154,11 @@ namespace CoreEngine::Runtime
 				TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(InnerType::GetStaticClass());                                              \
 			}                                                                                                                                                  \
 			return TypeProperty.get();                                                                                                                         \
+		}                                                                                                                                                      \
+		virtual DArray<Object*> GetObjectValues(void* Instance) const override                                                                                   \
+		{                                                                                                                                                      \
+			const auto& Values = *reinterpret_cast<TemplateType*>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                           \
+			return DArray<Object*>(Values.begin(), Values.end());                                                                                                 \
 		}                                                                                                                                                      \
 	};
 

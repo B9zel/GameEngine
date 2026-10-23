@@ -59,6 +59,10 @@ class ActorComponent : public Object
 
 public:
 
+	friend Level;
+
+public:
+
 	ActorComponent(const CoreEngine::InitializeObject& InitParam);
 
 public:
@@ -71,6 +75,8 @@ public:
 	virtual void UpdateComponent(float deltaTime);
 
 	virtual void DestroyComponent();
+	virtual void EndPlay();
+	virtual void UnregisterComponent();
 
 	void SetOwner(Actor* Owner);
 	Actor* GetOwner() const;

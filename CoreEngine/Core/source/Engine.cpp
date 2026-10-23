@@ -123,7 +123,7 @@ UniquePtr<CoreEngine::TimerManager>& Engine::GetTimerManager() const
 {
 	return m_TimerManager;
 }
-UniquePtr<CoreEngine::MemoryManager>& Engine::GetMemoryManager() const
+const UniquePtr<CoreEngine::MemoryManager>& Engine::GetMemoryManager() const
 {
 	return m_MemoryManager;
 }

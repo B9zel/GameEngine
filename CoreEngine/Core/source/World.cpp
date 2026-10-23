@@ -45,6 +45,13 @@ void World::UpdateWorld()
 	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::POST_UPDATE);
 }
 
+void World::RemoveFromWorld(Level* level)
+{
+	level->RouteEndPlayRemoveFromWorld();
+
+}
+
+
 CoreEngine::UpdateManager* World::GetUpdateManager() const
 {
 	return m_UpdateManager.get();
@@ -89,8 +96,6 @@ void World::PreSerialize()
 void World::OnSerialize(CoreEngine::SerializeAchive& Achive)
 {
 	Object::OnSerialize(Achive);
-
-	m_MainLevel->Serialize(Achive);
 }
 
 void World::PreDeserialize()
@@ -120,6 +125,7 @@ void World::OpenLevel(Level* level)
 	if (m_MainLevel)
 	{
 		Level* previousLevel = m_MainLevel;
+		previousLevel->Deinitialize();
 		Engine::Get()->GetMemoryManager()->GetGarbageCollector()->RemoveRootObject(previousLevel);
 
 		const auto levelIt = std::find(m_Levels.begin(), m_Levels.end(), previousLevel);
@@ -145,14 +151,5 @@ void World::InitializePlayActors()
 	for (size_t i = 0; i < m_Levels.size(); i++)
 	{
 		m_Levels[i]->ActorInitialize();
-	}
-}
-
-void World::DestroyActor(Actor* ActorDestr)
-{
-	auto FindedElement = std::find(m_MainLevel->m_Actors.begin(), m_MainLevel->m_Actors.end(), ActorDestr);
-	if (FindedElement != m_MainLevel->m_Actors.end())
-	{
-		m_MainLevel->m_Actors.erase(FindedElement);
 	}
 }

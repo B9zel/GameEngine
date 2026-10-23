@@ -195,10 +195,11 @@ namespace CoreEngine
 		{
 			if (GetIsPointer())
 			{
-				auto* Obj = GetSourcePropertyByName<Object*>(Instance);
-				if (Obj && *Obj)
+				Object* Value = GetObjectValue(Instance);
+				Archive.SerializeData(Name, Archive.MakeReference(Value));
+				if (Value)
 				{
-					(*Obj)->Serialize(Archive);
+					Value->Serialize(Archive);
 				}
 			}
 			else
@@ -206,6 +207,12 @@ namespace CoreEngine
 				SerializeDefinitionType(Archive, Instance);
 			}
 		}
+
+		Object* PropertyField::GetObjectValue(void* Instance) const
+		{
+			throw std::logic_error("Object property has no typed accessor: " + Name);
+		}
+
 		void PropertyField::Deserialize(SerializeAchive& Archive, Object* Instance)
 		{
 			if (GetIsPointer())
@@ -501,15 +508,13 @@ namespace CoreEngine
 		{
 			if (GetTypeProperty()->GetTypeOfPropertyType() == ETypeOfPropertyType::COMPLEX)
 			{
-				int64 Size = GetSizeArray<Object*>(Instance);
-				for (uint64 i = 0; i < Size; i++)
-				{
-					auto* Obj = GetElement<Object*>(Instance, i);
-					if (Obj)
-					{
-						(*Obj)->Serialize(Archive);
-					}
-				}
+				const auto Values = GetObjectValues(Instance);
+				auto References = nlohmann::json::array();
+				for (Object* Value : Values)
+					References.push_back(Archive.MakeReference(Value));
+				Archive.SerializeData(Name, References);
+				for (Object* Value : Values)
+					if (Value) Value->Serialize(Archive);
 			}
 			else
 			{
@@ -517,6 +522,10 @@ namespace CoreEngine
 
 				SerializedDefenition(SimpleType->GetPropertyType(), Archive, Instance);
 			}
+		}
+		DArray<Object*> ArrayPropertyField::GetObjectValues(void* Instance) const
+		{
+			throw std::logic_error("Object array has no typed accessor: " + Name);
 		}
 
 		void ArrayPropertyField::Deserialize(SerializeAchive& Archive, Object* Instance)

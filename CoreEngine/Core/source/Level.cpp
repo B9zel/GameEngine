@@ -1,4 +1,5 @@
 #include <Core/includes/Level.h>
+#include <algorithm>
 
 #include <Core/includes/World.h>
 #include <Core/includes/Engine.h>
@@ -47,21 +48,6 @@ void Level::PreSerialize()
 void Level::OnSerialize(CoreEngine::SerializeAchive& Achive)
 {
 	Object::OnSerialize(Achive);
-
-	for (auto* Object : m_Objects)
-	{
-		if (!Object->GetHasSerialized())
-		{
-			Object->Serialize(Achive);
-		}
-	}
-	for (auto* Actor : m_Actors)
-	{
-		if (!Actor->GetHasSerialized())
-		{
-			Actor->Serialize(Achive);
-		}
-	}
 }
 
 void Level::PreDeserialize()
@@ -81,31 +67,61 @@ void Level::PreDeserialize()
 void Level::OnDeserialize(CoreEngine::SerializeAchive& Data)
 {
 	Object::OnDeserialize(Data);
+	using namespace CoreEngine::Reflection;
 
-	static DArray<Actor*> DeleteActors;
-	DeleteActors.clear();
-
-	DeleteActors = m_Actors;
-	for (auto& i : DeleteActors)
-	{
-		i->Destroy();
-	}
+	Deinitialize();
 
 	bool Success = false;
-	for (auto& Elem : Data.FindLastNode()["m_Actors"])
+	const auto& Objects = Data.Data()["Objects"];
+	const auto& MapRegister = CoreEngine::Reflection::MapRegistryClass::Instance();
+	for (auto It = Objects.begin(); It != Objects.end(); ++It)
 	{
-		GetWorld()->SpawnActor<Actor>(CoreEngine::Reflection::MapRegistryClass::Instance().GetClassField(Elem["NameClass"].get<String>()), nullptr, FTransform());
+		const uint64 savedUUID = std::stoull(It.key());
+		auto Elem = It.value();
+
+		ClassField* Class = MapRegister.GetClassField(Elem["NameClass"].get<String>());
+		Actor* NewActor = CreateObjectFromClass(Class);
+
+		if (!NewActor) continue;
+
+		NewActor->SetUUID(savedUUID);
+		const auto& SerializedComponetns = Elem["Components"];
+
+		for (auto ComponentIt = SerializedComponetns.begin(); ComponentIt != SerializedComponetns.end(); ++ComponentIt)
+		{
+			auto Ref = ComponentIt.value();
+			const uint64 ID = Ref["$ref"].get<uint64>();
+
+			auto ComponentData = Objects[ToString(ID)];
+			const String Name = ComponentData["Name"];
+			const String NameClass = ComponentData["NameClass"];
+
+			for (ActorComponent* Component : NewActor->GetComponents_Source())
+			{
+				if (Component->GetName() == Name && Component->GetClass()->IsChildClassOf(MapRegister.GetClassField(NameClass)))
+				{
+					Component->SetUUID(ID);
+					break;
+				}
+			}
+		}
+
+		/*	for (auto& component : NewActor->GetComponents())
+			{
+				component->SetUUID(CoreEngine::UUID(std::stoull(Elem["Components"][std::to_string(component->GetUUID().GetID())]["UUID"].get<String>())));
+			}*/
+
 		EG_LOG(CoreEngine::CORE, ELevelLog::INFO, Elem.dump(4));
 	}
 
-	for (auto* Object : m_Objects)
+	/*for (auto* Object : Engine::Get()->GetMemoryManager()->GetGarbageCollector()->GetAllObjects())
 	{
 		if (!Object->GetHasDeserialized())
 		{
 			Object->Deserialize(Data);
 		}
-	}
-	Data.PushPrefix("m_Actors");
+	}*/
+
 	for (auto* Actor : m_Actors)
 	{
 		if (!Actor->GetHasDeserialized())
@@ -113,11 +129,54 @@ void Level::OnDeserialize(CoreEngine::SerializeAchive& Data)
 			Actor->Deserialize(Data);
 		}
 	}
-	Data.PopPrefix();
+}
+
+void Level::Deinitialize()
+{
+	const auto actors = m_Actors;
+	for (auto* actor : actors)
+	{
+		if (actor)
+		{
+			actor->Destroy();
+		}
+	}
+
+	m_Actors.clear();
+}
+
+void Level::RouteEndPlayRemoveFromWorld()
+{
+	for (auto* actor : m_Actors)
+	{
+		actor->RouteEndPlay();
+	}
 }
 
 void Level::AddActor(Actor* newActor)
 {
+	CHECK(newActor);
+	CHECK(newActor->m_Level == nullptr);
+	newActor->m_Level = this;
 	m_Actors.push_back(newActor);
-	// m_ActorsGC.push_back(newActor);
+}
+
+void Level::RemoveActor(Actor* actor)
+{
+	const auto actorIt = std::find(m_Actors.begin(), m_Actors.end(), actor);
+	if (actorIt != m_Actors.end())
+	{
+		m_Actors.erase(actorIt);
+		actor->m_Level = nullptr;
+	}
+}
+
+Actor* Level::CreateObjectFromClass(CoreEngine::Reflection::ClassField* Class)
+{
+	if (Class->IsChildClassOf(Actor::GetStaticClass()))
+	{
+		return GetWorld()->SpawnActor<Actor>(Class, nullptr, FTransform());
+	}
+
+	return nullptr;
 }

@@ -60,7 +60,7 @@ public:
 
 	UniquePtr<CoreEngine::InputDevice>& GetInputDevice() const;
 	UniquePtr<CoreEngine::TimerManager>& GetTimerManager() const;
-	UniquePtr<CoreEngine::MemoryManager>& GetMemoryManager() const;
+	const UniquePtr<CoreEngine::MemoryManager>& GetMemoryManager() const;
 	UniquePtr<CoreEngine::Render::Render>& GetRender() const;
 	const UniquePtr<CoreEngine::Render::RenderDevice>& GetRenderDevice() const;
 	World* GetWorld() const;

@@ -1,4 +1,5 @@
 #include <Runtime/includes/Actor.h>
+#include <Core/includes/Level.h>
 #include <Runtime/includes/SceneComponent.h>
 #include <Math/includes/Vector.h>
 #include <Runtime/includes/Controller.h>
@@ -48,10 +49,6 @@ void Actor::BeginPlay()
 	}
 }
 
-void Actor::EndPlay()
-{
-}
-
 void Actor::Update(float deltaTime)
 {
 }
@@ -60,6 +57,15 @@ void Actor::NativeUpdate(float deltaTime)
 {
 	Update(deltaTime);
 }
+
+void Actor::UnregisterAllComponents()
+{
+	for (auto* component : Components)
+	{
+		component->UnregisterComponent();
+	}
+}
+
 
 void Actor::Registered()
 {
@@ -100,6 +106,11 @@ void Actor::PreRegisterAll()
 	{
 		Component->PreRegisterComponent();
 	}
+}
+
+DArray<ActorComponent*>& Actor::GetComponents_Source()
+{
+	return Components;
 }
 
 void Actor::OnRegistered()
@@ -236,6 +247,7 @@ const DArray<ActorComponent*>& Actor::GetComponents() const
 {
 	return Components;
 }
+
 void Actor::PreSerialize()
 {
 	Object::PreSerialize();
@@ -245,6 +257,7 @@ void Actor::PreSerialize()
 		Component->PreSerialize();
 	}
 }
+
 void Actor::PreDeserialize()
 {
 	Object::PreDeserialize();
@@ -256,30 +269,60 @@ void Actor::PreDeserialize()
 }
 void Actor::Destroy()
 {
-	EndPlay();
-	GetWorld()->DestroyActor(this);
+	if (m_IsDestroying) return;
+	m_IsDestroying = true;
+
+	RouteEndPlay();
+	if (m_Level)
+	{
+		m_Level->RemoveActor(this);
+	}
 	OnDestroy();
+
 	for (auto& Component : Components)
 	{
 		Component->DestroyComponent();
 	}
-	GetWorld()->GetUpdateManager()->RemoveFunction(&actorUpdate);
 
+	ClearUUID();
 	MarkGarbage();
+}
+
+void Actor::RouteEndPlay()
+{
+	if (isBeginedPlay)
+	{
+		isBeginedPlay = false;
+		EndPlay();
+	}
+
+	UnregisterAllComponents();
+	Unregister();
+}
+
+void Actor::EndPlay()
+{
+	for (auto* component : Components)
+	{
+		component->EndPlay();
+	}
 }
 
 void Actor::OnDestroy()
 {
 }
 
+void Actor::Unregister()
+{
+	if (!isRegister) return;
+
+	GetWorld()->GetUpdateManager()->RemoveFunction(&actorUpdate);
+	isRegister = false;
+}
+
 void Actor::OnSerialize(CoreEngine::SerializeAchive& Achive)
 {
 	Object::OnSerialize(Achive);
-
-	for (auto* Component : GetComponents())
-	{
-		Component->Serialize(Achive);
-	}
 }
 void Actor::OnDeserialize(CoreEngine::SerializeAchive& Achive)
 {
