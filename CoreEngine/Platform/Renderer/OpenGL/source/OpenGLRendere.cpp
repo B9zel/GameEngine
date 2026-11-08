@@ -28,10 +28,7 @@ namespace CoreEngine
 		{
 			OpenGLRender::OpenGLRender()
 			{
-				m_SSBODirectionLight.CreaterBuffer(nullptr, 0, sizeof(SimplyDirectionLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOPointLight.CreaterBuffer(nullptr, 0, sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOSpotLight.CreaterBuffer(nullptr, 0, sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
-				m_SSBOLightSpace.CreaterBuffer(nullptr, 0, sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
+				CreateBuuferStorageObject();
 
 				CurrentRes.x = Application::Get()->GetWindow().GetWidth();
 				CurrentRes.y = Application::Get()->GetWindow().GetHeight();
@@ -900,6 +897,14 @@ namespace CoreEngine
 				}
 				ShadowDepth->UnBind();
 				glCullFace(GL_BACK);
+			}
+
+			void OpenGLRender::CreateBuuferStorageObject()
+			{
+				m_SSBODirectionLight.CreaterBuffer(nullptr, 0, sizeof(SimplyDirectionLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOPointLight.CreaterBuffer(nullptr, 0, sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOSpotLight.CreaterBuffer(nullptr, 0, sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
+				m_SSBOLightSpace.CreaterBuffer(nullptr, 0, sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
 			}
 
 		} // namespace OpenGL

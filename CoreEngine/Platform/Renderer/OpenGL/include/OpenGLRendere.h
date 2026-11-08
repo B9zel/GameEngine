@@ -146,7 +146,7 @@ namespace CoreEngine
 														  DArray<FMatrix4x4>& LightSpace, DArray<RenderCommand*>& OutCommands);
 				void ExecuteShadowDepthCommand(RenderDevice* Device, const DArray<LightProxy*>& Lights, const DArray<RenderCommand*>& Commands);
 
-			
+				void CreateBuuferStorageObject();
 
 			private:
 

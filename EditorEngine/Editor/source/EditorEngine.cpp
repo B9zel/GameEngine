@@ -106,6 +106,17 @@ void EditorEngine::Update()
 void EditorEngine::SetSelectedObject(Object* NewSelected)
 {
 	SelectedObject = NewSelected;
+	if (auto* Shader = dynamic_cast<EditorShaderAsset*>(NewSelected))
+	{
+		OpenShaderEditor(Shader);
+	}
+}
+
+void EditorEngine::OpenShaderEditor(EditorShaderAsset* Shader)
+{
+	if (!Shader) return;
+	EditedShader = Shader;
+	Shader->OpenEditor();
 }
 
 Object* EditorEngine::GetSelectedObject() const
@@ -146,6 +157,11 @@ void EditorEngine::RenderEditor()
 	for (auto& Widget : EditorWidgets)
 	{
 		Widget->Draw();
+	}
+
+	if (EditedShader && !EditedShader->DrawEditor())
+	{
+		EditedShader = nullptr;
 	}
 
 	ImGui::Begin("Test");

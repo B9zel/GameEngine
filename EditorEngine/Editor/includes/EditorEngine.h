@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/includes/Engine.h>
+#include <Editor/includes/Asset/EditorShaderAsset.h>
 #include <Core/includes/InputDevice.h>
 #include <Render/includes/RenderDevice.h>
 
@@ -45,6 +46,7 @@ public:
 	virtual void Update() override;
 	void SetSelectedObject(Object* NewSelected);
 	Object* GetSelectedObject() const;
+	void OpenShaderEditor(EditorShaderAsset* Shader);
 	Editor::EditorViewportClient* GetViewpoertClient() const;
 
 	EStateWorld GetCurrentStateWorld() const;
@@ -78,4 +80,5 @@ private:
 	UniquePtr<Editor::EditorViewportClient> m_ViewportCamera;
 
 	Object* SelectedObject{nullptr};
+	CoreEngine::ObjectPtr<EditorShaderAsset> EditedShader;
 };

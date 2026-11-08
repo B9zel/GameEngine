@@ -1,6 +1,7 @@
 #pragma once
 #include <Render/includes/ShaderAsset.h>
 #include <Editor/includes/EditorDrawingInterface.h>
+#include <TextEditor.h>
 #include <EditorShaderAsset.generated.h>
 
 RCLASS()
@@ -16,15 +17,22 @@ public:
 
 	virtual void DrawElements() override;
 	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
+	void OpenEditor();
+	bool DrawEditor();
 
 private:
 
 	void ApplyChange();
+	void InitializeEditors();
 
 private:
 
 	SourceShader ChangedCustomShader;
 
-	const float m_PercenBordertCapacity = 0.9f;
-	const float m_RatioMultySizeShaderStr = 1.5f;
+	TextEditor VertexEditor;
+	TextEditor FragmentEditor;
+	bool m_EditorsInitialized{false};
+	bool m_IsEditorOpen{false};
+	bool m_FocusEditor{false};
+	float m_CodeFontSize{13.0f};
 };

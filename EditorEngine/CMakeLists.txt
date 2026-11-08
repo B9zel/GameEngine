@@ -99,6 +99,15 @@ add_library(ImGuizmo STATIC
 	${SOURCE_IMGUIZMO_FILES}
 )
 
+add_library(ImGuiColorTextEdit STATIC
+	../libraries/ImGuiColorTextEdit/TextEditor.h
+	../libraries/ImGuiColorTextEdit/TextEditor.cpp
+)
+target_include_directories(ImGuiColorTextEdit PUBLIC ../libraries/ImGuiColorTextEdit)
+target_link_libraries(ImGuiColorTextEdit PUBLIC ImGui)
+target_compile_features(ImGuiColorTextEdit PUBLIC cxx_std_17)
+
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 		${INCLUDES_FILES}
 		${SOURCE_FILES})
@@ -116,7 +125,7 @@ target_include_directories(ImGui PUBLIC ../libraries/imgui)
 target_include_directories(ImGuizmo PUBLIC ../libraries/imgui)
 target_include_directories(${EDITOR_PROJECT_NAME} PUBLIC .)
 
-target_link_libraries(${EDITOR_PROJECT_NAME} PUBLIC CoreEngine ImGui ImGuizmo)
+target_link_libraries(${EDITOR_PROJECT_NAME} PUBLIC CoreEngine ImGui ImGuizmo ImGuiColorTextEdit)
 target_link_libraries(ImGui PRIVATE glad glfw)
 
 
