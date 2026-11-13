@@ -7,13 +7,17 @@
 #include <Math/includes/Transform.h>
 #include <World.generated.h>
 
-namespace CoreEngine
+namespace CoreEngine::Render
 {
-	namespace Render
-	{
-		class SceneInterface;
-	}
-} // namespace CoreEngine
+
+	class SceneInterface;
+
+} // namespace CoreEngine::Render
+
+namespace CoreEngine::Physic
+{
+	class PhysScene;
+}
 
 class Object;
 class Level;
@@ -52,6 +56,8 @@ public:
 
 	CoreEngine::UpdateManager* GetUpdateManager() const;
 	CoreEngine::SaveManager* GetSaveManager() const;
+	CoreEngine::Physic::PhysScene* GetPhysScene() const;
+
 	float GetWorldDeltaTime() const;
 	const DArray<Level*>& GetLevels() const;
 	virtual FVector GetControllerLocation() const;
@@ -78,7 +84,7 @@ protected:
 
 	virtual void UpdateWorld();
 	virtual void RemoveFromWorld(Level* level);
-	void MarkLevelGC(Level* level);
+	// void MarkLevelGC(Level* level);
 
 private:
 
@@ -87,9 +93,10 @@ private:
 
 	DArray<Level*> m_Levels;
 	RPROPERTY();
-	Level* m_MainLevel{ nullptr };
+	Level* m_MainLevel{nullptr};
 
 	UniquePtr<CoreEngine::Render::SceneInterface> m_Scene;
+	UniquePtr<CoreEngine::Physic::PhysScene> m_PhysScene;
 
 	float m_DeltaTime{0.0f};
 	float m_LastTime{0.0f};

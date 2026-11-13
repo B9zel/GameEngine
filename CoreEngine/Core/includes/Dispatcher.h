@@ -63,13 +63,14 @@ public:
 		return true;
 	}
 
-	inline void Call(Args&&... param)
+	template <typename... UArgs, typename = std::enable_if_t<sizeof...(Args) == sizeof...(UArgs) && std::conjunction_v<std::is_convertible<UArgs&&, Args>...>>>
+	inline void Call(UArgs&&... param)
 	{
 		if (m_MtDispatch.empty()) return;
 
 		for (auto& el : m_MtDispatch)
 		{
-			el(std::forward<Args>(param)...);
+			el(std::forward<UArgs>(param)...);
 		}
 	}
 

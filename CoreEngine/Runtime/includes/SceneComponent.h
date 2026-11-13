@@ -32,6 +32,8 @@ public:
 	FVector GetForwardVector() const;
 	FVector GetRightVector() const;
 
+	FVector GetWorldLocation() const;
+
 	virtual void SetComponentRotation(const FVector& newRotation);
 	virtual void SetComponentLocation(const FVector& newLocation);
 	virtual void SetComponentScale(const FVector& newScale);
@@ -48,6 +50,9 @@ public:
 	virtual FMatrix4x4 MakeMatrixMesh() const;
 	virtual FMatrix4x4 MakeParentMatrix() const;
 
+	FVector GetVelocity() const;
+	void SetVelocity(const FVector& NewVelocity);
+
 protected:
 
 	FVector CalculateForwardDirection(const FVector& VedDirect, const bool IsConvertToRadian = true) const;
@@ -62,4 +67,6 @@ protected:
 
 	RPROPERTY()
 	DArray<SceneComponent*> childrenAttach;
+
+	FVector Velocity = FVector::ZeroVector;
 };

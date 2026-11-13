@@ -180,6 +180,8 @@ template <class ReturnType> inline ReturnType* Actor::CreateRuntimeSubObject()
 }
 template <class ReturnType> inline ReturnType* Actor::CreateSubObject(CoreEngine::Reflection::ClassField* Class, const String& Name)
 {
+	if (!Class->IsChildClassOf(ActorComponent::GetStaticClass())) return nullptr;
+
 	ReturnType* obj = CreateObject<ReturnType>(Class);
 	if (obj)
 	{
@@ -197,6 +199,11 @@ template <class ReturnType> inline ReturnType* Actor::CreateSubObject(CoreEngine
 		}
 	}
 	obj->SetName(Name);
+	if (GetIsRegister())
+	{
+		obj->PreRegisterComponent();
+		obj->NotifyRegisteredComponent();
+	}
 
 	Components.emplace_back(obj);
 	// ComponentsGC.emplace_back(obj);

@@ -70,7 +70,6 @@ public:
 	virtual void BeginPlay();
 
 	virtual void InitProperties() override;
-	virtual void RegisteredComponent();
 	virtual void PreRegisterComponent();
 	virtual void UpdateComponent(float deltaTime);
 
@@ -82,6 +81,12 @@ public:
 	Actor* GetOwner() const;
 	bool GetIsActive() const;
 	bool GetIsCreatedNative() const;
+
+	void NotifyRegisteredComponent();
+
+protected:
+
+	virtual void RegisteredComponent();
 
 protected:
 

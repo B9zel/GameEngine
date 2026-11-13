@@ -3,6 +3,7 @@
 #include <Platform/Renderer/OpenGL/include/OpenGLShader.h>
 #include <Render/includes/ShaderGLSLUtils.h>
 #include <Render/includes/MaterialInterface.h>
+#include <Core/includes/AssetManager.h>
 
 MaterialAsset::MaterialAsset(const CoreEngine::InitializeObject& Initilize) : Asset(Initilize)
 {
@@ -41,17 +42,30 @@ DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>& MaterialAsset::GetS
 	return m_ShaderUniforms;
 }
 
+void MaterialAsset::OnDeserialize(CoreEngine::SerializeAchive& Achive)
+{
+	Asset::OnDeserialize(Achive);
+
+	m_ShaderAsset = dynamic_cast<ShaderAsset*>(AssetManager::Get().LoadAsset(PathToShaderAsset));
+	AssignNewShaderAsset();
+}
+
 void MaterialAsset::PostChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property)
 {
 	if (Property.Name == STRINGCON_DETAILS(m_ShaderAsset))
 	{
-		if (ShaderAsset* NewShader = dynamic_cast<ShaderAsset*>(m_ShaderAsset))
-		{
-			NewShader->ApplyNewShader.AddBind(&MaterialAsset::UpdateShaderUniforms, this);
-		}
-
-		SetNewShader(m_ShaderAsset);
+		AssignNewShaderAsset();
 	}
+}
+
+void MaterialAsset::AssignNewShaderAsset()
+{
+	if (ShaderAsset* NewShader = dynamic_cast<ShaderAsset*>(m_ShaderAsset))
+	{
+		NewShader->ApplyNewShader.AddBind(&MaterialAsset::UpdateShaderUniforms, this);
+	}
+
+	SetNewShader(m_ShaderAsset);
 }
 
 void MaterialAsset::PreChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property)

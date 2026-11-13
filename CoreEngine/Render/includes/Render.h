@@ -15,6 +15,7 @@ namespace CoreEngine
 		class Framebuffer;
 		class RendererAPI;
 		class RenderDevice;
+		class DebugRender;
 
 		class Render
 		{
@@ -35,6 +36,7 @@ namespace CoreEngine
 			virtual void SetResolutionScale(const FVector2 Resolition) = 0;
 
 			virtual const UniquePtr<RenderDevice>& GetRenderDevice() const;
+			DebugRender* GetDebugRender() const;
 
 			static void PrepareMaterial(RMaterial& Mat);
 
@@ -48,6 +50,8 @@ namespace CoreEngine
 
 			UniquePtr<RendererAPI> m_renderAPI;
 			UniquePtr<RenderDevice> m_RenderDevice;
+			// Destroy debug GPU resources before the device they use.
+			UniquePtr<DebugRender> m_DebugRender;
 
 			static bool isInit;
 		};

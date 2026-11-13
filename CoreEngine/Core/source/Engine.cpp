@@ -139,6 +139,12 @@ World* Engine::GetWorld() const
 {
 	return m_World;
 }
+void Engine::OpenProject(const String& Path)
+{
+	GetWorld()->GetSaveManager()->LoadSaveScene(Path);
+
+	OnOpenProjectDispatch.Call();
+}
 UniquePtr<CoreEngine::Reflection::ReflectionManager>& Engine::GetReflectionManger() const
 {
 	return CoreEngine::Application::Get()->GetReflectionManager();

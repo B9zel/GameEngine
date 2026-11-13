@@ -63,9 +63,11 @@ public:
 	const UniquePtr<CoreEngine::MemoryManager>& GetMemoryManager() const;
 	UniquePtr<CoreEngine::Render::Render>& GetRender() const;
 	const UniquePtr<CoreEngine::Render::RenderDevice>& GetRenderDevice() const;
-	World* GetWorld() const;
 	UniquePtr<CoreEngine::Reflection::ReflectionManager>& GetReflectionManger() const;
 	AssetManager* GetAssetManager() const;
+	World* GetWorld() const;
+
+	virtual void OpenProject(const String& Path);
 
 	FVector2 GetScreenSize() const;
 
@@ -78,6 +80,10 @@ public:
 protected:
 
 	virtual World* CreateWorld() const;
+
+public:
+
+	DispatcherVoid OnOpenProjectDispatch;
 
 protected:
 

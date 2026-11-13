@@ -75,10 +75,8 @@ namespace CoreEngine
 			return false;
 		}
 
-		const bool HasWorld = std::any_of(Root.begin(), Root.end(), [](const nlohmann::json& Node)
-		{
-			return Node.is_object() && Node.count("m_MainLevel") != 0;
-		});
+		const bool HasWorld =
+			std::any_of(Root.begin(), Root.end(), [](const nlohmann::json& Node) { return Node.is_object() && Node.count("m_MainLevel") != 0; });
 		/*if (!HasWorld)
 		{
 			EG_LOG(CORE, ELevelLog::ERROR, "File '{0}' doesn't contain a serialized world", Path);

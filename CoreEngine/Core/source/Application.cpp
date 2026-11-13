@@ -77,8 +77,8 @@ namespace CoreEngine
 		m_ReflectionManger = std::move(Reflection::ReflectionManager::CreateReflectionManager());
 
 		ConstructEngine();
-		InstanceEngine->ConstructInitialize();
 		InstanceEngine->Init();
+		InstanceEngine->ConstructInitialize();
 
 		EventDispatcher.AddEvent<EventCloseWindow>(BIND_EVENT(&Application::ExitInput, this));
 	}

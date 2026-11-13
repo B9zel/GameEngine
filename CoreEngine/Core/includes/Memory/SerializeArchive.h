@@ -147,6 +147,7 @@ namespace CoreEngine
 		void PushPrefix(const String& Data);
 		void PopPrefix();
 		nlohmann::json& FindLastNode();
+		nlohmann::json& GetNodePrefix();
 
 
 	public:

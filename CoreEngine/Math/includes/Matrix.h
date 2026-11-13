@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <Core/includes/Base.h>
 #include <Math/includes/Vector4.h>
+#include <Math/includes/Quat.h>
 #include <Math/includes/Math.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
@@ -85,6 +86,16 @@ namespace Math
 		return glm::inverse(matrix);
 	}
 
+	inline FMatrix4x4 SetMatrixTranslation(const FMatrix4x4& matrix, const FVector& newTranslation)
+	{
+		FMatrix4x4 result = matrix;
+		result[3] = glm::vec4(newTranslation.vector, 1.0f);
+		return result;
+	}
+
+	FMatrix4x4 SetMatrixRotation(const FMatrix4x4& matrix, const FVector& newRotation);
+
 	bool DecomposeLocationMatrix(const FMatrix4x4& matrix, FVector& Location);
 	bool DecomposeMatrix(const FMatrix4x4& matrix, FVector& OutLocation, FVector& OutRotation, FVector& OutScale);
+	bool DecomposeMatrix(const FMatrix4x4& matrix, FVector& OutLocation, FQuat& OutQuat, FVector& OutScale);
 }

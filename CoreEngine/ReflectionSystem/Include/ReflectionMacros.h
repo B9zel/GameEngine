@@ -110,9 +110,9 @@ namespace CoreEngine::Runtime
 			Params = Param;                                                                                                                                    \
 			TypeProperty = CoreEngine::Reflection::BaseTypePropertyType::Create(Type::GetStaticClass());                                                       \
 		}                                                                                                                                                      \
-		virtual Object* GetObjectValue(void* Instance) const override                                                                                            \
+		virtual Object* GetObjectValue(void* Instance) const override                                                                                          \
 		{                                                                                                                                                      \
-			return *reinterpret_cast<Type**>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                                               \
+			return *reinterpret_cast<Type**>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                                             \
 		}                                                                                                                                                      \
 		PASTE_DETAILS(Field_, VarName)(const PASTE_DETAILS(Field_, VarName) & Other) = default;                                                                \
 		PASTE_DETAILS(Field_, VarName) & operator=(const PASTE_DETAILS(Field_, VarName) & Other) = default;                                                    \
@@ -155,10 +155,10 @@ namespace CoreEngine::Runtime
 			}                                                                                                                                                  \
 			return TypeProperty.get();                                                                                                                         \
 		}                                                                                                                                                      \
-		virtual DArray<Object*> GetObjectValues(void* Instance) const override                                                                                   \
+		virtual DArray<Object*> GetObjectValues(void* Instance) const override                                                                                 \
 		{                                                                                                                                                      \
-			const auto& Values = *reinterpret_cast<TemplateType*>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                           \
-			return DArray<Object*>(Values.begin(), Values.end());                                                                                                 \
+			const auto& Values = *reinterpret_cast<TemplateType*>(reinterpret_cast<unsigned char*>(Instance) + Offset);                                        \
+			return DArray<Object*>(Values.begin(), Values.end());                                                                                              \
 		}                                                                                                                                                      \
 	};
 
@@ -177,6 +177,9 @@ namespace CoreEngine::Runtime
 	{                                                                                                                                                          \
 		PASTE_DETAILS(RegistryGenerate_, NameClass)::PASTE_DETAILS(RegistryGenerate_, NameClass)()                                                             \
 		{                                                                                                                                                      \
+			static bool HasInit = false;                                                                                                                       \
+			if (HasInit) return;                                                                                                                               \
+			HasInit = true;                                                                                                                                    \
 			CoreEngine::Reflection::RegistryClass Class;                                                                                                       \
 			Class.CreateMetaClass = []() -> CoreEngine::Reflection::ConstructionField* { return Namespace::##NameClass::GetStaticClass(); };                   \
 			Class.ConstructClass = [](CoreEngine::Runtime::Object* ConstructObj, const CoreEngine::InitializeObject& Initialize)                               \

@@ -41,11 +41,9 @@ void ActorComponent::UnregisterComponent()
 
 void ActorComponent::RegisteredComponent()
 {
-	if (isRegistered) return;
-
 	GetWorld()->GetUpdateManager()->AddFunction(&updateFunc);
-	isRegistered = true;
 }
+
 void ActorComponent::PreRegisterComponent()
 {
 	if (!GetOwner()->GetIsRegister())
@@ -69,4 +67,13 @@ bool ActorComponent::GetIsActive() const
 bool ActorComponent::GetIsCreatedNative() const
 {
 	return IsCreatedNative;
+}
+
+void ActorComponent::NotifyRegisteredComponent()
+{
+	if (isRegistered) return;
+
+	RegisteredComponent();
+
+	isRegistered = true;
 }

@@ -12,6 +12,8 @@
 #include <Render/includes/Material.h>
 #include <Core/includes/AssetManager.h>
 #include <Render/includes/Shader.h>
+#include <Render/includes/Debug/DebugRender.h>
+#include <Platform/Renderer/OpenGL/include/Debug/OpenGLDebugRender.h>
 // #include <Render/includes/Framebuffer.h>
 
 namespace CoreEngine
@@ -40,8 +42,13 @@ namespace CoreEngine
 			case RendererAPI::API::OpenGL:
 			{
 				render = MakeUniquePtr<OpenGL::OpenGLRender>();
+
 				render->m_renderAPI = RendererAPI::CreateAPI();
 				render->m_RenderDevice = MakeUniquePtr<OpenGL::OpenGLRenderDevice>();
+
+#ifdef ENGINE_DEBUG
+				render->m_DebugRender = MakeUniquePtr<OpenGL::OpenGLDebugRender>(*render->m_RenderDevice);
+#endif // ENGINE_DEBUG
 
 				break;
 			}
@@ -55,23 +62,16 @@ namespace CoreEngine
 		void Render::RenderPipelineProxy(const DArray<PrimitiveProxy*>& Primitives, const DArray<LightProxy*>& Lights)
 		{
 			using namespace CoreEngine::Render;
-			for (auto* Primitive : Primitives)
-			{
-				// Return later !!!!!!!!!!!
-				if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
-				{
-					// RenderStaticMeshProxy(StaticProxy, Lights, );
-				}
-				else
-				{
-					RenderProxy(Primitive);
-				}
-			}
 		}
 
 		const UniquePtr<RenderDevice>& Render::GetRenderDevice() const
 		{
 			return m_RenderDevice;
+		}
+
+		DebugRender* Render::GetDebugRender() const
+		{
+			return m_DebugRender.get();
 		}
 
 		void Render::PrepareMaterial(RMaterial& Mat)

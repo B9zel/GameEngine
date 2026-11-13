@@ -140,14 +140,16 @@ AssetManager& AssetManager::Get()
 
 Asset* AssetManager::LoadAsset(const String& Path)
 {
-	auto& ExistAsset = LoadedAssets.find(Path);
+	const String& AbsolutePath = std::filesystem::absolute(Path).string();
+
+	auto& ExistAsset = LoadedAssets.find(AbsolutePath);
 	if (ExistAsset != LoadedAssets.end())
 	{
 		return m_Assets[ExistAsset->second];
 	}
 
 	CoreEngine::SerializeAchive Achive;
-	CoreEngine::EAssetType TypeAsset = Engine::Get()->GetWorld()->GetSaveManager()->LoadFileAsset(Path, Achive);
+	CoreEngine::EAssetType TypeAsset = Engine::Get()->GetWorld()->GetSaveManager()->LoadFileAsset(AbsolutePath, Achive);
 	if (TypeAsset == CoreEngine::EAssetType::None) return nullptr;
 
 	Asset* NewAsset = CoreEngine::AssetFactory::CreateAsset(TypeAsset);
@@ -159,7 +161,7 @@ Asset* AssetManager::LoadAsset(const String& Path)
 	NewAsset->PostChangeProperty.AddBind(&AssetManager::PostChangeNameOfAsset, this);
 
 	m_Assets.push_back(NewAsset);
-	LoadedAssets.emplace(Path, m_Assets.size() - 1);
+	LoadedAssets.emplace(AbsolutePath, m_Assets.size() - 1);
 
 	return NewAsset;
 }

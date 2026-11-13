@@ -148,6 +148,8 @@ namespace CoreEngine
 
 				void CreateBuuferStorageObject();
 
+				void OnOpenProject();
+
 			private:
 
 				FMatrix4x4 m_View;

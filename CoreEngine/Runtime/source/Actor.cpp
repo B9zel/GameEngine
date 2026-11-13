@@ -4,6 +4,7 @@
 #include <Math/includes/Vector.h>
 #include <Runtime/includes/Controller.h>
 #include <Runtime/includes/ActorComponent.h>
+#include <Runtime/includes/BoxCollisionComponent.h>
 
 Actor::Actor(const CoreEngine::InitializeObject& Initilize) : Object(Initilize), actorUpdate(), RootComponent(nullptr)
 {
@@ -24,7 +25,7 @@ void Actor::RegisterAll()
 	{
 		if (Component->GetIsActive())
 		{
-			Component->RegisteredComponent();
+			Component->NotifyRegisteredComponent();
 		}
 	}
 }
@@ -66,7 +67,6 @@ void Actor::UnregisterAllComponents()
 	}
 }
 
-
 void Actor::Registered()
 {
 	if (isRegister) return;
@@ -91,8 +91,8 @@ void Actor::PostSpawnActor()
 	PreRegistered();
 	PreRegisterAll();
 
-	Registered();
 	RegisterAll();
+	Registered();
 }
 
 void Actor::PreRegistered()

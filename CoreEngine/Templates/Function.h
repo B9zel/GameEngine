@@ -289,7 +289,7 @@ public:
 		return m_Fn->Invoke(std::forward<Args>(param)...);
 	}
 
-	TReturn operator()(Args&&... param) const
+	TReturn operator()(Args... param) const
 	{
 		return Invoke(std::forward<Args>(param)...);
 	}

@@ -14,24 +14,20 @@
 #include <algorithm>
 #include <tuple>
 #include <typeindex>
+#include <type_traits>
 
-
-
-template<class TReturn, class... Args>
-class Function;
+template <class TReturn, class... Args> class Function;
 
 #define STRINGCON_DETAILS(x) #x
 #define STRINGCON(x) STRINGCON_DETAILS(x)
-
 
 #define PASTE_DETAILS(x, y) x##y
 #define PASTE(x, y) (PASTE_DETAILS(x, y))
 #define FLAG_OFFSET(x) 1 << x
 
+#define BIND_EVENT(Method, Class) Function<void(Event&)>(Method, Class)
 
-#define BIND_EVENT(Method, Class) Function<void(Event&)>(Method,Class)
-
-//#define BIND_FUNCTION(function) [this](auto&&... args) -> decltype(auto) { return this->function(std::forward<decltype(args)>(args)...);}
+// #define BIND_FUNCTION(function) [this](auto&&... args) -> decltype(auto) { return this->function(std::forward<decltype(args)>(args)...);}
 
 #define ENGINE_DEBUG _DEBUG
 #define WITH_EDITOR 1
@@ -41,33 +37,53 @@ class Function;
 #define DEVELOPMENT_DEBUG
 
 #ifdef EG_PLATFORM_WINDOWS
-#define ENGINE_DEBUGBREAK  __debugbreak()
+#define ENGINE_DEBUGBREAK __debugbreak()
 #else
-#define ENGINE_DEBUGBREAK 
+#define ENGINE_DEBUGBREAK
 #endif // _WIN64 || _WIN32
 
-#define CORE_UNASSERT(is, log) { if (is) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-#define CORE_ASSERT(is, log) { if (!(is)) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }}
-#define ASSERT(log) { EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log); ENGINE_DEBUGBREAK; }
-#define CHECK(is) { CORE_UNASSERT(!(is), "Fail check"); }
+#define CORE_UNASSERT(is, log)                                                                                                                                 \
+	{                                                                                                                                                          \
+		if (is)                                                                                                                                                \
+		{                                                                                                                                                      \
+			EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log);                                                                                                \
+			ENGINE_DEBUGBREAK;                                                                                                                                 \
+		}                                                                                                                                                      \
+	}
+#define CORE_ASSERT(is, log)                                                                                                                                   \
+	{                                                                                                                                                          \
+		if (!(is))                                                                                                                                             \
+		{                                                                                                                                                      \
+			EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log);                                                                                                \
+			ENGINE_DEBUGBREAK;                                                                                                                                 \
+		}                                                                                                                                                      \
+	}
+#define ASSERT(log)                                                                                                                                            \
+	{                                                                                                                                                          \
+		EG_LOG(CoreEngine::CORE, ELevelLog::CRITICAL, log);                                                                                                    \
+		ENGINE_DEBUGBREAK;                                                                                                                                     \
+	}
+#define CHECK(is)                                                                                                                                              \
+	{                                                                                                                                                          \
+		CORE_UNASSERT(!(is), "Fail check");                                                                                                                    \
+	}
 
 #define FUNCTION_NAME __FUNCTION__
-#define NUMBER_LINE  STRINGCON(__LINE__)
+#define NUMBER_LINE STRINGCON(__LINE__)
 
 #define FUNCTION_STAT FUNCTION_NAME ":" NUMBER_LINE
 #else
-#define ENGINE_DEBUGBREAK 
+#define ENGINE_DEBUGBREAK
 
-#define CORE_CHECK(is) 
+#define CORE_CHECK(is)
 #define CHECK(is)
 #define CORE_UNASSERT(is, log)
 #define CORE_ASSERT(is, log)
 #define ASSERT(log)
-#define FUNCTION_NAME 
+#define FUNCTION_NAME
 #define NUMBER_LINE
 
 #define FUNCTION_STAT
-
 
 #endif // ENGINE_DEBUG
 
@@ -75,70 +91,55 @@ using String = typename std::string;
 
 using StringView = typename std::string_view;
 
-template<class... Types>
-using Turple = typename std::tuple<Types...>;
+template <class... Types> using Turple = typename std::tuple<Types...>;
 
-template<class T>
-using SharedPtr = std::shared_ptr<T>;
+template <class T> using SharedPtr = std::shared_ptr<T>;
 
-template<class T, class Deleter = std::default_delete<T>>
-using UniquePtr = std::unique_ptr<T, Deleter>;
+template <class T, class Deleter = std::default_delete<T>> using UniquePtr = std::unique_ptr<T, Deleter>;
 
-template<class T>
-using WeakPtr = std::weak_ptr<T>;
+template <class T> using WeakPtr = std::weak_ptr<T>;
 
-template<class T, class Allocattor = std::allocator<T>>
-using DArray = std::vector<T, Allocattor>;
+template <class T, class Allocattor = std::allocator<T>> using DArray = std::vector<T, Allocattor>;
 
-template<class T, size_t Size>
-using StaticArray = std::array<T, Size>;
+template <class T, size_t Size> using StaticArray = std::array<T, Size>;
 
-template<class First, class Second>
-using Pair = std::pair<First, Second>;
+template <class First, class Second> using Pair = std::pair<First, Second>;
 
-template<class T>
-using Deque = std::deque<T>;
+template <class T> using Deque = std::deque<T>;
 
-template<class T, class Conteiner = Deque<T>>
-using Stack = std::stack<T, Conteiner>;
+template <class T, class Conteiner = Deque<T>> using Stack = std::stack<T, Conteiner>;
 
 using TypeIndex = std::type_index;
 
-template<class Key, class Value, class Hasher = std::hash<Key>>
-using HashTableMap = std::unordered_map<Key, Value, Hasher>;
+template <class Key, class Value, class Hasher = std::hash<Key>> using HashTableMap = std::unordered_map<Key, Value, Hasher>;
 
-template<class Value, class Hasher = std::hash<Value>, class ValueEqual = std::equal_to<Value>>
+template <class Value, class Hasher = std::hash<Value>, class ValueEqual = std::equal_to<Value>>
 using HashTableSet = std::unordered_set<Value, Hasher, ValueEqual>;
 
-template<class T, class ... Args>
-UniquePtr<T> MakeUniquePtr(Args&& ...args)
+template <class T, class... Args> UniquePtr<T> MakeUniquePtr(Args&&... args)
 {
 	return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-template<class T, class ... Args>
-SharedPtr<T> MakeSharedPtr(Args&& ...args)
+template <class T, class... Args> SharedPtr<T> MakeSharedPtr(Args&&... args)
 {
-	return std::make_shared <T>(std::forward<Args>(args)...);
+	return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-template<class T>
-String ToString(T& value)
+template <class T> String ToString(T& value)
 {
 	std::ostringstream oss;
 	oss << value;
 	return oss.str();
 }
-template<class T>
-String ToString(T&& value)
+template <class T> String ToString(T&& value)
 {
 	std::ostringstream oss;
 	oss << value;
 	return oss.str();
 }
 
-template<class T>
-T FromString(const String& str)
+template <class T> T FromString(const String& str)
 {
 	std::istringstream iss(str);
 	T toValue;
@@ -147,7 +148,6 @@ T FromString(const String& str)
 }
 
 unsigned int AligneSizeofBy2(const unsigned int Bytes);
-
 
 inline bool HasFlag(const uint64 FlagVar, const uint64 FindedFlag)
 {
@@ -163,7 +163,73 @@ inline void RemoveFlag(uint64& FlagVar, const uint64 RemFlag)
 	FlagVar &= ~RemFlag;
 }
 
+template <typename T>
+using EnableIfEnum = std::enable_if_t<std::is_enum_v<T>, T>;
+template <typename T>
+using EnableTemplateIfEnum = std::enable_if_t<std::is_enum_v<T>, int>;
+
+template <typename T, EnableTemplateIfEnum<T> = 0> 
+constexpr void SetFlag(T& FlagVar, const T AddFlag)
+{
+	FlagVar |= AddFlag;
+}
+
+template <typename T, EnableTemplateIfEnum<T> = 0> 
+constexpr void RemoveFlag(T& FlagVar, const T RemFlag)
+{
+	FlagVar &= ~RemFlag;
+}
+
+template <typename T> 
+constexpr EnableIfEnum<T> operator|(T A, T B)
+{
+	using U = std::underlying_type_t<T>;
+
+	return static_cast<T>(static_cast<U>(A) | static_cast<U>(B));
+}
+
+template <typename T> 
+constexpr EnableIfEnum<T> operator&(T A, T B)
+{
+	using U = std::underlying_type_t<T>;
+
+	return static_cast<T>(static_cast<U>(A) & static_cast<U>(B));
+}
+
+template <typename T> 
+constexpr EnableIfEnum<T> operator^(T A, T B)
+{
+	using U = std::underlying_type_t<T>;
+
+	return static_cast<T>(static_cast<U>(A) ^ static_cast<U>(B));
+}
+
+template <typename T> 
+constexpr EnableIfEnum<T> operator~(T A)
+{
+	using U = std::underlying_type_t<T>;
+
+	return static_cast<T>(~static_cast<U>(A));
+}
+
+template <typename T> 
+constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator|=(T& A, T B)
+{
+	return A = A | B;
+}
+
+template <typename T> 
+constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator&=(T& A, T B)
+{
+	return A = A & B;
+}
+
+template <typename T> 
+constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator^=(T& A, T B)
+{
+	return A = A ^ B;
+}
+
 #include <Templates/Function.h>
 #include <Templates/Queue.h>
 #include <Core/includes/Log.h>
-

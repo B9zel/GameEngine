@@ -117,7 +117,7 @@ FMatrix4x4 FTransform::ToMatrix() const
 	//FMatrix4x4 RotatMat =  Math::Rotate(FMatrix4x4(1.0f), Rotat.GetX(), FVector(1.0f, 0.0f, 0.0f))
 	//	* Math::Rotate(FMatrix4x4(1.0f), Rotat.GetY(), FVector(0.0f, 1.0f, 0.0f))
 	//	* Math::Rotate(FMatrix4x4(1.0f), Rotat.GetZ(), FVector(0.0f, 0.0f, 1.0f));
-
+	
 	return Math::Translate(FMatrix4x4(1.0f), Location) * glm::toMat4(glm::quat(Math::ToRadianVector(Rotation).vector)) * Math::ToScale(FMatrix4x4(1.0f), Scale) ;
 }
 

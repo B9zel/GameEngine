@@ -25,6 +25,8 @@ Asset* CoreEngine::AssetFactory::CreateAsset(const EAssetType& Type)
 }
 #endif
 
+DECLARE_LOG_CATEGORY_EXTERN(AssetLog);
+
 Asset::Asset(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
 {
 }
@@ -84,6 +86,15 @@ void Asset::OnPreFieldsDeserialize(CoreEngine::SerializeAchive& Achive)
 	Object::OnPreFieldsDeserialize(Achive);
 
 	Achive.PushPrefix("Objects");
+	try
+	{
+		const uint64 uuid = std::stoull(Achive.GetNodePrefix().begin().key());
+		SetUUID(uuid);
+	}
+	catch (...)
+	{
+		EG_LOG(AssetLog, ELevelLog::ERROR, "'{}' can't get uuid", GetName().c_str());
+	}
 }
 
 void Asset::OnDeserialize(CoreEngine::SerializeAchive& Achive)

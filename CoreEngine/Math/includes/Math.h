@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 #include <Math/includes/Vector.h>
 
+#define NEAR_TO_ZERO_FLOAT 1e-6f
+#define NEAR_TO_ZERO_DOUBLE 1e-9
 
 namespace Math
 {
@@ -76,6 +78,7 @@ namespace Math
 	{
 		return std::min(Left, Right);
 	}
+
 	template<class T>
 	static inline const T& Max(const T& Left, const T& Right)
 	{
@@ -85,5 +88,15 @@ namespace Math
 	static inline T Max(T& Left, T&& Right)
 	{
 		return std::max(Left, Right);
+	}
+	
+	static float NearFloatZero() 
+	{
+		return NEAR_TO_ZERO_FLOAT;
+	}
+
+	static float NearDoubleZero() 
+	{
+		return NEAR_TO_ZERO_DOUBLE;
 	}
 };

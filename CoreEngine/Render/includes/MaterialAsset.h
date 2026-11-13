@@ -29,9 +29,12 @@ public:
 	const String GetPathToShaderAsset() const;
 	DArray<SharedPtr<CoreEngine::Render::BaseMaterialProperty>>& GetShaderUniforms();
 
+	virtual void OnDeserialize(CoreEngine::SerializeAchive& Achive) override;
+
 private:
 
 	void PostChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property);
+	void AssignNewShaderAsset();
 	void PreChangePropertyPathToAsset(Asset* Asset, CoreEngine::Reflection::PropertyField& Property);
 	void SetNewShader(ShaderAsset* Shader);
 

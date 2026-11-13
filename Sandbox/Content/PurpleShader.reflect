@@ -1,3 +1,19 @@
 {
+    "FormatVersion": 2,
+    "Objects": {
+        "28": {
+            "Name": "PurpleShader",
+            "NameClass": "EditorShaderAsset",
+            "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\PurpleShader.reflect",
+            "Shaders": {
+                "Fragment": "",
+                "Vertex": ""
+            },
+            "m_Outer": null
+        }
+    },
+    "Root": {
+        "$ref": 28
+    },
     "Type": 4
 }

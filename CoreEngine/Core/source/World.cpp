@@ -7,6 +7,9 @@
 #include <Runtime/includes/PlayerController.h>
 #include <Core/includes/Memory/SaveManager.h>
 #include <Core/includes/Engine.h>
+#include <Physics/Include/PhysScene.h>
+#include <Physics/Include/PhysRigidBody.h>
+#include <Render/includes/Render.h>
 #include <GLFW/glfw3.h>
 
 World::World(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
@@ -15,6 +18,11 @@ World::World(const CoreEngine::InitializeObject& Initilize) : Object(Initilize)
 	m_Scene = MakeUniquePtr<CoreEngine::Render::Scene>();
 	m_SaveManager = MakeUniquePtr<CoreEngine::SaveManager>();
 	m_SaveManager->SetWorld(this);
+
+	m_PhysScene = MakeUniquePtr<CoreEngine::Physic::PhysScene>();
+	CoreEngine::Physic::InitializeSceneData Data;
+	Data.Debugger = MakeUniquePtr<CoreEngine::Render::Debug::PhysDebugDraw>(*Engine::Get()->GetRender()->GetDebugRender());
+	m_PhysScene->CreateScene(std::move(Data));
 
 	m_LastTime = static_cast<float>(glfwGetTime());
 }
@@ -42,15 +50,16 @@ void World::UpdateWorld()
 {
 	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::PRE_UPDATE);
 	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::UPDATE);
+
+	m_PhysScene->Simulate(m_DeltaTime);
+
 	m_UpdateManager->ExecuteGroup(m_DeltaTime, CoreEngine::EStageUpdate::POST_UPDATE);
 }
 
 void World::RemoveFromWorld(Level* level)
 {
 	level->RouteEndPlayRemoveFromWorld();
-
 }
-
 
 CoreEngine::UpdateManager* World::GetUpdateManager() const
 {
@@ -60,6 +69,11 @@ CoreEngine::UpdateManager* World::GetUpdateManager() const
 CoreEngine::SaveManager* World::GetSaveManager() const
 {
 	return m_SaveManager.get();
+}
+
+CoreEngine::Physic::PhysScene* World::GetPhysScene() const
+{
+	return m_PhysScene.get();
 }
 
 float World::GetWorldDeltaTime() const

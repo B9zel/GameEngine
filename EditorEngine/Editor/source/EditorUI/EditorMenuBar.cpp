@@ -12,7 +12,6 @@ namespace Editor
 {
 	void EditorMenuBar::Draw()
 	{
-
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -23,7 +22,7 @@ namespace Editor
 					if (!Path.empty())
 					{
 						OwnerEditor->SetSelectedObject(nullptr);
-						OwnerEditor->GetWorld()->GetSaveManager()->LoadSaveScene(Path);
+						OwnerEditor->OpenProject(Path);
 					}
 				}
 				if (ImGui::MenuItem("Save As"))

@@ -166,6 +166,13 @@ FVector SceneComponent::GetRightVector() const
 	return CalculateRightDirection();
 }
 
+FVector SceneComponent::GetWorldLocation() const
+{
+	FVector Location;
+	Math::DecomposeLocationMatrix(MakeMatrixMesh(), Location);
+	return Location;
+}
+
 void SceneComponent::SetComponentRotation(const FVector& newRotation)
 {
 	// AddComponentRotation(newRotation - transform.GetRotationRef());
@@ -315,7 +322,6 @@ FVector SceneComponent::CalculateRightDirection() const
 
 FMatrix4x4 SceneComponent::MakeMatrixMesh() const
 {
-
 	return MakeParentMatrix() * GetTransform().ToMatrix();
 }
 FMatrix4x4 SceneComponent::MakeParentMatrix() const
@@ -328,4 +334,14 @@ FMatrix4x4 SceneComponent::MakeParentMatrix() const
 		Parent = Parent->GetParentAttach();
 	}
 	return ResultMat;
+}
+
+FVector SceneComponent::GetVelocity() const
+{
+	return Velocity;
+}
+
+void SceneComponent::SetVelocity(const FVector& NewVelocity)
+{
+	Velocity = NewVelocity;
 }

@@ -5,7 +5,7 @@
             "Name": "NewMaterial12",
             "NameClass": "EditorMaterialAsset",
             "PathToAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\NewMaterial12.reflect",
-            "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\PurpleShader.reflect",
+            "PathToShaderAsset": "C:\\Projects\\C++\\GameEngine\\Sandbox\\Content\\RedShader.reflect",
             "m_Outer": null
         }
     },

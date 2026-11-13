@@ -18,6 +18,7 @@
 #include <Render/includes/ShaderAsset.h>
 #include <Core/includes/Application.h>
 #include <Render/includes/MaterialManager.h>
+#include <Render/includes/Debug/DebugRender.h>
 #include "glad/glad.h"
 
 namespace CoreEngine
@@ -233,6 +234,8 @@ namespace CoreEngine
 			void OpenGLRender::Construct()
 			{
 				m_ShaderShadow = AssetManager::Get().LoadShader("../../Shaders/ShadowDepthShader.glsl");
+
+				Engine::Get()->OnOpenProjectDispatch.AddBind(&OpenGLRender::OnOpenProject, this);
 			}
 
 			void OpenGLRender::ClearBuffersScreen()
@@ -267,20 +270,7 @@ namespace CoreEngine
 				BuidCommandList(GetRenderDevice().get(), Primitives, DirectionLights, PointLights, SpotLights, m_ListCommand);
 				ExecuteCommandList(GetRenderDevice().get(), m_ListCommand);
 
-				/*m_ResultScene->Bind();
-				ClearBuffersScreen();
-				for (auto* Primitive : Primitives)
-				{
-					if (StaticMeshProxy* StaticProxy = dynamic_cast<StaticMeshProxy*>(Primitive))
-					{
-						RenderStaticMeshProxy(StaticProxy, Lights, LightsMatrix);
-					}
-					else
-					{
-						RenderProxy(Primitive);
-					}
-				}
-				m_ResultScene->UnBind();*/
+				GetDebugRender()->Flush(m_View, m_Projection);
 			}
 
 			void OpenGLRender::DrawDepthShadowBuffer(const DArray<LightProxy*>& Lights, const DArray<CoreEngine::PrimitiveProxy*>& Primitives)
@@ -712,6 +702,10 @@ namespace CoreEngine
 				{
 					Command->Execute(Device);
 				}
+				if (DebugRender* Debug = GetDebugRender())
+				{
+					Debug->Flush(m_View, m_Projection);
+				}
 				m_ResultScene->UnBind();
 			}
 
@@ -905,6 +899,13 @@ namespace CoreEngine
 				m_SSBOPointLight.CreaterBuffer(nullptr, 0, sizeof(SimplyPointLightProxy), ETypeStorageDraw::STREAM);
 				m_SSBOSpotLight.CreaterBuffer(nullptr, 0, sizeof(SimpleSpotLightProxy), ETypeStorageDraw::STREAM);
 				m_SSBOLightSpace.CreaterBuffer(nullptr, 0, sizeof(FMatrix4x4), ETypeStorageDraw::STREAM);
+			}
+
+			void OpenGLRender::OnOpenProject()
+			{
+				CreateBuuferStorageObject();
+				ShadowDepth->Reconstruct();
+				m_LightsFramebuffer.clear();
 			}
 
 		} // namespace OpenGL

@@ -96,7 +96,7 @@ bool EditorShaderAsset::DrawEditor()
 					ImGui::PopFont();
 
 					const auto Cursor = Editor.GetMainCursorPosition();
-					ImGui::TextDisabled("GLSL  |  Ln %d, Col %d  |  Spaces: 4  |  UTF-8", static_cast<int>(Cursor.line + 1),
+					ImGui::TextDisabled("GLSL  |  Ln %d, Col %d  |  Spaces: 4  |  UTF-8", static_cast<uint32>(Cursor.line + 1),
 										static_cast<int>(Cursor.index + 1));
 					ImGui::EndTabItem();
 				}

@@ -31,7 +31,7 @@ void Pawn::PawnRestart()
 		inputComponent = CreateObjectWithInit<InputComponent>(this);
 		if (inputComponent)
 		{
-			inputComponent->RegisteredComponent();
+			inputComponent->NotifyRegisteredComponent();
 
 			SetupInputPlayerController(inputComponent);
 		}

@@ -8,8 +8,7 @@
 
 namespace CoreEngine
 {
-	SerializeAchive::ObjectScope::ObjectScope(SerializeAchive& InArchive, uint64 ID)
-		: Archive(InArchive), PreviousPrefixes(std::move(InArchive.Prefixes))
+	SerializeAchive::ObjectScope::ObjectScope(SerializeAchive& InArchive, uint64 ID) : Archive(InArchive), PreviousPrefixes(std::move(InArchive.Prefixes))
 	{
 		Archive.Prefixes = {"Objects", std::to_string(ID)};
 	}
@@ -25,8 +24,7 @@ namespace CoreEngine
 		const auto Result = SerializedObjects.emplace(ID, Value);
 		if (!Result.second)
 		{
-			if (Result.first->second != Value)
-				throw std::runtime_error("Duplicate object UUID while saving: " + std::to_string(ID));
+			if (Result.first->second != Value) throw std::runtime_error("Duplicate object UUID while saving: " + std::to_string(ID));
 			return false;
 		}
 		if (SerializedObjects.size() == 1)
@@ -42,7 +40,7 @@ namespace CoreEngine
 		if (!Value) return nullptr;
 		return nlohmann::json{{"$ref", Value->GetUUID().GetID()}};
 	}
-	//YAML::Node SerializeAchive::DataSave = YAML::Node(YAML::NodeType::Map);
+	// YAML::Node SerializeAchive::DataSave = YAML::Node(YAML::NodeType::Map);
 	SerializeAchive::SerializeAchive(nlohmann::json& Data)
 	{
 		DataSave = Data;
@@ -57,9 +55,9 @@ namespace CoreEngine
 	{
 		static DArray<float> VectorSerialized;
 		VectorSerialized.clear();
-		VectorSerialized = { Data.GetX(), Data.GetY(), Data.GetZ() };
+		VectorSerialized = {Data.GetX(), Data.GetY(), Data.GetZ()};
 
-		//stream << "[" << Data.GetX() << "," << Data.GetY() << "," << Data.GetZ() << "]";
+		// stream << "[" << Data.GetX() << "," << Data.GetY() << "," << Data.GetZ() << "]";
 		if (Prefixes.empty())
 		{
 			DataSave[NameData] = VectorSerialized;
@@ -70,21 +68,21 @@ namespace CoreEngine
 			LastNode[NameData] = VectorSerialized;
 		}
 	}
-	
+
 	void SerializeAchive::SerializeData(const String& NameData, const FTransform& Data)
 	{
 		static DArray<float> VectorSerializedLocation;
 		VectorSerializedLocation.clear();
-		VectorSerializedLocation = { Data.GetLocation().GetX(), Data.GetLocation().GetY(), Data.GetLocation().GetZ() };
-		
+		VectorSerializedLocation = {Data.GetLocation().GetX(), Data.GetLocation().GetY(), Data.GetLocation().GetZ()};
+
 		static DArray<float> VectorSerializedRotation;
 		VectorSerializedRotation.clear();
-		VectorSerializedRotation = { Data.GetRotation().GetX(), Data.GetRotation().GetY(), Data.GetRotation().GetZ() };
-		
+		VectorSerializedRotation = {Data.GetRotation().GetX(), Data.GetRotation().GetY(), Data.GetRotation().GetZ()};
+
 		static DArray<float> VectorSerializedScale;
 		VectorSerializedScale.clear();
-		VectorSerializedScale = { Data.GetScale().GetX(), Data.GetScale().GetY(), Data.GetScale().GetZ() };
-	
+		VectorSerializedScale = {Data.GetScale().GetX(), Data.GetScale().GetY(), Data.GetScale().GetZ()};
+
 		if (Prefixes.empty())
 		{
 			DataSave[NameData]["Location"] = VectorSerializedLocation;
@@ -93,7 +91,7 @@ namespace CoreEngine
 		}
 		else
 		{
-		
+
 			nlohmann::json& LastNode = FindLastNode();
 
 			LastNode[NameData]["Location"] = VectorSerializedLocation;
@@ -132,42 +130,43 @@ namespace CoreEngine
 
 	void SerializeAchive::PushPrefix(const String& Data)
 	{
-		
 		Prefixes.push_back(Data);
 	}
 
 	void SerializeAchive::PopPrefix()
 	{
-		
+
 		Prefixes.pop_back();
 	}
 
-	void dump(const nlohmann::json& n, const std::string& name) {
+	void dump(const nlohmann::json& n, const std::string& name)
+	{
 		std::cout << "---- " << name << " ----\n";
-		std::cout << "defined=" 
-			<< " size=" << n.size() << "\n";
+		std::cout << "defined="
+				  << " size=" << n.size() << "\n";
 		std::cout << name << " YAML:\n" << n.dump() << "\n\n";
 	}
 
 	nlohmann::json& SerializeAchive::FindLastNode()
 	{
-
+		std::cout << DataSave.dump(4);
 		nlohmann::json* LastNode = &DataSave;
 		for (auto& Prefix : Prefixes)
 		{
 			auto child = LastNode->find(Prefix);
 			if (child == LastNode->end() && IsDeserializing && LastNode->is_object())
 			{
-				child = std::find_if(LastNode->begin(), LastNode->end(), [&Prefix](const nlohmann::json& Node)
-				{
-					if (!Node.is_object()) return false;
+				child = std::find_if(LastNode->begin(), LastNode->end(),
+									 [&Prefix](const nlohmann::json& Node)
+									 {
+										 if (!Node.is_object()) return false;
 
-					const auto NameNode = Node.find("Name");
-					if (NameNode == Node.end() || !NameNode->is_object()) return false;
+										 const auto NameNode = Node.find("Name");
+										 if (NameNode == Node.end() || !NameNode->is_object()) return false;
 
-					const auto NameValue = NameNode->find("Name");
-					return NameValue != NameNode->end() && NameValue->is_string() && NameValue->get<String>() == Prefix;
-				});
+										 const auto NameValue = NameNode->find("Name");
+										 return NameValue != NameNode->end() && NameValue->is_string() && NameValue->get<String>() == Prefix;
+									 });
 			}
 
 			if (child == LastNode->end())
@@ -181,10 +180,26 @@ namespace CoreEngine
 				(*LastNode)[Prefix] = nlohmann::json({});
 				child = LastNode->find(Prefix);
 			}
-			
+
 			LastNode = &(*child);
 		}
-	
+
+		return *LastNode;
+	}
+
+	nlohmann::json& SerializeAchive::GetNodePrefix()
+	{
+		nlohmann::json* LastNode = &DataSave;
+		for (auto& Prefix : Prefixes)
+		{
+			auto child = LastNode->find(Prefix);
+			if (child == DataSave.end())
+			{
+				break;
+			}
+			LastNode = &(*child);
+		}
+
 		return *LastNode;
 	}
 
@@ -195,8 +210,6 @@ namespace CoreEngine
 		{
 			auto child = LastNode->find(Prefix);
 			LastNode = &(*child);
-
-
 		}
 
 		return *LastNode;
@@ -214,4 +227,4 @@ namespace CoreEngine
 		j.IsDeserializing = true;
 		return stream;
 	}
-}
+} // namespace CoreEngine

@@ -338,6 +338,10 @@ public:
 		vector.z = z;
 	}
 
+	T Min() const
+	{
+		return Math::Min(Math::Min(vector.x, vector.y), vector.z);
+	}
 	// String ConvertToString() const;
 
 public:
